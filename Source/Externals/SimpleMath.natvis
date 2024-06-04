@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <!-- Visualizations for SimpleMath -->
+  <Type Name="SimpleMath::Vector2">
+    <DisplayString>X={m_x}, Y={m_y}</DisplayString>
+    <Expand>
+      <!-- Magnitude -->
+      <Item Name="Magnitude">sqrt(m_x*m_x + m_y*m_y)</Item>
+      <!-- Length -->
+      <Item Name="Length">2</Item>
+      <!-- Normalized -->
+      <Item Name="Normalized">
+        {{X={m_x/Magnitude}, Y={m_y/Magnitude}}}
+      </Item>
+    </Expand>
+  </Type>
+
+  <Type Name="SimpleMath::Vector3">
+    <DisplayString>X={m_x}, Y={m_y}, Z={m_z}</DisplayString>
+    <Expand>
+      <!-- Magnitude -->
+      <Item Name="Magnitude">sqrt(m_x*m_x + m_y*m_y + m_z*m_z)</Item>
+      <!-- Length -->
+      <Item Name="Length">3</Item>
+      <!-- Normalized -->
+      <Item Name="Normalized">
+        {{X={m_x/Magnitude}, Y={m_y/Magnitude}, Z={m_z/Magnitude}}}
+      </Item>
+    </Expand>
+  </Type>
+
+  <Type Name="SimpleMath::Vector4">
+    <DisplayString>X={m_x}, Y={m_y}, Z={m_z}, W={m_w}</DisplayString>
+    <Expand>
+      <!-- Magnitude -->
+      <Item Name="Magnitude">sqrt(m_x*m_x + m_y*m_y + m_z*m_z + m_w*m_w)</Item>
+      <!-- Length -->
+      <Item Name="Length">4</Item>
+      <!-- Normalized -->
+      <Item Name="Normalized">
+        {{X={m_x/Magnitude}, Y={m_y/Magnitude}, Z={m_z/Magnitude}, W={m_w/Magnitude}}}
+      </Item>
+    </Expand>
+  </Type>
+
+  <Type Name="SimpleMath::Matrix">
+    <DisplayString>Matrix</DisplayString>
+    <Expand>
+      <!-- Define detailed visualization for matrix elements -->
+      <Item Name="Row0">m[0]</Item>
+      <Item Name="Row1">m[1]</Item>
+      <Item Name="Row2">m[2]</Item>
+      <Item Name="Row3">m[3]</Item>
+    </Expand>
+  </Type>
+
+  <!-- Visualizations for DirectXMath -->
+  <Type Name="DirectX::XMMATRIX">
+    <DisplayString>XMMATRIX</DisplayString>
+    <Expand>
+      <!-- Define detailed visualization for matrix elements -->
+      <Item Name="Row0">r[0]</Item>
+      <Item Name="Row1">r[1]</Item>
+      <Item Name="Row2">r[2]</Item>
+      <Item Name="Row3">r[3]</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="DirectX::XMVECTOR">
+    <DisplayString>XMVECTOR</DisplayString>
+    <Expand>
+      <!-- Define detailed visualization for vector components -->
+      <Item Name="X">m128_f32[0]</Item>
+      <Item Name="Y">m128_f32[1]</Item>
+      <Item Name="Z">m128_f32[2]</Item>
+      <Item Name="W">m128_f32[3]</Item>
+    </Expand>
+  </Type>
+
+  <!-- Visualizations for more types -->
+
+  <Type Name="SimpleMath::Color">
+    <DisplayString>R={r}, G={g}, B={b}, A={a}</DisplayString>
+    <Expand>
+      <!-- Add more detailed information here if needed -->
+    </Expand>
+  </Type>
+
+  <Type Name="DirectX::XMFLOAT2">
+    <DisplayString>X={x}, Y={y}</DisplayString>
+    <Expand>
+      <!-- Add more detailed information here if needed -->
+    </Expand>
+  </Type>
+
+  <Type Name="DirectX::XMFLOAT3">
+    <DisplayString>X={x}, Y={y}, Z={z}</DisplayString>
+    <Expand>
+      <!-- Add more detailed information here if needed -->
+    </Expand>
+  </Type>
+
+  <!-- Add more types and visualizations as needed -->
+
+</AutoVisualizer>

@@ -3,6 +3,12 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+#Unicorn Specific
+[Bb]in/shaders
+[Bb]in/*.dll
+[Tt]emp/
+[Ll]ocal/
+
 # User-specific files
 *.rsuser
 *.suo

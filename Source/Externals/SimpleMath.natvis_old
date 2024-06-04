@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+  <!-- Visualizations for SimpleMath -->
+  <Type Name="SimpleMath::Vector2">
+    <DisplayString>{{X={m_x}, Y={m_y}}}</DisplayString>
+  </Type>
+
+  <Type Name="SimpleMath::Vector3">
+    <DisplayString>{{X={m_x}, Y={m_y}, Z={m_z}}}</DisplayString>
+  </Type>
+
+  <Type Name="SimpleMath::Vector4">
+    <DisplayString>{{X={m_x}, Y={m_y}, Z={m_z}, W={m_w}}}</DisplayString>
+  </Type>
+
+  <Type Name="SimpleMath::Matrix">
+    <DisplayString>Matrix</DisplayString>
+    <Expand>
+      <Item Name="[0,0]">m[0][0]</Item>
+      <Item Name="[0,1]">m[0][1]</Item>
+      <Item Name="[0,2]">m[0][2]</Item>
+      <!-- Define similar entries for other matrix elements -->
+    </Expand>
+  </Type>
+
+  <!-- Visualizations for DirectXMath -->
+  <Type Name="DirectX::XMMATRIX">
+    <DisplayString>XMMATRIX</DisplayString>
+    <Expand>
+      <!-- Define visualization for each row of the matrix -->
+      <Item Name="Row0">r[0]</Item>
+      <Item Name="Row1">r[1]</Item>
+      <Item Name="Row2">r[2]</Item>
+      <Item Name="Row3">r[3]</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="DirectX::XMVECTOR">
+    <DisplayString>XMVECTOR</DisplayString>
+    <Expand>
+      <!-- Define visualization for each component of the vector -->
+      <Item Name="X">m128_f32[0]</Item>
+      <Item Name="Y">m128_f32[1]</Item>
+      <Item Name="Z">m128_f32[2]</Item>
+      <Item Name="W">m128_f32[3]</Item>
+    </Expand>
+  </Type>
+
+  <!-- Add more types and visualizations as needed -->
+
+  <!-- Visualizations for SimpleMath -->
+  <Type Name="SimpleMath::Vector2">
+    <DisplayString>{{X={m_x}, Y={m_y}}}</DisplayString>
+  </Type>
+
+  <Type Name="SimpleMath::Vector3">
+    <DisplayString>{{X={m_x}, Y={m_y}, Z={m_z}}}</DisplayString>
+  </Type>
+
+  <Type Name="SimpleMath::Vector4">
+    <DisplayString>{{X={m_x}, Y={m_y}, Z={m_z}, W={m_w}}}</DisplayString>
+  </Type>
+
+  <Type Name="SimpleMath::Matrix">
+    <DisplayString>Matrix</DisplayString>
+    <Expand>
+      <Item Name="Row0">m[0]</Item>
+      <Item Name="Row1">m[1]</Item>
+      <Item Name="Row2">m[2]</Item>
+      <Item Name="Row3">m[3]</Item>
+    </Expand>
+  </Type>
+
+  <!-- Visualizations for DirectXMath -->
+  <Type Name="DirectX::XMMATRIX">
+    <DisplayString>XMMATRIX</DisplayString>
+    <Expand>
+      <Item Name="Row0">r[0]</Item>
+      <Item Name="Row1">r[1]</Item>
+      <Item Name="Row2">r[2]</Item>
+      <Item Name="Row3">r[3]</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="DirectX::XMVECTOR">
+    <DisplayString>XMVECTOR</DisplayString>
+    <Expand>
+      <Item Name="X">m128_f32[0]</Item>
+      <Item Name="Y">m128_f32[1]</Item>
+      <Item Name="Z">m128_f32[2]</Item>
+      <Item Name="W">m128_f32[3]</Item>
+    </Expand>
+  </Type>
+
+  <!-- Visualizations for more types -->
+
+  <Type Name="SimpleMath::Color">
+    <DisplayString>Color</DisplayString>
+    <Expand>
+      <Item Name="R">r</Item>
+      <Item Name="G">g</Item>
+      <Item Name="B">b</Item>
+      <Item Name="A">a</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="DirectX::XMFLOAT2">
+    <DisplayString>XMFLOAT2</DisplayString>
+    <Expand>
+      <Item Name="x">x</Item>
+      <Item Name="y">y</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="DirectX::XMFLOAT3">
+    <DisplayString>XMFLOAT3</DisplayString>
+    <Expand>
+      <Item Name="x">x</Item>
+      <Item Name="y">y</Item>
+      <Item Name="z">z</Item>
+    </Expand>
+  </Type>
+
+  <!-- Add more types and visualizations as needed -->
+  
+</AutoVisualizer>
