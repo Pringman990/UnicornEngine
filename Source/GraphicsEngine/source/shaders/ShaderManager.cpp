@@ -26,7 +26,7 @@ ID3D11VertexShader* ShaderManager::TryGetVertexShader(const std::wstring& aShade
     }
 
     ID3D11VertexShader* vShader = nullptr;
-    hr = GraphicsEngine::GetInstance().GetDX11().GetDevice()->CreateVertexShader(aBlob->GetBufferPointer(), aBlob->GetBufferSize(), nullptr, &vShader);
+    hr = GraphicsEngine::GetInstance().GetDX11()->GetDevice()->CreateVertexShader(aBlob->GetBufferPointer(), aBlob->GetBufferSize(), nullptr, &vShader);
     if (FAILED(hr))
     {
         return nullptr;
@@ -53,7 +53,7 @@ ID3D11PixelShader* ShaderManager::TryGetPixelShader(const std::wstring& aShaderF
     }
 
     ID3D11PixelShader* pShader = nullptr;
-    hr = GraphicsEngine::GetInstance().GetDX11().GetDevice()->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), nullptr, &pShader);
+    hr = GraphicsEngine::GetInstance().GetDX11()->GetDevice()->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), nullptr, &pShader);
     if (FAILED(hr))
     {
         shaderBlob->Release();
@@ -81,7 +81,7 @@ bool ShaderManager::RecompileVertexShader(const std::wstring& aShaderFileName, c
     }
 
     ID3D11VertexShader* pShader = mCompiledVertexShaders[key];
-    hr = GraphicsEngine::GetInstance().GetDX11().GetDevice()->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), nullptr, &pShader);
+    hr = GraphicsEngine::GetInstance().GetDX11()->GetDevice()->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), nullptr, &pShader);
     if (FAILED(hr))
     {
         shaderBlob->Release();
@@ -108,7 +108,7 @@ bool ShaderManager::RecompilePixelShader(const std::wstring& aShaderFileName, co
     }
 
     ID3D11PixelShader* pShader = mCompiledPixelShaders[key];
-    hr = GraphicsEngine::GetInstance().GetDX11().GetDevice()->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), nullptr, &pShader);
+    hr = GraphicsEngine::GetInstance().GetDX11()->GetDevice()->CreatePixelShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), nullptr, &pShader);
     if (FAILED(hr))
     {
         shaderBlob->Release();

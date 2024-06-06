@@ -16,7 +16,7 @@ bool RenderTarget::Create(Vector2 aSize, bool EnableDepthTesting)
 {
 	mSize = aSize;
 
-	ID3D11Device* device = GraphicsEngine::GetInstance().GetDX11().GetDevice();
+	ID3D11Device* device = GraphicsEngine::GetInstance().GetDX11()->GetDevice();
 
 	//Setup Texture2D
 	D3D11_TEXTURE2D_DESC textureDesc = {};
@@ -134,7 +134,7 @@ bool RenderTarget::Create(Vector2 aSize, bool EnableDepthTesting)
 
 bool RenderTarget::Create(ID3D11Texture2D* aTexture2D)
 {
-	ID3D11Device* device = GraphicsEngine::GetInstance().GetDX11().GetDevice();
+	ID3D11Device* device = GraphicsEngine::GetInstance().GetDX11()->GetDevice();
 
 	HRESULT hr = device->CreateRenderTargetView(
 		aTexture2D,
@@ -192,20 +192,34 @@ void RenderTarget::SetAsActiveRenderTarget(ID3D11DepthStencilView* aDSV)
 {
 	if (aDSV)
 	{
-		GraphicsEngine::GetInstance().GetDX11().GetDeviceContext()->OMSetRenderTargets(1, mRTV.GetAddressOf(), aDSV);
+		GraphicsEngine::GetInstance().GetDX11()->GetDeviceContext()->OMSetRenderTargets(1, mRTV.GetAddressOf(), aDSV);
 	}
 	else
 	{
-		GraphicsEngine::GetInstance().GetDX11().GetDeviceContext()->OMSetRenderTargets(1, mRTV.GetAddressOf(), nullptr);
+		GraphicsEngine::GetInstance().GetDX11()->GetDeviceContext()->OMSetRenderTargets(1, mRTV.GetAddressOf(), nullptr);
 	}
-	GraphicsEngine::GetInstance().GetDX11().GetDeviceContext()->RSSetViewports(1, &mViewport);
+	GraphicsEngine::GetInstance().GetDX11()->GetDeviceContext()->RSSetViewports(1, &mViewport);
 }
 
 void RenderTarget::Clear()
 {
-	ID3D11DeviceContext* context = GraphicsEngine::GetInstance().GetDX11().GetDeviceContext();
+	ID3D11DeviceContext* context = GraphicsEngine::GetInstance().GetDX11()->GetDeviceContext();
 	Vector4 color(0, 0, 0, 0);
 	context->ClearRenderTargetView(mRTV.Get(), (float*)&color);
+}
+
+void RenderTarget::Release()
+{
+	if (mRTV)
+		mRTV->Release();
+	if (mSRV)
+		mSRV->Release();
+	if (mDSV)
+		mDSV->Release();
+	if (mDSS)
+		mDSS->Release();
+	if (mTexture2D)
+		mTexture2D->Release();
 }
 
 ID3D11ShaderResourceView* RenderTarget::GetSRV()

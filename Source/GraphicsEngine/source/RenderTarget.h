@@ -19,6 +19,7 @@ public:
 	bool Create(ID3D11Texture2D* aTexture2D);
 	void SetAsActiveRenderTarget(ID3D11DepthStencilView* aDSV = nullptr);
 	void Clear();
+	void Release();
 
 	ID3D11ShaderResourceView* GetSRV();
 	ID3D11ShaderResourceView** GetAdressOfSRV();

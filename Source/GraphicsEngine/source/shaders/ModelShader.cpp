@@ -15,7 +15,7 @@ ModelShader::~ModelShader()
 
 void ModelShader::Render(const MeshData& someMeshData, const Transform& aTransform)
 {
-	ID3D11DeviceContext* context = GraphicsEngine::GetInstance().GetDX11().GetDeviceContext();
+	ID3D11DeviceContext* context = GraphicsEngine::GetInstance().GetDX11()->GetDeviceContext();
 	if (!PrepareRender() || !context || !mObjectBuffer)
 	{
 		std::cout << "Failed to draw Cube shader" << std::endl;
@@ -57,7 +57,7 @@ bool ModelShader::CreateInputLayout(ID3DBlob* aVertexBlob)
 		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT,    D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
-	HRESULT result = GraphicsEngine::GetInstance().GetDX11().GetDevice()->CreateInputLayout(layout, ARRAYSIZE(layout), aVertexBlob->GetBufferPointer(), aVertexBlob->GetBufferSize(), &mInputLayout);
+	HRESULT result = GraphicsEngine::GetInstance().GetDX11()->GetDevice()->CreateInputLayout(layout, ARRAYSIZE(layout), aVertexBlob->GetBufferPointer(), aVertexBlob->GetBufferSize(), &mInputLayout);
 	if (FAILED(result))
 	{
 		_com_error err(result);

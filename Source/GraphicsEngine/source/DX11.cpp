@@ -8,7 +8,12 @@
 dx::DX11::DX11()
 	:
 	mVsync(true),
-	mColor(0, 0, 0, 0)
+	mColor(0, 0, 0, 0),
+	mDevice(nullptr),
+	mDeviceContext(nullptr),
+	mSwapChain(nullptr),
+	mSamplerState(nullptr), 
+	mBackBufferRT(nullptr)
 {
 
 }
@@ -57,6 +62,18 @@ void dx::DX11::Render()
 void dx::DX11::PostRender()
 {
 	mSwapChain->Present(mVsync, 0);
+}
+
+void dx::DX11::ResizeBackBuffer(HWND /*aWindowHandle*/, int32_t width, int32_t height)
+{
+	if (mSwapChain != nullptr && mBackBufferRT != nullptr)
+	{
+		mBackBufferRT->Release();
+		mSwapChain->ResizeBuffers(0, width, height, DXGI_FORMAT_UNKNOWN, 0);
+
+		if (!SetupBackBufferAndDepthBuffer())
+			return;
+	}
 }
 
 bool dx::DX11::SetupDevice()

@@ -30,7 +30,7 @@ public:
 	void PostRender();
 
 	WinAPI::Window& GetCurrentWindow();
-	dx::DX11& GetDX11();
+	dx::DX11* GetDX11();
 	std::shared_ptr<Camera> GetCamera();
 	LightManager& GetLightManager() const;
 	ModelFactory& GetModelFactory() const;

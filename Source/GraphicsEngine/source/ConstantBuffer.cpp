@@ -29,7 +29,7 @@ bool ConstantBuffer::Init(uint32_t aSize, void* someData)
 	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	desc.ByteWidth = aSize;
-	HRESULT result = GraphicsEngine::GetInstance().GetDX11().GetDevice()->CreateBuffer(&desc, nullptr, &mBuffer);
+	HRESULT result = GraphicsEngine::GetInstance().GetDX11()->GetDevice()->CreateBuffer(&desc, nullptr, &mBuffer);
 	if (FAILED(result))
 	{
 		_com_error err(result);
@@ -42,7 +42,7 @@ bool ConstantBuffer::Init(uint32_t aSize, void* someData)
 
 void ConstantBuffer::Update(void* someData)
 {
-	ID3D11DeviceContext* context = GraphicsEngine::GetInstance().GetDX11().GetDeviceContext();
+	ID3D11DeviceContext* context = GraphicsEngine::GetInstance().GetDX11()->GetDeviceContext();
 	
 	D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
 	context->Map(mBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
@@ -52,7 +52,7 @@ void ConstantBuffer::Update(void* someData)
 
 void ConstantBuffer::Bind(ConstantBuffers aSlot)
 {
-	ID3D11DeviceContext* context = GraphicsEngine::GetInstance().GetDX11().GetDeviceContext();
+	ID3D11DeviceContext* context = GraphicsEngine::GetInstance().GetDX11()->GetDeviceContext();
 	context->VSSetConstantBuffers(aSlot, 1, mBuffer.GetAddressOf());
 	context->PSSetConstantBuffers(aSlot, 1, mBuffer.GetAddressOf());
 }

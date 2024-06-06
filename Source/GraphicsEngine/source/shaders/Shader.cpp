@@ -69,7 +69,7 @@ bool Shader::CreateShader(
             { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT,    D3D11_INPUT_PER_VERTEX_DATA, 0 },
         };
 
-        HRESULT result = GraphicsEngine::GetInstance().GetDX11().GetDevice()->CreateInputLayout(layout, LAYOUT_SIZE, vertexBlob->GetBufferPointer(), vertexBlob->GetBufferSize(), &mInputLayout);
+        HRESULT result = GraphicsEngine::GetInstance().GetDX11()->GetDevice()->CreateInputLayout(layout, LAYOUT_SIZE, vertexBlob->GetBufferPointer(), vertexBlob->GetBufferSize(), &mInputLayout);
         if (FAILED(result))
         {
             _com_error err(result);
@@ -86,7 +86,7 @@ bool Shader::CreateShader(
 
 bool Shader::PrepareRender(D3D_PRIMITIVE_TOPOLOGY aPrimitiveTopology) const
 {
-    ID3D11DeviceContext* context = GraphicsEngine::GetInstance().GetDX11().GetDeviceContext();
+    ID3D11DeviceContext* context = GraphicsEngine::GetInstance().GetDX11()->GetDeviceContext();
     if (!mVertexShader || !mPixelShader || !mInputLayout || !context)
     {
         std::cout << "Failed to render shader" << std::endl;
@@ -112,7 +112,7 @@ bool Shader::LoadVertexShader(const char* aPath, std::string& aData)
     std::ifstream vsFile;
     vsFile.open(aPath, std::ios::binary);
     aData = { std::istreambuf_iterator<char>(vsFile), std::istreambuf_iterator<char>() };
-    HRESULT result = GraphicsEngine::GetInstance().GetDX11().GetDevice()->CreateVertexShader(aData.data(), aData.size(), nullptr, &mVertexShader);
+    HRESULT result = GraphicsEngine::GetInstance().GetDX11()->GetDevice()->CreateVertexShader(aData.data(), aData.size(), nullptr, &mVertexShader);
     if (FAILED(result))
     {
         _com_error err(result);
@@ -129,7 +129,7 @@ bool Shader::LoadPixelShader(const char* aPath)
     std::ifstream psFile;
     psFile.open(aPath, std::ios::binary);
     std::string psData = { std::istreambuf_iterator<char>(psFile), std::istreambuf_iterator<char>() };
-    HRESULT result = GraphicsEngine::GetInstance().GetDX11().GetDevice()->CreatePixelShader(psData.data(), psData.size(), nullptr, &mPixelShader);
+    HRESULT result = GraphicsEngine::GetInstance().GetDX11()->GetDevice()->CreatePixelShader(psData.data(), psData.size(), nullptr, &mPixelShader);
     if (FAILED(result))
     {
         _com_error err(result);
