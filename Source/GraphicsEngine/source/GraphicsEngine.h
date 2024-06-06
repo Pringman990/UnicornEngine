@@ -5,6 +5,7 @@ class ConstantBuffer;
 class Camera;
 class LightManager;
 class ModelFactory;
+class ShaderManager;
 
 namespace dx
 {
@@ -33,6 +34,7 @@ public:
 	std::shared_ptr<Camera> GetCamera();
 	LightManager& GetLightManager() const;
 	ModelFactory& GetModelFactory() const;
+	ShaderManager& GetShaderManager() const;
 
 private:
 	GraphicsEngine();
@@ -48,6 +50,7 @@ private:
 	std::unique_ptr<WinAPI::Window> mWindow;
 	std::unique_ptr<dx::DX11> mDX11;
 
+	std::unique_ptr<ShaderManager> mShaderManager;
 	std::unique_ptr<LightManager> mLightManager;
 	std::unique_ptr<ModelFactory> mModelFactory;
 

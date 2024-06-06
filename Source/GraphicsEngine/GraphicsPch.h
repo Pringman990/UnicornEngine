@@ -1,9 +1,11 @@
 #pragma once
 #pragma message("pch Graphics Engine")
 #pragma comment(lib, "d3d11.lib")
+#pragma comment(lib, "d3dcompiler.lib")
 
 #include <d3d11.h>
 #include <d3d11_1.h>
+#include <d3dcompiler.h>
 
 #include <SimpleMath.h>
 #include <UnicornMath.h>

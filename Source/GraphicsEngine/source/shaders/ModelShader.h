@@ -13,7 +13,7 @@ public:
 
 private:
 	bool Init() override;
-	bool CreateInputLayout(const std::string& aVertexShader) override;
+	bool CreateInputLayout(ID3DBlob* aVertexBlob) override;
 private:
 	std::unique_ptr<ConstantBuffer> mObjectBuffer;
 };

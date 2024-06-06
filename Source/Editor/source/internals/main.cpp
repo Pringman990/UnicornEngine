@@ -27,6 +27,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE /*hInstance*/, _In_opt_ HINSTANCE /*hPrevIn
 			return 0;
 
 		Engine& engine = Engine::GetEngine();
+		GraphicsEngine& graphicsEngine = GraphicsEngine::GetInstance();
+
+		ModelInstance mdl = graphicsEngine.GetModelFactory().GetModelInstance(L"../EngineAssets/Models/sm_cube.fbx");
 
 		while (engine.BeginFrame())
 		{
@@ -37,8 +40,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE /*hInstance*/, _In_opt_ HINSTANCE /*hPrevIn
 
 			engine.Update();
 
-			//Set rendertarget to backbuffer again
-			engine.Render();
+			mdl.Render();
 
 			editor.GetImguiImpl().EndFrame();
 			engine.EndFrame();
