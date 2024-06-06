@@ -3,6 +3,7 @@
 
 #include <dwmapi.h>
 #include <../Engine/source/input/InputManager.h>
+#include "DX11.h"
 
 #ifdef _DEBUG
 #include <imgui/imgui_impl_win32.h>
@@ -106,6 +107,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	switch (message)
 	{
+	case WM_SIZE:
+	{
+		if (GraphicsEngine::GetInstance().GetDX11())
+		{
+			GraphicsEngine::GetInstance().GetDX11()->ResizeBackBuffer(hWnd, LOWORD(lParam), HIWORD(lParam));
+		}
+		break;
+	}
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;

@@ -122,7 +122,7 @@ std::shared_ptr<Model> ModelFactory::LoadModelW(const std::wstring& aPath)
 			vertexSubresourceData.pSysMem = &mdlVertices[0];
 
 			ID3D11Buffer* vertexBuffer;
-			result = GraphicsEngine::GetInstance().GetDX11().GetDevice()->CreateBuffer(&vertexBufferDesc, &vertexSubresourceData, &vertexBuffer);
+			result = GraphicsEngine::GetInstance().GetDX11()->GetDevice()->CreateBuffer(&vertexBufferDesc, &vertexSubresourceData, &vertexBuffer);
 			if (FAILED(result))
 			{
 				return nullptr;
@@ -137,7 +137,7 @@ std::shared_ptr<Model> ModelFactory::LoadModelW(const std::wstring& aPath)
 			indexSubresourceData.pSysMem = &mdlIndices[0];
 
 			ID3D11Buffer* indexBuffer;
-			result = GraphicsEngine::GetInstance().GetDX11().GetDevice()->CreateBuffer(&indexBufferDesc, &indexSubresourceData, &indexBuffer);
+			result = GraphicsEngine::GetInstance().GetDX11()->GetDevice()->CreateBuffer(&indexBufferDesc, &indexSubresourceData, &indexBuffer);
 			if (FAILED(result))
 			{
 				return nullptr;

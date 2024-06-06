@@ -25,6 +25,8 @@ namespace dx
 		void Render();
 		void PostRender();
 
+		void ResizeBackBuffer(HWND aWindowHandle, int32_t width, int32_t height);
+
 		ID3D11Device* GetDevice();
 		ID3D11DeviceContext* GetDeviceContext();
 		IDXGISwapChain1* GetSwapChain();

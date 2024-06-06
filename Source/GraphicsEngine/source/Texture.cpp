@@ -18,10 +18,10 @@ Texture::~Texture()
 
 bool Texture::Create(const wchar_t* aPath)
 {
-    HRESULT result = DirectX::CreateDDSTextureFromFile(GraphicsEngine::GetInstance().GetDX11().GetDevice(), aPath, nullptr, mSRV.GetAddressOf());
+    HRESULT result = DirectX::CreateDDSTextureFromFile(GraphicsEngine::GetInstance().GetDX11()->GetDevice(), aPath, nullptr, mSRV.GetAddressOf());
     if (FAILED(result))
     {
-        result = DirectX::CreateDDSTextureFromFile(GraphicsEngine::GetInstance().GetDX11().GetDevice(), mDefaultMaterialTexturePath.c_str(), nullptr, mSRV.GetAddressOf());
+        result = DirectX::CreateDDSTextureFromFile(GraphicsEngine::GetInstance().GetDX11()->GetDevice(), mDefaultMaterialTexturePath.c_str(), nullptr, mSRV.GetAddressOf());
        
         if (FAILED(result))
             return false;
@@ -33,7 +33,7 @@ bool Texture::Create(const wchar_t* aPath)
 
 void Texture::Bind(int aSlot)
 {
-    GraphicsEngine::GetInstance().GetDX11().GetDeviceContext()->PSSetShaderResources(aSlot, 1, mSRV.GetAddressOf());
+    GraphicsEngine::GetInstance().GetDX11()->GetDeviceContext()->PSSetShaderResources(aSlot, 1, mSRV.GetAddressOf());
 }
 
 ID3D11ShaderResourceView* Texture::GetSRV() const

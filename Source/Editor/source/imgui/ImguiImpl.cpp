@@ -27,7 +27,7 @@ bool ImguiImpl::Init()
 
     if (!ImGui_ImplWin32_Init(GraphicsEngine::GetInstance().GetCurrentWindow().GetWindowInfo().currentWindow))
         return false;
-    if (!ImGui_ImplDX11_Init(GraphicsEngine::GetInstance().GetDX11().GetDevice(), GraphicsEngine::GetInstance().GetDX11().GetDeviceContext()))
+    if (!ImGui_ImplDX11_Init(GraphicsEngine::GetInstance().GetDX11()->GetDevice(), GraphicsEngine::GetInstance().GetDX11()->GetDeviceContext()))
         return false;
 
     return true;

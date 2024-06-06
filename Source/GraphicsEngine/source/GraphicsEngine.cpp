@@ -66,9 +66,9 @@ WinAPI::Window& GraphicsEngine::GetCurrentWindow()
 	return *mWindow;
 }
 
-dx::DX11& GraphicsEngine::GetDX11()
+dx::DX11* GraphicsEngine::GetDX11()
 {
-	return *mDX11;
+	return mDX11.get();
 }
 
 std::shared_ptr<Camera> GraphicsEngine::GetCamera()
