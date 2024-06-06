@@ -16,7 +16,7 @@
 #include <unordered_map>
 #include <map>
 
-#include <source/Editor.h>
+#include <source/internals/Editor.h>
 #include <source/Engine.h>
 #include <source/GraphicsEngine.h>
 #include <imgui/imgui.h>

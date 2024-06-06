@@ -3,14 +3,14 @@
 
 #include "GraphicsEngine.h"
 #include "Window.h"
-
+#include "RenderTarget.h"
 
 dx::DX11::DX11()
 	:
 	mVsync(true),
-	mColor(0,0,0,0)
+	mColor(0, 0, 0, 0)
 {
-	
+
 }
 
 dx::DX11::~DX11()
@@ -18,9 +18,6 @@ dx::DX11::~DX11()
 	mDevice.Reset();
 	mDeviceContext.Reset();
 	mSwapChain.Reset();
-	mBackBuffer.Reset();
-	mDepthBuffer.Reset();
-	mDepthStencilState.Reset();
 	mSamplerState.Reset();
 }
 
@@ -32,10 +29,10 @@ bool dx::DX11::Init()
 	if (!SetupSwapChain())
 		return false;
 
-	if (!SetupBackBuffer())
-		return false;
+	if (mBackBufferRT == nullptr)
+		mBackBufferRT = std::make_shared<RenderTarget>();
 
-	if (!SetupDepthBuffer())
+	if (!SetupBackBufferAndDepthBuffer())
 		return false;
 
 	if (!SetupSamplerState())
@@ -46,56 +43,20 @@ bool dx::DX11::Init()
 
 void dx::DX11::PreRender()
 {
-	mDeviceContext->ClearRenderTargetView(mBackBuffer.Get(), (float*)&mColor);
-	mDeviceContext->ClearDepthStencilView(mDepthBuffer.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	
-	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0);
-	mDeviceContext->OMSetRenderTargets(1, mBackBuffer.GetAddressOf(), mDepthBuffer.Get());
+	mDeviceContext->ClearRenderTargetView(mBackBufferRT->GetRTV(), (float*)&mColor);
+	mDeviceContext->ClearDepthStencilView(mBackBufferRT->GetDSV(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	mDeviceContext->OMSetDepthStencilState(mBackBufferRT->GetDSS(), 0);
+	mBackBufferRT->SetAsActiveRenderTarget(mBackBufferRT->GetDSV());
 }
 
 void dx::DX11::Render()
 {
+	mBackBufferRT->SetAsActiveRenderTarget(mBackBufferRT->GetDSV());
+}
+
+void dx::DX11::PostRender()
+{
 	mSwapChain->Present(mVsync, 0);
-}
-
-ID3D11Device* dx::DX11::GetDevice()
-{
-	return mDevice.Get();
-}
-
-ID3D11DeviceContext* dx::DX11::GetDeviceContext()
-{
-	return mDeviceContext.Get();
-}
-
-IDXGISwapChain1* dx::DX11::GetSwapChain()
-{
-	return mSwapChain.Get();
-}
-
-ID3D11RenderTargetView* dx::DX11::GetBackBuffer()
-{
-	return mBackBuffer.Get();
-}
-
-ComPtr<ID3D11RenderTargetView>& dx::DX11::GetBackBufferComPtr()
-{
-	return mBackBuffer;
-}
-
-ID3D11DepthStencilView* dx::DX11::GetDepthBuffer()
-{
-	return mDepthBuffer.Get();
-}
-
-ID3D11DepthStencilState* dx::DX11::GetDepthState()
-{
-	return mDepthStencilState.Get();
-}
-
-Color dx::DX11::GetBackgrundColor()
-{
-	return mColor;
 }
 
 bool dx::DX11::SetupDevice()
@@ -138,7 +99,7 @@ bool dx::DX11::SetupSwapChain()
 	desc.Stereo = FALSE;
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
-	desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
 	desc.BufferCount = 2;
 	desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 	desc.Flags = 0;
@@ -166,8 +127,9 @@ bool dx::DX11::SetupSwapChain()
 	return true;
 }
 
-bool dx::DX11::SetupBackBuffer()
+bool dx::DX11::SetupBackBufferAndDepthBuffer()
 {
+
 	ID3D11Texture2D* backBufferTexture;
 	HRESULT result = mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBufferTexture);
 	if (FAILED(result))
@@ -178,21 +140,13 @@ bool dx::DX11::SetupBackBuffer()
 		return false;
 	}
 
-	result = mDevice->CreateRenderTargetView(backBufferTexture, nullptr, &mBackBuffer);
-	if (FAILED(result))
-	{
-		_com_error err(result);
-		LPCTSTR errorMessage = err.ErrorMessage();
-		std::cout << "Failed to create RenderTargetView: " << errorMessage << std::endl;
-		return false;
-	}
-
 	D3D11_TEXTURE2D_DESC textureDesc;
 	backBufferTexture->GetDesc(&textureDesc);
 	backBufferTexture->Release();
 
-	mDeviceContext->OMSetRenderTargets(1, mBackBuffer.GetAddressOf(), nullptr);
-	
+	WinAPI::WindowInfo info;
+	info = GraphicsEngine::GetInstance().GetCurrentWindow().GetWindowInfo();
+
 	D3D11_VIEWPORT viewport = { 0 };
 	viewport.TopLeftX = 0.0f;
 	viewport.TopLeftY = 0.0f;
@@ -202,50 +156,14 @@ bool dx::DX11::SetupBackBuffer()
 	viewport.MaxDepth = 1.0f;
 	mDeviceContext->RSSetViewports(1, &viewport);
 
-	WinAPI::WindowInfo info;
-	info = GraphicsEngine::GetInstance().GetCurrentWindow().GetWindowInfo();
 	info.viewportWidth = static_cast<int>(viewport.Width);
 	info.viewportHeight = static_cast<int>(viewport.Height);
 	GraphicsEngine::GetInstance().GetCurrentWindow().SetWindowInfo(info);
 
-	return true;
-}
 
-bool dx::DX11::SetupDepthBuffer()
-{
-	ID3D11Texture2D* depthBufferTexture;
-	D3D11_TEXTURE2D_DESC desc = {};
-	desc.Width = GraphicsEngine::GetInstance().GetCurrentWindow().GetWindowInfo().viewportWidth;
-	desc.Height = GraphicsEngine::GetInstance().GetCurrentWindow().GetWindowInfo().viewportHeight;
-	desc.ArraySize = 1;
-	desc.Format = DXGI_FORMAT_D32_FLOAT;
-	desc.SampleDesc.Count = 1;
-	desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	HRESULT result = mDevice->CreateTexture2D(&desc, nullptr, &depthBufferTexture);
-	if (FAILED(result))
-	{
-		std::cout << "Failed to create depth buffer" << std::endl;
+	if (!mBackBufferRT->Create(backBufferTexture))
 		return false;
-	}
-	result = mDevice->CreateDepthStencilView(depthBufferTexture, nullptr, &mDepthBuffer);
-	if (FAILED(result))
-	{
-		std::cout << "Failed to create Depth Stencil View" << std::endl;
-		return false;
-	}
-	depthBufferTexture->Release();
 
-	D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
-	depthStencilDesc.DepthEnable = true;
-	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-
-	result = mDevice->CreateDepthStencilState(&depthStencilDesc, mDepthStencilState.GetAddressOf());
-	if (FAILED(result))
-	{
-		std::cout << "Failed to create Depth Stencil State" << std::endl;
-		return false;
-	}
 	return true;
 }
 
@@ -277,4 +195,39 @@ bool dx::DX11::SetupSamplerState()
 	mDeviceContext->PSSetSamplers(0, 1, mSamplerState.GetAddressOf());
 
 	return true;
+}
+
+ID3D11Device* dx::DX11::GetDevice()
+{
+	return mDevice.Get();
+}
+
+ID3D11DeviceContext* dx::DX11::GetDeviceContext()
+{
+	return mDeviceContext.Get();
+}
+
+IDXGISwapChain1* dx::DX11::GetSwapChain()
+{
+	return mSwapChain.Get();
+}
+
+std::shared_ptr<RenderTarget> dx::DX11::GetBackBuffer()
+{
+	return mBackBufferRT;
+}
+
+ID3D11SamplerState* dx::DX11::GetSamplerState()
+{
+	return mSamplerState.Get();
+}
+
+ID3D11SamplerState** dx::DX11::GetAdressOfSamplerState()
+{
+	return mSamplerState.GetAddressOf();
+}
+
+Color dx::DX11::GetBackgrundColor()
+{
+	return mColor;
 }

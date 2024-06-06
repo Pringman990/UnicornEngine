@@ -51,12 +51,13 @@ void GraphicsEngine::PreRender()
 
 void GraphicsEngine::Render()
 {
-	UpdateConstantBuffers();
+	mDX11->Render();
 }
 
 void GraphicsEngine::PostRender()
 {
-	mDX11->Render();
+	UpdateConstantBuffers();
+	mDX11->PostRender();
 }
 
 WinAPI::Window& GraphicsEngine::GetCurrentWindow()
