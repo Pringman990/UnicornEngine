@@ -7,6 +7,7 @@
 #include "ConstantBuffer.h"
 #include "light/LightManager.h"
 #include "model/ModelFactory.h"
+#include "shaders/ShaderManager.h"
 
 GraphicsEngine* GraphicsEngine::mInstance = nullptr;
 
@@ -85,6 +86,11 @@ ModelFactory& GraphicsEngine::GetModelFactory() const
 	return *mModelFactory;
 }
 
+ShaderManager& GraphicsEngine::GetShaderManager() const
+{
+	return *mShaderManager;
+}
+
 bool GraphicsEngine::Init()
 {
 	{
@@ -100,6 +106,10 @@ bool GraphicsEngine::Init()
 
 		if (!mDX11->Init())
 			return false;
+	}
+	{
+		if (mShaderManager == nullptr)
+			mShaderManager = std::make_unique<ShaderManager>();
 	}
 	{
 		if (mCamera == nullptr)
@@ -153,13 +163,12 @@ void GraphicsEngine::UpdateConstantBuffers()
 	mCameraConstantBuffer->Bind(ConstantBuffer::eCameraConstantBuffer);
 	mCameraConstantBuffer->Update(&cameraBuffer);
 
-	LightConstantBufferData data;
+	LightConstantBufferData data = {};
 	data.numberOfMips = mLightManager->GetAmbientLight().GetNumMips();
 	data.ambientLightColorAndIntensity = mLightManager->GetAmbientLight().GetColor();
 	data.ambientLightColorAndIntensity.w = mLightManager->GetAmbientLight().GetIntensity();
 	data.directionalLightColorAndIntensity = mLightManager->GetDirectionalLight().GetColor();
 	data.directionalLightColorAndIntensity.w = mLightManager->GetDirectionalLight().GetIntensity();
-//	data.directionalLightDirection = Vector4(mLightManager->GetDirectionalLight().GetTransform().GetMatrix().Forward(), 0.0f);
 	data.directionalLightDirection = Vector4(mLightManager->GetDirectionalLight().GetTransform().GetEularRotation(), 0.0f);
 	
 	uint32_t pointLightCount =  mLightManager->GetNumberOfPointLights();

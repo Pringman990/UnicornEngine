@@ -60,7 +60,7 @@ PixelOutput main(PixelInputType input)
     }
     
     float3 emissiveAlbedo = albedo.rgb * emissive;
-    float3 radiance = /*ambience +*/ /*directionalLight*/ pointLightsSum + emissiveAlbedo;
+    float3 radiance = ambience + directionalLight + pointLightsSum + emissiveAlbedo;
     
     output.color.rgb = radiance;
     output.color.a = albedo.a;

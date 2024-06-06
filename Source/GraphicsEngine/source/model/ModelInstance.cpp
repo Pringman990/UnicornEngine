@@ -17,7 +17,7 @@ bool ModelInstance::Init(std::shared_ptr<Model> aModel)
     mModel = aModel;
 
     mShader = std::make_shared<ModelShader>();
-    if (!mShader->CreateShader("../Bin/shaders/PBR_Model_VS.cso", "../Bin/shaders/PBR_Model_PS.cso"))
+    if (!mShader->CreateShader(L"PBR_Model_VS.hlsl", L"PBR_Model_PS.hlsl"))
         return false;
 
     return false;

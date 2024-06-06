@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include "source/DX11.h"
+#include "ShaderManager.h"
 
 #define LAYOUT_SIZE 6
 
@@ -17,19 +18,36 @@ Shader::~Shader()
     mInputLayout.Reset();
 }
 
-bool Shader::CreateShader(const std::string& aVertexShader, const std::string& aPixelShader)
+bool Shader::CreateShader(
+    const std::wstring& aVertexShaderFileName,
+    const std::wstring& aPixelShaderFileName,
+    const std::string& aVertexEntryPoint,
+    const std::string& aVertexShaderModel,
+    const std::string& aPixelEntryPoint,
+    const std::string& aPixelShaderModel
+)
 {
-    std::string vsData;
-    if (!LoadVertexShader(aVertexShader.c_str(), vsData))
+    ShaderManager& shaderManager = GraphicsEngine::GetInstance().GetShaderManager();
+
+    ID3DBlob* vertexBlob = nullptr;
+    ID3D11VertexShader* vertexShader =  shaderManager.TryGetVertexShader(aVertexShaderFileName, vertexBlob, aVertexEntryPoint, aVertexShaderModel);
+    if (vertexShader == nullptr)
     {
-        std::cout << "Failed to load Vertex Shader: " << aVertexShader << std::endl;
+        vertexBlob->Release();
+        std::cout << "Failed to load Vertex Shader: " << aVertexShaderFileName.c_str() << std::endl;
         return false;
     }
-    if (!LoadPixelShader(aPixelShader.c_str()))
+    mVertexShader = vertexShader;
+
+    ID3D11PixelShader* pixelShader = shaderManager.TryGetPixelShader(aPixelShaderFileName, aPixelEntryPoint, aPixelShaderModel);
+    if (pixelShader == nullptr)
     {
-        std::cout << "Failed to load Pixel Shader: " << aPixelShader << std::endl;
+        std::cout << "Failed to load Pixel Shader: " << aPixelShaderFileName.c_str() << std::endl;
         return false;
     }
+
+    mPixelShader = pixelShader;
+
     if (!Init())
     {
         std::cout << "Failed to Init Shader" << std::endl;
@@ -39,7 +57,7 @@ bool Shader::CreateShader(const std::string& aVertexShader, const std::string& a
     if (mInputLayout)
         mInputLayout.Reset();
 
-    if (!CreateInputLayout(vsData))
+    if (!CreateInputLayout(vertexBlob))
     {
         D3D11_INPUT_ELEMENT_DESC layout[LAYOUT_SIZE] =
         {
@@ -51,15 +69,17 @@ bool Shader::CreateShader(const std::string& aVertexShader, const std::string& a
             { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT,    D3D11_INPUT_PER_VERTEX_DATA, 0 },
         };
 
-        HRESULT result = GraphicsEngine::GetInstance().GetDX11().GetDevice()->CreateInputLayout(layout, LAYOUT_SIZE, vsData.data(), vsData.size(), &mInputLayout);
+        HRESULT result = GraphicsEngine::GetInstance().GetDX11().GetDevice()->CreateInputLayout(layout, LAYOUT_SIZE, vertexBlob->GetBufferPointer(), vertexBlob->GetBufferSize(), &mInputLayout);
         if (FAILED(result))
         {
             _com_error err(result);
             LPCTSTR errorMessage = err.ErrorMessage();
             std::cout << "Failed to create Shader: " << errorMessage << std::endl;
+            vertexBlob->Release();
             return false;
         }
     }
+    vertexBlob->Release();
 
     return true;
 }
@@ -81,9 +101,9 @@ bool Shader::PrepareRender(D3D_PRIMITIVE_TOPOLOGY aPrimitiveTopology) const
     return true;
 }
 
-bool Shader::CreateInputLayout(const std::string& aVertexShader)
+bool Shader::CreateInputLayout(ID3DBlob* aVertexBlob)
 {
-    UNREFERENCED_PARAMETER(aVertexShader);
+    UNREFERENCED_PARAMETER(aVertexBlob);
     return false;
 }
 
