@@ -12,19 +12,65 @@ ecs::World::~World()
 ecs::Entity ecs::World::CreateEntity()
 {
 	Entity entity = mNextEntity++;
+	auto it = mArchetypes.find(0);
+	if (it != mArchetypes.end())
+	{
+		it->second.AddEntity(entity);
+	}
 	//mEntityComponentMasks[entity] = 0;
 	return entity;
 }
 
 void ecs::World::ProcessSystems()
 {
-	for (Pipeline pipeline = 0; pipeline < PIPELINE_COUNT; pipeline++)
+	for (Pipeline pipeline = OnPreUpdate; pipeline < PIPELINE_COUNT; pipeline++)
 	{
-		for (auto& system : mSystems[pipeline]) 
+		for (auto& [signature, system] : mSystems[pipeline])
 		{
-				system(*this, );
+			auto it = mSignatureToArchetypes.find(signature);
+			if (it != mSignatureToArchetypes.end())
+			{
+				for (Archetype* archetype : it->second)
+				{
+					for (auto& entity : archetype->entityComponents)
+					{
+						system(*this, entity.first, *archetype);
+					}
+				}
+			}
 		}
 	}
+}
+
+void ecs::World::PreComputeSignatureToArchetype()
+{
+	mSignatureToArchetypes.clear();
+	for (auto& [signature, archetype] : mArchetypes)
+	{
+		for (Signature subset = signature; subset > 0; subset = (subset - 1) & signature)
+		{
+			mSignatureToArchetypes[subset].push_back(&archetype);
+		}
+	}
+}
+
+template<typename ...Components>
+void ecs::World::BindSystem(System<Components...> aSystem, Pipeline aPipeline)
+{
+	Signature signature = CalulateSignature<Components...>();
+	mSystems[aPipeline].emplace_back(signature,
+		[=](World& world, Entity entity, Archetype& archetype)
+		{
+			aSystem(world, entity, archetype.GetComponent<Components>(entity)...)
+		});
+}
+
+template<typename ...Components>
+ecs::Signature ecs::World::CalulateSignature()
+{
+	Signature signature = 0;
+	((signature |= (1 << internal::ComponentRegistry::GetInstance().TryGetMask<Components>())), ...);
+	return signature;
 }
 
 template<typename T>
@@ -33,18 +79,29 @@ void ecs::World::AddComponent(Entity anEntity, T aComponent)
 
 }
 
-template<typename ...Components>
-void ecs::World::BindSystem(System<Components...> aSystem, Pipeline aPipeline)
-{
-	mSystems[aPipeline].push_back(
-		[=](World& world, Entity entity) 
-		{
-
-			aSystem(world, entity, )
-		});
-}
-
-
+//void ecs::World::ProcessSystems()
+//{
+//	Pipeline currentPipeline = OnPreUpdate;
+//
+//	for (const auto& [mask, system] : mSystems[currentPipeline])
+//	{
+//		if (currentPipeline > OnPostUpdate)
+//			break;
+//
+//		auto it = mArchetypes.find(mask);
+//		if (it != mArchetypes.end()) {
+//			for (auto entity : it->second) 
+//			{
+//				auto components = GetComponentsForEntity(entity);
+//
+//				// Call the system function with the components
+//				std::apply(system, std::tuple_cat(std::make_tuple(*this, entity), components));
+//			}
+//		}
+//
+//		currentPipeline++;
+//	}
+//}
 
 //template<typename ...Components>
 //void ecs::World::BindSystem(sys<Components...> aSystem, Pipeline aPipeline)
@@ -58,9 +115,6 @@ void ecs::World::BindSystem(System<Components...> aSystem, Pipeline aPipeline)
 //{
 //
 //}
-
-
-
 
 //template<typename T>
 //void ecs::World::AddComponent(Entity anEntity, T aComponent)
@@ -112,29 +166,7 @@ void ecs::World::BindSystem(System<Components...> aSystem, Pipeline aPipeline)
 //	mSystems[aPipeline].push_back({ mask, aSystem });
 //}
 //
-//void ecs::World::ProcessSystems()
-//{
-//	Pipeline currentPipeline = OnPreUpdate;
-//
-//	for (const auto& [mask, system] : mSystems[currentPipeline])
-//	{
-//		if (currentPipeline > OnPostUpdate)
-//			break;
-//
-//		auto it = mArchetypes.find(mask);
-//		if (it != mArchetypes.end()) {
-//			for (auto entity : it->second) 
-//			{
-//				auto components = GetComponentsForEntity(entity);
-//
-//				// Call the system function with the components
-//				std::apply(system, std::tuple_cat(std::make_tuple(*this, entity), components));
-//			}
-//		}
-//
-//		currentPipeline++;
-//	}
-//}
+
 //
 //template<typename... Components>
 //std::tuple<Components&...> ecs::World::GetComponentsForEntity(Entity entity)
