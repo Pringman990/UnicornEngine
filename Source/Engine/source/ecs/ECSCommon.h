@@ -49,6 +49,11 @@ namespace ecs
 		/// </summary>
 		std::unordered_map<Entity, std::unordered_map<ComponentType, void*>> entityComponents;
 
+		void AddEntity(Entity /*entity*/)
+		{
+
+		}
+
 		template<typename T>
 		T GetComponent(Entity aEntity)
 		{

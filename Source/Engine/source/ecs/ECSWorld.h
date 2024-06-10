@@ -9,8 +9,10 @@ namespace ecs
 		template<typename... Components>
 		using System = std::function<void(World&, Entity, Components&...)>;
 
-		using SystemVector = std::vector<std::function<void(World&, Entity)>>;
+		using SystemVector = std::vector<std::pair<Signature, std::function<void(World&, Entity, Archetype&)>>>;
 		using SystemMap = std::unordered_map<Pipeline, SystemVector>;
+
+		using ArchetypeMap = std::unordered_map<Signature, Archetype>;
 
 	public:
 		World();
@@ -27,14 +29,15 @@ namespace ecs
 		void ProcessSystems();
 
 	private:
+		void PreComputeSignatureToArchetype();
 
+		template<typename... Components>
+		Signature CalulateSignature();
 	private:
 		Entity mNextEntity = 0;
-
-		std::unordered_map<ArchetypeMask, Archetype> mArchetypes;
-
-
 		SystemMap mSystems;
+		ArchetypeMap mArchetypes;
+		std::unordered_map<ArchetypeMask, std::vector<Archetype*>> mSignatureToArchetypes;
 	};
 
 
