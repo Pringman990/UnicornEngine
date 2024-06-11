@@ -11,6 +11,16 @@
 #include <source/model/Model.h>
 #include <source/Material.h>
 #include <source/RenderTarget.h>
+#include <source/ecs/ECSWorld.h>
+
+
+void ExampleSystem(ecs::World& /*world*/, ecs::Entity entity, ecs::Transform& transform, ecs::Mesh& mesh)
+{
+	transform;
+	mesh.vector.push_back(11);
+	ecs::Entity ent = entity;
+	ent;
+}
 
 int APIENTRY wWinMain(_In_ HINSTANCE /*hInstance*/, _In_opt_ HINSTANCE /*hPrevInstance*/, _In_ LPWSTR /*lpCmdLine*/, _In_ int /*nCmdShow*/)
 {
@@ -31,12 +41,33 @@ int APIENTRY wWinMain(_In_ HINSTANCE /*hInstance*/, _In_opt_ HINSTANCE /*hPrevIn
 
 		ModelInstance mdl = graphicsEngine.GetModelFactory().GetModelInstance(L"../EngineAssets/Models/sm_cube.fbx");
 
+		//ECS
+		auto wrappedExampleSystem = [](ecs::World& world, ecs::Entity entity, ecs::Transform& transform, ecs::Mesh& mesh) {
+			ExampleSystem(world, entity, transform, mesh);
+			};
+
+		ecs::World world;
+		world.BindSystem<ecs::Transform, ecs::Mesh>(wrappedExampleSystem);
+
+		ecs::Entity entity = world.CreateEntity();
+		world.AddComponent(entity, ecs::Transform());
+		ecs::Mesh mesh;
+		mesh.b = 10000;
+		mesh.vector.push_back(10);
+		mesh.vector.push_back(10);
+		mesh.vector.push_back(10);
+		mesh.vector.push_back(10);
+		world.AddComponent(entity, mesh);
+		
+
 		while (engine.BeginFrame())
 		{
 			editor.GetImguiImpl().BeginFrame();
 
 			float deltaTime = engine.GetTimer().GetDeltaTime();
 			editor.Update(deltaTime);
+
+			world.ProcessSystems();
 
 			engine.Update();
 

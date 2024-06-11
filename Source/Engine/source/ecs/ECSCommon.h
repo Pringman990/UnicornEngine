@@ -1,4 +1,5 @@
 #pragma once
+#include <typeindex>
 
 namespace ecs
 {
@@ -27,40 +28,6 @@ namespace ecs
 	const constexpr Pipeline PIPELINE_COUNT = 5; //Update when new pipeline is added
 	
 	using ComponentType = std::type_index;
-	
-	struct Archetype final
-	{
-		/// <summary>
-		/// Signature of the archetype
-		/// tells us what components that exists in the current archetype
-		/// </summary>
-		ComponentMask signature;
-
-		/// <summary>
-		/// Type index to a pointer to a std::vector
-		/// of all components of that type
-		/// </summary>
-		std::unordered_map<ComponentType, void*> componentArrays;
-
-		/// <summary>
-		/// To get a specific entity's component
-		/// we map a Entity to a map of component types and a pointer
-		/// to the start of that component in memory
-		/// </summary>
-		std::unordered_map<Entity, std::unordered_map<ComponentType, void*>> entityComponents;
-
-		void AddEntity(Entity /*entity*/)
-		{
-
-		}
-
-		template<typename T>
-		T GetComponent(Entity aEntity)
-		{
-			auto componentType = std::type_index(typeid(T));
-			return static_cast<T>(entityComponents[aEntity][componentType]);
-		}
-	};
 }
 
 namespace ecs

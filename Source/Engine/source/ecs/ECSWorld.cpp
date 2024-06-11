@@ -12,12 +12,9 @@ ecs::World::~World()
 ecs::Entity ecs::World::CreateEntity()
 {
 	Entity entity = mNextEntity++;
-	auto it = mArchetypes.find(0);
-	if (it != mArchetypes.end())
-	{
-		it->second.AddEntity(entity);
-	}
-	//mEntityComponentMasks[entity] = 0;
+	mEntityToIndex[entity] = {};
+	//TODO: Remove the six and give real mask
+	mMaskToEntity[6].push_back(entity);
 	return entity;
 }
 
@@ -27,14 +24,13 @@ void ecs::World::ProcessSystems()
 	{
 		for (auto& [signature, system] : mSystems[pipeline])
 		{
-			auto it = mSignatureToArchetypes.find(signature);
-			if (it != mSignatureToArchetypes.end())
+			for (auto& [mask, entityVector] : mMaskToEntity)
 			{
-				for (Archetype* archetype : it->second)
+				if ((mask & signature) == signature)
 				{
-					for (auto& entity : archetype->entityComponents)
+					for (Entity entity : entityVector)
 					{
-						system(*this, entity.first, *archetype);
+						system(*this, entity);
 					}
 				}
 			}
@@ -42,42 +38,6 @@ void ecs::World::ProcessSystems()
 	}
 }
 
-void ecs::World::PreComputeSignatureToArchetype()
-{
-	mSignatureToArchetypes.clear();
-	for (auto& [signature, archetype] : mArchetypes)
-	{
-		for (Signature subset = signature; subset > 0; subset = (subset - 1) & signature)
-		{
-			mSignatureToArchetypes[subset].push_back(&archetype);
-		}
-	}
-}
-
-template<typename ...Components>
-void ecs::World::BindSystem(System<Components...> aSystem, Pipeline aPipeline)
-{
-	Signature signature = CalulateSignature<Components...>();
-	mSystems[aPipeline].emplace_back(signature,
-		[=](World& world, Entity entity, Archetype& archetype)
-		{
-			aSystem(world, entity, archetype.GetComponent<Components>(entity)...)
-		});
-}
-
-template<typename ...Components>
-ecs::Signature ecs::World::CalulateSignature()
-{
-	Signature signature = 0;
-	((signature |= (1 << internal::ComponentRegistry::GetInstance().TryGetMask<Components>())), ...);
-	return signature;
-}
-
-template<typename T>
-void ecs::World::AddComponent(Entity anEntity, T aComponent)
-{
-
-}
 
 //void ecs::World::ProcessSystems()
 //{

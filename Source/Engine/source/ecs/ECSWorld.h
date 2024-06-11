@@ -1,18 +1,28 @@
 #pragma once
 #include "ECSCommon.h"
 
+
 namespace ecs
 {
+
+	struct Transform
+	{
+		int a =10;
+	};
+
+	struct Mesh
+	{
+		int b = 10;
+		std::vector<int> vector;
+	};
 
 	class World final
 	{
 		template<typename... Components>
 		using System = std::function<void(World&, Entity, Components&...)>;
 
-		using SystemVector = std::vector<std::pair<Signature, std::function<void(World&, Entity, Archetype&)>>>;
+		using SystemVector = std::vector<std::pair<Signature, std::function<void(World&, Entity)>>>;
 		using SystemMap = std::unordered_map<Pipeline, SystemVector>;
-
-		using ArchetypeMap = std::unordered_map<Signature, Archetype>;
 
 	public:
 		World();
@@ -23,73 +33,105 @@ namespace ecs
 		template<typename T>
 		void AddComponent(Entity anEntity, T aComponent);
 
+		template<typename T>
+		void RemoveComponent(Entity anEntity, T aComponent);
+
+		template<typename T>
+		T* GetComponent(Entity anEntity);
+
+		template<typename T>
+		bool HasComponent(Entity anEntity);
+
 		template<typename... Components>
-		void BindSystem(System<Components...> aSystem, Pipeline aPipeline);
+		void BindSystem(System<Components...> aSystem, Pipeline aPipeline = OnUpdate);
 
 		void ProcessSystems();
 
 	private:
-		void PreComputeSignatureToArchetype();
-
 		template<typename... Components>
 		Signature CalulateSignature();
 	private:
 		Entity mNextEntity = 0;
 		SystemMap mSystems;
-		ArchetypeMap mArchetypes;
-		std::unordered_map<ArchetypeMask, std::vector<Archetype*>> mSignatureToArchetypes;
+
+		std::unordered_map<ComponentType, std::any> mComponentArrays;
+		std::unordered_map<ComponentType, std::unordered_map<size_t, Entity>> mIndexToEntity;
+		std::unordered_map<Entity, std::unordered_map<ComponentType, size_t>> mEntityToIndex;
+		std::unordered_map<ComponentMask, std::vector<Entity>> mMaskToEntity;
 	};
 
+	template<typename ...Components>
+	inline void World::BindSystem(System<Components...> aSystem, Pipeline aPipeline)
+	{
+		Signature signature = CalulateSignature<Components...>();
+		mSystems[aPipeline].emplace_back(signature,
+			[=](World& world, Entity entity)
+			{
+				aSystem(world, entity, *world.GetComponent<Components>(entity)...);
+			});
+	}
 
-	//class World final
-	//{
-	//	using SystemFunction = std::function<void(World&, Entity, std::tuple<>)>;
-	//	struct SystemWrapper {
-	//		ArchetypeMask mask;
-	//		SystemFunction func;
-	//	};
+	template<typename ...Components>
+	inline ecs::Signature ecs::World::CalulateSignature()
+	{
+		Signature signature = 0;
+		((signature |= (1 << internal::ComponentRegistry::GetInstance().TryGetMask<Components>())), ...);
+		return signature;
+	}
 
-	//public:
-	//	World();
-	//	~World();
+	template<typename T>
+	inline void World::AddComponent(Entity anEntity, T aComponent)
+	{
+		auto type = ComponentType(typeid(T));
+		std::vector<T>* componentVector = std::any_cast<std::vector<T>>(&mComponentArrays[type]);
+		if (componentVector == nullptr)
+		{
+			mComponentArrays[type] = std::vector<T>();
+			componentVector = std::any_cast<std::vector<T>>(&mComponentArrays[type]);
+		}
+		componentVector->push_back(aComponent);
+		mEntityToIndex[anEntity][type] = componentVector->size() - 1;
+		mIndexToEntity[type][componentVector->size() - 1] = anEntity;
+	}
 
-	//	Entity CreateEntity();
+	template<typename T>
+	inline void World::RemoveComponent(Entity anEntity, T aComponent)
+	{
+		auto type = ComponentType(typeid(T));
+		std::vector<T>* componentVector = mComponentArrays[type];
 
-	//	template<typename T>
-	//	void AddComponent(Entity anEntity, T aComponent);
+		size_t componentIndex = mEntityToIndex[anEntity][type];
 
-	//	template<typename T>
-	//	void RemoveComponent(Entity anEntity);
+		Entity otherEntity = mIndexToEntity[type][componentVector->size()];
+		mEntityToIndex[otherEntity][type] = componentIndex;
 
-	//	template<typename T>
-	//	bool HasComponent(Entity anEntity);
+		componentVector->swap(componentIndex, componentVector->size());
+		componentVector->pop_back();
+	}
 
-	//	template<typename T>
-	//	T GetComponent(Entity anEntity);
+	template<typename T>
+	inline T* World::GetComponent(Entity anEntity)
+	{
+		auto type = ComponentType(typeid(T));
+		size_t componentIndex = mEntityToIndex[anEntity][type];
+		std::vector<T>* componentVector = std::any_cast<std::vector<T>>(&mComponentArrays[type]);
+		if (componentVector && componentIndex < componentVector->size())
+		{
+			return &(*componentVector)[componentIndex];
+		}
+		return nullptr;
+	}
 
-	//	template<typename... Components>
-	//	void BindSystem(SystemFunction aSystem, Pipeline aPipeline);
+	template<typename T>
+	inline bool World::HasComponent(Entity anEntity)
+	{
+		auto type = ComponentType(typeid(T));
+		auto it = mEntityToIndex[anEntity].find(type);
+		if (it != mEntityToIndex.end())
+		{
+			return true;
+		}
 
-	//	void ProcessSystems();
-
-	//private:
-	//	bool EntityMatchesArchetype(Entity anEntity, ArchetypeMask aMask);
-	//	void FindNewArchetypeForEntity(Entity anEntity, ArchetypeMask aMask);
-
-	//	template<typename T>
-	//	ComponentStorage<T>* GetComponentStorage();
-
-	//	template<typename... Components>
-	//	std::tuple<Components&...> GetComponentsForEntity(Entity entity);
-	//private:
-	//	Entity mNextEntity = 0;
-	//	std::unordered_map<Entity, ComponentMask> mEntityComponentMasks;
-	//	std::unordered_map<std::type_index, void*> mRegisteredComponents;
-	//	std::unordered_map<ArchetypeMask, std::unordered_set<Entity>> mArchetypes;
-
-	//	std::unordered_map<Pipeline, std::vector<SystemWrapper>> mSystems;
-	//};
-
-
-
+		return false;
+	}
 }
