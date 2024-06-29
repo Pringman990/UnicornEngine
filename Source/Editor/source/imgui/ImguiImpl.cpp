@@ -23,8 +23,8 @@ bool ImguiImpl::Init()
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-
+    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable;
+    
     if (!ImGui_ImplWin32_Init(GraphicsEngine::GetInstance().GetCurrentWindow().GetWindowInfo().currentWindow))
         return false;
     if (!ImGui_ImplDX11_Init(GraphicsEngine::GetInstance().GetDX11()->GetDevice(), GraphicsEngine::GetInstance().GetDX11()->GetDeviceContext()))
@@ -46,4 +46,6 @@ void ImguiImpl::EndFrame()
     ImGui::Render();
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
     ImGui::UpdatePlatformWindows();
+    ImGui::RenderPlatformWindowsDefault();
+
 }

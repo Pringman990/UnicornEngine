@@ -13,8 +13,8 @@ namespace WinAPI
 
 	struct WindowInfo
 	{
-		int width, height;
-		int viewportWidth, viewportHeight;
+		Vector2 size;
+		Vector2 resolution;
 		HWND currentWindow;
 		DWORD style;
 		WindowType type;

@@ -20,10 +20,8 @@ WinAPI::Window::~Window()
 
 bool WinAPI::Window::Init()
 {
-	mWindowInfo.width = 1200;
-	mWindowInfo.height = 720;
-	mWindowInfo.viewportWidth = 0;
-	mWindowInfo.viewportHeight = 0;
+	mWindowInfo.size = {1200, 720};
+	mWindowInfo.resolution = {};
 	mWindowInfo.name = L"Unicorn";
 	mWindowInfo.type = WindowType::eWindow;
 	mWindowInfo.style = WS_OVERLAPPEDWINDOW;
@@ -55,8 +53,8 @@ bool WinAPI::Window::CreateWindow()
 		mWindowInfo.style,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
-		mWindowInfo.width,
-		mWindowInfo.height,
+		(int)mWindowInfo.size.x,
+		(int)mWindowInfo.size.y,
 		NULL,
 		NULL,
 		wc.hInstance,

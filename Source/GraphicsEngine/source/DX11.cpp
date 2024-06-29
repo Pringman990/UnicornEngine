@@ -43,6 +43,9 @@ bool dx::DX11::Init()
 	if (!SetupSamplerState())
 		return false;
 
+	if (!SetupBlendState())
+		return false;
+
 	return true;
 }
 
@@ -173,8 +176,7 @@ bool dx::DX11::SetupBackBufferAndDepthBuffer()
 	viewport.MaxDepth = 1.0f;
 	mDeviceContext->RSSetViewports(1, &viewport);
 
-	info.viewportWidth = static_cast<int>(viewport.Width);
-	info.viewportHeight = static_cast<int>(viewport.Height);
+	info.resolution = { viewport.Width, viewport.Height };
 	GraphicsEngine::GetInstance().GetCurrentWindow().SetWindowInfo(info);
 
 
@@ -214,6 +216,60 @@ bool dx::DX11::SetupSamplerState()
 	return true;
 }
 
+bool dx::DX11::SetupBlendState()
+{
+	HRESULT result = S_OK;
+	D3D11_BLEND_DESC blendStateDescription = {};
+
+	blendStateDescription.RenderTarget[0].BlendEnable = FALSE;
+	blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_ZERO;
+	blendStateDescription.RenderTarget[0].DestBlend = D3D11_BLEND_ZERO;
+	blendStateDescription.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendStateDescription.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
+	blendStateDescription.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendStateDescription.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	result = mDevice->CreateBlendState(&blendStateDescription, mBlendStates[(int)BlendState::eDisableBlend].ReleaseAndGetAddressOf());
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	blendStateDescription = {};
+	blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
+	blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	blendStateDescription.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	blendStateDescription.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendStateDescription.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blendStateDescription.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_MAX;
+	blendStateDescription.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	result = mDevice->CreateBlendState(&blendStateDescription, mBlendStates[(int)BlendState::eAlphaBlend].ReleaseAndGetAddressOf());
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	blendStateDescription = {};
+	blendStateDescription.RenderTarget[0].BlendEnable = TRUE;
+	blendStateDescription.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	blendStateDescription.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+	blendStateDescription.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendStateDescription.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blendStateDescription.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	blendStateDescription.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_MAX;
+	blendStateDescription.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	result = mDevice->CreateBlendState(&blendStateDescription, mBlendStates[(int)BlendState::eAdditiveBlend].ReleaseAndGetAddressOf());
+	if (FAILED(result))
+	{
+		return false;
+	}
+
+	SetBlendState(eDisableBlend);
+
+	return true;
+}
+
 ID3D11Device* dx::DX11::GetDevice()
 {
 	return mDevice.Get();
@@ -247,4 +303,10 @@ ID3D11SamplerState** dx::DX11::GetAdressOfSamplerState()
 Color dx::DX11::GetBackgrundColor()
 {
 	return mColor;
+}
+
+void dx::DX11::SetBlendState(BlendState aState)
+{
+	mCurrentBlendState = aState;
+	mDeviceContext->OMSetBlendState(mBlendStates[mCurrentBlendState].Get(), nullptr, 0xffffffff);
 }

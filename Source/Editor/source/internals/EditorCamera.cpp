@@ -11,6 +11,7 @@ EditorCamera::EditorCamera()
 	mMoveSpeed(10),
 	mRotationSpeed(1)
 {
+	mCamera = std::make_shared<Camera>();
 }
 
 EditorCamera::~EditorCamera()
@@ -26,8 +27,7 @@ void EditorCamera::Update(float aDeltaTime)
 		return;
 	}
 
-	std::shared_ptr<Camera> camera = GraphicsEngine::GetInstance().GetCamera();
-	Transform& transform = camera->GetTransform();
+	Transform& transform = mCamera->GetTransform();
 	Matrix matrix = transform.GetMatrix();
 	Vector3 position = transform.GetPosition();
 	Vector3 right = matrix.Right();
@@ -74,4 +74,9 @@ void EditorCamera::Update(float aDeltaTime)
 	}
 	transform.SetPosition(position);
 	Input::CaptureMouse();
+}
+
+std::shared_ptr<Camera> EditorCamera::GetCamera()
+{
+	return mCamera;
 }

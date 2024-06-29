@@ -20,7 +20,7 @@ public:
 		if (elapsedTime >= 1.0f)
 		{
 			// Calculate frames per second
-			fps = static_cast<float>(frameCount) / elapsedTime;
+			fps = frameCount / static_cast<int>(elapsedTime);
 
 			// Reset frame count and elapsed time
 			frameCount = 0;
@@ -32,7 +32,7 @@ public:
 		return myDeltaTime;
 	}
 
-	const float GetFps() const
+	const int GetFps() const
 	{
 		return fps;
 	};
@@ -41,7 +41,7 @@ private:
 	std::chrono::high_resolution_clock::time_point myLastTime = {};
 	float myDeltaTime = 0;
 
-	float fps = 0.0f;
+	int fps = 0;
 	int frameCount = 0;
 	float elapsedTime = 0.0f;
 };

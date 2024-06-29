@@ -1,8 +1,8 @@
 #include "common.hlsli"
 
-PixelInputType main(VertexInputType input)
+ModelPixelInputType main(ModelVertexInputType input)
 {
-    PixelInputType output;
+    ModelPixelInputType output;
 
     float4 vertexObjectPos = input.position;
     float4 vertexWorldPos = mul(modelToWorld, vertexObjectPos);

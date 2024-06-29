@@ -37,7 +37,21 @@ cbuffer LightConstantBuffer : register(b2)
     
 }
 
-struct VertexInputType
+struct SpriteVertexInputType
+{
+    float4 position : POSITION;
+    float4 color : COLOR;
+    float2 uv : TEXCOORD0;
+};
+
+struct SpritePixelInputType
+{
+    float4 position : SV_POSITION;
+    float4 color : COLOR;
+    float2 uv : TEXCOORD0;
+};
+
+struct ModelVertexInputType
 {
     float4 position : POSITION;
     float4 color : COLOR;
@@ -47,7 +61,7 @@ struct VertexInputType
     float3 tangent : TANGENT;
 };
 
-struct PixelInputType
+struct ModelPixelInputType
 {
     float4 position : SV_POSITION;
     float4 worldPosition : WORLDPOSITION;

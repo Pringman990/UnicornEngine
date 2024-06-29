@@ -4,18 +4,6 @@
 
 namespace ecs
 {
-
-	struct Transform
-	{
-		int a =10;
-	};
-
-	struct Mesh
-	{
-		int b = 10;
-		std::vector<int> vector;
-	};
-
 	class World final
 	{
 		template<typename... Components>
@@ -31,13 +19,15 @@ namespace ecs
 		Entity CreateEntity();
 
 		template<typename T>
-		void AddComponent(Entity anEntity, T aComponent);
+		T* AddComponent(Entity anEntity, T aComponent);
 
 		template<typename T>
-		void RemoveComponent(Entity anEntity, T aComponent);
+		void RemoveComponent(Entity anEntity);
 
 		template<typename T>
 		T* GetComponent(Entity anEntity);
+
+		std::unordered_map<ComponentType, void*> GetAllEntityComponents(Entity anEntity);
 
 		template<typename T>
 		bool HasComponent(Entity anEntity);
@@ -45,16 +35,24 @@ namespace ecs
 		template<typename... Components>
 		void BindSystem(System<Components...> aSystem, Pipeline aPipeline = OnUpdate);
 
-		void ProcessSystems();
+		void ProcessEngineRenderSystems();
+		void ProcessUpdateSystems();
+		void ProcessInitSystems();
 
 	private:
 		template<typename... Components>
 		Signature CalulateSignature();
+
+		ComponentMask GetEntityComponentMask(Entity anEntity);
+
 	private:
 		Entity mNextEntity = 0;
 		SystemMap mSystems;
 
-		std::unordered_map<ComponentType, std::any> mComponentArrays;
+		/// <summary>
+		/// The void pointer points to a std::vector of the component
+		/// </summary>
+		std::unordered_map<ComponentType, void*> mComponentArrays;
 		std::unordered_map<ComponentType, std::unordered_map<size_t, Entity>> mIndexToEntity;
 		std::unordered_map<Entity, std::unordered_map<ComponentType, size_t>> mEntityToIndex;
 		std::unordered_map<ComponentMask, std::vector<Entity>> mMaskToEntity;
@@ -79,33 +77,81 @@ namespace ecs
 		return signature;
 	}
 
-	template<typename T>
-	inline void World::AddComponent(Entity anEntity, T aComponent)
+
+	inline ecs::ComponentMask ecs::World::GetEntityComponentMask(Entity anEntity)
 	{
-		auto type = ComponentType(typeid(T));
-		std::vector<T>* componentVector = std::any_cast<std::vector<T>>(&mComponentArrays[type]);
-		if (componentVector == nullptr)
+		ComponentMask mask = 0;
+		auto it = mEntityToIndex.find(anEntity);
+		if (it != mEntityToIndex.end())
 		{
-			mComponentArrays[type] = std::vector<T>();
-			componentVector = std::any_cast<std::vector<T>>(&mComponentArrays[type]);
+			for (auto& [componentType, componentIndex] : mEntityToIndex[anEntity])
+			{
+				((mask |= (1 << internal::ComponentRegistry::GetInstance().TryGetMask(componentType))));
+			}
 		}
-		componentVector->push_back(aComponent);
-		mEntityToIndex[anEntity][type] = componentVector->size() - 1;
-		mIndexToEntity[type][componentVector->size() - 1] = anEntity;
+		return mask;
 	}
 
 	template<typename T>
-	inline void World::RemoveComponent(Entity anEntity, T aComponent)
+	inline T* World::AddComponent(Entity anEntity, T aComponent)
 	{
 		auto type = ComponentType(typeid(T));
-		std::vector<T>* componentVector = mComponentArrays[type];
+		std::vector<T>* componentVector = static_cast<std::vector<T>*>(mComponentArrays[type]);
+		if (componentVector == nullptr)
+		{
+			mComponentArrays[type] = new std::vector<T>();
+			componentVector = static_cast<std::vector<T>*>(mComponentArrays[type]);
+		}
+
+		{
+			ComponentMask mask = GetEntityComponentMask(anEntity);
+
+			auto itToDelete = std::find(mMaskToEntity[mask].begin(), mMaskToEntity[mask].end(), anEntity);
+			mMaskToEntity[mask].erase(itToDelete);
+		}
+
+		{
+			componentVector->push_back(aComponent);
+			mEntityToIndex[anEntity][type] = componentVector->size() - 1;
+			mIndexToEntity[type][componentVector->size() - 1] = anEntity;
+
+			ComponentMask mask = GetEntityComponentMask(anEntity);
+			mMaskToEntity[mask].push_back(anEntity);
+		}
+		T* returnValue = &(*componentVector)[componentVector->size() - 1];
+		return returnValue;
+	}
+
+	template<typename T>
+	inline void World::RemoveComponent(Entity anEntity)
+	{
+		auto type = ComponentType(typeid(T));
+		std::vector<T>* componentVector = static_cast<std::vector<T>*>(mComponentArrays[type]);
 
 		size_t componentIndex = mEntityToIndex[anEntity][type];
 
-		Entity otherEntity = mIndexToEntity[type][componentVector->size()];
+		Entity otherEntity = mIndexToEntity[type][componentVector->size() - 1];
+		size_t otherComponentIndexBefore = mEntityToIndex[otherEntity][type];
 		mEntityToIndex[otherEntity][type] = componentIndex;
+		
+		{
+			ComponentMask mask = GetEntityComponentMask(anEntity);
 
-		componentVector->swap(componentIndex, componentVector->size());
+			auto itToDelete = std::find(mMaskToEntity[mask].begin(), mMaskToEntity[mask].end(), anEntity);
+			mMaskToEntity[mask].erase(itToDelete);
+		}
+		
+		mEntityToIndex[anEntity].erase(type);
+		
+		{
+			ComponentMask mask = GetEntityComponentMask(anEntity);
+			mMaskToEntity[mask].push_back(anEntity);
+		}
+
+		mIndexToEntity[type].erase(otherComponentIndexBefore);
+		mIndexToEntity[type][componentIndex] = otherEntity;
+		
+		std::swap((*componentVector)[componentIndex], (*componentVector)[componentVector->size() - 1]);
 		componentVector->pop_back();
 	}
 
@@ -114,7 +160,7 @@ namespace ecs
 	{
 		auto type = ComponentType(typeid(T));
 		size_t componentIndex = mEntityToIndex[anEntity][type];
-		std::vector<T>* componentVector = std::any_cast<std::vector<T>>(&mComponentArrays[type]);
+		std::vector<T>* componentVector = static_cast<std::vector<T>*>(mComponentArrays[type]);
 		if (componentVector && componentIndex < componentVector->size())
 		{
 			return &(*componentVector)[componentIndex];

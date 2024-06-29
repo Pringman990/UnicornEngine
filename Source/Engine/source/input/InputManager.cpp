@@ -45,7 +45,7 @@ namespace Input
 
 	Vector2 Input::GetMousePosition()
 	{
-		return Vector2(static_cast<float>(mCurrentMousePosition.x), static_cast<float>(GraphicsEngine::GetInstance().GetCurrentWindow().GetWindowInfo().height - mCurrentMousePosition.y));
+		return Vector2(static_cast<float>(mCurrentMousePosition.x), static_cast<float>(GraphicsEngine::GetInstance().GetCurrentWindow().GetWindowInfo().resolution.y - mCurrentMousePosition.y));
 	}
 
 	float Input::GetScrollWheelDelta()

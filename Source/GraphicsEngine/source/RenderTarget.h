@@ -20,6 +20,7 @@ public:
 	void SetAsActiveRenderTarget(ID3D11DepthStencilView* aDSV = nullptr);
 	void Clear();
 	void Release();
+	void Resize(Vector2 aSize);
 
 	ID3D11ShaderResourceView* GetSRV();
 	ID3D11ShaderResourceView** GetAdressOfSRV();
@@ -38,4 +39,5 @@ private:
 	D3D11_VIEWPORT mViewport;
 
 	Vector2 mSize;
+	bool mEnabledDepthTesting = true;
 };

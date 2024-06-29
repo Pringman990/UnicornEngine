@@ -1,8 +1,8 @@
 #include "common.hlsli"
 
-PixelInputType main(VertexInputType input)
+ModelPixelInputType main(ModelVertexInputType input)
 {
-    PixelInputType output;
+    ModelPixelInputType output;
     output.position = input.position;
     output.color = input.color;
 	return output;

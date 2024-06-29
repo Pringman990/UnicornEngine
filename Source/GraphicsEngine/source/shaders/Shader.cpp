@@ -33,7 +33,7 @@ bool Shader::CreateShader(
     ID3D11VertexShader* vertexShader =  shaderManager.TryGetVertexShader(aVertexShaderFileName, vertexBlob, aVertexEntryPoint, aVertexShaderModel);
     if (vertexShader == nullptr)
     {
-        vertexBlob->Release();
+        //vertexBlob->Release();
         std::cout << "Failed to load Vertex Shader: " << aVertexShaderFileName.c_str() << std::endl;
         return false;
     }
@@ -75,11 +75,11 @@ bool Shader::CreateShader(
             _com_error err(result);
             LPCTSTR errorMessage = err.ErrorMessage();
             std::cout << "Failed to create Shader: " << errorMessage << std::endl;
-            vertexBlob->Release();
+            //vertexBlob->Release();
             return false;
         }
     }
-    vertexBlob->Release();
+   // vertexBlob->Release();
 
     return true;
 }

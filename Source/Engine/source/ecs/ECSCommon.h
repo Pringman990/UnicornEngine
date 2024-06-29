@@ -25,7 +25,8 @@ namespace ecs
 	const constexpr Pipeline OnPreUpdate = 2;
 	const constexpr Pipeline OnUpdate = 3;
 	const constexpr Pipeline OnPostUpdate = 4;
-	const constexpr Pipeline PIPELINE_COUNT = 5; //Update when new pipeline is added
+	const constexpr Pipeline OnEngineRender = 5;
+	const constexpr Pipeline PIPELINE_COUNT = 6; //Update when new pipeline is added
 	
 	using ComponentType = std::type_index;
 }
@@ -52,6 +53,18 @@ namespace ecs
 				{
 					ComponentMask newMask = 1 << mNextMask++;
 					mMasks[typeIndex] = newMask;
+					return newMask;
+				}
+				return it->second;
+			}
+
+			ComponentMask TryGetMask(std::type_index aComponentType)
+			{
+				auto it = mMasks.find(aComponentType);
+				if (it == mMasks.end())
+				{
+					ComponentMask newMask = 1 << mNextMask++;
+					mMasks[aComponentType] = newMask;
 					return newMask;
 				}
 				return it->second;

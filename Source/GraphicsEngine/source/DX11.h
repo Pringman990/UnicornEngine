@@ -14,6 +14,13 @@ class RenderTarget;
 
 namespace dx
 {
+	enum BlendState
+	{
+		eDisableBlend,
+		eAlphaBlend,
+		eAdditiveBlend
+	};
+
 	class DX11
 	{
 	public:
@@ -31,11 +38,11 @@ namespace dx
 		ID3D11DeviceContext* GetDeviceContext();
 		IDXGISwapChain1* GetSwapChain();
 		std::shared_ptr<RenderTarget> GetBackBuffer();
-		std::shared_ptr<RenderTarget> GetOffscreenRT();
 		ID3D11SamplerState* GetSamplerState();
 		ID3D11SamplerState** GetAdressOfSamplerState();
 
 		Color GetBackgrundColor();
+		void SetBlendState(BlendState aState);
 
 	private:
 
@@ -43,6 +50,7 @@ namespace dx
 		bool SetupSwapChain();
 		bool SetupBackBufferAndDepthBuffer();
 		bool SetupSamplerState();
+		bool SetupBlendState();
 	private:
 		ComPtr<ID3D11Device> mDevice;
 		ComPtr<ID3D11DeviceContext> mDeviceContext;
@@ -50,6 +58,9 @@ namespace dx
 		ComPtr<ID3D11SamplerState> mSamplerState;
 
 		std::shared_ptr<RenderTarget> mBackBufferRT;
+
+		BlendState mCurrentBlendState;
+		std::array<ComPtr<ID3D11BlendState>, 3> mBlendStates;
 
 		bool mVsync;
 		Color mColor;
