@@ -16,8 +16,16 @@
 #include <unordered_map>
 #include <map>
 #include <any>
+#include <typeindex>
 
 #include <source/internals/Editor.h>
 #include <source/Engine.h>
+#include <source/Global.h>
+#include <source/utility/StringConvert.h>
 #include <source/GraphicsEngine.h>
 #include <imgui/imgui.h>
+#include <imgui/imgui_stdlib.h>
+#include <source/input/InputManager.h>
+#include <source/reflection/Reflection.h>
+#include <source/ecs/ECSWorld.h>
+#include <source/internals/utility/Utility.h>

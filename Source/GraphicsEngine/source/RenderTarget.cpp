@@ -15,6 +15,7 @@ RenderTarget::~RenderTarget()
 bool RenderTarget::Create(Vector2 aSize, bool EnableDepthTesting)
 {
 	mSize = aSize;
+	mEnabledDepthTesting = EnableDepthTesting;
 
 	ID3D11Device* device = GraphicsEngine::GetInstance().GetDX11()->GetDevice();
 
@@ -151,8 +152,8 @@ bool RenderTarget::Create(ID3D11Texture2D* aTexture2D)
 
 	ID3D11Texture2D* depthBufferTexture;
 	D3D11_TEXTURE2D_DESC desc = {};
-	desc.Width = GraphicsEngine::GetInstance().GetCurrentWindow().GetWindowInfo().viewportWidth;
-	desc.Height = GraphicsEngine::GetInstance().GetCurrentWindow().GetWindowInfo().viewportHeight;
+	desc.Width = (UINT)GraphicsEngine::GetInstance().GetCurrentWindow().GetWindowInfo().resolution.x;
+	desc.Height = (UINT)GraphicsEngine::GetInstance().GetCurrentWindow().GetWindowInfo().resolution.y;
 	desc.ArraySize = 1;
 	desc.Format = DXGI_FORMAT_D32_FLOAT;
 	desc.SampleDesc.Count = 1;
@@ -220,6 +221,12 @@ void RenderTarget::Release()
 		mDSS->Release();
 	if (mTexture2D)
 		mTexture2D->Release();
+}
+
+void RenderTarget::Resize(Vector2 aSize)
+{
+	Release();
+	Create(aSize, mEnabledDepthTesting);
 }
 
 ID3D11ShaderResourceView* RenderTarget::GetSRV()

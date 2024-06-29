@@ -31,5 +31,4 @@ private:
 
 	bool mShouldClose;
 	Timer mTimer;
-
 };

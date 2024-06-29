@@ -1,6 +1,6 @@
 #include "common.hlsli"
 
-PixelOutput main(PixelInputType input)
+PixelOutput main(ModelPixelInputType input)
 {
     PixelOutput output;
     output.color = input.color;

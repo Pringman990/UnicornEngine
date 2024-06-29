@@ -7,6 +7,7 @@ public:
 	~Camera();
 
 	void SetPerspective(float aFovAngleY, float aAspectRatio, float aNearZ, float aFarZ);
+	void SetOrthographic(Vector2 aResolution, float aNearZ, float aFarZ);
 
 	Transform& GetTransform() { return mTransform; };
 	Matrix& GetProjectionMatrix() { return mProjectionMatrix; };

@@ -17,7 +17,10 @@ ID3D11VertexShader* ShaderManager::TryGetVertexShader(const std::wstring& aShade
     std::wstring key = aShaderFileName + L"|" + std::wstring(aEntryPoint.begin(), aEntryPoint.end()) + L"|" + std::wstring(aShaderModel.begin(), aShaderModel.end());
     auto it = mCompiledVertexShaders.find(key);
     if (it != mCompiledVertexShaders.end())
-        return it->second;
+    {
+        aBlob = it->second.first;
+        return it->second.second;
+    }
 
     HRESULT hr = CompileShaderFromFile(shaderFilePath.c_str(), aEntryPoint.c_str(), aShaderModel.c_str(), &aBlob);
     if (FAILED(hr))
@@ -32,9 +35,10 @@ ID3D11VertexShader* ShaderManager::TryGetVertexShader(const std::wstring& aShade
         return nullptr;
     }
 
-    mCompiledVertexShaders[key] = vShader;
+    mCompiledVertexShaders[key].second = vShader;
+    mCompiledVertexShaders[key].first = aBlob;
 
-    return mCompiledVertexShaders[key];
+    return mCompiledVertexShaders[key].second;
 }
 
 ID3D11PixelShader* ShaderManager::TryGetPixelShader(const std::wstring& aShaderFileName, const std::string& aEntryPoint, const std::string& aShaderModel)
@@ -80,7 +84,7 @@ bool ShaderManager::RecompileVertexShader(const std::wstring& aShaderFileName, c
         return false;
     }
 
-    ID3D11VertexShader* pShader = mCompiledVertexShaders[key];
+    ID3D11VertexShader* pShader = mCompiledVertexShaders[key].second;
     hr = GraphicsEngine::GetInstance().GetDX11()->GetDevice()->CreateVertexShader(shaderBlob->GetBufferPointer(), shaderBlob->GetBufferSize(), nullptr, &pShader);
     if (FAILED(hr))
     {
@@ -88,7 +92,8 @@ bool ShaderManager::RecompileVertexShader(const std::wstring& aShaderFileName, c
         return false;
     }
 
-    shaderBlob->Release();
+    mCompiledVertexShaders[key].first = shaderBlob;
+    //shaderBlob->Release();
 
     return true;
 }

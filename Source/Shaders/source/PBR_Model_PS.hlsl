@@ -1,7 +1,7 @@
 #include "common.hlsli"
 #include "PBRFunctions.hlsli"
 
-PixelOutput main(PixelInputType input)
+PixelOutput main(ModelPixelInputType input)
 {
     PixelOutput output;
 

@@ -33,6 +33,8 @@ void ModelInstance::Render()
     {
         mShader->Render(meshData[i], mModel->GetTransform());
     }
+
+    GraphicsEngine::GetInstance().AddDrawCall();
 }
 
 void ModelInstance::Render(ModelShader& aModelShader)

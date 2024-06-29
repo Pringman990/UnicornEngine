@@ -6,7 +6,12 @@
 #include <WinUser.h>
 #include <source/debug/MemoryTracker.h>
 
+//Test for registring systems
+#include "ecs/systems/EngineSystemRegistration.h"
+
 Engine* Engine::mInstance = nullptr;
+
+ecs::World gECSWorld;
 
 Engine::Engine()
 	:
@@ -27,7 +32,7 @@ bool Engine::Start()
 {
 	if (mInstance == nullptr)
 	{
-		StartMemoryTracking({ true, true });
+		StartMemoryTracking({ false, false });
 
 		mInstance = new Engine();
 		return mInstance->Init();
@@ -50,7 +55,9 @@ bool Engine::Init()
 {
 	if (!Input::Init())
 		return false;
-	
+
+	ecs::RegisterSystems();
+
 	return true;
 }
 
@@ -70,24 +77,24 @@ bool Engine::BeginFrame()
 			mShouldClose = true;
 		}
 	}
-	
+
 	mTimer.Update();
 
 	Input::Update();
 
 	GraphicsEngine::GetInstance().PreRender();
 
-    return true;
+	return true;
 }
 
 void Engine::Update()
 {
-	
+	gECSWorld.ProcessUpdateSystems();
 }
 
 void Engine::Render()
 {
-	GraphicsEngine::GetInstance().Render();
+	gECSWorld.ProcessEngineRenderSystems();
 }
 
 void Engine::EndFrame()

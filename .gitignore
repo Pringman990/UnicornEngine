@@ -6,3 +6,6 @@
 *.sln
 Lib/*
 
+/DawnCache
+debug.log
+/GPUCache

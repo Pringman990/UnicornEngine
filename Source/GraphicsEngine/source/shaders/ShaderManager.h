@@ -17,6 +17,6 @@ public:
 private:
 	HRESULT CompileShaderFromFile(LPCWSTR srcFile, LPCSTR entryPoint, LPCSTR shaderModel, ID3DBlob** ppBlobOut);
 private:
-	std::unordered_map<std::wstring, ID3D11VertexShader*> mCompiledVertexShaders;
+	std::unordered_map<std::wstring, std::pair<ID3DBlob* ,ID3D11VertexShader*>> mCompiledVertexShaders;
 	std::unordered_map<std::wstring, ID3D11PixelShader*> mCompiledPixelShaders;
 };

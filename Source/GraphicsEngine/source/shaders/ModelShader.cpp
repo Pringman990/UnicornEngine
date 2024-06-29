@@ -3,7 +3,6 @@
 
 #include "../model/Model.h"
 #include "../ConstantBuffer.h"
-#include "source/DX11.h"
 
 ModelShader::ModelShader()
 {

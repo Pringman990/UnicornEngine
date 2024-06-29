@@ -15,6 +15,7 @@ public:
 
 	bool HasCreated() { return mHasBeenCreated; };
 
+	Vector2 GetTextureSize() const;
 	ID3D11ShaderResourceView* GetSRV() const;
 
 private:

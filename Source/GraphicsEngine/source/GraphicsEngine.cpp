@@ -48,6 +48,7 @@ void GraphicsEngine::Shutdown()
 void GraphicsEngine::PreRender()
 {
 	mDX11->PreRender();
+	mDrawCalls = 0;
 }
 
 void GraphicsEngine::Render()
@@ -71,9 +72,21 @@ dx::DX11* GraphicsEngine::GetDX11()
 	return mDX11.get();
 }
 
-std::shared_ptr<Camera> GraphicsEngine::GetCamera()
+void GraphicsEngine::SetSpriteRenderCameraAsActive()
 {
-	return mCamera;
+	mActiveCamera = mSpriteRenderCamera;
+	UpdateCameraConstantBuffer();
+}
+
+std::shared_ptr<Camera> GraphicsEngine::GetActiveCamera()
+{
+	return mActiveCamera;
+}
+
+void GraphicsEngine::SetActiveCamera(std::shared_ptr<Camera> aCamera)
+{
+	mActiveCamera = aCamera;
+	UpdateCameraConstantBuffer();
 }
 
 LightManager& GraphicsEngine::GetLightManager() const
@@ -89,6 +102,16 @@ ModelFactory& GraphicsEngine::GetModelFactory() const
 ShaderManager& GraphicsEngine::GetShaderManager() const
 {
 	return *mShaderManager;
+}
+
+const uint32_t GraphicsEngine::GetDrawCalls() const
+{
+	return mDrawCalls;
+}
+
+void GraphicsEngine::AddDrawCall()
+{
+	mDrawCalls += 1;
 }
 
 bool GraphicsEngine::Init()
@@ -112,18 +135,24 @@ bool GraphicsEngine::Init()
 			mShaderManager = std::make_unique<ShaderManager>();
 	}
 	{
-		if (mCamera == nullptr)
-			mCamera = std::make_shared<Camera>();
+		if (mActiveCamera == nullptr)
+			mActiveCamera = std::make_shared<Camera>();
 
-		mCamera->SetPerspective(90, 16.f / 9.f, 0.01f, 1000.f);
+		mActiveCamera->SetPerspective(90, 16.f / 9.f, 0.01f, 1000.f);
+	}
+	{
+		if (mSpriteRenderCamera == nullptr)
+			mSpriteRenderCamera = std::make_shared<Camera>();
+
+		mSpriteRenderCamera->SetOrthographic(mWindow->GetWindowInfo().resolution, 0.01f, 1000.f);
 	}
 	{
 		if (mCameraConstantBuffer == nullptr)
 			mCameraConstantBuffer = std::make_unique<ConstantBuffer>();
 
 		CameraConstantBufferData cameraBuffer;
-		cameraBuffer.worldToClipMatrix = mCamera->GetClipSpaceMatrix();
-		cameraBuffer.position = mCamera->GetTransform().GetPosition();
+		cameraBuffer.worldToClipMatrix = mActiveCamera->GetClipSpaceMatrix();
+		cameraBuffer.position = mActiveCamera->GetTransform().GetPosition();
 
 		if (!mCameraConstantBuffer->Init(sizeof(CameraConstantBufferData), &cameraBuffer))
 			return false;
@@ -158,10 +187,7 @@ bool GraphicsEngine::Init()
 
 void GraphicsEngine::UpdateConstantBuffers()
 {
-	CameraConstantBufferData cameraBuffer;
-	cameraBuffer.worldToClipMatrix = mCamera->GetClipSpaceMatrix();
-	mCameraConstantBuffer->Bind(ConstantBuffer::eCameraConstantBuffer);
-	mCameraConstantBuffer->Update(&cameraBuffer);
+	UpdateCameraConstantBuffer();
 
 	LightConstantBufferData data = {};
 	data.numberOfMips = mLightManager->GetAmbientLight().GetNumMips();
@@ -187,6 +213,14 @@ void GraphicsEngine::UpdateConstantBuffers()
 
 	if (mLightManager->GetAmbientLight().GetCubeMap())
 		mDX11->GetDeviceContext()->PSSetShaderResources(0, 1, mLightManager->GetAmbientLight().GetCubeMap().GetAddressOf());
+}
+
+void GraphicsEngine::UpdateCameraConstantBuffer()
+{
+	CameraConstantBufferData cameraBuffer;
+	cameraBuffer.worldToClipMatrix = mActiveCamera->GetClipSpaceMatrix();
+	mCameraConstantBuffer->Bind(ConstantBuffer::eCameraConstantBuffer);
+	mCameraConstantBuffer->Update(&cameraBuffer);
 }
 
 

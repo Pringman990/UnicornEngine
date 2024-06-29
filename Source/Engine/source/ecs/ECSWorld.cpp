@@ -7,20 +7,50 @@ ecs::World::World()
 
 ecs::World::~World()
 {
+	mSystems.clear();
 }
 
 ecs::Entity ecs::World::CreateEntity()
 {
 	Entity entity = mNextEntity++;
 	mEntityToIndex[entity] = {};
-	//TODO: Remove the six and give real mask
-	mMaskToEntity[6].push_back(entity);
+	mMaskToEntity[0].push_back(entity);
 	return entity;
 }
 
-void ecs::World::ProcessSystems()
+std::unordered_map<ecs::ComponentType, void*> ecs::World::GetAllEntityComponents(Entity anEntity)
 {
-	for (Pipeline pipeline = OnPreUpdate; pipeline < PIPELINE_COUNT; pipeline++)
+	std::unordered_map<ComponentType, void*> returnMap;
+
+	for (auto& [type, index] : mEntityToIndex[anEntity])
+	{
+		returnMap.insert({ type, mComponentArrays[type] });
+	}
+
+	return returnMap;
+}
+
+void ecs::World::ProcessEngineRenderSystems()
+{
+	for (auto& [signature, system] : mSystems[OnEngineRender])
+	{
+		for (auto& [mask, entityVector] : mMaskToEntity)
+		{
+			if ((mask & signature) == signature)
+			{
+				for (Entity entity : entityVector)
+				{
+					system(*this, entity);
+				}
+			}
+		}
+	}
+
+}
+
+void ecs::World::ProcessUpdateSystems()
+{
+	for (Pipeline pipeline = OnPreUpdate; pipeline < OnPostUpdate + 1; pipeline++)
 	{
 		for (auto& [signature, system] : mSystems[pipeline])
 		{
@@ -38,142 +68,23 @@ void ecs::World::ProcessSystems()
 	}
 }
 
+void ecs::World::ProcessInitSystems()
+{
+	for (Pipeline pipeline = OnLoad; pipeline < OnPostLoad + 1; pipeline++)
+	{
+		for (auto& [signature, system] : mSystems[pipeline])
+		{
+			for (auto& [mask, entityVector] : mMaskToEntity)
+			{
+				if ((mask & signature) == signature)
+				{
+					for (Entity entity : entityVector)
+					{
+						system(*this, entity);
+					}
+				}
+			}
+		}
+	}
+}
 
-//void ecs::World::ProcessSystems()
-//{
-//	Pipeline currentPipeline = OnPreUpdate;
-//
-//	for (const auto& [mask, system] : mSystems[currentPipeline])
-//	{
-//		if (currentPipeline > OnPostUpdate)
-//			break;
-//
-//		auto it = mArchetypes.find(mask);
-//		if (it != mArchetypes.end()) {
-//			for (auto entity : it->second) 
-//			{
-//				auto components = GetComponentsForEntity(entity);
-//
-//				// Call the system function with the components
-//				std::apply(system, std::tuple_cat(std::make_tuple(*this, entity), components));
-//			}
-//		}
-//
-//		currentPipeline++;
-//	}
-//}
-
-//template<typename ...Components>
-//void ecs::World::BindSystem(sys<Components...> aSystem, Pipeline aPipeline)
-//{
-//
-//}
-
-
-//template<typename ...Components>
-//void ecs::World::BindSystem(Pipeline aPipeline)
-//{
-//
-//}
-
-//template<typename T>
-//void ecs::World::AddComponent(Entity anEntity, T aComponent)
-//{
-//	auto it = mEntityComponentMasks.find(anEntity);
-//	if (it == mEntityComponentMasks.end())
-//		return;
-//
-//	auto& mask = mEntityComponentMasks[anEntity];
-//	mask |= internal::ComponentMaskRegistry::GetInstance().TryGetMask<T>();
-//	GetComponentStorage<T>()->data.push_back(aComponent);
-//	FindNewArchetypeForEntity(anEntity, mask);
-//}
-//
-//template<typename T>
-//void ecs::World::RemoveComponent(Entity anEntity)
-//{
-//	auto it = mEntityComponentMasks.find(anEntity);
-//	if (it == mEntityComponentMasks.end())
-//		return;
-//
-//	auto& mask = mEntityComponentMasks[anEntity];
-//	mask &= ~internal::ComponentMaskRegistry::GetInstance().TryGetMask<T>();
-//	GetComponentStorage<T>()->data.erase(entity);
-//	FindNewArchetypeForEntity(anEntity, mask);
-//}
-//
-//template<typename T>
-//bool ecs::World::HasComponent(Entity anEntity)
-//{
-//	auto it = mEntityComponentMasks.find(anEntity);
-//	if (it == mEntityComponentMasks.end())
-//		return false;
-//
-//	return (mEntityComponentMasks[anEntity] & internal::ComponentMaskRegistry::GetInstance().TryGetMask<T>()) != 0;
-//}
-//
-//template<typename T>
-//T ecs::World::GetComponent(Entity anEntity)
-//{
-//	mEntityComponentMasks[anEntity];
-//	return T();
-//}
-//
-//template<typename ...Components>
-//void ecs::World::BindSystem(SystemFunction aSystem, Pipeline aPipeline)
-//{
-//	ArchetypeMask mask = (internal::ComponentMaskRegistry::GetInstance().TryGetMask<Components>() | ...);
-//	mSystems[aPipeline].push_back({ mask, aSystem });
-//}
-//
-
-//
-//template<typename... Components>
-//std::tuple<Components&...> ecs::World::GetComponentsForEntity(Entity entity)
-//{
-//	return std::make_tuple(GetComponent<Components>(entity)...);
-//}
-//
-//bool ecs::World::EntityMatchesArchetype(Entity anEntity, ArchetypeMask aMask)
-//{
-//	auto it = mEntityComponentMasks.find(anEntity);
-//	if (it == mEntityComponentMasks.end())
-//		return false;
-//
-//	return (mEntityComponentMasks[anEntity] & aMask) == aMask;
-//}
-//
-//void ecs::World::FindNewArchetypeForEntity(Entity anEntity, ArchetypeMask aMask)
-//{
-//	auto it = mEntityComponentMasks.find(anEntity);
-//	if (it == mEntityComponentMasks.end())
-//		return;
-//
-//	mEntityComponentMasks[anEntity] = aMask;
-//	for (auto& archetype : mArchetypes)
-//	{
-//		auto& entities = archetype.second;
-//		if (EntityMatchesArchetype(anEntity, archetype.first))
-//		{
-//			entities.insert(anEntity);
-//		}
-//		else
-//		{
-//			entities.erase(anEntity);
-//		}
-//	}
-//}
-//
-//template<typename T>
-//ecs::ComponentStorage<T>* ecs::World::GetComponentStorage()
-//{
-//	auto it = mRegisteredComponents.find(typeid(T));
-//	if (it == mRegisteredComponents.end())
-//	{
-//		auto storage = new ComponentStorage<T>();
-//		mRegisteredComponents[typeid(T)] = storage;
-//		return storage;
-//	}
-//
-//	return static_cast<ComponentStorage<T>*>(it->second);
-//}

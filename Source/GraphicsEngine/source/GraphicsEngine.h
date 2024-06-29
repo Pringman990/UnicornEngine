@@ -31,10 +31,17 @@ public:
 
 	WinAPI::Window& GetCurrentWindow();
 	dx::DX11* GetDX11();
-	std::shared_ptr<Camera> GetCamera();
+	
+	void SetSpriteRenderCameraAsActive();
+	std::shared_ptr<Camera> GetActiveCamera();
+	void SetActiveCamera(std::shared_ptr<Camera> aCamera);
+
 	LightManager& GetLightManager() const;
 	ModelFactory& GetModelFactory() const;
 	ShaderManager& GetShaderManager() const;
+
+	const uint32_t GetDrawCalls() const;
+	void AddDrawCall();
 
 private:
 	GraphicsEngine();
@@ -42,10 +49,12 @@ private:
 
 	bool Init();
 	void UpdateConstantBuffers();
+	void UpdateCameraConstantBuffer();
 private:
 	static GraphicsEngine* mInstance;
 
-	std::shared_ptr<Camera> mCamera;
+	std::shared_ptr<Camera> mActiveCamera;
+	std::shared_ptr<Camera> mSpriteRenderCamera;
 
 	std::unique_ptr<WinAPI::Window> mWindow;
 	std::unique_ptr<dx::DX11> mDX11;
@@ -56,4 +65,6 @@ private:
 
 	std::unique_ptr<ConstantBuffer> mCameraConstantBuffer;
 	std::unique_ptr<ConstantBuffer> mLightConstantBuffer;
+
+	uint32_t mDrawCalls;
 };
