@@ -2,7 +2,7 @@ include "../../Premake/common.lua"
 
 project "Shaders"
 	language "C++"
-	cppdialect "C++17"
+	cppdialect "C++20"
 	kind "StaticLib"
 	targetname("%{prj.name}_%{cfg.buildcfg}")
 	objdir ("%{dirs.temp}/%{prj.name}/%{cfg.buildcfg}")
@@ -27,9 +27,9 @@ project "Shaders"
 		runtime "Debug"
 		symbols "on"
 	filter "configurations:Release"
-		defines "_RELEASE"
 		runtime "Release"
-		optimize "Full"
+		optimize "Full"        
+		defines {"_RELEASE", "NDEBUG"}
 
 	filter "system:windows"
 		kind "StaticLib"

@@ -18,5 +18,6 @@ dirs["editor"]			= os.realpath(dirs.source  .. "Editor/")
 dirs["externals"]		= os.realpath(dirs.source  .. "Externals/")
 dirs["shaders"]		    = os.realpath(dirs.source  .. "Shaders/")
 dirs["shaders_output"]  = os.realpath(dirs.bin     .. "shaders/")
+dirs["launcher"]		= os.realpath(dirs.source  .. "Launcher/")
 
 disabledwarnings = { }
