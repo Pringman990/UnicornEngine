@@ -1,14 +1,13 @@
 #include "EditorPch.h"
 #include "Utility.h"
 
-#include <source/model/ModelInstance.h>
-#include <source/model/Model.h>
+#include <model/ModelInstance.h>
+#include <model/Model.h>
 
 void ImGui::DisplayReflectedValues(const std::string& aTypeName, const reflection::MemberInfo& aMember, void*& someData)
 {
-	std::vector<char>* charVector = static_cast<std::vector<char>*>(someData);
-	char* firstElementPtr = &((*charVector)[0]);
-	char* wantedMemberPtr = firstElementPtr + aMember.offset;
+	char* firstElement = static_cast<char*>(someData);
+	char* wantedMemberPtr = firstElement + aMember.offset;
 
 	if (aMember.type == typeid(int))
 	{
@@ -168,7 +167,12 @@ void ImGui::internal::DisplayVectorTypes(const std::string& aTypeName, const ref
 
 			for (int i = 0; i < vectorPtr->size(); i++)
 			{
-				ImGui::Text("%d: %d", i, (*vectorPtr)[i]);
+				ImGui::Text("%d: ", i);
+				ImGui::SameLine();
+
+				ImGui::PushID((aTypeName + aMember.name + std::to_string(i)).c_str());
+				ImGui::DragInt("##", &(*vectorPtr)[i]);
+				ImGui::PopID();
 			}
 		}
 		else if (aMember.type == typeid(std::vector<float>))

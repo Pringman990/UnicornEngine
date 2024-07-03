@@ -1,7 +1,7 @@
 #include "DebugInformation.h"
 #include "EditorPch.h"
 
-DebugInformation::DebugInformation(Editor& aEditor) : ToolWindow(aEditor)
+DebugInformation::DebugInformation(EditorCore& aEditor) : ToolWindow(aEditor)
 {
 }
 
@@ -11,6 +11,7 @@ DebugInformation::~DebugInformation()
 
 void DebugInformation::Draw(float /*aDeltaTime*/)
 {
-	ImGui::Text("FPS: %d", Engine::GetEngine().GetTimer().GetFps());
-	ImGui::Text("Draw Calls: %d", GraphicsEngine::GetInstance().GetDrawCalls());
+	ImGui::Text("FPS: %d", Engine::GetInstance().GetTimer().GetFps());
+	ImGui::Text("Draw Calls: %d", Engine::GetGraphicsEngine().GetDrawCalls());
+	ImGui::Text("Selected Entities Count: %d", mEditor.GetSelectedEntities().size());
 }

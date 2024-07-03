@@ -3,7 +3,7 @@
 class ToolWindow
 {
 public:
-	ToolWindow(Editor& aEditor) : mEditor(aEditor) {};
+	ToolWindow(EditorCore& aEditor) : mEditor(aEditor) {};
 	~ToolWindow() {};
 
 	virtual void Init() {};
@@ -14,7 +14,7 @@ public:
 	ImGuiWindowFlags GetWindowFlags() { return mWindowFlags; };
 
 protected:
-	Editor& mEditor;
+	EditorCore& mEditor;
 	bool mIsOpen = false;
 	ImGuiWindowFlags mWindowFlags = 0;
 };

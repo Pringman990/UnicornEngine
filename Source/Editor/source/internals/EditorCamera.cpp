@@ -20,7 +20,6 @@ EditorCamera::~EditorCamera()
 
 void EditorCamera::Update(float aDeltaTime)
 {
-
 	if (!Input::IsKeyHeld(VK_RBUTTON))
 	{
 		Input::ReleaseMouse();

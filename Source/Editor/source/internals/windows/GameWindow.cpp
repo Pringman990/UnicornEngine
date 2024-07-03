@@ -1,9 +1,9 @@
 #include "EditorPch.h"
 #include "GameWindow.h"
 
-#include <source/RenderTarget.h>
+#include <RenderTarget.h>
 
-GameWindow::GameWindow(Editor& aEditor) : ToolWindow(aEditor)
+GameWindow::GameWindow(EditorCore& aEditor) : ToolWindow(aEditor)
 {
 	mWindowFlags =
 		ImGuiWindowFlags_NoScrollbar |
@@ -24,6 +24,11 @@ void GameWindow::Init()
 
 void GameWindow::Draw(float /*aDeltaTime*/)
 {
+	//mRendertarget->SetAsActiveRenderTarget();
+	//Engine::GetGraphicsEngine().SetActiveCamera(nullptr);
+	//Engine::GetECSSystemManager().RunRenderEngineSystems();
+	//Engine::GetGraphicsEngine().GetDX11()->GetBackBuffer()->SetAsActiveRenderTarget();
+
 	Vector2 size = Vector2(ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
 	static Vector2 lastSize;
 	if (size != lastSize)

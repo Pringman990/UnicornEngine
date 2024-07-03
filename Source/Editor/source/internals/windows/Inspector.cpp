@@ -1,9 +1,9 @@
 #include "EditorPch.h"
 #include "Inspector.h"
 
-extern ecs::World gECSWorld;
+#include <scene/SceneManager.h>
 
-Inspector::Inspector(Editor& aEditor) : ToolWindow(aEditor)
+Inspector::Inspector(EditorCore& aEditor) : ToolWindow(aEditor)
 {
 }
 
@@ -13,17 +13,25 @@ Inspector::~Inspector()
 
 void Inspector::Draw(float /*aDeltaTime*/)
 {
-	/*if (mEditor.GetSelectedEntities().size() < 1)
-		return;*/
+	if (mEditor.GetSelectedEntities().size() < 1)
+		return;
 
-	ImGui::Separator();
+	auto typeToVectorMap = Engine::GetSceneManager().GetCurrentEcsWorld().GetAllEntityComponents(mEditor.GetSelectedEntities()[0]);
 
-	auto typeToVectorMap = gECSWorld.GetAllEntityComponents(0/*mEditor.GetSelectedEntities()[0]*/);
+	void* data = typeToVectorMap[typeid(ecs::Name)];
+
+	EngineCustomDraw(typeid(ecs::Name), data);
 
 	for (auto& [type, ptr] : typeToVectorMap)
 	{
-		reflection::TypeInfo typeInfo = reflection::Registry::GetInstance().GetTypeInfo(type);
-		//ImGui::Text(typeInfo.name.c_str());
+		reflection::TypeInfo typeInfo = Engine::GetReflectionRegistry().GetTypeInfo(type);
+		
+		if (typeInfo.name == "_INVALID" || 
+			*typeInfo.type == typeid(ecs::ChildParent) ||
+			*typeInfo.type == typeid(ecs::Name) ||
+			*typeInfo.type == typeid(ecs::Tag)
+			)
+			continue;
 
 		if (ImGui::CollapsingHeader(typeInfo.name.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
 		{
@@ -32,6 +40,22 @@ void Inspector::Draw(float /*aDeltaTime*/)
 				ImGui::DisplayReflectedValues(typeInfo.name, memberInfo, ptr);
 			}
 		}
+
 		ImGui::Separator();
+	}
+}
+
+void Inspector::EngineCustomDraw(ecs::ComponentType aType, void*& someData)
+{
+	if (aType == typeid(ecs::Name))
+	{
+		ecs::Name* nameComponent = static_cast<ecs::Name*>(someData);
+		nameComponent;
+		char* firstElement = static_cast<char*>(someData);
+		std::string* name = reinterpret_cast<std::string*>(firstElement);
+		if (ImGui::InputText("##_EntityName", name))
+		{
+
+		}
 	}
 }
