@@ -6,32 +6,33 @@ struct ID3D11Buffer;
 
 struct alignas(16) CameraConstantBufferData
 {
-	Matrix worldToClipMatrix;
-	Vector3 position;
-	int garbage0;
+	Matrix worldToClipMatrix = {};
+	Vector3 position = {};
+	int garbage0 = 0;
 };
 
 struct alignas(16) ObjectConstantBufferData
 {
-	Matrix modelToWorld;
+	Matrix modelToWorld = {};
 };
 
 struct alignas(16) LightConstantBufferData
 {
 	struct alignas(16) PointLight
 	{
-		Vector3 position;
-		float radius;
-		Color color;
+		Vector3 position = {};
+		float radius = 0;
+		Color color = {};
 	}pointLights[MAX_NUMBER_OF_LIGHTS];
-	uint32_t numPointLights;
-	uint32_t pad3;
-	uint32_t pad4;
+	
+	uint32_t numPointLights = 0;
+	uint32_t pad3 = 0;
+	uint32_t pad4 = 0;
 
-	uint32_t numberOfMips;
-	Vector4 ambientLightColorAndIntensity;
-	Vector4 directionalLightDirection;
-	Vector4 directionalLightColorAndIntensity;
+	uint32_t numberOfMips = 0;
+	Vector4 ambientLightColorAndIntensity = {};
+	Vector4 directionalLightDirection = {};
+	Vector4 directionalLightColorAndIntensity = {};
 };
 
 class ConstantBuffer

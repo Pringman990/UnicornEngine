@@ -31,8 +31,9 @@ void SpriteInstance::Draw()
 	mTexture->Bind(1);
 
 	mSpriteShader->Render(mTransform);
-
-	GraphicsEngine::GetInstance().AddDrawCall();
+#ifdef _DEBUG
+	Engine::GetGraphicsEngine().AddDrawCall();
+#endif // _DEBUG
 }
 
 void SpriteInstance::SetTexture(const std::wstring& aTexturePath)

@@ -1,7 +1,7 @@
 
 project "GraphicsEngine"
 	language "C++"
-	cppdialect "C++17"
+	cppdialect "C++20"
 	kind "StaticLib"
 	targetname("%{prj.name}_%{cfg.buildcfg}")
 	objdir ("%{dirs.temp}/%{prj.name}/%{cfg.buildcfg}")
@@ -41,6 +41,7 @@ project "GraphicsEngine"
 	includedirs {
 		".",
 		dirs.graphics_engine,
+		dirs.graphics_engine .. "source/",
 		dirs.engine,
 		dirs.shaders,
 		dirs.include,
@@ -63,9 +64,9 @@ project "GraphicsEngine"
 		symbols "on"
 
 	filter "configurations:Release"
-		defines "_RELEASE"
 		runtime "Release"
 		optimize "Full"
+		defines {"_RELEASE", "NDEBUG"}
 
 		filter "system:windows"
 		kind "StaticLib"

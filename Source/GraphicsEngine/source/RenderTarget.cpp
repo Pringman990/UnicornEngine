@@ -5,6 +5,10 @@
 #include "Window.h"
 
 RenderTarget::RenderTarget()
+	:
+	mEnabledDepthTesting(true),
+	mSize(0,0),
+	mViewport({})
 {
 }
 
@@ -17,7 +21,7 @@ bool RenderTarget::Create(Vector2 aSize, bool EnableDepthTesting)
 	mSize = aSize;
 	mEnabledDepthTesting = EnableDepthTesting;
 
-	ID3D11Device* device = GraphicsEngine::GetInstance().GetDX11()->GetDevice();
+	ID3D11Device* device = Engine::GetGraphicsEngine().GetDX11()->GetDevice();
 
 	//Setup Texture2D
 	D3D11_TEXTURE2D_DESC textureDesc = {};
@@ -35,7 +39,7 @@ bool RenderTarget::Create(Vector2 aSize, bool EnableDepthTesting)
 	{
 		_com_error err(hr);
 		LPCTSTR errorMessage = err.ErrorMessage();
-		std::cout << "Failed to create RenderTargetView: " << errorMessage << std::endl;
+		std::wcout << "Failed to create RenderTargetView: " << errorMessage << std::endl;
 		return false;
 	}
 
@@ -50,7 +54,7 @@ bool RenderTarget::Create(Vector2 aSize, bool EnableDepthTesting)
 	{
 		_com_error err(hr);
 		LPCTSTR errorMessage = err.ErrorMessage();
-		std::cout << "Failed to create RenderTargetView: " << errorMessage << std::endl;
+		std::wcout << "Failed to create RenderTargetView: " << errorMessage << std::endl;
 		return false;
 	}
 
@@ -66,7 +70,7 @@ bool RenderTarget::Create(Vector2 aSize, bool EnableDepthTesting)
 	{
 		_com_error err(hr);
 		LPCTSTR errorMessage = err.ErrorMessage();
-		std::cout << "Failed to create RenderTargetView: " << errorMessage << std::endl;
+		std::wcout << "Failed to create RenderTargetView: " << errorMessage << std::endl;
 		return false;
 	}
 
@@ -96,7 +100,7 @@ bool RenderTarget::Create(Vector2 aSize, bool EnableDepthTesting)
 		{
 			_com_error err(hr);
 			LPCTSTR errorMessage = err.ErrorMessage();
-			std::cout << "Failed to create DepthStencil Texture2D: " << errorMessage << std::endl;
+			std::wcout << "Failed to create DepthStencil Texture2D: " << errorMessage << std::endl;
 			return false;
 		}
 
@@ -111,7 +115,7 @@ bool RenderTarget::Create(Vector2 aSize, bool EnableDepthTesting)
 		{
 			_com_error err(hr);
 			LPCTSTR errorMessage = err.ErrorMessage();
-			std::cout << "Failed to create DepthStencilView: " << errorMessage << std::endl;
+			std::wcout << "Failed to create DepthStencilView: " << errorMessage << std::endl;
 			return false;
 		}
 
@@ -125,7 +129,7 @@ bool RenderTarget::Create(Vector2 aSize, bool EnableDepthTesting)
 		{
 			_com_error err(hr);
 			LPCTSTR errorMessage = err.ErrorMessage();
-			std::cout << "Failed to create DepthStencilView: " << errorMessage << std::endl;
+			std::wcout << "Failed to create DepthStencilView: " << errorMessage << std::endl;
 			return false;
 		}
 	}
@@ -135,7 +139,7 @@ bool RenderTarget::Create(Vector2 aSize, bool EnableDepthTesting)
 
 bool RenderTarget::Create(ID3D11Texture2D* aTexture2D)
 {
-	ID3D11Device* device = GraphicsEngine::GetInstance().GetDX11()->GetDevice();
+	ID3D11Device* device = Engine::GetGraphicsEngine().GetDX11()->GetDevice();
 
 	HRESULT hr = device->CreateRenderTargetView(
 		aTexture2D,
@@ -146,14 +150,14 @@ bool RenderTarget::Create(ID3D11Texture2D* aTexture2D)
 	{
 		_com_error err(hr);
 		LPCTSTR errorMessage = err.ErrorMessage();
-		std::cout << "Failed to create DepthStencilView: " << errorMessage << std::endl;
+		std::wcout << "Failed to create DepthStencilView: " << errorMessage << std::endl;
 		return false;
 	}
 
 	ID3D11Texture2D* depthBufferTexture;
 	D3D11_TEXTURE2D_DESC desc = {};
-	desc.Width = (UINT)GraphicsEngine::GetInstance().GetCurrentWindow().GetWindowInfo().resolution.x;
-	desc.Height = (UINT)GraphicsEngine::GetInstance().GetCurrentWindow().GetWindowInfo().resolution.y;
+	desc.Width = (UINT)Engine::GetGraphicsEngine().GetCurrentWindow().GetWindowInfo().resolution.x;
+	desc.Height = (UINT)Engine::GetGraphicsEngine().GetCurrentWindow().GetWindowInfo().resolution.y;
 	desc.ArraySize = 1;
 	desc.Format = DXGI_FORMAT_D32_FLOAT;
 	desc.SampleDesc.Count = 1;
@@ -193,18 +197,18 @@ void RenderTarget::SetAsActiveRenderTarget(ID3D11DepthStencilView* aDSV)
 {
 	if (aDSV)
 	{
-		GraphicsEngine::GetInstance().GetDX11()->GetDeviceContext()->OMSetRenderTargets(1, mRTV.GetAddressOf(), aDSV);
+		Engine::GetGraphicsEngine().GetDX11()->GetDeviceContext()->OMSetRenderTargets(1, mRTV.GetAddressOf(), aDSV);
 	}
 	else
 	{
-		GraphicsEngine::GetInstance().GetDX11()->GetDeviceContext()->OMSetRenderTargets(1, mRTV.GetAddressOf(), nullptr);
+		Engine::GetGraphicsEngine().GetDX11()->GetDeviceContext()->OMSetRenderTargets(1, mRTV.GetAddressOf(), nullptr);
 	}
-	GraphicsEngine::GetInstance().GetDX11()->GetDeviceContext()->RSSetViewports(1, &mViewport);
+	Engine::GetGraphicsEngine().GetDX11()->GetDeviceContext()->RSSetViewports(1, &mViewport);
 }
 
 void RenderTarget::Clear()
 {
-	ID3D11DeviceContext* context = GraphicsEngine::GetInstance().GetDX11()->GetDeviceContext();
+	ID3D11DeviceContext* context = Engine::GetGraphicsEngine().GetDX11()->GetDeviceContext();
 	Vector4 color(0, 0, 0, 0);
 	context->ClearRenderTargetView(mRTV.Get(), (float*)&color);
 }

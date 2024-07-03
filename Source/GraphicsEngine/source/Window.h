@@ -13,12 +13,12 @@ namespace WinAPI
 
 	struct WindowInfo
 	{
-		Vector2 size;
-		Vector2 resolution;
-		HWND currentWindow;
-		DWORD style;
-		WindowType type;
-		wchar_t* name;
+		Vector2 size = { };
+		Vector2 resolution = { };
+		HWND currentWindow = { };
+		DWORD style = { };
+		WindowType type = { };
+		const wchar_t* name = L"";
 	};
 
 	class Window

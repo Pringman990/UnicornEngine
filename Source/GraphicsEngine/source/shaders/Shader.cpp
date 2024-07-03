@@ -27,14 +27,13 @@ bool Shader::CreateShader(
     const std::string& aPixelShaderModel
 )
 {
-    ShaderManager& shaderManager = GraphicsEngine::GetInstance().GetShaderManager();
+    ShaderManager& shaderManager = Engine::GetGraphicsEngine().GetShaderManager();
 
     ID3DBlob* vertexBlob = nullptr;
     ID3D11VertexShader* vertexShader =  shaderManager.TryGetVertexShader(aVertexShaderFileName, vertexBlob, aVertexEntryPoint, aVertexShaderModel);
     if (vertexShader == nullptr)
     {
-        //vertexBlob->Release();
-        std::cout << "Failed to load Vertex Shader: " << aVertexShaderFileName.c_str() << std::endl;
+        std::wcout << "Failed to load Vertex Shader: " << aVertexShaderFileName.c_str() << std::endl;
         return false;
     }
     mVertexShader = vertexShader;
@@ -42,7 +41,7 @@ bool Shader::CreateShader(
     ID3D11PixelShader* pixelShader = shaderManager.TryGetPixelShader(aPixelShaderFileName, aPixelEntryPoint, aPixelShaderModel);
     if (pixelShader == nullptr)
     {
-        std::cout << "Failed to load Pixel Shader: " << aPixelShaderFileName.c_str() << std::endl;
+        std::wcout << "Failed to load Pixel Shader: " << aPixelShaderFileName.c_str() << std::endl;
         return false;
     }
 
@@ -69,24 +68,22 @@ bool Shader::CreateShader(
             { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT,    D3D11_INPUT_PER_VERTEX_DATA, 0 },
         };
 
-        HRESULT result = GraphicsEngine::GetInstance().GetDX11()->GetDevice()->CreateInputLayout(layout, LAYOUT_SIZE, vertexBlob->GetBufferPointer(), vertexBlob->GetBufferSize(), &mInputLayout);
+        HRESULT result = Engine::GetGraphicsEngine().GetDX11()->GetDevice()->CreateInputLayout(layout, LAYOUT_SIZE, vertexBlob->GetBufferPointer(), vertexBlob->GetBufferSize(), &mInputLayout);
         if (FAILED(result))
         {
             _com_error err(result);
             LPCTSTR errorMessage = err.ErrorMessage();
-            std::cout << "Failed to create Shader: " << errorMessage << std::endl;
-            //vertexBlob->Release();
+            std::wcout << "Failed to create Shader: " << errorMessage << std::endl;
             return false;
         }
     }
-   // vertexBlob->Release();
 
     return true;
 }
 
 bool Shader::PrepareRender(D3D_PRIMITIVE_TOPOLOGY aPrimitiveTopology) const
 {
-    ID3D11DeviceContext* context = GraphicsEngine::GetInstance().GetDX11()->GetDeviceContext();
+    ID3D11DeviceContext* context = Engine::GetGraphicsEngine().GetDX11()->GetDeviceContext();
     if (!mVertexShader || !mPixelShader || !mInputLayout || !context)
     {
         std::cout << "Failed to render shader" << std::endl;
@@ -112,12 +109,12 @@ bool Shader::LoadVertexShader(const char* aPath, std::string& aData)
     std::ifstream vsFile;
     vsFile.open(aPath, std::ios::binary);
     aData = { std::istreambuf_iterator<char>(vsFile), std::istreambuf_iterator<char>() };
-    HRESULT result = GraphicsEngine::GetInstance().GetDX11()->GetDevice()->CreateVertexShader(aData.data(), aData.size(), nullptr, &mVertexShader);
+    HRESULT result = Engine::GetGraphicsEngine().GetDX11()->GetDevice()->CreateVertexShader(aData.data(), aData.size(), nullptr, &mVertexShader);
     if (FAILED(result))
     {
         _com_error err(result);
         LPCTSTR errorMessage = err.ErrorMessage();
-        std::cout << "Failed to create Vertex Shader: " << errorMessage << std::endl;
+        std::wcout << "Failed to create Vertex Shader: " << errorMessage << std::endl;
         return false;
     }
     vsFile.close();
@@ -129,12 +126,12 @@ bool Shader::LoadPixelShader(const char* aPath)
     std::ifstream psFile;
     psFile.open(aPath, std::ios::binary);
     std::string psData = { std::istreambuf_iterator<char>(psFile), std::istreambuf_iterator<char>() };
-    HRESULT result = GraphicsEngine::GetInstance().GetDX11()->GetDevice()->CreatePixelShader(psData.data(), psData.size(), nullptr, &mPixelShader);
+    HRESULT result = Engine::GetGraphicsEngine().GetDX11()->GetDevice()->CreatePixelShader(psData.data(), psData.size(), nullptr, &mPixelShader);
     if (FAILED(result))
     {
         _com_error err(result);
         LPCTSTR errorMessage = err.ErrorMessage();
-        std::cout << "Failed to create Pixel Shader: " << errorMessage << std::endl;
+        std::wcout << "Failed to create Pixel Shader: " << errorMessage << std::endl;
         return false;
     }
     psFile.close();

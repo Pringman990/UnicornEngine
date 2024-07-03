@@ -9,9 +9,7 @@ Material::~Material()
 {
 }
 
-bool Material::CreateMaterial(
-	const std::string& aColorPath, const std::string& aMaterialPath, const std::string& aNormalPath
-)
+bool Material::CreateMaterial(const std::string& aColorPath, const std::string& aMaterialPath, const std::string& aNormalPath)
 {
 	if (!mColorTexture.Create(StringToWString(aColorPath).c_str()))
 		return false;

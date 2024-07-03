@@ -20,11 +20,6 @@ namespace WinAPI
 class GraphicsEngine
 {
 public:
-	static GraphicsEngine& GetInstance();
-
-	static bool Start();
-	static void Shutdown();
-
 	void PreRender();
 	void Render();
 	void PostRender();
@@ -44,6 +39,7 @@ public:
 	void AddDrawCall();
 
 private:
+	friend class Engine;
 	GraphicsEngine();
 	~GraphicsEngine();
 
@@ -51,7 +47,6 @@ private:
 	void UpdateConstantBuffers();
 	void UpdateCameraConstantBuffer();
 private:
-	static GraphicsEngine* mInstance;
 
 	std::shared_ptr<Camera> mActiveCamera;
 	std::shared_ptr<Camera> mSpriteRenderCamera;

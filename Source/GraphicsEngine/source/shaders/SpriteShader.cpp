@@ -1,9 +1,14 @@
 #include "GraphicsPch.h"
 #include "SpriteShader.h"
 
-#include "../ConstantBuffer.h"
+#include "ConstantBuffer.h"
 
 SpriteShader::SpriteShader()
+	:
+	mVertexCount(0),
+	mIndexCount(0),
+	mVertexBuffer(nullptr),
+	mIndexBuffer(nullptr)
 {
 }
 
@@ -13,7 +18,7 @@ SpriteShader::~SpriteShader()
 
 void SpriteShader::Render(const Transform& aTransform)
 {
-	ID3D11DeviceContext* context = GraphicsEngine::GetInstance().GetDX11()->GetDeviceContext();
+	ID3D11DeviceContext* context = Engine::GetGraphicsEngine().GetDX11()->GetDeviceContext();
 	if (!PrepareRender() || !context)
 	{
 		std::cout << "Failed to draw Sprite shader" << std::endl;
@@ -50,10 +55,10 @@ bool SpriteShader::Init()
 	D3D11_SUBRESOURCE_DATA vertexSubresourceData{};
 	vertexSubresourceData.pSysMem = vertices;
 
-	HRESULT result = GraphicsEngine::GetInstance().GetDX11()->GetDevice()->CreateBuffer(&vertexBufferDesc, &vertexSubresourceData, &mVertexBuffer);
+	HRESULT result = Engine::GetGraphicsEngine().GetDX11()->GetDevice()->CreateBuffer(&vertexBufferDesc, &vertexSubresourceData, &mVertexBuffer);
 	if (FAILED(result)) 
 	{
-		return nullptr;
+		return false;
 	}
 
 	unsigned int indices[] = { 0, 1, 2, 0, 2, 3 };
@@ -66,10 +71,10 @@ bool SpriteShader::Init()
 	D3D11_SUBRESOURCE_DATA indexSubresourceData{};
 	indexSubresourceData.pSysMem = indices;
 
-	result = GraphicsEngine::GetInstance().GetDX11()->GetDevice()->CreateBuffer(&indexBufferDesc, &indexSubresourceData, &mIndexBuffer);
+	result = Engine::GetGraphicsEngine().GetDX11()->GetDevice()->CreateBuffer(&indexBufferDesc, &indexSubresourceData, &mIndexBuffer);
 	if (FAILED(result))
 	{
-		return nullptr;
+		return false;
 	}
 
 	mVertexCount = ARRAYSIZE(vertices); 
@@ -93,12 +98,12 @@ bool SpriteShader::CreateInputLayout(ID3DBlob* aVertexBlob)
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
 	};
 
-	HRESULT result = GraphicsEngine::GetInstance().GetDX11()->GetDevice()->CreateInputLayout(layout, ARRAYSIZE(layout), aVertexBlob->GetBufferPointer(), aVertexBlob->GetBufferSize(), &mInputLayout);
+	HRESULT result = Engine::GetGraphicsEngine().GetDX11()->GetDevice()->CreateInputLayout(layout, ARRAYSIZE(layout), aVertexBlob->GetBufferPointer(), aVertexBlob->GetBufferSize(), &mInputLayout);
 	if (FAILED(result))
 	{
 		_com_error err(result);
 		LPCTSTR errorMessage = err.ErrorMessage();
-		std::cout << "Failed to create Shader: " << errorMessage << std::endl;
+		std::wcout << "Failed to create Shader: " << errorMessage << std::endl;
 		return false;
 	}
 
