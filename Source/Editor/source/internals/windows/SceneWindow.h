@@ -5,11 +5,11 @@ class EditorCamera;
 class Camera;
 class RenderTarget;
 
-class LevelWindow : public ToolWindow
+class SceneWindow : public ToolWindow
 {
 public:
-	LevelWindow(Editor& aEditor);
-	~LevelWindow();
+	SceneWindow(EditorCore& aEditor);
+	~SceneWindow();
 
 	void Init() override;
 	void Draw(float aDeltaTime) override;

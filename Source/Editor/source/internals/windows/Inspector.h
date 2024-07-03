@@ -4,11 +4,14 @@
 class Inspector : public ToolWindow
 {
 public:
-	Inspector(Editor& aEditor);
+	Inspector(EditorCore& aEditor);
 	~Inspector();
 
 	void Draw(float aDeltaTime) override;
 
+private:
+	void EngineCustomDraw(ecs::ComponentType aType, void*& someData);
+	void EngineNameDraw();
 private:
 
 };

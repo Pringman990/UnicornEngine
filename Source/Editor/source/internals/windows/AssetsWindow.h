@@ -4,7 +4,7 @@
 class AssetsWindow : public ToolWindow
 {
 public:
-	AssetsWindow(Editor& aEditor);
+	AssetsWindow(EditorCore& aEditor);
 	~AssetsWindow();
 
 	void Init() override;

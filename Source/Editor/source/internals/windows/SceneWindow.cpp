@@ -1,11 +1,11 @@
 #include "EditorPch.h"
-#include "LevelWindow.h"
+#include "SceneWindow.h"
 
 #include "../EditorCamera.h"
-#include <source/DX11.h>
-#include <source/RenderTarget.h>
+#include <DX11.h>
+#include <RenderTarget.h>
 
-LevelWindow::LevelWindow(Editor& aEditor) : ToolWindow(aEditor)
+SceneWindow::SceneWindow(EditorCore& aEditor) : ToolWindow(aEditor)
 {
 	mWindowFlags =
 		ImGuiWindowFlags_NoScrollbar |
@@ -14,20 +14,27 @@ LevelWindow::LevelWindow(Editor& aEditor) : ToolWindow(aEditor)
 		ImGuiWindowFlags_NoDecoration;
 }
 
-LevelWindow::~LevelWindow()
+SceneWindow::~SceneWindow()
 {
 }
 
-void LevelWindow::Init()
+void SceneWindow::Init()
 {
 	mEditorCamera = std::make_shared<EditorCamera>();
+
 	mRendertarget = std::make_shared<RenderTarget>();
 	mRendertarget->Create(Vector2(64,64));
 }
 
-void LevelWindow::Draw(float aDeltaTime)
+void SceneWindow::Draw(float aDeltaTime)
 {
 	{
+		mRendertarget->Clear();
+		mRendertarget->SetAsActiveRenderTarget();
+		Engine::GetGraphicsEngine().SetActiveCamera(mEditorCamera->GetCamera());
+		Engine::GetECSSystemManager().RunRenderEngineSystems();
+		Engine::GetGraphicsEngine().GetDX11()->GetBackBuffer()->SetAsActiveRenderTarget();
+
 		if(ImGui::IsWindowFocused() || ImGui::IsWindowHovered())
 			mEditorCamera->Update(aDeltaTime);
 
@@ -43,12 +50,12 @@ void LevelWindow::Draw(float aDeltaTime)
 	}
 }
 
-std::shared_ptr<RenderTarget> LevelWindow::GetRenderTarget()
+std::shared_ptr<RenderTarget> SceneWindow::GetRenderTarget()
 {
 	return mRendertarget;
 }
 
-std::shared_ptr<Camera> LevelWindow::GetCamera()
+std::shared_ptr<Camera> SceneWindow::GetCamera()
 {
 	return mEditorCamera->GetCamera();
 }

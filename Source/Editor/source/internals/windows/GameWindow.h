@@ -6,7 +6,7 @@ class RenderTarget;
 class GameWindow : public ToolWindow
 {
 public:
-	GameWindow(Editor& aEditor);
+	GameWindow(EditorCore& aEditor);
 	~GameWindow();
 
 	void Init() override;

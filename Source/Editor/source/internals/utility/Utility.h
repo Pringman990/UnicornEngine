@@ -1,10 +1,5 @@
 #pragma once
 
-namespace utility
-{
-
-}
-
 namespace ImGui
 {
 	/// <summary>

@@ -4,7 +4,7 @@
 class DebugInformation : public ToolWindow
 {
 public:
-	DebugInformation(Editor& aEditor);
+	DebugInformation(EditorCore& aEditor);
 	~DebugInformation();
 
 	void Draw(float aDeltaTime) override;
