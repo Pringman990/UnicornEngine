@@ -9,8 +9,8 @@ public:
 	FileWatcher();
 	~FileWatcher();
 
-	Path TryAssetsGetPathW(const std::wstring& aPath);
-	Path TryAssetsGetPathA(const std::string& aPath);
+	Path TryGetAssetsPathW(const std::wstring& aPath);
+	Path TryGetAssetsPathA(const std::string& aPath);
 
 private:
 

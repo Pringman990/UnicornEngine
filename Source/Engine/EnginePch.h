@@ -18,13 +18,14 @@
 #include <any>
 
 #include "source/Engine.h"
+#include "source/reflection/Reflection.h"
 #include "source/Global.h"
 #include "source/ecs/ECSWorld.h"
+#include "source/ecs/SystemManager.h"
 #include <source/GraphicsEngine.h>
 
-#define ASSERT_MSG(cond, msg) do { \
-    if (!(cond)) { \
-        std::cerr << "Assertion failed: " << (msg) << "\n"; \
-        assert(cond); \
-    } \
-} while (0)
+#include "ecs/components/Transform.h"
+#include "ecs/components/Mesh.h"
+#include "ecs/components/Name.h"
+#include "ecs/components/Tag.h"
+#include "ecs/components/ChildParent.h"

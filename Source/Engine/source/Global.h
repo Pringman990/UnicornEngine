@@ -4,5 +4,4 @@
 
 namespace global
 {
-	//EXPORT bool isInEditorState = false;
 }
