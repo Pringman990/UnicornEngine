@@ -45,7 +45,7 @@ namespace Input
 
 	Vector2 Input::GetMousePosition()
 	{
-		return Vector2(static_cast<float>(mCurrentMousePosition.x), static_cast<float>(GraphicsEngine::GetInstance().GetCurrentWindow().GetWindowInfo().resolution.y - mCurrentMousePosition.y));
+		return Vector2(static_cast<float>(mCurrentMousePosition.x), static_cast<float>(Engine::GetGraphicsEngine().GetCurrentWindow().GetWindowInfo().resolution.y - mCurrentMousePosition.y));
 	}
 
 	float Input::GetScrollWheelDelta()
@@ -71,7 +71,7 @@ namespace Input
 	void Input::CaptureMouse()
 	{
 		RECT clipRect;
-		HWND window = GraphicsEngine::GetInstance().GetCurrentWindow().GetWindowInfo().currentWindow;
+		HWND window = Engine::GetGraphicsEngine().GetCurrentWindow().GetWindowInfo().currentWindow;
 		GetClientRect(window, &clipRect);
 
 		POINT upperLeft;
@@ -110,7 +110,7 @@ namespace Input
 		Rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
 		Rid[0].usUsage = HID_USAGE_GENERIC_MOUSE;
 		Rid[0].dwFlags = RIDEV_INPUTSINK;
-		Rid[0].hwndTarget = GraphicsEngine::GetInstance().GetCurrentWindow().GetWindowInfo().currentWindow;
+		Rid[0].hwndTarget = Engine::GetGraphicsEngine().GetCurrentWindow().GetWindowInfo().currentWindow;
 		BOOL result = RegisterRawInputDevices(Rid, 1, sizeof(Rid[0]));
 		if (result == 0)
 		{

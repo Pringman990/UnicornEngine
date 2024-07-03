@@ -16,6 +16,7 @@ public:
 
 		frameCount++;
 		elapsedTime += myDeltaTime;
+
 		// Calculate FPS every second
 		if (elapsedTime >= 1.0f)
 		{

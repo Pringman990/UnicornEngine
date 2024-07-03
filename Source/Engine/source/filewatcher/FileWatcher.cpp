@@ -11,7 +11,7 @@ FileWatcher::~FileWatcher()
 
 }
 
-Path FileWatcher::TryAssetsGetPathW(const std::wstring& aPath)
+Path FileWatcher::TryGetAssetsPathW(const std::wstring& aPath)
 {
 	Path path = aPath;
 	if (std::filesystem::exists(path))
@@ -22,7 +22,7 @@ Path FileWatcher::TryAssetsGetPathW(const std::wstring& aPath)
 	return Path();
 }
 
-Path FileWatcher::TryAssetsGetPathA(const std::string& aPath)
+Path FileWatcher::TryGetAssetsPathA(const std::string& aPath)
 {
 	Path path = aPath;
 	if (std::filesystem::exists(path))

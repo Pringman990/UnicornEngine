@@ -1,21 +1,30 @@
 #include "EnginePch.h"
 #include "Engine.h"
 
-#include "input/InputManager.h"
-
 #include <WinUser.h>
-#include <source/debug/MemoryTracker.h>
 
-//Test for registring systems
-#include "ecs/systems/EngineSystemRegistration.h"
+#include "input/InputManager.h"
+#include <source/debug/MemoryTracker.h>
+#include "scene/SceneManager.h"
+
+//Systems
+#include "ecs/systems/MeshRenderSystem.h"
+#include "ecs/systems/SpriteRenderSystem.h"
+
+//Components
+#include "ecs/components/Transform.h"
+#include "ecs/components/Mesh.h"
+#include "ecs/components/Sprite.h"
 
 Engine* Engine::mInstance = nullptr;
 
-ecs::World gECSWorld;
-
 Engine::Engine()
 	:
-	mShouldClose(false)
+	mShouldClose(false),
+	mGraphicsEngine(new GraphicsEngine(), &Engine::ShutdownGrapicsEngine),
+	mECSSystemManager(new ecs::SystemManager(), &Engine::ShutdownSystemManager),
+	mReflectionRegistry(new reflection::Registry(), &Engine::ShutdownReflectionRegistry),
+	mSceneManager(new SceneManager, &Engine::ShutdownSceneManager)
 {
 }
 
@@ -23,7 +32,7 @@ Engine::~Engine()
 {
 }
 
-Engine& Engine::GetEngine()
+Engine& Engine::GetInstance()
 {
 	return *mInstance;
 }
@@ -47,18 +56,99 @@ void Engine::ShutDown()
 	{
 		delete mInstance;
 		mInstance = nullptr;
+
 		StopMemoryTrackingAndPrint();
+	}
+}
+
+GraphicsEngine& Engine::GetGraphicsEngine()
+{
+	if (mInstance)
+		return *mInstance->mGraphicsEngine;
+	else
+		return *GetInstance().mGraphicsEngine;
+}
+
+ecs::SystemManager& Engine::GetECSSystemManager()
+{
+	if (mInstance)
+		return *mInstance->mECSSystemManager;
+	else
+		return *GetInstance().mECSSystemManager;
+}
+
+reflection::Registry& Engine::GetReflectionRegistry()
+{
+	if (mInstance)
+		return *mInstance->mReflectionRegistry;
+	else
+		return *GetInstance().mReflectionRegistry;
+}
+
+SceneManager& Engine::GetSceneManager()
+{
+	if (mInstance)
+		return *mInstance->mSceneManager;
+	else
+		return *GetInstance().mSceneManager;
+}
+
+void Engine::InitEngineSystems()
+{
+	{
+		auto meshSystem = [](ecs::World& world, ecs::Entity entity, ecs::Transform& transform, ecs::Mesh& mesh) {
+			ecs::engineSystem::MeshRenderSystem(world, entity, transform, mesh);
+			};
+
+		mECSSystemManager->_RegisterEngineSystem<ecs::Transform, ecs::Mesh>(meshSystem, "Mesh Render System", ecs::OnRender);
+	}
+
+	{
+		auto spriteSystem = [](ecs::World& world, ecs::Entity entity, ecs::Transform& transform, ecs::Sprite& sprite) {
+			ecs::engineSystem::SpriteRenderSystem(world, entity, transform, sprite);
+			};
+
+		mECSSystemManager->_RegisterEngineSystem<ecs::Transform, ecs::Sprite>(spriteSystem, "Sprite Render System", ecs::OnRender);
 	}
 }
 
 bool Engine::Init()
 {
+	if (!mGraphicsEngine->Init())
+		return false;
+
 	if (!Input::Init())
 		return false;
 
-	ecs::RegisterSystems();
+	InitEngineSystems();
 
 	return true;
+}
+
+void Engine::ShutdownGrapicsEngine(GraphicsEngine* aGraphicsEngine)
+{
+	delete aGraphicsEngine;
+	aGraphicsEngine = nullptr;
+}
+
+void Engine::ShutdownSystemManager(ecs::SystemManager* aSystemManager)
+{
+	delete aSystemManager;
+	aSystemManager = nullptr;
+}
+
+void Engine::ShutdownReflectionRegistry(reflection::Registry* aReflectionRegistry)
+{
+	aReflectionRegistry->ShutDown();
+
+	delete aReflectionRegistry;
+	aReflectionRegistry = nullptr;
+}
+
+void Engine::ShutdownSceneManager(SceneManager* aSceneManager)
+{
+	delete aSceneManager;
+	aSceneManager = nullptr;
 }
 
 bool Engine::BeginFrame()
@@ -82,24 +172,27 @@ bool Engine::BeginFrame()
 
 	Input::Update();
 
-	GraphicsEngine::GetInstance().PreRender();
+	mGraphicsEngine->PreRender();
 
 	return true;
 }
 
-void Engine::Update()
+void Engine::Update(bool RunGame)
 {
-	gECSWorld.ProcessUpdateSystems();
+	mECSSystemManager->RunUpdateEngineSystems();
+
+	if(RunGame)
+		mSceneManager->GetCurrentEcsWorld().ProcessUpdateSystems();
 }
 
-void Engine::Render()
+void Engine::Render(bool /*RunGame*/)
 {
-	gECSWorld.ProcessEngineRenderSystems();
+	mECSSystemManager->RunRenderEngineSystems();
 }
 
 void Engine::EndFrame()
 {
-	GraphicsEngine::GetInstance().PostRender();
+	mGraphicsEngine->PostRender();
 }
 
 void Engine::SetShouldClose(bool shouldClose)

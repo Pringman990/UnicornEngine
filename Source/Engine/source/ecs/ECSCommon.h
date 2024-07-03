@@ -1,8 +1,11 @@
 #pragma once
 #include <typeindex>
+#include <functional>
+#include <unordered_map>
 
 namespace ecs
 {
+	class World;
 #undef max
 
 	using Signature = uint32_t;
@@ -25,10 +28,25 @@ namespace ecs
 	const constexpr Pipeline OnPreUpdate = 2;
 	const constexpr Pipeline OnUpdate = 3;
 	const constexpr Pipeline OnPostUpdate = 4;
-	const constexpr Pipeline OnEngineRender = 5;
+	const constexpr Pipeline OnRender = 5;
 	const constexpr Pipeline PIPELINE_COUNT = 6; //Update when new pipeline is added
 	
 	using ComponentType = std::type_index;
+
+	template<typename... Components>
+	using SystemFunctionT = std::function<void(World&, Entity, Components&...)>;
+	using SystemFunction = std::function<void(World&, Entity)>;
+	
+	struct System final
+	{
+		Pipeline pipeline = OnUpdate;
+		std::string name = "";
+		Signature signature = 0;
+		SystemFunction function;
+	};
+
+	using PipelineSystemMap = std::unordered_map<Pipeline, std::vector<std::shared_ptr<System>>>;
+	using NameSystemMap = std::unordered_map<std::string, System>;
 }
 
 namespace ecs
@@ -68,6 +86,14 @@ namespace ecs
 					return newMask;
 				}
 				return it->second;
+			}
+
+			template<typename ...Components>
+			ecs::Signature CalulateSignature()
+			{
+				Signature signature = 0;
+				((signature |= (1 << TryGetMask<Components>())), ...);
+				return signature;
 			}
 
 		private:
