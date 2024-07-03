@@ -39,5 +39,5 @@ private:
 	D3D11_VIEWPORT mViewport;
 
 	Vector2 mSize;
-	bool mEnabledDepthTesting = true;
+	bool mEnabledDepthTesting;
 };

@@ -19,7 +19,8 @@ AmbientLight::~AmbientLight()
 
 void AmbientLight::SetCubeMap(const std::wstring& aPath)
 {
-    HRESULT result = DirectX::CreateDDSTextureFromFile(GraphicsEngine::GetInstance().GetDX11()->GetDevice(), aPath.c_str(), nullptr, &mCubemap);
+    HRESULT result = DirectX::CreateDDSTextureFromFile(Engine::GetGraphicsEngine().GetDX11()->GetDevice(), aPath.c_str(), nullptr, &mCubemap);
+    result;
     assert(!FAILED(result));
 
     ID3D11Resource* theResource;

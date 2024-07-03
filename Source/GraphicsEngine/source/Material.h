@@ -14,9 +14,7 @@ public:
 	Material();
 	~Material();
 
-	bool CreateMaterial(
-		const std::string& aColorPath, const std::string& aMaterialPath, const std::string& aNormalPath
-	);
+	bool CreateMaterial(const std::string& aColorPath, const std::string& aMaterialPath, const std::string& aNormalPath);
 
 	void Bind();
 

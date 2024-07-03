@@ -2,7 +2,7 @@
 #include "Window.h"
 
 #include <dwmapi.h>
-#include <../Engine/source/input/InputManager.h>
+#include <source/input/InputManager.h>
 #include "DX11.h"
 
 #ifdef _DEBUG
@@ -24,7 +24,7 @@ bool WinAPI::Window::Init()
 	mWindowInfo.resolution = {};
 	mWindowInfo.name = L"Unicorn";
 	mWindowInfo.type = WindowType::eWindow;
-	mWindowInfo.style = WS_OVERLAPPEDWINDOW;
+	mWindowInfo.style = WS_OVERLAPPEDWINDOW /*& ~(WS_CAPTION | WS_SYSMENU)*/;
 
 	if (!CreateWindow())
 		return false;
@@ -66,7 +66,9 @@ bool WinAPI::Window::CreateWindow()
 		return false;
 
 	mWindowInfo.currentWindow = hwnd;
-
+	
+	//SetWindowLong(hwnd, GWL_STYLE, 0);
+	
 	ShowWindow(hwnd, SW_SHOWDEFAULT);
 
 	return true;
@@ -107,9 +109,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_SIZE:
 	{
-		if (GraphicsEngine::GetInstance().GetDX11())
+		if (Engine::GetGraphicsEngine().GetDX11())
 		{
-			GraphicsEngine::GetInstance().GetDX11()->ResizeBackBuffer(hWnd, LOWORD(lParam), HIWORD(lParam));
+			Engine::GetGraphicsEngine().GetDX11()->ResizeBackBuffer(LOWORD(lParam), HIWORD(lParam));
 		}
 		break;
 	}
@@ -128,6 +130,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		break;
 	}
+	//case WM_NCHITTEST:
+	//{
+	//	RECT rect;
+	//	GetClientRect(hWnd, &rect);
+	//	POINT cursor;
+	//	GetCursorPos(&cursor);
+	//	ScreenToClient(hWnd, &cursor);
+
+	//	if (cursor.y >= rect.top && cursor.y < rect.top + 30) // Custom title bar height
+	//	{
+	//		return HTCAPTION;
+	//	}
+	//	break;
+	//}
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}

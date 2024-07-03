@@ -13,7 +13,8 @@ dx::DX11::DX11()
 	mDeviceContext(nullptr),
 	mSwapChain(nullptr),
 	mSamplerState(nullptr), 
-	mBackBufferRT(nullptr)
+	mBackBufferRT(nullptr),
+	mCurrentBlendState(eDisableBlend)
 {
 
 }
@@ -67,7 +68,7 @@ void dx::DX11::PostRender()
 	mSwapChain->Present(mVsync, 0);
 }
 
-void dx::DX11::ResizeBackBuffer(HWND /*aWindowHandle*/, int32_t width, int32_t height)
+void dx::DX11::ResizeBackBuffer(int32_t width, int32_t height)
 {
 	if (mSwapChain != nullptr && mBackBufferRT != nullptr)
 	{
@@ -105,7 +106,7 @@ bool dx::DX11::SetupDevice()
 	{
 		_com_error err(hr);
 		LPCTSTR errorMessage = err.ErrorMessage();
-		std::cout << "Failed to create SwapChain: " << errorMessage << std::endl;
+		std::wcout << "Failed to create SwapChain: " << errorMessage << std::endl;
 		return false;
 	}
 
@@ -129,7 +130,7 @@ bool dx::DX11::SetupSwapChain()
 
 	HRESULT hr = factory->CreateSwapChainForHwnd(
 		mDevice.Get(),
-		GraphicsEngine::GetInstance().GetCurrentWindow().GetWindowInfo().currentWindow,
+		Engine::GetGraphicsEngine().GetCurrentWindow().GetWindowInfo().currentWindow,
 		&desc,
 		nullptr,
 		nullptr,
@@ -140,7 +141,7 @@ bool dx::DX11::SetupSwapChain()
 	{
 		_com_error err(hr);
 		LPCTSTR errorMessage = err.ErrorMessage();
-		std::cout << "Failed to create SwapChain: " << errorMessage << std::endl;
+		std::wcout << "Failed to create SwapChain: " << errorMessage << std::endl;
 		return false;
 	}
 
@@ -149,14 +150,13 @@ bool dx::DX11::SetupSwapChain()
 
 bool dx::DX11::SetupBackBufferAndDepthBuffer()
 {
-
 	ID3D11Texture2D* backBufferTexture;
 	HRESULT result = mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBufferTexture);
 	if (FAILED(result))
 	{
 		_com_error err(result);
 		LPCTSTR errorMessage = err.ErrorMessage();
-		std::cout << "Failed to create Back Buffer Texture: " << errorMessage << std::endl;
+		std::wcout << "Failed to create Back Buffer Texture: " << errorMessage << std::endl;
 		return false;
 	}
 
@@ -165,7 +165,7 @@ bool dx::DX11::SetupBackBufferAndDepthBuffer()
 	backBufferTexture->Release();
 
 	WinAPI::WindowInfo info;
-	info = GraphicsEngine::GetInstance().GetCurrentWindow().GetWindowInfo();
+	info = Engine::GetGraphicsEngine().GetCurrentWindow().GetWindowInfo();
 
 	D3D11_VIEWPORT viewport = { 0 };
 	viewport.TopLeftX = 0.0f;
@@ -177,7 +177,7 @@ bool dx::DX11::SetupBackBufferAndDepthBuffer()
 	mDeviceContext->RSSetViewports(1, &viewport);
 
 	info.resolution = { viewport.Width, viewport.Height };
-	GraphicsEngine::GetInstance().GetCurrentWindow().SetWindowInfo(info);
+	Engine::GetGraphicsEngine().GetCurrentWindow().SetWindowInfo(info);
 
 
 	if (!mBackBufferRT->Create(backBufferTexture))
@@ -188,7 +188,6 @@ bool dx::DX11::SetupBackBufferAndDepthBuffer()
 
 bool dx::DX11::SetupSamplerState()
 {
-	// Create a texture sampler state description.
 	D3D11_SAMPLER_DESC samplerDesc;
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -204,7 +203,6 @@ bool dx::DX11::SetupSamplerState()
 	samplerDesc.MinLOD = 0;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-	// Create the texture sampler state.
 	HRESULT result = mDevice->CreateSamplerState(&samplerDesc, &mSamplerState);
 	if (FAILED(result))
 	{

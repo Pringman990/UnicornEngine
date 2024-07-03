@@ -9,109 +9,15 @@
 #include "model/ModelFactory.h"
 #include "shaders/ShaderManager.h"
 
-GraphicsEngine* GraphicsEngine::mInstance = nullptr;
-
 GraphicsEngine::GraphicsEngine()
+	:
+	mDrawCalls(0)
 {
 }
 
 GraphicsEngine::~GraphicsEngine()
 {
 
-}
-
-GraphicsEngine& GraphicsEngine::GetInstance()
-{
-	return *mInstance;
-}
-
-bool GraphicsEngine::Start()
-{
-	if (mInstance == nullptr)
-	{
-		mInstance = new GraphicsEngine();
-		return mInstance->Init();
-	}
-
-	return false;
-}
-
-void GraphicsEngine::Shutdown()
-{
-	if (mInstance)
-	{
-		delete mInstance;
-		mInstance = nullptr;
-	}
-}
-
-void GraphicsEngine::PreRender()
-{
-	mDX11->PreRender();
-	mDrawCalls = 0;
-}
-
-void GraphicsEngine::Render()
-{
-	mDX11->Render();
-}
-
-void GraphicsEngine::PostRender()
-{
-	UpdateConstantBuffers();
-	mDX11->PostRender();
-}
-
-WinAPI::Window& GraphicsEngine::GetCurrentWindow()
-{
-	return *mWindow;
-}
-
-dx::DX11* GraphicsEngine::GetDX11()
-{
-	return mDX11.get();
-}
-
-void GraphicsEngine::SetSpriteRenderCameraAsActive()
-{
-	mActiveCamera = mSpriteRenderCamera;
-	UpdateCameraConstantBuffer();
-}
-
-std::shared_ptr<Camera> GraphicsEngine::GetActiveCamera()
-{
-	return mActiveCamera;
-}
-
-void GraphicsEngine::SetActiveCamera(std::shared_ptr<Camera> aCamera)
-{
-	mActiveCamera = aCamera;
-	UpdateCameraConstantBuffer();
-}
-
-LightManager& GraphicsEngine::GetLightManager() const
-{
-	return *mLightManager;
-}
-
-ModelFactory& GraphicsEngine::GetModelFactory() const
-{
-	return *mModelFactory;
-}
-
-ShaderManager& GraphicsEngine::GetShaderManager() const
-{
-	return *mShaderManager;
-}
-
-const uint32_t GraphicsEngine::GetDrawCalls() const
-{
-	return mDrawCalls;
-}
-
-void GraphicsEngine::AddDrawCall()
-{
-	mDrawCalls += 1;
 }
 
 bool GraphicsEngine::Init()
@@ -183,6 +89,75 @@ bool GraphicsEngine::Init()
 	}
 
 	return true;
+}
+
+void GraphicsEngine::PreRender()
+{
+	mDX11->PreRender();
+	mDrawCalls = 0;
+}
+
+void GraphicsEngine::Render()
+{
+	mDX11->Render();
+}
+
+void GraphicsEngine::PostRender()
+{
+	UpdateConstantBuffers();
+	mDX11->PostRender();
+}
+
+WinAPI::Window& GraphicsEngine::GetCurrentWindow()
+{
+	return *mWindow;
+}
+
+dx::DX11* GraphicsEngine::GetDX11()
+{
+	return mDX11.get();
+}
+
+void GraphicsEngine::SetSpriteRenderCameraAsActive()
+{
+	mActiveCamera = mSpriteRenderCamera;
+	UpdateCameraConstantBuffer();
+}
+
+std::shared_ptr<Camera> GraphicsEngine::GetActiveCamera()
+{
+	return mActiveCamera;
+}
+
+void GraphicsEngine::SetActiveCamera(std::shared_ptr<Camera> aCamera)
+{
+	mActiveCamera = aCamera;
+	UpdateCameraConstantBuffer();
+}
+
+LightManager& GraphicsEngine::GetLightManager() const
+{
+	return *mLightManager;
+}
+
+ModelFactory& GraphicsEngine::GetModelFactory() const
+{
+	return *mModelFactory;
+}
+
+ShaderManager& GraphicsEngine::GetShaderManager() const
+{
+	return *mShaderManager;
+}
+
+const uint32_t GraphicsEngine::GetDrawCalls() const
+{
+	return mDrawCalls;
+}
+
+void GraphicsEngine::AddDrawCall()
+{
+	mDrawCalls += 1;
 }
 
 void GraphicsEngine::UpdateConstantBuffers()

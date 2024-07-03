@@ -5,8 +5,8 @@
 #include "ModelInstance.h"
 
 #include <FBXImporter/source/Importer.h>
-#include "../GraphicsEngine/source/DX11.h"
-#include "../GraphicsEngine/source/Material.h"
+#include "DX11.h"
+#include "Material.h"
 
 ModelFactory::ModelFactory()
 {
@@ -30,8 +30,11 @@ std::shared_ptr<Model> ModelFactory::GetModel(const std::wstring& aPath)
 ModelInstance ModelFactory::GetModelInstance(const std::wstring& aPath)
 {
 	std::shared_ptr<Model> model = GetModel(aPath);
-
+	
 	ModelInstance mdi;
+	if (model == nullptr)
+		return mdi;
+
 	mdi.Init(model);
 
 	return mdi;
@@ -65,24 +68,6 @@ std::shared_ptr<Model> ModelFactory::LoadModelW(const std::wstring& aPath)
 				element.Vertices[i].Position[3]
 			};
 
-			/*	for (int vCol = 0; vCol < 4; vCol++)
-				{
-					mdlVertices[i].color = {
-						element.Vertices[i].VertexColors[vCol][0],
-						element.Vertices[i].VertexColors[vCol][1],
-						element.Vertices[i].VertexColors[vCol][2],
-						element.Vertices[i].VertexColors[vCol][3]
-					};
-
-					if (element.Vertices[i].VertexColors[vCol][0] +
-						element.Vertices[i].VertexColors[vCol][1] +
-						element.Vertices[i].VertexColors[vCol][2] +
-						element.Vertices[i].VertexColors[vCol][3] == 0)
-					{
-						mdlVertices[i].color = { 1,1,1,1 };
-					}
-				}*/
-
 			mdlVertices[i].normal = {
 				element.Vertices[i].Normal[0],
 				element.Vertices[i].Normal[1],
@@ -101,7 +86,6 @@ std::shared_ptr<Model> ModelFactory::LoadModelW(const std::wstring& aPath)
 				element.Vertices[i].Tangent[2]
 			};
 
-			//for (uint32_t uv = 0; uv < 4; uv++)
 			{
 				mdlVertices[i].uv = {
 					element.Vertices[i].UVs[0][0],
@@ -122,14 +106,14 @@ std::shared_ptr<Model> ModelFactory::LoadModelW(const std::wstring& aPath)
 			vertexSubresourceData.pSysMem = &mdlVertices[0];
 
 			ID3D11Buffer* vertexBuffer;
-			result = GraphicsEngine::GetInstance().GetDX11()->GetDevice()->CreateBuffer(&vertexBufferDesc, &vertexSubresourceData, &vertexBuffer);
+			result = Engine::GetGraphicsEngine().GetDX11()->GetDevice()->CreateBuffer(&vertexBufferDesc, &vertexSubresourceData, &vertexBuffer);
 			if (FAILED(result))
 			{
 				return nullptr;
 			}
 
 			D3D11_BUFFER_DESC indexBufferDesc{};
-			indexBufferDesc.ByteWidth = static_cast<UINT>(mdlIndices.size()) * static_cast<UINT>(sizeof(float)); // TODO: What :P Sizeof should be uint.
+			indexBufferDesc.ByteWidth = static_cast<UINT>(mdlIndices.size()) * static_cast<UINT>(sizeof(float));
 			indexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
 			indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 
@@ -137,7 +121,7 @@ std::shared_ptr<Model> ModelFactory::LoadModelW(const std::wstring& aPath)
 			indexSubresourceData.pSysMem = &mdlIndices[0];
 
 			ID3D11Buffer* indexBuffer;
-			result = GraphicsEngine::GetInstance().GetDX11()->GetDevice()->CreateBuffer(&indexBufferDesc, &indexSubresourceData, &indexBuffer);
+			result = Engine::GetGraphicsEngine().GetDX11()->GetDevice()->CreateBuffer(&indexBufferDesc, &indexSubresourceData, &indexBuffer);
 			if (FAILED(result))
 			{
 				return nullptr;

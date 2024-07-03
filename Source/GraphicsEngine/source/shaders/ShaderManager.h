@@ -1,7 +1,5 @@
 #pragma once
 
-//struct ID3DBlob;
-
 class ShaderManager
 {
 public:
