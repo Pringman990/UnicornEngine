@@ -1,13 +1,13 @@
 
 project "Externals"
 	language "C++"
-	cppdialect "C++17"
+	cppdialect "C++20"
 	kind "StaticLib"
 	targetname("%{prj.name}_%{cfg.buildcfg}")
 	objdir ("%{dirs.temp}/%{prj.name}/%{cfg.buildcfg}")
 	
 	location (dirs.Local)
-	targetdir (dirs.lib)
+	targetdir (dirs.temp)
 
 	disablewarnings { disabledwarnings }
 
@@ -18,6 +18,7 @@ project "Externals"
 		".",
 		"FBXImporter/FBXSDK/include",
 		"FBXImporter/source",
+		"yaml-cpp",
 	}
 
 	files {
@@ -34,17 +35,23 @@ project "Externals"
 		runtime "Debug"
 		symbols "on"
 
-		libdirs { "FBXImporter/FBXSDK/lib/debug" }
+		libdirs { 
+			"FBXImporter/FBXSDK/lib/debug",
+			dirs.lib .. "Debug/yaml-cppd.lib",
+		}
 		links {
-			"libfbxsdk",
+			"libfbxsdk"
 		}
 
 	filter "configurations:Release"
-		defines "_RELEASE"
 		runtime "Release"
-		optimize "Full"
+		optimize "Full"        
+		defines {"_RELEASE", "NDEBUG"}
 
-		libdirs { "FBXImporter/FBXSDK/lib/release" }
+		libdirs { 
+			"FBXImporter/FBXSDK/lib/release", 
+			dirs.lib .. "Release/yaml-cpp.lib",
+		}
 		links {
 			"libfbxsdk",
 		}

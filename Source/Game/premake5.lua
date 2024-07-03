@@ -1,12 +1,13 @@
 
 project "Game"
 	language "C++"
-	cppdialect "C++17"
-	kind "WindowedApp"
-	targetname("%{prj.name}_%{cfg.buildcfg}")
+	cppdialect "C++20"
+	kind "StaticLib"
 	objdir ("%{dirs.temp}/%{prj.name}/%{cfg.buildcfg}")
+	targetname("%{prj.name}_%{cfg.buildcfg}")
+	
 	location (dirs.Local)
-	targetdir (dirs.bin)
+	targetdir (dirs.temp)
 	implibdir (dirs.lib)
 	
 	flags { "FatalWarnings" }
@@ -37,9 +38,12 @@ project "Game"
 
 	includedirs {
 		dirs.game,
+		dirs.game .. "source/",
 		dirs.include,
-		dirs.graphics_engine,
 		dirs.engine,
+		dirs.engine .. "source/",
+        dirs.graphics_engine,
+        dirs.graphics_engine .. "source/",
         dirs.externals
 	}
 
@@ -49,25 +53,29 @@ project "Game"
 		"Externals"
 	}
 
-	    links{
+	links{
         "Engine",
         "GraphicsEngine",
 		"Externals"
     }
 
-
+	libdirs { 
+        dirs.lib, 
+        dirs.temp 
+    }
+		
 	filter "configurations:Debug"
-		defines {"_DEBUG"}
 		runtime "Debug"
 		symbols "on"
+		defines {"_DEBUG"}
 
 	filter "configurations:Release"
-		defines "_RELEASE"
 		runtime "Release"
 		optimize "Full"
+		defines {"_RELEASE", "NDEBUG"}
 
 		filter "system:windows"
-		kind "WindowedApp"
+		kind "StaticLib"
 		staticruntime "off"
 		symbols "On"		
 		systemversion "latest"
@@ -89,26 +97,3 @@ project "Game"
         io.writefile("GamePch.cpp", 
         "#include \"GamePch.h\"")
     end
-
-  -- Ensure the outputdir has the correct format
-   print("Output directory: " .. dirs.bin)
-
-   -- Common post-build command to copy general DLLs
-   postbuildcommands {
-      "echo Copying general DLLs from " .. dirs.DLL .. " to " .. dirs.bin,
-      "xcopy /Q /Y /I \"" .. dirs.DLL .. "\\*.dll\" \"" .. dirs.bin .. "\\\""
-   }
-
-   filter "configurations:Debug"
-      -- Additional post-build command to copy debug-specific DLLs
-      postbuildcommands {
-         "echo Copying debug DLLs from " .. dirs.DLL .. "/debug to " .. dirs.bin,
-         "xcopy /Q /Y /I \"" .. dirs.DLL .. "\\debug\\*.dll\" \"" .. dirs.bin .. "\\\""
-      }
-
-   filter "configurations:Release"
-      -- Additional post-build command to copy release-specific DLLs
-      postbuildcommands {
-         "echo Copying release DLLs from " .. dirs.DLL .. "/release to " .. dirs.bin,
-         "xcopy /Q /Y /I \"" .. dirs.DLL .. "\\release\\*.dll\" \"" .. dirs.bin .. "\\\""
-      }
