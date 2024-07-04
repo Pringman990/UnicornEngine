@@ -28,18 +28,16 @@ void ecs::SystemManager::RunRenderEngineSystems()
 {
 	ecs::World& currentWorld = Engine::GetSceneManager().GetCurrentScene().GetWorld();
 	auto maskToEntites = currentWorld.GetAllEntitiesWithMask();
-	//for (Pipeline pipeline = OnLoad; pipeline < OnPostLoad + 1; pipeline++)
+
+	for (auto& system : mEngineSystems[OnRender])
 	{
-		for (auto& system : mEngineSystems[OnRender])
+		for (auto& [mask, entityVector] : maskToEntites)
 		{
-			for (auto& [mask, entityVector] : maskToEntites)
+			if ((mask & system->signature) == system->signature)
 			{
-				if ((mask & system->signature) == system->signature)
+				for (Entity entity : entityVector)
 				{
-					for (Entity entity : entityVector)
-					{
-						system->function(currentWorld, entity);
-					}
+					system->function(currentWorld, entity);
 				}
 			}
 		}

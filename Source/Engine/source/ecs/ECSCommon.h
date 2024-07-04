@@ -20,7 +20,6 @@ namespace ecs
 	using Entity = uint32_t;
 	constexpr Entity INVALID_ENTITY = std::numeric_limits<Entity>::max();
 
-	//Pipeline
 	using Pipeline = uint32_t;
 	constexpr Pipeline INVALID_PIPELINE = std::numeric_limits<Pipeline>::max();
 	const constexpr Pipeline OnLoad = 0;
@@ -29,7 +28,7 @@ namespace ecs
 	const constexpr Pipeline OnUpdate = 3;
 	const constexpr Pipeline OnPostUpdate = 4;
 	const constexpr Pipeline OnRender = 5;
-	const constexpr Pipeline PIPELINE_COUNT = 6; //Update when new pipeline is added
+	const constexpr Pipeline PIPELINE_COUNT = 6;
 	
 	using ComponentType = std::type_index;
 

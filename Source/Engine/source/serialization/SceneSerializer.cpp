@@ -30,17 +30,17 @@ bool SceneSerializer::SerializeYAML(const std::wstring& aFilePath, Scene& aScene
 	return true;
 }
 
-bool SceneSerializer::SerializeBinary(const std::wstring& aFilePath, Scene& aScene)
+bool SceneSerializer::SerializeBinary(const std::wstring& /*aFilePath*/, Scene& /*aScene*/)
 {
 	return false;
 }
 
-bool SceneSerializer::DeserializeYAML(const std::wstring& aFilePath, Scene& aScene)
+bool SceneSerializer::DeserializeYAML(const std::wstring& /*aFilePath*/, Scene& /*aScene*/)
 {
 	return false;
 }
 
-bool SceneSerializer::DeserializeBinary(const std::wstring& aFilePath, Scene& aScene)
+bool SceneSerializer::DeserializeBinary(const std::wstring& /*aFilePath*/, Scene& /*aScene*/)
 {
 	return false;
 }

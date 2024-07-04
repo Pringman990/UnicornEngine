@@ -71,14 +71,14 @@ namespace ecs
 			mComponentAllocators[componentType] = ComponentAllocator(typeinfo);
 
 		void* compPtr = mComponentAllocators[componentType].Allocate();
-		T* co = new (compPtr) T(aComponent);
+		T* newComponent = new (compPtr) T(aComponent);
 
 		mEntityToComponent[anEntity][componentType] = compPtr;
 
 		ComponentMask mask = GetEntityComponentMask(anEntity);
 		mMaskToEntity[mask].push_back(anEntity);
 
-		return co;
+		return newComponent;
 	}
 
 	template<typename T>
