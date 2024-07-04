@@ -2,7 +2,7 @@ include "../Premake/common.lua"
 
 workspace "Unicorn"
     location "../"
-    startproject "Editor"
+    startproject "Launcher"
     architecture "x64"
 
     configurations {

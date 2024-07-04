@@ -18,10 +18,6 @@ void reflection::Registry::ShutDown()
 
 void reflection::Registry::RegisterType(std::type_index aType, TypeInfo aInfo)
 {
-	//auto it = mNameToType.find(aType.name());
-	//if (it != mNameToType.end())
-	//	throw std::runtime_error("There are two types with the same name" + aInfo.name);
-
 	mRegistry.insert({aType, aInfo});
 	mNameToType.insert({aType.name(), aInfo});
 }
