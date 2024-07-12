@@ -24,7 +24,7 @@ void Inspector::Draw(float /*aDeltaTime*/)
 
 	for (auto& [type, ptr] : typeToVectorMap)
 	{
-		reflection::TypeInfo typeInfo = Engine::GetReflectionRegistry().GetTypeInfo(type);
+		reflection::TypeInfo typeInfo = reflection::Registry::GetInstance().GetTypeInfo(type);
 		
 		if (typeInfo.name == "_INVALID" || 
 			*typeInfo.type == typeid(ecs::ChildParent) ||

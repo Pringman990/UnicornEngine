@@ -3,6 +3,7 @@
 
 #include <SimpleMath.h>
 #include <UnicornMath.h>
+#include <utility/yamlHelper.h>
 
 #include <d3d11.h>
 #include <vector>

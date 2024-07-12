@@ -98,7 +98,7 @@ void ImGui::DisplayReflectedValues(const std::string& aTypeName, const reflectio
 		std::string str = WStringToString(*stringPtr);
 		ImGui::Text(str.c_str());
 	}
-	else if (aMember.type == typeid(Vector3))
+	else if (aMember.type == typeid(Vector2))
 	{
 		Vector3 dest;
 		memcpy_s(&dest, sizeof(Vector3), wantedMemberPtr, sizeof(Vector3));
@@ -113,6 +113,36 @@ void ImGui::DisplayReflectedValues(const std::string& aTypeName, const reflectio
 		}
 		ImGui::PopID();
 	}
+	else if (aMember.type == typeid(Vector3))
+	{
+		Vector3 dest;
+		memcpy_s(&dest, sizeof(Vector3), wantedMemberPtr, sizeof(Vector3));
+
+		ImGui::Text("%s:", aMember.name.c_str());
+		ImGui::SameLine();
+
+		ImGui::PushID((aTypeName + aMember.name).c_str());
+		if (ImGui::DragFloat3("##", (float*)&dest, 0.01f))
+		{
+			memcpy_s(wantedMemberPtr, sizeof(Vector3), &dest, sizeof(Vector3));
+		}
+		ImGui::PopID();
+		}
+	else if (aMember.type == typeid(Vector4))
+	{
+		Vector3 dest;
+		memcpy_s(&dest, sizeof(Vector3), wantedMemberPtr, sizeof(Vector3));
+
+		ImGui::Text("%s:", aMember.name.c_str());
+		ImGui::SameLine();
+
+		ImGui::PushID((aTypeName + aMember.name).c_str());
+		if (ImGui::DragFloat3("##", (float*)&dest, 0.01f))
+		{
+			memcpy_s(wantedMemberPtr, sizeof(Vector3), &dest, sizeof(Vector3));
+		}
+		ImGui::PopID();
+		}
 	else if (aMember.type == typeid(ModelInstance))
 	{
 		float indent = 0;

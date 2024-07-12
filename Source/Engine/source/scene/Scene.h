@@ -1,4 +1,5 @@
 #pragma once
+#include "ecs/ECSWorld.h"
 
 class Scene
 {

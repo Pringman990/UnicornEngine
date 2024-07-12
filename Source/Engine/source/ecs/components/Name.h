@@ -7,8 +7,8 @@ namespace ecs
 	{
 		std::string name = "Unnamed";
 
+	};
 		REGISTER_COMPONENT(Name,
 			REGISTER_MEMBER(Name, name)
 		)
-	};
 }
