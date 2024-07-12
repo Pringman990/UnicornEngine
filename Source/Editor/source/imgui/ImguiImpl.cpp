@@ -26,6 +26,8 @@ bool ImguiImpl::Init()
 	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable;
 	ImGuiIO& io = ImGui::GetIO();
 
+	ImGui::LoadIniSettingsFromDisk("imgui.ini");
+
 	{
 		static const ImWchar ranges[] =
 		{

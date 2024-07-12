@@ -18,8 +18,8 @@ void reflection::Registry::ShutDown()
 
 void reflection::Registry::RegisterType(std::type_index aType, TypeInfo aInfo)
 {
-	mRegistry.insert({aType, aInfo});
-	mNameToType.insert({aType.name(), aInfo});
+	mRegistry[aType] = aInfo;
+	mNameToType[aInfo.name] = aInfo;
 }
 
 reflection::TypeInfo reflection::Registry::GetTypeInfo(std::type_index aType)

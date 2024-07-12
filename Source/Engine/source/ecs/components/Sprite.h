@@ -8,8 +8,8 @@ namespace ecs
 	{
 		SpriteInstance sprite;
 
+	};
 		REGISTER_COMPONENT(Sprite, 
 			REGISTER_MEMBER(Sprite, sprite)
 		)
-	};
 }

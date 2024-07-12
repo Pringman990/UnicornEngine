@@ -12,6 +12,7 @@ namespace reflection
 
 class GraphicsEngine;
 class SceneManager;
+class SceneSerializer;
 
 class Engine
 {
@@ -23,8 +24,8 @@ public:
 	
 	static GraphicsEngine& GetGraphicsEngine();
 	static ecs::SystemManager& GetECSSystemManager();
-	static reflection::Registry& GetReflectionRegistry();
 	static SceneManager& GetSceneManager();
+	static SceneSerializer& GetSceneSerializer();
 
 	void InitEngineSystems();
 
@@ -44,15 +45,15 @@ private:
 	bool Init();
 	static void ShutdownGrapicsEngine(GraphicsEngine* aGraphicsEngine);
 	static void ShutdownSystemManager(ecs::SystemManager* aSystemManager);
-	static void ShutdownReflectionRegistry(reflection::Registry* aReflectionRegistry);
 	static void ShutdownSceneManager(SceneManager* aSceneManager);
+	static void ShutdownSceneSerializer(SceneSerializer* aSceneSerializer);
 private:
 	static Engine* mInstance;
 
 	std::unique_ptr<GraphicsEngine, void(*)(GraphicsEngine*)> mGraphicsEngine;
 	std::unique_ptr<ecs::SystemManager, void(*)(ecs::SystemManager*)> mECSSystemManager;
-	std::unique_ptr<reflection::Registry, void(*)(reflection::Registry*)> mReflectionRegistry;
 	std::unique_ptr<SceneManager, void(*)(SceneManager*)> mSceneManager;
+	std::unique_ptr<SceneSerializer, void(*)(SceneSerializer*)> mSceneSerializer;
 
 	bool mShouldClose;
 	Timer mTimer;

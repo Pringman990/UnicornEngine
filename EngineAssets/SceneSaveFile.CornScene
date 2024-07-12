@@ -1,0 +1,45 @@
+ID: 0
+---
+Entity id: 2
+Components:
+  - name: Name
+    size: 40
+    members:
+      - name: Cube
+        type: class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >
+        size: 40
+        offset: 0
+  - name: _INVALID
+    size: 0
+    members:
+      []
+  - name: ChildParent
+    size: 40
+    members:
+      - parent: 0
+        type: unsigned int
+        size: 4
+        offset: 0
+      - children: true
+        type: class std::vector<unsigned int,class std::allocator<unsigned int> >
+        size: 32
+        offset: 8
+  - name: Transform
+    size: 36
+    members:
+      - position: [0, 0, 3]
+        type: struct DirectX::SimpleMath::Vector3
+        size: 12
+        offset: 0
+      - rotation: [0, 0, 0]
+        type: struct DirectX::SimpleMath::Vector3
+        size: 12
+        offset: 12
+      - scale: [1, 1, 1]
+        type: struct DirectX::SimpleMath::Vector3
+        size: 12
+        offset: 24
+  - name: Mesh
+    members:
+      - meshPath: ../EngineAssets/Models/sm_cube.fbx
+...

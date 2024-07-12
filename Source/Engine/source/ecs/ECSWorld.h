@@ -64,7 +64,7 @@ namespace ecs
 		}
 
 		std::type_index componentType = typeid(aComponent);
-		reflection::TypeInfo typeinfo = Engine::GetReflectionRegistry().GetTypeInfo(componentType);
+		reflection::TypeInfo typeinfo = reflection::Registry::GetInstance().GetTypeInfo(componentType);
 
 		auto it = mComponentAllocators.find(componentType);
 		if (it == mComponentAllocators.end())

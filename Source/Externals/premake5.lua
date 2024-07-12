@@ -37,10 +37,11 @@ project "Externals"
 
 		libdirs { 
 			"FBXImporter/FBXSDK/lib/debug",
-			dirs.lib .. "Debug/yaml-cppd.lib",
+			dirs.lib .. "Debug",
 		}
 		links {
-			"libfbxsdk"
+			"libfbxsdk",
+			"yaml-cppd.lib"
 		}
 
 	filter "configurations:Release"
@@ -50,10 +51,11 @@ project "Externals"
 
 		libdirs { 
 			"FBXImporter/FBXSDK/lib/release", 
-			dirs.lib .. "Release/yaml-cpp.lib",
+			dirs.lib .. "Release",
 		}
 		links {
 			"libfbxsdk",
+			"yaml-cpp.lib"
 		}
 
 		filter "system:windows"

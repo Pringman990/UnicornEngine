@@ -6,6 +6,7 @@
 #include "input/InputManager.h"
 #include <source/debug/MemoryTracker.h>
 #include "scene/SceneManager.h"
+#include "serialization/SceneSerializer.h"
 
 //Systems
 #include "ecs/systems/MeshRenderSystem.h"
@@ -23,8 +24,8 @@ Engine::Engine()
 	mShouldClose(false),
 	mGraphicsEngine(new GraphicsEngine(), &Engine::ShutdownGrapicsEngine),
 	mECSSystemManager(new ecs::SystemManager(), &Engine::ShutdownSystemManager),
-	mReflectionRegistry(new reflection::Registry(), &Engine::ShutdownReflectionRegistry),
-	mSceneManager(new SceneManager, &Engine::ShutdownSceneManager)
+	mSceneManager(new SceneManager, &Engine::ShutdownSceneManager),
+	mSceneSerializer(new SceneSerializer, &Engine::ShutdownSceneSerializer)
 {
 }
 
@@ -77,20 +78,20 @@ ecs::SystemManager& Engine::GetECSSystemManager()
 		return *GetInstance().mECSSystemManager;
 }
 
-reflection::Registry& Engine::GetReflectionRegistry()
-{
-	if (mInstance)
-		return *mInstance->mReflectionRegistry;
-	else
-		return *GetInstance().mReflectionRegistry;
-}
-
 SceneManager& Engine::GetSceneManager()
 {
 	if (mInstance)
 		return *mInstance->mSceneManager;
 	else
 		return *GetInstance().mSceneManager;
+}
+
+SceneSerializer& Engine::GetSceneSerializer()
+{
+	if (mInstance)
+		return *mInstance->mSceneSerializer;
+	else
+		return *GetInstance().mSceneSerializer;
 }
 
 void Engine::InitEngineSystems()
@@ -137,18 +138,16 @@ void Engine::ShutdownSystemManager(ecs::SystemManager* aSystemManager)
 	aSystemManager = nullptr;
 }
 
-void Engine::ShutdownReflectionRegistry(reflection::Registry* aReflectionRegistry)
-{
-	aReflectionRegistry->ShutDown();
-
-	delete aReflectionRegistry;
-	aReflectionRegistry = nullptr;
-}
-
 void Engine::ShutdownSceneManager(SceneManager* aSceneManager)
 {
 	delete aSceneManager;
 	aSceneManager = nullptr;
+}
+
+void Engine::ShutdownSceneSerializer(SceneSerializer* aSceneSerializer)
+{
+	delete aSceneSerializer;
+	aSceneSerializer = nullptr;
 }
 
 bool Engine::BeginFrame()
