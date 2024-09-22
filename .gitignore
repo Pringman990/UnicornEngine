@@ -1,9 +1,6 @@
-[Bb]in/shaders
-[Bb]in/*.dll
-[Bb]in/*.exe
-[Bb]in/*.pdb
-[Tt]emp/
-[Ll]ocal/
+[Bb]inaries/
+[Ii]ntermediate/
+
 *.vs
 *.sln
 
