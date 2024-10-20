@@ -1,6 +1,6 @@
 #include "EventDispatcher.h"
 
-EventDispatcher* EventDispatcher::mInstance = nullptr;
+EventDispatcher* EventDispatcher::_sInstance = nullptr;
 
 EventDispatcher::EventDispatcher()
 {
@@ -12,8 +12,8 @@ EventDispatcher::~EventDispatcher()
 
 void EventDispatcher::ShutDown()
 {
-	delete mInstance;
-	mInstance = nullptr;
+	delete _sInstance;
+	_sInstance = nullptr;
 }
 
 void EventDispatcher::Dispatch(DispatchEvents aEvent)

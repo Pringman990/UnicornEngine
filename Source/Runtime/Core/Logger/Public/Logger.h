@@ -1,5 +1,6 @@
 #pragma once
 #include <TSharedPtr.h>
+#include <FString.h>
 #include <spdlog/spdlog.h>
 
 class Logger
@@ -7,13 +8,13 @@ class Logger
 public:
 	static Logger& GetInstance() 
 	{
-		if (!mInstance && !mHasShutDown)
+		if (!_sInstance && !mHasShutDown)
 		{
-			mInstance = new Logger();
-			mInstance->Init();
-			mInstance->mHasInit = true;
+			_sInstance = new Logger();
+			_sInstance->Init();
+			_sInstance->mHasInit = true;
 		}
-		return *mInstance;
+		return *_sInstance;
 	}
 
 	static void Shutdown();
@@ -29,7 +30,7 @@ private:
 	Logger() : mHasInit(false) {};
 	~Logger() {};
 private:
-	static Logger* mInstance;
+	static Logger* _sInstance;
 
 	TSharedPtr<spdlog::logger> mCoreLogger;
 	TSharedPtr<spdlog::logger> mRendererLogger;
@@ -39,6 +40,16 @@ private:
 	bool mHasInit;
 	static bool mHasShutDown;
 };
+
+namespace fmt {
+	template <>
+	struct formatter<FString> : public formatter<std::string> {  // Using std::string as the base formatter
+		template <typename FormatContext>
+		auto format(const FString& s, FormatContext& ctx) {
+			return formatter<std::string>::format(static_cast<std::string>(s), ctx); // Convert FString to std::string
+		}
+	};
+}
 
 #ifdef _DEBUG
 

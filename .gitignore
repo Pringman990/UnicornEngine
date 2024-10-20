@@ -1,4 +1,5 @@
-[Bb]inaries/
+[Bb]inaries/Shaders/
+[Bb]inaries/Win64/
 [Ii]ntermediate/
 
 *.vs

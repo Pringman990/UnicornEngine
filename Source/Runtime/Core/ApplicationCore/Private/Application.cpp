@@ -1,6 +1,6 @@
 #include "Application.h"
 
-GenericApplication* Application::mGenericApplication = nullptr;
+GenericApplication* Application::sGenericApplication = nullptr;
 
 Application::Application()
 {
@@ -13,12 +13,12 @@ Application::~Application()
 
 GenericApplication* Application::_CreateApp()
 {
-	mGenericApplication = GenericApplication::Create();
-	return mGenericApplication;
+	sGenericApplication = GenericApplication::Create();
+	return sGenericApplication;
 }
 
 void Application::Shutdown()
 {
-	delete mGenericApplication;
-	mGenericApplication = nullptr;
+	delete sGenericApplication;
+	sGenericApplication = nullptr;
 }

@@ -2,6 +2,9 @@
 
 #include <Application.h>
 #include <Generic/GenericApplication.h>
+#include <IRenderer.h>
+#include <RendererFactory.h>
+
 #include <EventDispatcher.h>
 
 #include <Logger.h>
@@ -10,7 +13,8 @@
 EngineLoop::EngineLoop()
 	:
 	mShouldExit(false),
-	mGenericApplication(nullptr)
+	mGenericApplication(nullptr),
+	mRenderer(nullptr)
 {
 }
 
@@ -18,6 +22,11 @@ EngineLoop::~EngineLoop()
 {
 	EventDispatcher::ShutDown();
 	Application::Shutdown();
+	
+	mGenericApplication = nullptr;
+
+	delete mRenderer;
+	mRenderer = nullptr;
 }
 
 bool EngineLoop::Init()
@@ -32,6 +41,14 @@ bool EngineLoop::Init()
 	if (!mGenericApplication->Init())
 	{
 		LOG_CORE_INFO("Engine Loop Failed To Create Application");
+		assert(false);
+		return false;
+	}
+
+	mRenderer = RendererFactory::CreateRenderer();
+	if (!mRenderer)
+	{
+		LOG_CORE_INFO("Engine Loop Failed To Create Renderer");
 		assert(false);
 		return false;
 	}

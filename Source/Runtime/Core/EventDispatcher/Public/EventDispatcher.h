@@ -13,9 +13,9 @@ class EventDispatcher
 public:
 	static EventDispatcher& GetDispatcher()
 	{
-		if (!mInstance)
-			mInstance = new EventDispatcher();
-		return *mInstance;
+		if (!_sInstance)
+			_sInstance = new EventDispatcher();
+		return *_sInstance;
 	}
 
 	static void ShutDown();
@@ -27,7 +27,7 @@ private:
 	EventDispatcher();
 	~EventDispatcher();
 private:
-	static EventDispatcher* mInstance;
+	static EventDispatcher* _sInstance;
 
 	TUMap<DispatchEvents, TVector<TFunction<void>>> mEvents;
 

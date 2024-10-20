@@ -1,6 +1,7 @@
 #pragma once
 
 class GenericApplication;
+class IRenderer;
 
 class EngineLoop
 {
@@ -18,4 +19,5 @@ private:
 	bool mShouldExit;
 
 	GenericApplication* mGenericApplication;
+	IRenderer* mRenderer;
 };

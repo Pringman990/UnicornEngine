@@ -9,7 +9,7 @@ public:
 	/// </summary>
 	static GenericApplication* GetApp()
 	{
-		return mGenericApplication;
+		return sGenericApplication;
 	}
 
 	static GenericApplication* _CreateApp();
@@ -20,5 +20,5 @@ private:
 	Application();
 	~Application();
 private:
-	static GenericApplication* mGenericApplication;
+	static GenericApplication* sGenericApplication;
 };
