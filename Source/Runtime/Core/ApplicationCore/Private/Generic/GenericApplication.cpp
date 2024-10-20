@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "Generic/GenericApplication.h"
-#include "Generic/IWindow.h"
 #include "Windows/WindowsApplicationMisc.h"
 
 GenericApplication::GenericApplication()

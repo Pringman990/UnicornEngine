@@ -1,6 +1,5 @@
 #pragma once
-
-struct IWindowInfo;
+#include "Generic/IWindow.h"
 
 class GenericApplication
 {

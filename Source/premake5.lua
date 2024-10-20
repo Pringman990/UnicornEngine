@@ -70,9 +70,13 @@ solution "Unicorn Engine"
 --Source Root Directories
 dirs["ThirdParty"]			= os.realpath(dirs.Source .. "ThirdParty/")
 dirs["Runtime"]			    = os.realpath(dirs.Source .. "Runtime/")
+dirs["Editor"]			    = os.realpath(dirs.Source .. "Editor/")
 
 --Inluding all thirdparty standalone libs
 include (dirs.ThirdParty)
 
 --Including all runtime libs
 include (dirs.Runtime)
+
+--Including all editor libs
+include (dirs.Editor)

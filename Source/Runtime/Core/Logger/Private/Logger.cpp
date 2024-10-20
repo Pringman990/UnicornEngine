@@ -55,7 +55,7 @@ private:
 };
 
 bool Logger::mHasShutDown = false;
-Logger* Logger::mInstance = nullptr;
+Logger* Logger::_sInstance = nullptr;
 
 void Logger::Shutdown()
 {
@@ -70,8 +70,8 @@ void Logger::Shutdown()
 	spdlog::drop_all();
 	spdlog::shutdown();
 
-	delete mInstance;
-	mInstance = nullptr;
+	delete _sInstance;
+	_sInstance = nullptr;
 	mHasShutDown = true;
 }
 

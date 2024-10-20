@@ -14,6 +14,11 @@ public:
         return FTypeIndex(typeid(_Class));
     }
 
+    const std::type_index& Get() const
+    {
+        return mImpl->typeIndex;
+    }
+
 public:
     // Compare type indexes
     bool operator==(const FTypeIndex& other) const {
@@ -35,3 +40,12 @@ private:
 
     TUniquePtr<Impl> mImpl;
 };
+
+namespace std {
+    template <>
+    struct hash<FTypeIndex> {
+        std::size_t operator()(const FTypeIndex& s) const noexcept {
+            return s.Get().hash_code();
+        }
+    };
+}

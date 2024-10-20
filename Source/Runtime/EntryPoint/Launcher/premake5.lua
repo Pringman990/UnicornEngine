@@ -15,15 +15,17 @@ project "Launcher"
 		dirs.Launcher,
 		normalizePath(dirs.Launcher) .. "/Private",
 		inheritAndIncludeDirsFromProject("EngineCore"),
-		inheritAndIncludeDirsFromProject("Core") 
+		inheritAndIncludeDirsFromProject("Core") ,
+		inheritAndIncludeDirsFromProject("Renderer") 
 	}
 
 	projectInheritDirs["Launcher"] = flattenTable({
 		dirs.Launcher, 
 		inheritAndIncludeDirsFromProject("EngineCore"),
-		inheritAndIncludeDirsFromProject("Core") 
+		inheritAndIncludeDirsFromProject("Core"),
+		inheritAndIncludeDirsFromProject("Renderer")
 	})
-
+	,
 	files {
 		"**.h",
 		"**.hpp",
@@ -36,5 +38,6 @@ project "Launcher"
 
 	links{
 		"EngineCore",
-		"Core"
+		"Core",
+		"Renderer"
 	}

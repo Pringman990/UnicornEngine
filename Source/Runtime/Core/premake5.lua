@@ -1,10 +1,17 @@
 --Core Root Directories
 print("Including Runtime/Core/")
 
+--Layer Zero
+dirs["StandardTypes"]				= os.realpath(dirs.Core .. "StandardTypes/Public/")
+
+include (normalizePath(dirs.StandardTypes))
+
 --Layer One
 dirs["MemoryDebugger"]				= os.realpath(dirs.Core .. "MemoryDebugger/Public/")
+dirs["UniqueID"]					= os.realpath(dirs.Core .. "UniqueID/Public/")
 
 include (normalizePath(dirs.MemoryDebugger))
+include (normalizePath(dirs.UniqueID))
 
 --Layer Two
 dirs["Math"]						= os.realpath(dirs.Core .. "Math/Public/")
@@ -46,8 +53,12 @@ project "Core"
     location (defaultLocationDir)
 
 	includedirs {
+		--Layer Zero
+		inheritAndIncludeDirsFromProject("StandardTypes"),
+
 		--Layer One
 		inheritAndIncludeDirsFromProject("MemoryDebugger"),
+		inheritAndIncludeDirsFromProject("UniqueID"),
 		
 		--Layer Two
 		inheritAndIncludeDirsFromProject("Math"),
@@ -67,8 +78,12 @@ project "Core"
 	}
 
 	projectInheritDirs["Core"] = flattenTable({
+		--Layer Zero
+		inheritAndIncludeDirsFromProject("StandardTypes"),
+
 		--Layer One
 		inheritAndIncludeDirsFromProject("MemoryDebugger"),
+		inheritAndIncludeDirsFromProject("UniqueID"),
 		
 		--Layer Two
 		inheritAndIncludeDirsFromProject("Math"),
@@ -88,8 +103,12 @@ project "Core"
 	})
 
 	links{
+		--Layer Zero
+		"StandardTypes",
+
 		--Layer One
 		"MemoryDebugger",
+		"UniqueID",
 
 		--Layer Two
 		"Math",

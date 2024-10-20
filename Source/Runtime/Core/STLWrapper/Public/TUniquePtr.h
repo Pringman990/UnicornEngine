@@ -23,6 +23,11 @@ public:
         return mImpl->ptr.get();
     }
 
+    const _Val* Get() const
+    {
+        return mImpl->ptr.get();
+    }
+
 public:
     _Val* operator->()
     {
