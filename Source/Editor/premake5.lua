@@ -20,35 +20,23 @@ project "Editor"
 	cppdialect "C++20"
 	kind "StaticLib"
 
-	targetname(defaultTargetName)
-    targetdir (defaultTargetDir)
+	targetname(UCE_TARGET_NAME)
+    targetdir (UCE_TARGET_DIR)
 
-    objdir(defaultObjDir)
-    location (defaultLocationDir)
+    objdir(UCE_OBJ_DIR)
+    location (UCE_VCXPROJ_DIR)
 
-	includedirs {
-		--Layer One
-		inheritAndIncludeDirsFromProject("ImguiCore"),
-
-		--Last Layer
-		inheritAndIncludeDirsFromProject("EditorCore")
-	}
-
-	projectInheritDirs["Editor"] = flattenTable({
-		--Layer One
-		inheritAndIncludeDirsFromProject("ImguiCore"),
-
-		--Last Layer
-		inheritAndIncludeDirsFromProject("EditorCore")
+	includeDependencies("Editor", 
+	{
+		"ImguiCore",
+		"EditorCore"
 	})
 
-	links{
-		--Layer One
+	linkDependencies("Editor", 
+	{
 		"ImguiCore",
-
-		--Last Layer
-		"EditorCore",
-	}
+		"EditorCore"
+	})
 
 	files {
 		"build.cpp"
@@ -59,3 +47,5 @@ project "Editor"
     end
 
 	group ""
+
+filter {}

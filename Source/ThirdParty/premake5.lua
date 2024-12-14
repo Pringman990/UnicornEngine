@@ -2,17 +2,19 @@ print("Including ThirdParty/")
 
 --ThirdParty Root Directories
 dirs["SimpleMath"]			= os.realpath(dirs.ThirdParty .. "SimpleMath/")
-dirs["Spdlog"]				= os.realpath(dirs.ThirdParty .. "Spdlog/Public/")
+dirs["Spdlog"]				= os.realpath(dirs.ThirdParty .. "Spdlog/")
 dirs["StackWalker"]			= os.realpath(dirs.ThirdParty .. "StackWalker/")
-dirs["FBXImporter"]			= os.realpath(dirs.ThirdParty .. "FBXImporter/")
+dirs["FBXSDK"]				= os.realpath(dirs.ThirdParty .. "FBXSDK/")
+dirs["Assimp"]				= os.realpath(dirs.ThirdParty .. "Assimp/")
 dirs["DDSTextureLoader"]	= os.realpath(dirs.ThirdParty .. "DDSTextureLoader/")
 dirs["Imgui"]				= os.realpath(dirs.ThirdParty .. "Imgui/")
 
 group "ThirdParty"
 include (dirs.SimpleMath)
-include (normalizePath(dirs.Spdlog))
+include (dirs.Spdlog)
 include (dirs.StackWalker)
-include (dirs.FBXImporter)
+include (dirs.FBXSDK)
+include (dirs.Assimp)
 include (dirs.DDSTextureLoader)
 include (dirs.Imgui)
 group ""

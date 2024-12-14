@@ -1,24 +1,24 @@
 #pragma once
+#include <Singleton.h>
 #include <Generic/GenericApplication.h>
 
-class Application
+class Application : public Singleton<Application>
 {
 public:
 	/// <summary>
 	/// Pointer can be null if used before EngineLoop has run Init
 	/// </summary>
-	static GenericApplication* GetApp()
+	inline GenericApplication* GetApplication()
 	{
-		return sGenericApplication;
+		return mGenericApplication;
 	}
 
-	static GenericApplication* _CreateApp();
-
-	static void Shutdown();
+	GenericApplication* _CreateApplication();
 
 private:
+	friend class Singleton<Application>;
 	Application();
 	~Application();
 private:
-	static GenericApplication* sGenericApplication;
+	GenericApplication* mGenericApplication;
 };

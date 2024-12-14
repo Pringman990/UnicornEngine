@@ -25,9 +25,9 @@ private:
 	MemoryDebugger::PauseStackMemoryTracking(Pause);
 
 #else
-#define _TRACK_MEMORY(showFullMemoryTrack, showAllAllocations)
+#define _TRACK_MEMORY(showFullMemoryTrack, showAllAllocations) ((void)0)
 
-#define _STOP_TRACK_MEMORY()
+#define _STOP_TRACK_MEMORY() ((void)0)
 
-#define _PAUSE_TRACK_MEMORY(Pause)
+#define _PAUSE_TRACK_MEMORY(Pause) ((void)0)
 #endif // _MEMORY_DEBUG

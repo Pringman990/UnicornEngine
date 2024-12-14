@@ -1,7 +1,7 @@
 #pragma once
 #pragma message("pch Engine!")
 
-#include <TSharedPtr.h>
+#include <memory>
 #include <Logger.h>
 #include <Timer.h>
 

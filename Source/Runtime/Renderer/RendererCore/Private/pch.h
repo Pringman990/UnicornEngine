@@ -2,6 +2,13 @@
 #pragma message("pch RendererCore!")
 
 #include <Logger.h>
-#include <TUMap.h>
-#include <TVector.h>
+#include <unordered_map>
+#include <vector>
+#include <UniqueID.h>
 #include <SimpleMath.h>
+#include <Transform.h>
+#include <Utility.h>
+
+#include "Vertex.h"
+
+#include <ResourceRegistry.h>

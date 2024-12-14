@@ -5,19 +5,13 @@ project "DDSTextureLoader"
 	cppdialect "C++20"
 	kind "StaticLib"
 	
-	targetname(defaultTargetName)
-    targetdir (defaultTargetDir)
+	targetname(UCE_TARGET_NAME)
+    targetdir (UCE_TARGET_DIR)
 
-    objdir(defaultObjDir)
-    location (defaultLocationDir)
+    objdir(UCE_OBJ_DIR)
+    location (UCE_VCXPROJ_DIR)
 
-	includedirs {
-		dirs.DDSTextureLoader
-	}
-
-	projectInheritDirs["DDSTextureLoader"] = flattenTable({
-		dirs.DDSTextureLoader
-	})
+	includeDependencies("DDSTextureLoader", {dirs.DDSTextureLoader})
 
 	files {
 		"**.h",

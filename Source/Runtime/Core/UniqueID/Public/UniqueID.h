@@ -5,6 +5,8 @@
 class UniqueID
 {
 public:
+	static const uint64 InvalidID = 0;
+public:
 	UniqueID() : mID(0) {};
 	
 	/// <summary>
@@ -29,7 +31,7 @@ public:
 		aLowOut = low;
 	}
 
-	const uint64 Get63ID() const { return mID; }
+	const uint64 Get64ID() const { return mID; }
 
 public:
 	UniqueID operator=(UniqueID other)
@@ -57,7 +59,7 @@ namespace std {
 	struct hash<UniqueID> {
 		size_t operator()(const UniqueID& id) const noexcept {
 			// Use the underlying ID for hashing
-			return hash<uint64_t>()(id.Get63ID());
+			return hash<uint64_t>()(id.Get64ID());
 		}
 	};
 }

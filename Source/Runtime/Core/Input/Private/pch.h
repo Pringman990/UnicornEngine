@@ -4,7 +4,7 @@
 #include <Windows.h>
 #include <Logger.h>
 
-#include <TVector.h>
-#include <TUMap.h>
-#include <FString.h>
-#include <TFunction.h>
+#include <vector>
+#include <unordered_map>
+#include <string>
+#include <functional>

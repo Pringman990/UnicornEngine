@@ -1,34 +1,23 @@
 #pragma once
-#include <TUMap.h>
-#include <TFunction.h>
-#include <TVector.h>
+#include <Singleton.h>
 
 enum class DispatchEvents
 {
 	eEngineExit
 };
 
-class EventDispatcher
+class EventDispatcher : public Singleton<EventDispatcher>
 {
 public:
-	static EventDispatcher& GetDispatcher()
-	{
-		if (!_sInstance)
-			_sInstance = new EventDispatcher();
-		return *_sInstance;
-	}
-
-	static void ShutDown();
-
 	void Dispatch(DispatchEvents aEvent);
-	void RegisterReceiver(DispatchEvents aEvent, TFunction<void> aCallback);
+	void RegisterReceiver(DispatchEvents aEvent, std::function<void()> aCallback);
 
 private:
+	friend class Singleton<EventDispatcher>;
 	EventDispatcher();
-	~EventDispatcher();
+	~EventDispatcher() override;
 private:
-	static EventDispatcher* _sInstance;
 
-	TUMap<DispatchEvents, TVector<TFunction<void>>> mEvents;
+	std::unordered_map<DispatchEvents, std::vector<std::function<void()>>> mEvents;
 
 };

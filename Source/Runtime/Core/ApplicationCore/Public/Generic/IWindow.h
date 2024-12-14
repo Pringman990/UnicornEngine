@@ -17,7 +17,7 @@ public:
 	IWindow() {};
 	~IWindow() {};
 
-	virtual bool Init() { LOG_CORE_WARNING("Called class has not implemented IWindow Init, Was this intended?");  return false; };
+	virtual bool Init() = 0;
 
 private:
 

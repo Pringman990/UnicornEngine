@@ -26,6 +26,6 @@ public:
 	WindowWindowInfo& GetWindowsWindowInfo();
 
 private:
-	TVector<IWindowsMessageObserver*> mWinProcObservers;
+	std::vector<IWindowsMessageObserver*> mWinProcObservers;
 	WindowWindowInfo mWindowInfo;
 };

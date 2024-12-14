@@ -5,26 +5,11 @@ project "RendererCore"
 	cppdialect "C++20"
 	kind "StaticLib"
 	
-   targetname(defaultTargetName)
-    targetdir (defaultTargetDir)
+	targetname(UCE_TARGET_NAME)
+    targetdir (UCE_TARGET_DIR)
 
-    objdir(defaultObjDir)
-    location (defaultLocationDir)
-
-	includedirs {
-		dirs.RendererCore,
-		normalizePath(dirs.RendererCore) .. "../Private",
-		inheritAndIncludeDirsFromProject("FBXImporter"),
-		inheritAndIncludeDirsFromProject("ResourceManagment"),
-		inheritAndIncludeDirsFromProject("Core")
-	}
-
-	projectInheritDirs["RendererCore"] = flattenTable({
-		dirs.RendererCore,
-		inheritAndIncludeDirsFromProject("FBXImporter"),
-		inheritAndIncludeDirsFromProject("ResourceManagment"),
-		inheritAndIncludeDirsFromProject("Core")
-	})
+    objdir(UCE_OBJ_DIR)
+    location (UCE_VCXPROJ_DIR)
 
 	files {
 		"**.h",
@@ -33,17 +18,30 @@ project "RendererCore"
 		"**.c"
 	}
 
-	dependson{}
-	
-	links{
-		"FBXImporter",
-		"ResourceManagment",
-		"Core"
+	includedirs {
+		normalizePath(dirs.RendererCore) .. "/Private"
 	}
+
+	includeDependencies("RendererCore", 
+	{
+		dirs.RendererCore,
+		"FBXSDK",
+		"Assimp",
+		"ResourceCore",
+		"Math",
+		"Core"
+	})
+
+	linkDependencies("RendererCore", 
+	{
+		"FBXSDK",
+		"Assimp",
+		"ResourceCore",
+		"Core"
+	})
 
 	vpaths { ["Public/*"] = {"Public/**.h", "Public/**.hpp", "Public/**.c", "Public/**.cpp"} }
 	vpaths { ["Private/*"] = {"Private/**.h", "Private/**.hpp", "Private/**.c", "Private/**.cpp"}}
-
 
 	pchheader "pch.h"
 	pchsource "Private/pch.cpp"

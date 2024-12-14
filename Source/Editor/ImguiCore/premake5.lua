@@ -5,22 +5,11 @@ project "ImguiCore"
 	cppdialect "C++20"
 	kind "StaticLib"
 	
-	targetname(defaultTargetName)
-    targetdir (defaultTargetDir)
+	targetname(UCE_TARGET_NAME)
+    targetdir (UCE_TARGET_DIR)
 
-    objdir(defaultObjDir)
-    location (defaultLocationDir)
-
-	includedirs {
-		dirs.ImguiCore,
-		normalizePath(dirs.ImguiCore) .. "../Private",
-		inheritAndIncludeDirsFromProject("Imgui")
-	}
-
-	projectInheritDirs["ImguiCore"] = flattenTable({
-		dirs.ImguiCore,
-		inheritAndIncludeDirsFromProject("Imgui")
-	})
+    objdir(UCE_OBJ_DIR)
+    location (UCE_VCXPROJ_DIR)
 
 	files {
 		"**.h",
@@ -32,6 +21,39 @@ project "ImguiCore"
 	vpaths { ["Public/*"] = {"Public/**.h", "Public/**.hpp", "Public/**.c", "Public/**.cpp"} }
 	vpaths { ["Private/*"] = {"Private/**.h", "Private/**.hpp", "Private/**.c", "Private/**.cpp"}}
 
-	links{
-		"Imgui"
+	includedirs {
+		normalizePath(dirs.ImguiCore) .. "/Private",
 	}
+
+	includeDependencies("ImguiCore", 
+	{
+		dirs.ImguiCore,
+		"Imgui",
+		"Renderer",
+		"Core"
+	})
+
+	linkDependencies("ImguiCore", 
+	{
+		"Imgui",
+		"Renderer",
+		"Core"
+	})
+
+	pchheader "pch.h"
+	pchsource "Private/pch.cpp"
+	forceincludes { "pch.h" }
+
+	if not os.isfile("Private/pch.h") then
+        io.writefile("Private/pch.h", 
+        "#pragma once\n" .. 
+        "#pragma message(\"pch ImguiCore!\")\n\n"
+        )
+    end
+   
+    if not os.isfile("Private/pch.cpp") then
+        io.writefile("Private/pch.cpp", 
+        "#include \"pch.h\"")
+    end
+
+filter {}

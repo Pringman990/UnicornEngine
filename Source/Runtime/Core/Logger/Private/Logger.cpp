@@ -4,8 +4,6 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/dist_sink.h>
 
-#include <MemoryDebugger.h>
-
 class CustomSink : public spdlog::sinks::sink {
 public:
     CustomSink() {
@@ -54,10 +52,11 @@ private:
     std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> default_sink;
 };
 
-bool Logger::mHasShutDown = false;
-Logger* Logger::_sInstance = nullptr;
+Logger::Logger()
+{
 
-void Logger::Shutdown()
+}
+Logger::~Logger()
 {
 	spdlog::apply_all([](std::shared_ptr<spdlog::logger> logger) {
 		logger->flush();
@@ -69,10 +68,6 @@ void Logger::Shutdown()
 	spdlog::drop("Client");
 	spdlog::drop_all();
 	spdlog::shutdown();
-
-	delete _sInstance;
-	_sInstance = nullptr;
-	mHasShutDown = true;
 }
 
 void Logger::Init()
