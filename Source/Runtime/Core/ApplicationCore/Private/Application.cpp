@@ -1,24 +1,17 @@
 #include "Application.h"
 
-GenericApplication* Application::sGenericApplication = nullptr;
-
 Application::Application()
 {
 }
 
 Application::~Application()
 {
-	
+	delete mGenericApplication;
+	mGenericApplication = nullptr;
 }
 
-GenericApplication* Application::_CreateApp()
+GenericApplication* Application::_CreateApplication()
 {
-	sGenericApplication = GenericApplication::Create();
-	return sGenericApplication;
-}
-
-void Application::Shutdown()
-{
-	delete sGenericApplication;
-	sGenericApplication = nullptr;
+	mGenericApplication = GenericApplication::Create();
+	return mGenericApplication;
 }

@@ -6,15 +6,26 @@
 
 #include <d3d11.h>
 #include <d3d11_1.h>
+#include <dxgi1_6.h>
 #include <d3dcompiler.h>
 #include <comdef.h>
 
-#include <TVector.h>
-#include <TUMap.h>
-#include <FString.h>
-#include <TSharedPtr.h>
+#include <wrl/client.h>
+using Microsoft::WRL::ComPtr;
+
+#include <vector>
+#include <memory>
+#include <string>
+
+#include <Vertex.h>
+
+#include <ResourceRegistry.h>
+#include <RenderTarget/RenderTargetResourceManager.h>
 
 #include <StandardTypes.h>
 #include <Logger.h>
+#include <Utility.h>
 
 #include <SimpleMath.h>
+
+#include "DX11RenderingBackend.h"

@@ -9,9 +9,6 @@ include (normalizePath(dirs.RendererCore))
 include (normalizePath(dirs.RawShaders))
 
 --Layer Two
-dirs["ShadersCore"]					= os.realpath(dirs.Renderer .. "ShadersCore/Public/")
-
-include (normalizePath(dirs.ShadersCore))
 
 --Layer Three
 dirs["DX11Renderer"]				= os.realpath(dirs.Renderer .. "DX11Renderer/Public/")
@@ -19,7 +16,7 @@ dirs["DX11Renderer"]				= os.realpath(dirs.Renderer .. "DX11Renderer/Public/")
 include (normalizePath(dirs.DX11Renderer))
 
 --Layer Last
-dirs["RendererFactory"]		= os.realpath(dirs.Renderer .. "RendererFactory/Public/")
+dirs["RendererFactory"]				= os.realpath(dirs.Renderer .. "RendererFactory/Public/")
 
 include (normalizePath(dirs.RendererFactory))
 
@@ -28,58 +25,27 @@ project "Renderer"
 	cppdialect "C++20"
 	kind "StaticLib"
 
-	targetname(defaultTargetName)
-    targetdir (defaultTargetDir)
+	targetname(UCE_TARGET_NAME)
+    targetdir (UCE_TARGET_DIR)
 
-    objdir(defaultObjDir)
-    location (defaultLocationDir)
+    objdir(UCE_OBJ_DIR)
+    location (UCE_VCXPROJ_DIR)
 
-	includedirs {
-		--Layer One
-		inheritAndIncludeDirsFromProject("RendererCore"),
-		inheritAndIncludeDirsFromProject("RawShaders"),
-
-		--Layer Two
-		inheritAndIncludeDirsFromProject("ShadersCore"),
-
-		--Layer Three
-		inheritAndIncludeDirsFromProject("DX11Renderer"),
-
-		--Layer Last
-		inheritAndIncludeDirsFromProject("RendererFactory"),
-	}
-
-	projectInheritDirs["Renderer"] = flattenTable({
-		--Layer One
-		inheritAndIncludeDirsFromProject("RendererCore"),
-		inheritAndIncludeDirsFromProject("RawShaders"),
-
-		--Layer Two
-		inheritAndIncludeDirsFromProject("ShadersCore"),
-
-		--Layer Three
-		inheritAndIncludeDirsFromProject("DX11Renderer"),
-
-		--Layer Last
-		inheritAndIncludeDirsFromProject("RendererFactory"),
-
-
-	})
-
-	links{
-		--Layer One
+	includeDependencies("Renderer", 
+	{
 		"RendererCore",
 		"RawShaders",
-
-		--Layer Two
-		"ShadersCore",
-
-		--Layer Three
 		"DX11Renderer",
+		"RendererFactory"
+	})
 
-		--Layer Last
-		"RendererFactory",
-	}
+	linkDependencies("Renderer", 
+	{
+		"RendererCore",
+		"RawShaders",
+		"DX11Renderer",
+		"RendererFactory"
+	})
 
 	files {
 		"build.cpp"

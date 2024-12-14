@@ -5,42 +5,39 @@ project "DX11Renderer"
 	cppdialect "C++20"
 	kind "StaticLib"
 	
-   targetname(defaultTargetName)
-    targetdir (defaultTargetDir)
+	targetname(UCE_TARGET_NAME)
+    targetdir (UCE_TARGET_DIR)
 
-    objdir(defaultObjDir)
-    location (defaultLocationDir)
+    objdir(UCE_OBJ_DIR)
+    location (UCE_VCXPROJ_DIR)
 
 	includedirs {
-		dirs.DX11Renderer,
-		normalizePath(dirs.DX11Renderer) .. "../Private",
-		inheritAndIncludeDirsFromProject("RendererCore"),
-		--inheritAndIncludeDirsFromProject("ShaderCore"),
+		normalizePath(dirs.DX11Renderer) .. "/Private"
 	}
 
-	projectInheritDirs["DX11Renderer"] = flattenTable({
+	includeDependencies("DX11Renderer", 
+	{
 		dirs.DX11Renderer,
-		inheritAndIncludeDirsFromProject("RendererCore"),
-		--inheritAndIncludeDirsFromProject("ShaderCore"),
+		"RendererCore",
+		"DDSTextureLoader"
 	})
+
+	linkDependencies("DX11Renderer", 
+	{
+		"RendererCore",
+		"DXGI",
+		"DDSTextureLoader"
+	})
+
+	defines{
+		"GRAPHICS_DEBUG_INFORMATION"
+	}
 
 	files {
 		"**.h",
 		"**.hpp",
 		"**.cpp",
 		"**.c"
-	}
-
-	dependson{}
-	
-	links{
-		"RendererCore",
-		"DXGI",
-		--"ShaderCore"
-	}
-
-	defines{
-		"GRAPHICS_DEBUG_INFORMATION"
 	}
 
 	vpaths { ["Public/*"] = {"Public/**.h", "Public/**.hpp", "Public/**.c", "Public/**.cpp"} }

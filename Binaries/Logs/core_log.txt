@@ -1,0 +1,144 @@
+[2024-12-01 03:36:06.898] [Core] [info] Engine Loop Starting Init
+[2024-12-01 03:36:06.915] [Core] [info] Creating Renderer
+[2024-12-01 03:36:06.915] [Core] [info] Renderer Initilizing
+[2024-12-01 03:36:07.038] [Core] [info] Renderer has finished Initilize, it took: 0.1229472s
+[2024-12-01 03:36:07.073] [Core] [info] Engine Loop has finished Initilize, it took: 0.1751476s
+[2024-12-01 03:36:07.073] [Core] [info] GuardedMain has Initilized and will now run the main loop
+[2024-12-01 03:36:16.236] [Core] [info] Engine Loop exit has been requested
+[2024-12-01 03:36:16.236] [Core] [info] Main loop exited, starting cleanup
+[2024-12-01 03:36:16.236] [Core] [info] Main cleanup done, Goodbye welcome back!
+[2024-12-01 04:00:10.147] [Core] [info] Engine Loop Starting Init
+[2024-12-01 04:00:10.164] [Core] [info] Creating Renderer
+[2024-12-01 04:00:10.164] [Core] [info] Renderer Initilizing
+[2024-12-01 04:00:10.293] [Core] [info] Renderer has finished Initilize, it took: 0.1288784s
+[2024-12-01 04:00:10.327] [Core] [info] Engine Loop has finished Initilize, it took: 0.1799496s
+[2024-12-01 04:00:10.327] [Core] [info] GuardedMain has Initilized and will now run the main loop
+[2024-12-01 04:00:13.141] [Core] [info] Engine Loop exit has been requested
+[2024-12-01 04:00:13.141] [Core] [info] Main loop exited, starting cleanup
+[2024-12-01 04:00:13.141] [Core] [info] Main cleanup done, Goodbye welcome back!
+[2024-12-01 04:06:16.650] [Core] [info] Engine Loop Starting Init
+[2024-12-01 04:06:16.666] [Core] [info] Creating Renderer
+[2024-12-01 04:06:16.666] [Core] [info] Renderer Initilizing
+[2024-12-01 04:06:16.797] [Core] [info] Renderer has finished Initilize, it took: 0.1301335s
+[2024-12-01 04:06:16.830] [Core] [info] Engine Loop has finished Initilize, it took: 0.1802191s
+[2024-12-01 04:06:16.830] [Core] [info] GuardedMain has Initilized and will now run the main loop
+[2024-12-01 04:06:18.818] [Core] [info] Engine Loop exit has been requested
+[2024-12-01 04:06:18.818] [Core] [info] Main loop exited, starting cleanup
+[2024-12-01 04:06:18.818] [Core] [info] Main cleanup done, Goodbye welcome back!
+[2024-12-01 04:08:40.888] [Core] [info] Engine Loop Starting Init
+[2024-12-01 04:08:40.904] [Core] [info] Creating Renderer
+[2024-12-01 04:08:40.904] [Core] [info] Renderer Initilizing
+[2024-12-01 04:08:41.025] [Core] [info] Renderer has finished Initilize, it took: 0.1211639s
+[2024-12-01 04:08:41.059] [Core] [info] Engine Loop has finished Initilize, it took: 0.1704443s
+[2024-12-01 04:08:41.059] [Core] [info] GuardedMain has Initilized and will now run the main loop
+[2024-12-01 04:08:43.016] [Core] [info] Engine Loop exit has been requested
+[2024-12-01 04:08:43.016] [Core] [info] Main loop exited, starting cleanup
+[2024-12-01 04:08:43.016] [Core] [info] Main cleanup done, Goodbye welcome back!
+[2024-12-01 16:43:34.233] [Core] [info] Engine Loop Starting Init
+[2024-12-01 16:43:34.249] [Core] [info] Creating Renderer
+[2024-12-01 16:43:34.249] [Core] [info] Renderer Initilizing
+[2024-12-01 16:43:34.383] [Core] [info] Renderer has finished Initilize, it took: 0.1339693s
+[2024-12-01 16:43:34.418] [Core] [info] Engine Loop has finished Initilize, it took: 0.1854750s
+[2024-12-01 16:43:34.420] [Core] [info] GuardedMain has Initilized and will now run the main loop
+[2024-12-01 16:43:36.902] [Core] [info] Engine Loop exit has been requested
+[2024-12-01 16:43:36.902] [Core] [info] Main loop exited, starting cleanup
+[2024-12-01 16:43:36.903] [Core] [info] Main cleanup done, Goodbye welcome back!
+[2024-12-01 16:45:37.183] [Core] [info] Engine Loop Starting Init
+[2024-12-01 16:45:37.203] [Core] [info] Creating Renderer
+[2024-12-01 16:45:37.203] [Core] [info] Renderer Initilizing
+[2024-12-01 16:45:37.334] [Core] [info] Renderer has finished Initilize, it took: 0.1309256s
+[2024-12-01 16:45:37.370] [Core] [info] Engine Loop has finished Initilize, it took: 0.1870056s
+[2024-12-01 16:45:37.370] [Core] [info] GuardedMain has Initilized and will now run the main loop
+[2024-12-01 16:45:39.574] [Core] [info] Engine Loop exit has been requested
+[2024-12-01 16:45:39.574] [Core] [info] Main loop exited, starting cleanup
+[2024-12-01 16:45:39.574] [Core] [info] Main cleanup done, Goodbye welcome back!
+[2024-12-01 18:14:17.038] [Core] [info] Engine Loop Starting Init
+[2024-12-01 18:14:17.058] [Core] [info] Creating Renderer
+[2024-12-01 18:14:17.058] [Core] [info] Renderer Initilizing
+[2024-12-01 18:14:17.191] [Core] [info] Renderer has finished Initilize, it took: 0.1327749s
+[2024-12-01 18:14:17.226] [Core] [info] Engine Loop has finished Initilize, it took: 0.1878216s
+[2024-12-01 18:14:17.226] [Core] [info] GuardedMain has Initilized and will now run the main loop
+[2024-12-01 18:14:20.348] [Core] [info] Engine Loop exit has been requested
+[2024-12-01 18:14:20.348] [Core] [info] Main loop exited, starting cleanup
+[2024-12-01 18:14:20.348] [Core] [info] Main cleanup done, Goodbye welcome back!
+[2024-12-01 18:25:46.883] [Core] [info] Engine Loop Starting Init
+[2024-12-01 18:25:46.901] [Core] [info] Creating Renderer
+[2024-12-01 18:25:46.902] [Core] [info] Renderer Initilizing
+[2024-12-01 18:25:47.033] [Core] [info] Renderer has finished Initilize, it took: 0.1308998s
+[2024-12-01 18:25:47.068] [Core] [info] Engine Loop has finished Initilize, it took: 0.1849169s
+[2024-12-01 18:25:47.068] [Core] [info] GuardedMain has Initilized and will now run the main loop
+[2024-12-01 18:25:50.740] [Core] [info] Engine Loop exit has been requested
+[2024-12-01 18:25:50.740] [Core] [info] Main loop exited, starting cleanup
+[2024-12-01 18:25:50.740] [Core] [info] Main cleanup done, Goodbye welcome back!
+[2024-12-01 18:50:45.263] [Core] [info] Engine Loop Starting Init
+[2024-12-01 18:50:45.278] [Core] [info] Creating Renderer
+[2024-12-01 18:50:45.278] [Core] [info] Renderer Initilizing
+[2024-12-01 18:50:45.414] [Core] [info] Renderer has finished Initilize, it took: 0.1357992s
+[2024-12-01 18:50:45.449] [Core] [info] Engine Loop has finished Initilize, it took: 0.1859569s
+[2024-12-01 18:50:45.449] [Core] [info] GuardedMain has Initilized and will now run the main loop
+[2024-12-01 18:50:50.681] [Core] [info] Engine Loop exit has been requested
+[2024-12-01 18:50:50.681] [Core] [info] Main loop exited, starting cleanup
+[2024-12-01 18:50:50.681] [Core] [info] Main cleanup done, Goodbye welcome back!
+[2024-12-01 18:56:01.007] [Core] [info] Engine Loop Starting Init
+[2024-12-01 18:56:01.025] [Core] [info] Creating Renderer
+[2024-12-01 18:56:01.025] [Core] [info] Renderer Initilizing
+[2024-12-01 18:56:01.164] [Core] [info] Renderer has finished Initilize, it took: 0.1389931s
+[2024-12-01 18:56:01.198] [Core] [info] Engine Loop has finished Initilize, it took: 0.1912590s
+[2024-12-01 18:56:01.198] [Core] [info] GuardedMain has Initilized and will now run the main loop
+[2024-12-01 18:56:03.843] [Core] [info] Engine Loop exit has been requested
+[2024-12-01 18:56:03.844] [Core] [info] Main loop exited, starting cleanup
+[2024-12-01 18:56:03.844] [Core] [info] Main cleanup done, Goodbye welcome back!
+[2024-12-01 19:03:07.912] [Core] [info] Engine Loop Starting Init
+[2024-12-01 19:03:07.930] [Core] [info] Creating Renderer
+[2024-12-01 19:03:07.930] [Core] [info] Renderer Initilizing
+[2024-12-01 19:03:08.053] [Core] [info] Renderer has finished Initilize, it took: 0.1219724s
+[2024-12-01 19:03:08.088] [Core] [info] Engine Loop has finished Initilize, it took: 0.1750600s
+[2024-12-01 19:03:08.088] [Core] [info] GuardedMain has Initilized and will now run the main loop
+[2024-12-01 19:03:10.592] [Core] [info] Engine Loop exit has been requested
+[2024-12-01 19:03:10.592] [Core] [info] Main loop exited, starting cleanup
+[2024-12-01 19:03:10.592] [Core] [info] Main cleanup done, Goodbye welcome back!
+[2024-12-01 19:06:25.166] [Core] [info] Engine Loop Starting Init
+[2024-12-01 19:06:25.184] [Core] [info] Creating Renderer
+[2024-12-01 19:06:25.184] [Core] [info] Renderer Initilizing
+[2024-12-01 19:06:25.326] [Core] [info] Renderer has finished Initilize, it took: 0.1419498s
+[2024-12-01 19:06:25.361] [Core] [info] Engine Loop has finished Initilize, it took: 0.1949743s
+[2024-12-01 19:06:25.361] [Core] [info] GuardedMain has Initilized and will now run the main loop
+[2024-12-01 19:06:32.183] [Core] [info] Engine Loop exit has been requested
+[2024-12-01 19:06:32.183] [Core] [info] Main loop exited, starting cleanup
+[2024-12-01 19:06:32.183] [Core] [info] Main cleanup done, Goodbye welcome back!
+[2024-12-01 22:27:24.132] [Core] [info] Engine Loop Starting Init
+[2024-12-01 22:27:24.151] [Core] [info] Creating Renderer
+[2024-12-01 22:27:24.152] [Core] [info] Renderer Initilizing
+[2024-12-01 22:27:24.286] [Core] [info] Renderer has finished Initilize, it took: 0.1343038s
+[2024-12-01 22:27:24.323] [Core] [info] Engine Loop has finished Initilize, it took: 0.1908107s
+[2024-12-01 22:27:24.323] [Core] [info] GuardedMain has Initilized and will now run the main loop
+[2024-12-01 22:27:28.923] [Core] [info] Engine Loop exit has been requested
+[2024-12-01 22:27:28.923] [Core] [info] Main loop exited, starting cleanup
+[2024-12-01 22:27:28.923] [Core] [info] Main cleanup done, Goodbye welcome back!
+[2024-12-01 22:28:48.149] [Core] [info] Engine Loop Starting Init
+[2024-12-01 22:28:48.165] [Core] [info] Creating Renderer
+[2024-12-01 22:28:48.166] [Core] [info] Renderer Initilizing
+[2024-12-01 22:28:48.298] [Core] [info] Renderer has finished Initilize, it took: 0.1324287s
+[2024-12-01 22:28:48.336] [Core] [info] Engine Loop has finished Initilize, it took: 0.1869662s
+[2024-12-01 22:28:48.336] [Core] [info] GuardedMain has Initilized and will now run the main loop
+[2024-12-01 22:28:52.906] [Core] [info] Engine Loop exit has been requested
+[2024-12-01 22:28:52.907] [Core] [info] Main loop exited, starting cleanup
+[2024-12-01 22:28:52.907] [Core] [info] Main cleanup done, Goodbye welcome back!
+[2024-12-01 22:54:56.250] [Core] [info] Engine Loop Starting Init
+[2024-12-01 22:54:56.265] [Core] [info] Creating Renderer
+[2024-12-01 22:54:56.265] [Core] [info] Renderer Initilizing
+[2024-12-01 22:54:56.383] [Core] [info] Renderer has finished Initilize, it took: 0.1168741s
+[2024-12-01 22:54:56.416] [Core] [info] Engine Loop has finished Initilize, it took: 0.1660085s
+[2024-12-01 22:54:56.416] [Core] [info] GuardedMain has Initilized and will now run the main loop
+[2024-12-01 22:54:58.665] [Core] [info] Engine Loop exit has been requested
+[2024-12-01 22:54:58.665] [Core] [info] Main loop exited, starting cleanup
+[2024-12-01 22:54:58.665] [Core] [info] Main cleanup done, Goodbye welcome back!
+[2024-12-14 03:50:06.322] [Core] [info] Engine Loop Starting Init
+[2024-12-14 03:50:06.343] [Core] [info] Creating Renderer
+[2024-12-14 03:50:06.344] [Core] [info] Renderer Initilizing
+[2024-12-14 03:50:06.473] [Core] [info] Renderer has finished Initilize, it took: 0.1295497s
+[2024-12-14 03:50:06.516] [Core] [info] Engine Loop has finished Initilize, it took: 0.1938359s
+[2024-12-14 03:50:06.516] [Core] [info] GuardedMain has Initilized and will now run the main loop
+[2024-12-14 03:50:09.313] [Core] [info] Engine Loop exit has been requested
+[2024-12-14 03:50:09.313] [Core] [info] Main loop exited, starting cleanup
+[2024-12-14 03:50:09.313] [Core] [info] Main cleanup done, Goodbye welcome back!

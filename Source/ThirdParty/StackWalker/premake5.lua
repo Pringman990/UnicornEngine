@@ -5,19 +5,13 @@ project "StackWalker"
 	cppdialect "C++20"
 	kind "StaticLib"
 	
-	targetname(defaultTargetName)
-    targetdir (defaultTargetDir)
+	targetname(UCE_TARGET_NAME)
+    targetdir (UCE_TARGET_DIR)
 
-    objdir(defaultObjDir)
-    location (defaultLocationDir)
-	
-	includedirs {
-		dirs.StackWalker
-	}
+    objdir(UCE_OBJ_DIR)
+    location (UCE_VCXPROJ_DIR)
 
-	projectInheritDirs["StackWalker"] = flattenTable({
-		dirs.StackWalker,
-	})
+	includeDependencies("StackWalker", {dirs.StackWalker});
 
 	files {
 		"**.h",
@@ -25,9 +19,6 @@ project "StackWalker"
 		"**.cpp",
 		"**.c"
 	}
-
-	dependson{}
-	links{}
 
 	vpaths { ["Public/*"] = {"Public/**.h", "Public/**.hpp", "Public/**.c", "Public/**.cpp"} }
 	vpaths { ["Private/*"] = {"Private/**.h", "Private/**.hpp", "Private/**.c", "Private/**.cpp"}}

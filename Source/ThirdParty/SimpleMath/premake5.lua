@@ -5,11 +5,11 @@ project "SimpleMath"
 	cppdialect "C++20"
 	kind "StaticLib"
 	
-	targetname(defaultTargetName)
-    targetdir (defaultTargetDir)
+	targetname(UCE_TARGET_NAME)
+    targetdir (UCE_TARGET_DIR)
 
-    objdir(defaultObjDir)
-    location (defaultLocationDir)
+    objdir(UCE_OBJ_DIR)
+    location (UCE_VCXPROJ_DIR)
 
 	files {
 		"**.h",
@@ -18,13 +18,7 @@ project "SimpleMath"
 		"**.c"
 	}
 
-	includedirs {
-		dirs.SimpleMath
-	}
-
-	projectInheritDirs["SimpleMath"] = flattenTable({
-		dirs.SimpleMath,
-	})
+	includeDependencies("SimpleMath", {dirs.SimpleMath});
 
 	dependson{}
 	links{}

@@ -4,17 +4,22 @@ include "../Scripts/Premake/common.lua"
 
 solution "Unicorn Engine"
     location "../"
-    startproject "Launcher"
-    architecture "x64"
-
+    startproject "EntryPoint"
+    
     configurations {
         "MemoryDebug",
         "MemoryDebug Editor",
         "Debug",
-        "Debug Editor",
-        "Development Editor",
+        "Debug editor",
         "Retail"
     }
+
+	platforms{ 
+		"Win64"
+	}
+
+	filter("platforms:Win64")
+		architecture "x64"
 
   	filter ("configurations:MemoryDebug")
 		runtime "Debug"
@@ -22,7 +27,7 @@ solution "Unicorn Engine"
 		optimize "Off"
 		defines {"_MEMORY_DEBUG", "_DEBUG"}
 
-    filter ("configurations:MemoryDebug Editor")
+	filter ("configurations:MemoryDebug Editor")
 		runtime "Debug"
 		symbols "Full"
 		optimize "Off"
@@ -34,17 +39,11 @@ solution "Unicorn Engine"
 		optimize "Off"
 		defines {"_DEBUG"}
 
-	filter ("configurations:Debug Editor")
+	filter("configurations:Debug Editor")
 		runtime "Debug"
 		symbols "Full"
 		optimize "Off"
-		defines {"_DEBUG", "_EDITOR"}
-
-	filter ("configurations:Development Editor")
-		runtime "Debug"
-		symbols "On"
-		optimize "Debug"
-		defines {"_DEVELOPMENT", "_EDITOR"}
+		defines {"_EDITOR"}
 
 	filter ("configurations:Retail")
 		runtime "Release"
@@ -58,7 +57,7 @@ solution "Unicorn Engine"
 	filter "system:windows"
 		symbols "On"		
 		systemversion "latest"
-		defines {"_Win32"}
+		defines {"_Win32", "_Win64"}
 
 	flags {"FatalWarnings", "MultiProcessorCompile"}
     warnings "Extra"
@@ -71,6 +70,10 @@ solution "Unicorn Engine"
 dirs["ThirdParty"]			= os.realpath(dirs.Source .. "ThirdParty/")
 dirs["Runtime"]			    = os.realpath(dirs.Source .. "Runtime/")
 dirs["Editor"]			    = os.realpath(dirs.Source .. "Editor/")
+dirs["EntryPoint"]			= os.realpath(dirs.Source .. "EntryPoint/")
+dirs["Sandbox"]				= os.realpath(dirs.Source .. "Sandbox/Public/")
+dirs["Build"]				= os.realpath(dirs.Source .. "Build/")
+
 
 --Inluding all thirdparty standalone libs
 include (dirs.ThirdParty)
@@ -80,3 +83,10 @@ include (dirs.Runtime)
 
 --Including all editor libs
 include (dirs.Editor)
+
+--Last include
+include (dirs.EntryPoint)
+
+include (dirs.Build)
+
+include (normalizePath(dirs.Sandbox))

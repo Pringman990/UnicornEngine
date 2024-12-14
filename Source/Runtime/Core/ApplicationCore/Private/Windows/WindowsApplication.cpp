@@ -22,7 +22,7 @@ WindowsApplication::WindowsApplication()
 
 WindowsApplication::~WindowsApplication()
 {
-	mWinProcObservers.Clear();
+	mWinProcObservers.clear();
 	winInternal::windowsApplication = nullptr;
 }
 
@@ -30,7 +30,7 @@ bool WindowsApplication::Init()
 {
 	if (!CreateWindow())
 	{
-		LOG_CORE_INFO("Failed To Create Windows Window");
+		_LOG_CORE_INFO("Failed To Create Windows Window");
 		assert(false);
 		return 0;
 	}
@@ -54,22 +54,26 @@ void WindowsApplication::Update()
 	}
 
 	if (close)
-		EventDispatcher::GetDispatcher().Dispatch(DispatchEvents::eEngineExit);
+		EventDispatcher::GetInstance()->Dispatch(DispatchEvents::eEngineExit);
 }
 
 void WindowsApplication::AddWinProcObserver(IWindowsMessageObserver* aObserver)
 {
-	mWinProcObservers.Add(aObserver);
+	mWinProcObservers.push_back(aObserver);
 }
 
 void WindowsApplication::RemoveWinProcObserver(IWindowsMessageObserver* aObserver)
 {
-	mWinProcObservers.Erase(aObserver);
+	auto it = std::find(mWinProcObservers.begin(), mWinProcObservers.end(), aObserver);
+	if (it != mWinProcObservers.end())
+	{
+		mWinProcObservers.erase(it);
+	}
 }
 
 LRESULT WindowsApplication::ProccessWindowsMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	for (uint32_t i = 0; i < mWinProcObservers.Size(); i++)
+	for (uint32_t i = 0; i < mWinProcObservers.size(); i++)
 	{
 		mWinProcObservers[i]->ProccessMessages(hWnd, message, wParam, lParam);
 	}
@@ -78,7 +82,7 @@ LRESULT WindowsApplication::ProccessWindowsMessages(HWND hWnd, UINT message, WPA
 	{
 	case WM_SIZE:
 	{
-		//DX11Renderer::GetInstance().ResizeBackBuffer(LOWORD(lParam), HIWORD(lParam));
+		//DX11RenderingBackend::GetInstance().ResizeBackBuffer(LOWORD(lParam), HIWORD(lParam));
 		break;
 	}
 	case WM_DESTROY:

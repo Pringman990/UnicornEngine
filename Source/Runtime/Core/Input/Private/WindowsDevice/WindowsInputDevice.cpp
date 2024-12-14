@@ -7,7 +7,9 @@
 
 WindowsInputDevice::WindowsInputDevice(InputMapper* aMapper)
 	:
-	IInputDevice(aMapper)
+	InputDevice(aMapper),
+	mTentativeMouseDelta(Vector2(0, 0)),
+	mMouseDelta(Vector2(0, 0))
 {
 }
 
@@ -27,7 +29,7 @@ void WindowsInputDevice::Init()
 #define HID_USAGE_GENERIC_KEYBOARD        ((USHORT) 0x06)
 #endif
 
-	WindowsApplication* application = static_cast<WindowsApplication*>(Application::GetApp());
+	WindowsApplication* application = static_cast<WindowsApplication*>(Application::GetInstance()->GetApplication());
 	HWND hWnd = application->GetWindowsWindowInfo().windowHandle;
 
 	//Keyboard setup
@@ -46,11 +48,17 @@ void WindowsInputDevice::Init()
 	BOOL result = RegisterRawInputDevices(rid, 2, sizeof(rid[0]));
 	if (result == 0)
 	{
-		LOG_CORE_ERROR("Failed To Create Windows Input Device");
+		_LOG_CORE_ERROR("Failed To Create Windows Input Device");
 		return;
 	}
 
 	application->AddWinProcObserver(this);
+}
+
+void WindowsInputDevice::Update()
+{
+	mMouseDelta = mTentativeMouseDelta;
+	mTentativeMouseDelta = { 0, 0 };
 }
 
 void WindowsInputDevice::ProccessMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -68,7 +76,9 @@ void WindowsInputDevice::ProccessMessages(HWND hWnd, UINT message, WPARAM wParam
 			return;
 
 		if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) != dwSize)
-			LOG_CORE_ERROR("GetRawInputData Did Not Return Correct Size");
+		{
+			_LOG_CORE_ERROR("GetRawInputData Did Not Return Correct Size");
+		}
 
 		RAWINPUT* raw = (RAWINPUT*)lpb;
 		if (raw->header.dwType == RIM_TYPEKEYBOARD)
@@ -80,6 +90,12 @@ void WindowsInputDevice::ProccessMessages(HWND hWnd, UINT message, WPARAM wParam
 			bool isKeyDown = !(flags & RI_KEY_BREAK);
 
 			ProccessVirtualKeyboardKeys(virtualKey, isKeyDown);
+		}
+
+		if (raw->header.dwType == RIM_TYPEMOUSE)
+		{
+			mTentativeMouseDelta.x += raw->data.mouse.lLastX;
+			mTentativeMouseDelta.y += raw->data.mouse.lLastY;
 		}
 
 		if (raw->header.dwType == RIM_TYPEMOUSE)
@@ -113,9 +129,9 @@ void WindowsInputDevice::ProccessMessages(HWND hWnd, UINT message, WPARAM wParam
 	}
 }
 
-void WindowsInputDevice::GetKeys(TUMap<FString, uint32_t>& aStringKeyMap)
+void WindowsInputDevice::GetKeys(std::unordered_map<std::string, uint32_t>& aStringKeyMap)
 {
-#define ADD_KEY_MAPPING(KEY, NAME) aStringKeyMap.Insert(FString(NAME), KEY); 
+#define ADD_KEY_MAPPING(KEY, NAME) aStringKeyMap.insert({#NAME, KEY}); 
 
 	ADD_KEY_MAPPING(VK_LBUTTON, "LeftMouseButton");
 	ADD_KEY_MAPPING(VK_RBUTTON, "RightMouseButton");
@@ -284,32 +300,104 @@ void WindowsInputDevice::GetKeys(TUMap<FString, uint32_t>& aStringKeyMap)
 
 }
 
-void WindowsInputDevice::ProccessVirtualKeyboardKeys(USHORT aVirtualKey, bool isDown)
+void WindowsInputDevice::CaptureMouse()
 {
-	eInputActionType actionType = eInputActionType::ePressed;
-	if (isDown == false)
-		actionType = eInputActionType::eReleased;
+	//WindowsApplication* application = static_cast<WindowsApplication*>(Application::GetInstance()->GetApplication());
 
-	switch (aVirtualKey)
+	//RECT clipRect;
+	//HWND window = application->GetWindowsWindowInfo().windowHandle;
+	//GetClientRect(window, &clipRect);
+
+	//POINT upperLeft;
+	//upperLeft.x = clipRect.left;
+	//upperLeft.y = clipRect.top;
+
+	//POINT lowerRight;
+	//lowerRight.x = clipRect.right;
+	//lowerRight.y = clipRect.bottom;
+
+	//MapWindowPoints(window, nullptr, &upperLeft, 1);
+	//MapWindowPoints(window, nullptr, &lowerRight, 1);
+
+	//clipRect.left = upperLeft.x;
+	//clipRect.top = upperLeft.y;
+	//clipRect.right = lowerRight.x;
+	//clipRect.bottom = lowerRight.y;
+
+	//ClipCursor(&clipRect);
+	WindowsApplication* application = static_cast<WindowsApplication*>(Application::GetInstance()->GetApplication());
+
+	// Get the window handle
+	HWND window = application->GetWindowsWindowInfo().windowHandle;
+
+	// Get the client area (the non-decorated area) of the window
+	RECT clientRect;
+	GetClientRect(window, &clientRect);
+
+	// Map to screen coordinates
+	POINT upperLeft = { clientRect.left, clientRect.top };
+	POINT lowerRight = { clientRect.right, clientRect.bottom };
+	MapWindowPoints(window, nullptr, &upperLeft, 1);
+	MapWindowPoints(window, nullptr, &lowerRight, 1);
+
+	// Get the screen coordinates of the window boundaries
+	int windowLeft = upperLeft.x;
+	int windowTop = upperLeft.y;
+	int windowRight = lowerRight.x;
+	int windowBottom = lowerRight.y;
+
+	// Get the current mouse position in screen coordinates
+	POINT mousePos;
+	GetCursorPos(&mousePos);
+
+	// If the mouse is outside the window boundaries, wrap it to the opposite side
+	if (mousePos.x < windowLeft)
 	{
-	case 'a':
+		mousePos.x = windowRight - 1;  // Wrap to the right side
+	}
+	else if (mousePos.x >= windowRight)
 	{
-		for (auto& mapping : mInputMapper->_GetActionMappings())
-		{
-			for (uint32_t i = 0; i < mapping->actions.Size(); i++)
-			{
-				for (uint32_t j = 0; j < mapping->actions[i].Size(); j++)
-				{
-					if (actionType == mapping->actions[i][j]->actionType)
-					{
-						mapping->actions[i][j]->callback();
-					}
-				}
-			}
-		}
-		break;
+		mousePos.x = windowLeft;  // Wrap to the left side
 	}
-	default:
-		break;
+
+	if (mousePos.y < windowTop)
+	{
+		mousePos.y = windowBottom - 1;  // Wrap to the bottom
 	}
+	else if (mousePos.y >= windowBottom)
+	{
+		mousePos.y = windowTop;  // Wrap to the top
+	}
+
+	// Set the cursor to the new wrapped position
+	SetCursorPos(mousePos.x, mousePos.y);
+}
+
+void WindowsInputDevice::ReleaseMouse()
+{
+	ClipCursor(nullptr);
+}
+
+void WindowsInputDevice::HideMouse()
+{
+	ShowCursor(false);
+}
+
+void WindowsInputDevice::ShowMouse()
+{
+	ShowCursor(true);
+}
+
+Vector2 WindowsInputDevice::GetMouseDelta()
+{
+	return mMouseDelta;
+}
+
+void WindowsInputDevice::ProccessVirtualKeyboardKeys(USHORT /*aVirtualKey*/, bool /*isDown*/)
+{
+	//eInputActionType actionType = eInputActionType::ePressed;
+	//if (isDown == false)
+	//	actionType = eInputActionType::eReleased;
+	//
+
 }

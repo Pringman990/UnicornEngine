@@ -29,7 +29,7 @@ void GenericApplication::Update()
 #pragma warning(disable : 4172)
 IWindowInfo& GenericApplication::GetWindowInfo()
 {
-	LOG_CORE_WARNING("Called class has not implemented GenericApplication GetWindowInfo, Was this intended?");
+	_LOG_CORE_WARNING("Called class has not implemented GenericApplication GetWindowInfo, Was this intended?");
 	
 	assert(false);
 	

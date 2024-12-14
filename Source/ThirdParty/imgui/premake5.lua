@@ -5,19 +5,19 @@ project "Imgui"
 	cppdialect "C++20"
 	kind "StaticLib"
 	
-	targetname(defaultTargetName)
-    targetdir (defaultTargetDir)
+	targetname(UCE_TARGET_NAME)
+    targetdir (UCE_TARGET_DIR)
 
-    objdir(defaultObjDir)
-    location (defaultLocationDir)
+    objdir(UCE_OBJ_DIR)
+    location (UCE_VCXPROJ_DIR)
 	
-	includedirs {
-		dirs.Imgui
-	}
-
-	projectInheritDirs["Imgui"] = flattenTable({
-		dirs.Imgui
-	})
+	includeDependencies("Imgui", 
+	{
+		dirs.Imgui,
+		dirs.Imgui .. "backends/",
+		dirs.Imgui .. "misc/cpp/",
+		dirs.Imgui .. "misc/single_file/",
+	});
 
 	files {
 		"**.h",

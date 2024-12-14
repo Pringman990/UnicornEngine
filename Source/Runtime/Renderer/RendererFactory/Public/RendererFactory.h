@@ -1,11 +1,11 @@
 #pragma once
-#include <IRenderer.h>
-#include <TSharedPtr.h>
+#include <Renderer.h>
+#include <SimpleMath.h>
 
 class RendererFactory
 {
 public:
-	static IRenderer* CreateRenderer();
+	static Renderer* CreateRenderer();
 
 private:
 	RendererFactory() { };

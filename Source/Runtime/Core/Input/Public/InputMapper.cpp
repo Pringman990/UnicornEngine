@@ -3,7 +3,7 @@
 
 InputMapper::InputMapper()
 	:
-	mInputDevice(IInputDevice::Create(this))
+	mInputDevice(InputDevice::Create(this))
 {
 }
 
@@ -13,23 +13,37 @@ InputMapper::~InputMapper()
 	mInputDevice = nullptr;
 }
 
-void InputMapper::CreateMapping(InputActionMapping& aActionMapping)
-{
-	mActionsMappings.AddUnique(&aActionMapping);
-}
-
-void InputMapper::UnRegisterActionMapping(InputActionMapping& aActionMapping)
-{
-	mActionsMappings.Erase(&aActionMapping);
-}
-
 void InputMapper::Init()
 {
 	mInputDevice->Init();
-	mInputDevice->GetKeys(mNameToKey);
 }
 
-TVector<InputActionMapping*>& InputMapper::_GetActionMappings()
+void InputMapper::Update()
 {
-	return mActionsMappings;
+	mInputDevice->Update();
+}
+
+void InputMapper::CaptureMouse()
+{
+	mInputDevice->CaptureMouse();
+}
+
+void InputMapper::ReleaseMouse()
+{
+	mInputDevice->ReleaseMouse();
+}
+
+void InputMapper::HideMouse()
+{
+	mInputDevice->HideMouse();
+}
+
+void InputMapper::ShowMouse()
+{
+	mInputDevice->ShowMouse();
+}
+
+Vector2 InputMapper::GetMouseDelta()
+{
+	return mInputDevice->GetMouseDelta();
 }

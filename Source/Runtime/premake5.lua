@@ -2,29 +2,32 @@
 print("Including Runtime")
 
 dirs["Core"]						= os.realpath(dirs.Runtime .. "Core/")
-dirs["ResourceManagment"]			= os.realpath(dirs.Runtime .. "ResourceManagment/")
-dirs["EngineCore"]					= os.realpath(dirs.Runtime .. "EngineCore/")
+dirs["ResourceCore"]				= os.realpath(dirs.Runtime .. "ResourceCore/")
 dirs["GUIFramework"]				= os.realpath(dirs.Runtime .. "GUIFramework/")
 dirs["Renderer"]					= os.realpath(dirs.Runtime .. "Renderer/")
-dirs["EntryPoint"]					= os.realpath(dirs.Runtime .. "EntryPoint/")
+dirs["ECS"]							= os.realpath(dirs.Runtime .. "ECS/")
+dirs["EngineCore"]					= os.realpath(dirs.Runtime .. "EngineCore/")
 
 group "Runtime/Core"
 include (dirs.Core)
+group ""
 
-group "Runtime/ResourceManagment"
-include (dirs.ResourceManagment)
-
-group "Runtime/EngineCore"
-include (dirs.EngineCore)
+group "Runtime/ResourceCore"
+include (dirs.ResourceCore)
+group ""
 
 group "Runtime/GUIFramework"
 include (dirs.GUIFramework)
+group ""
 
 group "Runtime/Renderer"
 include (dirs.Renderer)
+group ""
 
---Last Inlcude
-group "Runtime/EntryPoint"
-include (dirs.EntryPoint)
+group "Runtime/ECS"
+include (dirs.ECS)
+group ""
 
+group "Runtime/EngineCore"
+include (dirs.EngineCore)
 group ""

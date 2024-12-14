@@ -1,24 +1,11 @@
 #pragma once
+#include <Singleton.h>
+
 #include <chrono>
 #include <mutex>
-#include <TUMap.h>
-#include <FString.h>
 
-class Timer {
+class Timer : public Singleton<Timer> {
 public:
-	static Timer& GetInstance()
-	{
-		if (!mInstance)
-			mInstance = new Timer();
-		return *mInstance;
-	}
-
-	static void ShutDown()
-	{
-		delete mInstance;
-		mInstance = nullptr;
-	}
-
 	void Update() {
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		mDeltaTime = std::chrono::duration<float>(currentTime - mLastTime).count();
@@ -39,21 +26,21 @@ public:
 		}
 	}
 
-	void StartReading(FString aName)
+	void StartReading(std::string aName)
 	{
 		std::lock_guard<std::mutex> lock(mReadingMutex);
 		mStartedReadings[aName] = std::chrono::high_resolution_clock::now();
 	}
 
-	const float EndReading(FString aName, bool SaveAfterEnded = false)
+	const float EndReading(std::string aName, bool SaveAfterEnded = false)
 	{
 		std::lock_guard<std::mutex> lock(mReadingMutex);
 		auto end = std::chrono::high_resolution_clock::now();
-		auto it = mStartedReadings.Find(aName);
-		if (it.IsValid())
+		auto it = mStartedReadings.find(aName);
+		if (it != mStartedReadings.end())
 		{
-			float duration = std::chrono::duration<float>(end - it.Value()).count();
-			mStartedReadings.Remove(aName);
+			float duration = std::chrono::duration<float>(end - it->second).count();
+			mStartedReadings.erase(aName);
 			if (SaveAfterEnded)
 				mSavedReadings[aName] = duration;
 
@@ -62,13 +49,13 @@ public:
 		return 0.0f;
 	}
 
-	const float GetSavedReading(FString aName)
+	const float GetSavedReading(std::string aName)
 	{
 		std::lock_guard<std::mutex> lock(mReadingMutex);
-		auto it = mSavedReadings.Find(aName);
-		if(it.IsValid())
+		auto it = mSavedReadings.find(aName);
+		if(it != mSavedReadings.end())
 		{
-			return it.Value();
+			return it->second;
 		}
 		return 0.0f;
 	}
@@ -83,13 +70,14 @@ public:
 	};
 
 private:
+	friend class Singleton<Timer>;
 	Timer() {
 		mLastTime = std::chrono::high_resolution_clock::now();
 	}
 
 	~Timer() {};
 private:
-	static Timer* mInstance;
+	//static Timer* mInstance;
 
 	mutable std::mutex mReadingMutex;
 
@@ -100,9 +88,9 @@ private:
 	uint32_t mFrameCount = 0;
 	float mElapsedTime = 0.0f;
 
-	TUMap<FString, std::chrono::high_resolution_clock::time_point> mStartedReadings;
-	TUMap<FString, float> mSavedReadings;
+	std::unordered_map<std::string, std::chrono::high_resolution_clock::time_point> mStartedReadings;
+	std::unordered_map<std::string, float> mSavedReadings;
 };
 
-#define TIMER_START_READING(NAME) Timer::GetInstance().StartReading(NAME);
-#define TIMER_END_READING(NAME) Timer::GetInstance().EndReading(NAME);
+#define TIMER_START_READING(NAME) Timer::GetInstance()->StartReading(NAME);
+#define TIMER_END_READING(NAME) Timer::GetInstance()->EndReading(NAME);

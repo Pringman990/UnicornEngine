@@ -1,9 +1,12 @@
+#include "pch.h"
 #include "RenderTarget/RenderTarget.h"
 
-#include "RenderTarget/RenderTargetManager.h"
-#include "ResourceRegistry.h"
+#include <RenderTarget/RenderTargetResourceManager.h>
 
 RenderTarget::RenderTarget()
+    : 
+    mTexture(nullptr),
+    mIsDepthTesting(true)
 {
 }
 
@@ -11,14 +14,20 @@ RenderTarget::~RenderTarget()
 {
 }
 
-RenderTarget RenderTarget::CreateRenderTarget(Vector2 aSize, bool EnableDepthTesting)
+void RenderTarget::Destroy()
 {
-	RenderTargetManager* renderTargetManager = ResourceRegistry::GetInstance().GetManager<RenderTargetManager>();
-	
-	UniqueID id = renderTargetManager->CreateRenderTarget(aSize, EnableDepthTesting);
-	
-	RenderTarget renderTarget;
-	renderTarget.mRenderTargetID = id;
-	
-	return renderTarget;
+    RenderTargetResourceManager* manager = ResourceRegistry::GetInstance()->GetManager<RenderTargetResourceManager>();
+    manager->DestroyRenderTarget(this);
 }
+
+bool RenderTarget::IsDepthTesting()
+{
+    return mIsDepthTesting;
+}
+
+Texture* RenderTarget::GetTexture()
+{
+    return mTexture;
+}
+
+

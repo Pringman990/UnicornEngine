@@ -5,26 +5,15 @@ project "Engine"
 	cppdialect "C++20"
 	kind "StaticLib"
 	
-    targetname(defaultTargetName)
-    targetdir (defaultTargetDir)
+	targetname(UCE_TARGET_NAME)
+    targetdir (UCE_TARGET_DIR)
 
-    objdir(defaultObjDir)
-    location (defaultLocationDir)
+    objdir(UCE_OBJ_DIR)
+    location (UCE_VCXPROJ_DIR)
 		
 	pchheader "pch.h"
 	pchsource "Private/pch.cpp"
 	forceincludes { "pch.h" }
-
-	includedirs {
-		dirs.Engine,
-		normalizePath(dirs.Engine) .. "../Private",
-		inheritAndIncludeDirsFromProject("Core")
-	}
-
-	projectInheritDirs["Engine"] = flattenTable({
-		dirs.Engine,
-		inheritAndIncludeDirsFromProject("Core")
-	})
 
 	files {
 		"**.h",
@@ -36,9 +25,20 @@ project "Engine"
 	vpaths { ["Public/*"] = {"Public/**.h", "Public/**.hpp", "Public/**.c", "Public/**.cpp"} }
 	vpaths { ["Private/*"] = {"Private/**.h", "Private/**.hpp", "Private/**.c", "Private/**.cpp"}}
 
-	links{
-		"Core"
+	includedirs {
+		normalizePath(dirs.Engine) .. "/Private"
 	}
+
+	includeDependencies("Engine", 
+	{
+		dirs.Engine,
+		"Core"
+	})
+
+	linkDependencies("Engine", 
+	{
+		"Core"
+	})
 
     if not os.isfile("Private/pch.h") then
         io.writefile("Private/pch.h", 

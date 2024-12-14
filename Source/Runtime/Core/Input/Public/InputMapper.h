@@ -1,5 +1,6 @@
 #pragma once
-#include "GenericDevice/IInputDevice.h"
+#include <Singleton.h>
+#include "GenericDevice/InputDevice.h"
 
 enum class eInputActionType
 {
@@ -10,40 +11,41 @@ enum class eInputActionType
 
 struct InputAction
 {
-	TFunction<void> callback;
-	eInputActionType actionType;
 };
 
-struct InputActionMapping
+struct InputActionMap
 {
-	TUMap<uint32_t, TVector<InputAction*>> actions;
-	bool hasActionToHandle = false;
 };
 
-class InputMapper
+class InputMapper final : public Singleton<InputMapper>
 {
+	//using Key = USHORT;
+
 public:
-	static InputMapper& GetInstance()
-	{
-		static InputMapper instance;
-		return instance;
-	}
-
-	void CreateMapping(InputActionMapping& aActionMapping);
-	void UnRegisterActionMapping(InputActionMapping& aActionMapping);
+	//void CreateMapping(InputActionMap& aActionMapping);
+	//void UnRegisterActionMapping(InputActionMap& aActionMapping);
+	//
+	//void Init();
+	//
+	//TVector<InputActionMap*>& _GetActionMappings();
 
 	void Init();
+	void Update();
 
-	TVector<InputActionMapping*>& _GetActionMappings();
+	void CaptureMouse();
+	void ReleaseMouse();
+
+	void HideMouse();
+	void ShowMouse();
+
+	Vector2 GetMouseDelta();
 
 private:
+	friend class Singleton<InputMapper>;
 	InputMapper();
 	~InputMapper();
 
 private:
-	TVector<InputActionMapping*> mActionsMappings;
-
-	IInputDevice* mInputDevice;
-
-	TUMap<FString, uint32_t> mNameToKey;
+	InputDevice* mInputDevice;
+	std::unordered_map<std::string, uint32_t> mNameToKey;
 };
