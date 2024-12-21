@@ -18,7 +18,7 @@ namespace {
 GameWorld::GameWorld()
 {
 }
-  
+
 GameWorld::~GameWorld()
 {
 	mMeshes.clear();
@@ -26,18 +26,17 @@ GameWorld::~GameWorld()
 
 void GameWorld::Init()
 {
-	LOG_INFO("GameWorld init..."); 
-	MeshResourceManager* meshManager = GET_RESOURCE_MANAGER(MeshResourceManager); 
-	std::vector<Mesh*> meshes = meshManager->LoadMeshesFromFile("../../Assets/Models/sm_cube.fbx");
-
-	for (uint32 x = 0; x < 100; x++)
+	LOG_INFO("GameWorld init...");
+	MeshResourceManager* meshManager = GET_RESOURCE_MANAGER(MeshResourceManager);
+	std::vector<Mesh*> wall = meshManager->LoadMeshesFromFile("../../Assets/Models/sm_player.fbx");
+	std::vector<Mesh*> cube = meshManager->LoadMeshesFromFile("../../Assets/Models/sm_cube.fbx");
+	
+	for (int32 i = 0; i < 1; i++)
 	{
-		for (uint32 y = 0; y < 100; y++)
-		{
-			Transform trans;
-			trans.SetPosition(Vector3((float)x, 0.f, (float)y));
-			mMeshes.push_back({ meshes[0], trans });
-		}
+		Transform trans;
+		trans.SetPosition(Vector3((float)i, 0.f, (float)(i + 1)));
+		mMeshes.push_back({ wall[0], trans });
+		mMeshes.push_back({ cube[0], trans });
 	}
 }
 
@@ -48,10 +47,10 @@ void GameWorld::Render()
 	{
 		commandList.RecordDrawMesh(mMeshes[i].first, mMeshes[i].second);
 	}
-	
+
 	RenderPass pass;
 	pass.AddCommandList(commandList);
-	
+
 	Renderer::GetInstance()->GetRenderQueue()->SubmitRenderPass(pass);
 }
 

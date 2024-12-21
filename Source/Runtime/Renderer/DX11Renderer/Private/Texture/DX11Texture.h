@@ -8,7 +8,7 @@ public:
 	DX11Texture();
 	~DX11Texture() override;
 
-	void Bind();
+	void Bind(uint32 aSlot) override;
 	virtual void Resize(const Vector2& aNewSize) override;
 
 	void Release();

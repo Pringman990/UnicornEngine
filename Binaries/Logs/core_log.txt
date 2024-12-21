@@ -142,3 +142,30 @@
 [2024-12-14 03:50:09.313] [Core] [info] Engine Loop exit has been requested
 [2024-12-14 03:50:09.313] [Core] [info] Main loop exited, starting cleanup
 [2024-12-14 03:50:09.313] [Core] [info] Main cleanup done, Goodbye welcome back!
+[2024-12-15 04:56:59.118] [Core] [info] Engine Loop Starting Init
+[2024-12-15 04:56:59.139] [Core] [info] Creating Renderer
+[2024-12-15 04:56:59.140] [Core] [info] Renderer Initilizing
+[2024-12-15 04:56:59.269] [Core] [info] Renderer has finished Initilize, it took: 0.1288475s
+[2024-12-15 04:56:59.313] [Core] [info] Engine Loop has finished Initilize, it took: 0.1948367s
+[2024-12-15 04:56:59.313] [Core] [info] GuardedMain has Initilized and will now run the main loop
+[2024-12-15 04:57:05.251] [Core] [info] Engine Loop exit has been requested
+[2024-12-15 04:57:05.252] [Core] [info] Main loop exited, starting cleanup
+[2024-12-15 04:57:05.252] [Core] [info] Main cleanup done, Goodbye welcome back!
+[2024-12-15 05:26:15.464] [Core] [info] Engine Loop Starting Init
+[2024-12-15 05:26:15.487] [Core] [info] Creating Renderer
+[2024-12-15 05:26:15.488] [Core] [info] Renderer Initilizing
+[2024-12-15 05:26:15.609] [Core] [info] Renderer has finished Initilize, it took: 0.1207602s
+[2024-12-15 05:26:15.652] [Core] [info] Engine Loop has finished Initilize, it took: 0.1871203s
+[2024-12-15 05:26:15.652] [Core] [info] GuardedMain has Initilized and will now run the main loop
+[2024-12-15 05:26:18.869] [Core] [info] Engine Loop exit has been requested
+[2024-12-15 05:26:18.869] [Core] [info] Main loop exited, starting cleanup
+[2024-12-15 05:26:18.869] [Core] [info] Main cleanup done, Goodbye welcome back!
+[2024-12-15 17:28:22.274] [Core] [info] Engine Loop Starting Init
+[2024-12-15 17:28:22.292] [Core] [info] Creating Renderer
+[2024-12-15 17:28:22.292] [Core] [info] Renderer Initilizing
+[2024-12-15 17:28:22.414] [Core] [info] Renderer has finished Initilize, it took: 0.1220667s
+[2024-12-15 17:28:22.679] [Core] [info] Engine Loop has finished Initilize, it took: 0.4041868s
+[2024-12-15 17:28:22.679] [Core] [info] GuardedMain has Initilized and will now run the main loop
+[2024-12-15 17:28:42.626] [Core] [info] Engine Loop exit has been requested
+[2024-12-15 17:28:42.626] [Core] [info] Main loop exited, starting cleanup
+[2024-12-15 17:28:42.626] [Core] [info] Main cleanup done, Goodbye welcome back!

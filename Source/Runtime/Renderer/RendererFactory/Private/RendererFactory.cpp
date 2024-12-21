@@ -13,6 +13,8 @@
 #include <DX11RenderStateManager.h>
 #include <DX11ShaderFactory.h>
 #include <Shader/ShaderResourceManager.h>
+#include <Texture/TextureResourceManager.h>
+#include <Texture/DX11TextureFactory.h>
 
 Renderer* RendererFactory::CreateRenderer()
 {
@@ -42,6 +44,11 @@ Renderer* RendererFactory::CreateRenderer()
 		DX11ShaderFactory* dx11shaderFactory = new DX11ShaderFactory();
 		shaderRSManager->SetShaderFactory(dx11shaderFactory);
 		registry->RegisterManager<ShaderResourceManager>(shaderRSManager);
+
+		TextureResourceManager* textureManager = new TextureResourceManager();
+		DX11TextureFactory* textureFactory = new DX11TextureFactory();
+		textureManager->SetFactory(textureFactory);
+		registry->RegisterManager<TextureResourceManager>(textureManager);
 
 		Renderer::GetInstance()->mRenderQueue = new RenderQueue();
 		DX11RenderStateManager* dx11StateManager = new DX11RenderStateManager();

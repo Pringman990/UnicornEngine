@@ -5,6 +5,8 @@
 #include "Shader/InputLayoutManager.h"
 #include "Renderer.h"
 
+#include "Texture/TextureResourceManager.h"
+
 MaterialResourceManager::MaterialResourceManager()
 {
 	CreateMaterial("__UNCE_Defualt_Material");
@@ -39,6 +41,10 @@ Material* MaterialResourceManager::CreateMaterial(const std::string& aName)
 	InputLayoutManager* layoutManager = Renderer::GetInstance()->GetInputLayoutManager();
 	material->mInputLayout = layoutManager->TryGetLayout(eInputLayoutStandardTypes::eModel, materialShader->GetVertexShader());
 	
+	TextureResourceManager* textureManager = GET_RESOURCE_MANAGER(TextureResourceManager);
+	Texture* texture0 = textureManager->LoadTextureFromFile("../../Assets/Textures/defaultMaterial_c.dds");
+	material->AddTexture(0, texture0);
+
 	mMaterials.insert({aName, material});
 
 	return material;

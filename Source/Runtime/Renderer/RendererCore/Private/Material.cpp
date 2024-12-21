@@ -1,4 +1,7 @@
+#include "pch.h"
 #include "Material.h"
+
+#include "Texture/Texture.h"
 
 Material::Material()
     :
@@ -11,11 +14,12 @@ Material::~Material()
 {
 }
 
-bool Material::Bind()
+void Material::BindTextures()
 {
-    mInputLayout->Bind();
-    mMaterialShader->Bind();
-    return false;
+    for (auto& [slot, texture] : mTextures)
+    {
+        texture->Bind(slot);
+    }
 }
 
 const eInputLayoutStandardTypes Material::GetInputLayoutType() const
@@ -26,4 +30,9 @@ const eInputLayoutStandardTypes Material::GetInputLayoutType() const
 InputLayout* Material::GetInputLayout()
 {
     return mInputLayout;
+}
+
+void Material::AddTexture(uint32 aSlot, Texture* aTexture)
+{
+    mTextures[aSlot] = aTexture;
 }

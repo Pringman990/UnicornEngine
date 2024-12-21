@@ -11,6 +11,12 @@ TextureResourceManager::TextureResourceManager()
 
 TextureResourceManager::~TextureResourceManager()
 {
+	for (auto it : mTextures)
+	{
+		delete it.second;
+		it.second = nullptr;
+	}
+	mTextures.clear();
 }
 
 void TextureResourceManager::SetFactory(ITextureFactory* aFactory)
@@ -21,14 +27,16 @@ void TextureResourceManager::SetFactory(ITextureFactory* aFactory)
 Texture* TextureResourceManager::LoadTextureFromFile(const std::string& aPath)
 {
 	Texture* texture = mFactory->CreateTexture(aPath);
+	mTextures[aPath] = texture;
 	return texture;
 }
 
-void TextureResourceManager::DestroyTexture(UniqueID aTextureID)
+//TODO: fix this again
+void TextureResourceManager::DestroyTexture(UniqueID /*aTextureID*/)
 {
-	auto it = mTextures.find(aTextureID);
-	if (it != mTextures.end()) {
-		delete it->second;
-		mTextures.erase(aTextureID);
-	}
+	//auto it = mTextures.find(aTextureID);
+	//if (it != mTextures.end()) {
+	//	delete it->second;
+	//	mTextures.erase(aTextureID);
+	//}
 }

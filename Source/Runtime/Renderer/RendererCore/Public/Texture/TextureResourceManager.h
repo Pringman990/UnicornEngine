@@ -21,5 +21,7 @@ private:
 private:
 	ITextureFactory* mFactory;
 
-	std::unordered_map<UniqueID, Texture*> mTextures;
+	//TODO: change to uniqueID
+	using Path = std::string;
+	std::unordered_map<Path, Texture*> mTextures;
 };
