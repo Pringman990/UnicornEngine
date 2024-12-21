@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "DX11Texture.h"
 
-#include "DX11TextureFactory.h"
+#include "Texture/DX11TextureFactory.h"
 
 DX11Texture::DX11Texture()
 	:
@@ -16,8 +16,9 @@ DX11Texture::~DX11Texture()
 	mTexture2D.Reset();
 }
 
-void DX11Texture::Bind()
+void DX11Texture::Bind(uint32 aSlot)
 {
+	DX11RenderingBackend::_GetInstance()->GetDeviceContext()->PSSetShaderResources(aSlot, 1, mSRV.GetAddressOf());
 }
 
 void DX11Texture::Resize(const Vector2& aNewSize)

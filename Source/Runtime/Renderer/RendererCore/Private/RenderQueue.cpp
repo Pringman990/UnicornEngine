@@ -91,6 +91,7 @@ void RenderQueue::ExecuteCommandList(const RenderCommandList& aCommandList)
 			{
 				mRenderStateManager->SetInputLayoutShader(subMesh.material->GetInputLayout());
 				mRenderStateManager->SetMaterialShader(subMesh.material->GetShader());
+				subMesh.material->BindTextures();
 
 				mRenderStateManager->DrawMesh(subMesh.startIndex, subMesh.indexCount);
 			}

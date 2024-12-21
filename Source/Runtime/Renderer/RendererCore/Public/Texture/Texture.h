@@ -16,6 +16,9 @@ public:
 	virtual ~Texture();
 
 	void Destroy();
+	
+	virtual void Bind(uint32 aSlot) = 0;
+
 	eTextureType GetType();
 	virtual void Resize(const Vector2& aNewSize) = 0;
 

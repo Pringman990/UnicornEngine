@@ -8,6 +8,7 @@
 #include <SimpleMath.h>
 #include <Transform.h>
 #include <Utility.h>
+#include <StandardTypes.h>
 
 #include "Vertex.h"
 

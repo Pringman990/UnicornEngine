@@ -7,6 +7,7 @@
 #include <MaterialResourceManager.h>
 #include <MeshLoading/MeshResourceManager.h>
 #include <Shader/ShaderResourceManager.h>
+#include "Texture/TextureResourceManager.h"
 
 Renderer::Renderer()
 	:

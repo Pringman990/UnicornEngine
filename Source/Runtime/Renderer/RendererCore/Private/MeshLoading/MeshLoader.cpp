@@ -38,9 +38,20 @@ bool MeshLoader::LoadScene(const std::string& aFilePath, std::vector<Mesh*>& som
 
 	someMesh.reserve(scene->mNumMeshes);
 
+	//const aiMetadata* metadata = scene->mMetaData;
+	//if (metadata) {
+	//	for (unsigned int i = 0; i < metadata->mNumProperties; ++i) {
+	//		std::string key(metadata->mKeys[i].data);
+	//		if (key == "UnitScaleFactor") { // Example for FBX files
+	//			float scaleFactor = *static_cast<float*>(metadata->mValues[i].mData);
+	//			std::cout << "Unit Scale Factor: " << scaleFactor << std::endl;
+	//		}
+	//	}
+	//}
+
 	ProcessAiNodes(scene->mRootNode, scene, someMesh);
 
-	return false;
+	return true;
 }
 
 void MeshLoader::ProcessAiNodes(aiNode* aNode, const aiScene* aScene, std::vector<Mesh*>& someMesh)
@@ -51,12 +62,14 @@ void MeshLoader::ProcessAiNodes(aiNode* aNode, const aiScene* aScene, std::vecto
 		uint32 indexOffset = 0;
 		std::vector<Vertex> vertices;
 		std::vector<uint32> indices;
+		
 		//This represent ONE Mesh
 		for (uint32 i = 0; i < aNode->mNumMeshes; i++)
 		{
 			aiMesh* aiMesh = aScene->mMeshes[aNode->mMeshes[i]];
 			ConvertAiMeshToMesh(aiMesh, aScene, mesh, indexOffset, vertices, indices);
 		}
+		
 		mesh->mVertexCount = static_cast<uint32>(vertices.size());
 		mesh->mIndexBuffer = Renderer::GetInstance()->GetRenderBufferFactory()->CreateIndexBuffer(indices);
 		mesh->mVertexBuffer = Renderer::GetInstance()->GetRenderBufferFactory()->CreateVertexBuffer(vertices);
@@ -86,6 +99,7 @@ void MeshLoader::ConvertAiMeshToMesh(
 		aiVector3D aiVertex = aAiMesh->mVertices[i];
 
 		vertex.position = Vector4(aiVertex.x, aiVertex.y, aiVertex.z, 1);
+		
 		if (aAiMesh->HasNormals())
 		{
 			aiVector3D aiNormals = aAiMesh->mNormals[i];
@@ -110,17 +124,24 @@ void MeshLoader::ConvertAiMeshToMesh(
 	}
 
 	//We know it will always be a max of 3 indcies per face as we us aiProcess_Triangulate when importing the scene
-	someIndices.resize(aIndexOffset + (aAiMesh->mNumFaces * 3));
+	//someIndices.resize(aIndexOffset + (aAiMesh->mNumFaces * 3));
 
-	std::for_each(std::execution::par, aAiMesh->mFaces, aAiMesh->mFaces + aAiMesh->mNumFaces,
-		[&](const aiFace& face) {
-			size_t faceIndex = &face - aAiMesh->mFaces;
-			size_t globalOffset = aIndexOffset + (faceIndex * 3);
+	//std::for_each(std::execution::par, aAiMesh->mFaces, aAiMesh->mFaces + aAiMesh->mNumFaces,
+	//	[&](const aiFace& face) {
+	//		size_t faceIndex = &face - aAiMesh->mFaces;
+	//		size_t globalOffset = aIndexOffset + (faceIndex * 3);
 
-			someIndices[globalOffset] = face.mIndices[0];
-			someIndices[globalOffset + 1] = face.mIndices[1];
-			someIndices[globalOffset + 2] = face.mIndices[2];
-		});
+	//		someIndices[globalOffset] = face.mIndices[0];
+	//		someIndices[globalOffset + 1] = face.mIndices[1];
+	//		someIndices[globalOffset + 2] = face.mIndices[2];
+	//	});
+
+	for (UINT i = 0; i < aAiMesh->mNumFaces; i++) {
+		aiFace face = aAiMesh->mFaces[i];
+
+		for (UINT j = 0; j < face.mNumIndices; j++)
+			someIndices.push_back(face.mIndices[j] + aIndexOffset);
+	}
 
 	Material* material = nullptr;
 	if (aAiMesh->mMaterialIndex >= 0)
@@ -133,10 +154,10 @@ void MeshLoader::ConvertAiMeshToMesh(
 	subMesh.startIndex = aIndexOffset;
 	subMesh.indexCount = static_cast<uint32>(someIndices.size() - aIndexOffset);
 	subMesh.material = material;
-
+	 
 	aMesh->mSubMeshes.push_back(subMesh);
 
-	aIndexOffset = static_cast<uint32>(someIndices.size());
+	aIndexOffset += static_cast<uint32>(aAiMesh->mNumVertices);
 }
 
 Material* MeshLoader::LoadMaterial(aiMaterial* /*aAiMaterial*/)

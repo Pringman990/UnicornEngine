@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "DX11TextureFactory.h"
+#include "Texture/DX11TextureFactory.h"
 
 #include "DX11Texture.h"
 #include <DDSTextureLoader11.h>
@@ -68,6 +68,7 @@ Texture* DX11TextureFactory::CreateTexture(const std::string& aPath)
 		dx11Texture->mSize.x = static_cast<float>(textureDesc.Width);
 		dx11Texture->mSize.y = static_cast<float>(textureDesc.Height);
 		dx11Texture->mMipLevel = textureDesc.MipLevels;
+		dx11Texture->mSRV = textureView;
 	}
 
 	return dx11Texture;
