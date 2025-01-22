@@ -21,6 +21,9 @@ Renderer* RendererFactory::CreateRenderer()
 	AssetRegistry* registry = AssetRegistry::GetInstance();
 	Renderer* renderer = Renderer::GetInstance();
 
+	registry->RegisterManager<RenderTargetResourceManager>();
+	registry->RegisterManager<TextureResourceManager>();
+
 	switch (0)
 	{
 	case 0:
@@ -32,11 +35,11 @@ Renderer* RendererFactory::CreateRenderer()
 		DX11RenderBufferFactory* dx11bufferFactory = new DX11RenderBufferFactory();
 		renderer->mRenderBufferFactory = dx11bufferFactory;
 
-		
+
 		RenderTargetResourceManager* renderTargetManager = registry->GetManager<RenderTargetResourceManager>();
 		DX11RenderTargetFactory* renderTargetFactory = new DX11RenderTargetFactory();
 		renderTargetManager->SetFactory(renderTargetFactory);
-		
+
 		DX11InputLayoutFactory* layoutFactory = new DX11InputLayoutFactory();
 		InputLayoutManager* layoutManager = new InputLayoutManager(layoutFactory);
 		renderer->mInputLayoutManager = layoutManager;
