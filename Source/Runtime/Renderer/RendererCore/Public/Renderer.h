@@ -1,9 +1,10 @@
 #pragma once
 #include <Singleton.h>
-#include <StandardTypes.h>
+#include <StandardTypes/StandardTypes.h>
 #include "IRenderingBackend.h"
 #include "Buffers/IRenderBufferFactory.h"
 #include "Shader/InputLayoutManager.h"
+#include "Shader/ShaderManager.h"
 #include "RenderQueue.h"
 
 class Camera;
@@ -41,6 +42,7 @@ public:
 	IRenderBufferFactory* GetRenderBufferFactory();
 	InputLayoutManager* GetInputLayoutManager();
 	RenderQueue* GetRenderQueue();
+	ShaderManager* GetShaderManager();
 
 	void SetActiveCamera(Camera* aCamera);
 	Camera* GetActiveCamera();
@@ -56,6 +58,7 @@ private:
 	IRenderingBackend* mRenderingBackend;
 	IRenderBufferFactory* mRenderBufferFactory;
 	InputLayoutManager* mInputLayoutManager;
+	ShaderManager* mShaderManager;
 
 	RenderQueue* mRenderQueue;
 

@@ -19,16 +19,16 @@ TextureResourceManager::~TextureResourceManager()
 	mTextures.clear();
 }
 
-void TextureResourceManager::SetFactory(ITextureFactory* aFactory)
-{
-	mFactory = aFactory;
-}
-
 Texture* TextureResourceManager::LoadTextureFromFile(const std::string& aPath)
 {
-	Texture* texture = mFactory->CreateTexture(aPath);
+	Texture* texture = mFactory->LoadTextureFromFile(aPath);
 	mTextures[aPath] = texture;
 	return texture;
+}
+
+Texture* TextureResourceManager::LoadAsset()
+{
+	return nullptr;
 }
 
 //TODO: fix this again

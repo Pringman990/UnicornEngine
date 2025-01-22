@@ -21,6 +21,7 @@ private:
 		const aiScene* aScene, 
 		Mesh* aMesh, 
 		uint32& aIndexOffset, 
+		uint32& aVertexOffset,
 		std::vector<Vertex>& aVertices, 
 		std::vector<uint32>& aIndices
 	);

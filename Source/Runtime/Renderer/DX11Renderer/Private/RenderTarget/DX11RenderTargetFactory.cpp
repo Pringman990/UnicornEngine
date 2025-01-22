@@ -5,7 +5,7 @@
 #include "DX11RenderingBackend.h"
 #include "Texture/DX11Texture.h"
 #include "Texture/DX11TextureFactory.h"
-#include "Application.h"
+#include "Application/Application.h"
 
 DX11RenderTargetFactory::DX11RenderTargetFactory()
 {
@@ -27,7 +27,7 @@ DX11RenderTarget* DX11RenderTargetFactory::_CreateRenderTarget(const Vector2& aS
 	DX11RenderTarget* dx11RenderTarget = new DX11RenderTarget();
 	dx11RenderTarget->mIsDepthTesting = EnableDepthTesting;
 
-	DX11Texture* dx11Texture = DX11TextureFactory::CreateTexture(aSize);
+	DX11Texture2D* dx11Texture = DX11TextureFactory::CreateTexture2D(aSize);
 	if (!dx11Texture)
 	{
 		_LOG_RENDERER_ERROR("Texture was not a DX11 texture when using DX11?");
@@ -123,7 +123,7 @@ void DX11RenderTargetFactory::_CreateRenderTarget(const Vector2& aSize,
 	}
 
 	ID3D11Device* device = DX11RenderingBackend::_GetInstance()->GetDevice();
-	DX11Texture* dx11Texture = static_cast<DX11Texture*>(aRenderTarget->GetTexture());
+	DX11Texture2D* dx11Texture = static_cast<DX11Texture2D*>(aRenderTarget->GetTexture());
 
 	HRESULT hr = device->CreateRenderTargetView(dx11Texture->GetTexture2D(), &aRTVDesc, aRenderTarget->GetAdressOfRTV());
 	if (FAILED(hr))
@@ -171,7 +171,7 @@ DX11RenderTarget* DX11RenderTargetFactory::_CreateRenderTarget(ID3D11Texture2D* 
 	DX11RenderTarget* dx11RenderTarget = new DX11RenderTarget();
 	dx11RenderTarget->mIsDepthTesting = EnableDepthTesting;
 
-	DX11Texture* dx11Texture = DX11TextureFactory::CreateTexture(aTexture);
+	DX11Texture2D* dx11Texture = DX11TextureFactory::CreateTexture2D(aTexture);
 	if (!dx11Texture)
 	{
 		_LOG_RENDERER_ERROR("Texture was not a DX11 texture when using DX11?");

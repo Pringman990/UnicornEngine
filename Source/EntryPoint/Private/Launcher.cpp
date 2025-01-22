@@ -1,17 +1,15 @@
 #include <stdint.h>
-#include <Logger.h>
-#include <Timer.h>
+#include <Logger/Logger.h>
+#include <Timer/Timer.h>
 #include "EngineLoop.h"
-#include <MemoryDebugger.h>
-#include <ReflectionRegistry.h>
-
-#include <ResourceRegistry.h>
+#include <MemoryDebugger/MemoryDebugger.h>
+#include <Reflection/ReflectionRegistry.h>
 
 int32_t GuardedMain()
 {
 	_TRACK_MEMORY(true, true);
 	{
-		ResourceRegistry::Create();
+		//AssetRegistry::Create();
 		Logger::Create();
 		Logger::GetInstance()->Init();
 
@@ -41,7 +39,7 @@ int32_t GuardedMain()
 		Timer::Shutdown();
 		Logger::Shutdown();
 	}
-	ResourceRegistry::Shutdown();
+	//AssetRegistry::Shutdown();
 	_STOP_TRACK_MEMORY();
 
 	return 0;

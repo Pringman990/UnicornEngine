@@ -72,7 +72,6 @@ dirs["Runtime"]			    = os.realpath(dirs.Source .. "Runtime/")
 dirs["Editor"]			    = os.realpath(dirs.Source .. "Editor/")
 dirs["EntryPoint"]			= os.realpath(dirs.Source .. "EntryPoint/")
 dirs["Sandbox"]				= os.realpath(dirs.Source .. "Sandbox/Public/")
-dirs["Build"]				= os.realpath(dirs.Source .. "Build/")
 
 
 --Inluding all thirdparty standalone libs
@@ -86,7 +85,5 @@ include (dirs.Editor)
 
 --Last include
 include (dirs.EntryPoint)
-
-include (dirs.Build)
 
 include (normalizePath(dirs.Sandbox))

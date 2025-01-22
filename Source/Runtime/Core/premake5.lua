@@ -2,32 +2,30 @@
 print("Including Runtime/Core/")
 
 --Layer Zero
-dirs["StandardTypes"]				= os.realpath(dirs.Core .. "StandardTypes/Public/")
-
---Layer One
-dirs["MemoryDebugger"]				= os.realpath(dirs.Core .. "MemoryDebugger/Public/")
-dirs["UniqueID"]					= os.realpath(dirs.Core .. "UniqueID/Public/")
-dirs["Singleton"]					= os.realpath(dirs.Core .. "Singleton/Public/")
-
-include (normalizePath(dirs.Singleton))
-
---Layer Two
-dirs["Math"]						= os.realpath(dirs.Core .. "Math/Public/")
-dirs["Timer"]						= os.realpath(dirs.Core .. "Timer/Public/")
-
---Layer Three
-dirs["Logger"]						= os.realpath(dirs.Core .. "Logger/Public/")
-dirs["EventDispatcher"]				= os.realpath(dirs.Core .. "EventDispatcher/Public/")
-dirs["CrashHandler"]				= os.realpath(dirs.Core .. "CrashHandler/Public/")
-
---Layer Four
-dirs["ApplicationCore"]				= os.realpath(dirs.Core .. "ApplicationCore/Public/")
-
---Layer Five
-dirs["Input"]						= os.realpath(dirs.Core .. "Input/Public/")
-
-dirs["Reflection"]					= os.realpath(dirs.Core .. "Reflection/Public/")
-dirs["Utility"]						= os.realpath(dirs.Core .. "Utility/Public/")
+--dirs["StandardTypes"]				= os.realpath(dirs.Core .. "/StandardTypes")
+--
+----Layer One
+--dirs["MemoryDebugger"]				= os.realpath(dirs.Core .. "/MemoryDebugger")
+--dirs["UniqueID"]					= os.realpath(dirs.Core .. "/UniqueID")
+--
+----Layer Two
+--dirs["Math"]						= os.realpath(dirs.Core .. "/Math")
+--dirs["Timer"]						= os.realpath(dirs.Core .. "/Timer")
+--
+----Layer Three
+--dirs["Logger"]						= os.realpath(dirs.Core .. "/Logger")
+--dirs["EventDispatcher"]				= os.realpath(dirs.Core .. "/EventDispatcher")
+--dirs["CrashHandler"]				= os.realpath(dirs.Core .. "/CrashHandler")
+--dirs["FileWatcher"]					= os.realpath(dirs.Core .. "/FileWatcher")
+--
+----Layer Four
+--dirs["Application"]				= os.realpath(dirs.Core .. "/Application")
+--
+----Layer Five
+--dirs["Input"]						= os.realpath(dirs.Core .. "/Input")
+--
+--dirs["Reflection"]					= os.realpath(dirs.Core .. "/Reflection")
+--dirs["Utility"]						= os.realpath(dirs.Core .. "/Utility")
 
 project "Core"
 	language "C++"
@@ -41,35 +39,38 @@ project "Core"
     location (UCE_VCXPROJ_DIR)
 
 	includedirs {
-		"Private/",
-		normalizePath(dirs.StandardTypes) .. "/Private",
-		normalizePath(dirs.MemoryDebugger) .. "/Private",
-		normalizePath(dirs.UniqueID) .. "/Private",
-		normalizePath(dirs.Math) .. "/Private",
-		normalizePath(dirs.Timer) .. "/Private",
-		normalizePath(dirs.Logger) .. "/Private",
-		normalizePath(dirs.EventDispatcher) .. "/Private",
-		normalizePath(dirs.CrashHandler) .. "/Private",
-		normalizePath(dirs.ApplicationCore) .. "/Private",
-		normalizePath(dirs.Input) .. "/Private",
-		normalizePath(dirs.Reflection) .. "/Private",
-		normalizePath(dirs.Utility) .. "/Private",
+		normalizePath(dirs.Core) .. "/Private",
+		--dirs.StandardTypes,
+		--dirs.MemoryDebugger,
+		--dirs.UniqueID,
+		--dirs.Math,
+		--dirs.Timer,
+		--dirs.Logger,
+		--dirs.EventDispatcher,
+		--dirs.CrashHandler,
+		--dirs.FileWatcher,
+		--dirs.Application,
+		--dirs.Input,
+		--dirs.Reflection,
+		--dirs.Utility,
 	}
 
 	includeDependencies("Core", 
 	{
-		dirs.StandardTypes,
-		dirs.MemoryDebugger,
-		dirs.UniqueID,
-		dirs.Math,
-		dirs.Timer,
-		dirs.Logger,
-		dirs.EventDispatcher,
-		dirs.CrashHandler,
-		dirs.ApplicationCore,
-		dirs.Input,
-		dirs.Reflection,
-		dirs.Utility,
+		dirs.Core,
+		--dirs.StandardTypes,
+		--dirs.MemoryDebugger,
+		--dirs.UniqueID,
+		--dirs.Math,
+		--dirs.Timer,
+		--dirs.Logger,
+		--dirs.EventDispatcher,
+		--dirs.CrashHandler,
+		--dirs.FileWatcher,
+		--dirs.ApplicationCore,
+		--dirs.Input,
+		--dirs.Reflection,
+		--dirs.Utility,
 		"SimpleMath",
 		"Singleton",
 		"Spdlog",
@@ -107,5 +108,5 @@ project "Core"
         "#include \"pch.h\"")
     end
 
-	--vpaths { ["Public/*"] = {"Public/**.h", "Public/**.hpp", "Public/**.c", "Public/**.cpp"} }
-	--vpaths { ["Private/*"] = {"Private/**.h", "Private/**.hpp", "Private/**.c", "Private/**.cpp"}}
+	vpaths { ["Public/*"] = {"Public/**.h", "Public/**.hpp", "Public/**.c", "Public/**.cpp"} }
+	vpaths { ["Private/*"] = {"Private/**.h", "Private/**.hpp", "Private/**.c", "Private/**.cpp"}}

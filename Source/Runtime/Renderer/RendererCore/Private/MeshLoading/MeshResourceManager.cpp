@@ -21,6 +21,11 @@ MeshResourceManager::~MeshResourceManager()
 	mMeshesFromFile.clear();
 }
 
+Mesh* MeshResourceManager::LoadAsset()
+{
+	return nullptr;
+}
+
 std::vector<Mesh*> MeshResourceManager::LoadMeshesFromFile(const std::string& aFilePath)
 {
 

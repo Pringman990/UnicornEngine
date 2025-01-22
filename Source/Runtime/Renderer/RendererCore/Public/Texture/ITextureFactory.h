@@ -8,7 +8,7 @@ public:
 	ITextureFactory() {};
 	virtual ~ITextureFactory() {};
 
-	virtual Texture* CreateTexture(const std::string& aPath) = 0;
+	virtual Texture* LoadTextureFromFile(const std::string& aPath) = 0;
 
 private:
 

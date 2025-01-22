@@ -1,14 +1,14 @@
 #pragma once
 #include "Texture/Texture.h"
 
-class DX11Texture : public Texture
+class DX11Texture2D : public Texture2D
 {
 	friend class DX11TextureFactory;
 public:
-	DX11Texture();
-	~DX11Texture() override;
+	DX11Texture2D();
+	~DX11Texture2D() override;
 
-	void Bind(uint32 aSlot) override;
+	void Bind(uint32 aSlot) const override;
 	virtual void Resize(const Vector2& aNewSize) override;
 
 	void Release();
@@ -25,4 +25,22 @@ public:
 private:
 	ComPtr<ID3D11ShaderResourceView> mSRV;
 	ComPtr<ID3D11Texture2D> mTexture2D;
+};
+
+class DX11TextureCube : public TextureCube
+{
+	friend class DX11TextureFactory;
+public:
+	DX11TextureCube();
+	~DX11TextureCube() override;
+
+	virtual void Bind(uint32 aSlot) const override;
+
+	/**
+	* Used to pass the SRV to imgui.
+	*/
+	virtual void* GetUnderlyingSRV() override;
+private:
+	ComPtr<ID3D11ShaderResourceView> mSRV;
+	ComPtr<ID3D11Texture2D> mTextureCube;
 };

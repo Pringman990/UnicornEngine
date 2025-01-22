@@ -6,6 +6,7 @@
 
 class GenericApplication;
 class Renderer;
+class FileWatcher;
 
 #ifdef _EDITOR
 class Editor;
@@ -28,6 +29,7 @@ public:
 private:
 	GenericApplication* mGenericApplication;
 	Renderer* mRenderer;
+	FileWatcher* mFileWatcher;
 
 #ifdef _EDITOR
 	Editor* mEditor = nullptr;

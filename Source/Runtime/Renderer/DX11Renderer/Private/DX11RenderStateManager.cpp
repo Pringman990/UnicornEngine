@@ -10,7 +10,8 @@ DX11RenderStateManager::DX11RenderStateManager()
 	:
 	mGPUState({}),
 	mRendererDefferedContext(nullptr),
-	mObjConstant(nullptr)
+	mObjConstant(nullptr),
+	mLightConstant(nullptr)
 {
 }
 
@@ -18,6 +19,10 @@ DX11RenderStateManager::~DX11RenderStateManager()
 {
 	delete mObjConstant;
 	mObjConstant = nullptr;
+
+	delete mLightConstant;
+	mLightConstant = nullptr;
+	
 }
 
 bool DX11RenderStateManager::Init()
@@ -26,9 +31,11 @@ bool DX11RenderStateManager::Init()
 	_ENSURE_RENDERER(mRendererDefferedContext, "Device Context is nullptr");
 	
 	mObjConstant = new DX11ConstantBuffer();
-
 	mCurrentState.objectConstantBufferData.modelToWorld = Matrix();
 	mObjConstant->Init(sizeof(ObjectConstantBufferData), &mCurrentState.objectConstantBufferData);
+	
+	mLightConstant = new DX11ConstantBuffer();
+	mLightConstant->Init(sizeof(LightConstantBufferData), &mCurrentState.lightConstantBufferData);
 
 	return true;
 }
@@ -57,6 +64,13 @@ void DX11RenderStateManager::SetIndexBuffer(RenderBuffer* aIndexBuffer)
 void DX11RenderStateManager::SetObjectTransform(const Transform& aTransform)
 {
 	mCurrentState.objectConstantBufferData.modelToWorld = aTransform.GetMatrix();
+}
+
+void DX11RenderStateManager::SetAmbientLight(AmbientLight* aAmbientLight)
+{
+	mCurrentState.lightConstantBufferData.ambientLightColorAndIntensity = aAmbientLight->GetSolidColor();
+
+	mCurrentState.ambientLight = aAmbientLight;
 }
 
 void DX11RenderStateManager::DrawMesh(uint32 aStartIndex, uint32 aIndexCount)
@@ -121,6 +135,22 @@ void DX11RenderStateManager::UpdateState()
 	{
 		mObjConstant->UpdateData(&mCurrentState.objectConstantBufferData);
 		mObjConstant->Bind(ConstantBuffers::eObjectConstantBuffer);
+	}
+
+	if (mCurrentState.ambientLight != mGPUState.ambientLight || mCurrentState.lightConstantBufferData != mGPUState.lightConstantBufferData)
+	{
+		if (mCurrentState.ambientLight->GetCubemap())
+		{
+			mCurrentState.ambientLight->GetCubemap()->Bind(0);
+			mCurrentState.lightConstantBufferData.isUsingCubemap = true;
+		}
+		else
+		{
+			mCurrentState.lightConstantBufferData.isUsingCubemap = false;
+		}
+
+		mLightConstant->UpdateData(&mCurrentState.lightConstantBufferData);
+		mLightConstant->Bind(ConstantBuffers::eLightConstantBuffer);
 	}
 
 	mGPUState = mCurrentState;

@@ -1,4 +1,6 @@
 
+TextureCube Cubemap : register(t0);
+
 cbuffer CameraConstantBuffer : register(b0)
 {
     float4x4 worldToClipMatrix;
@@ -9,6 +11,16 @@ cbuffer CameraConstantBuffer : register(b0)
 cbuffer ObjectConstantBuffer : register(b1)
 {
     float4x4 modelToWorld;
+}
+
+cbuffer LightConstantBuffer : register(b2)
+{
+    uint pad0;
+    int isUsingCubemap;
+    uint cubemapNumberOfMips;
+    uint pad1;
+    
+    float4 ambientLightColorAndIntensity;
 }
 
 struct ModelVertexInputType

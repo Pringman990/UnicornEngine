@@ -18,7 +18,7 @@ project "ECS"
 
 	includeDependencies("ECS", 
 	{
-		dirs.ECS .. "Public/",
+		dirs.ECS,
 		"Core"
 	})
 

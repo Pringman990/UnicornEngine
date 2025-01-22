@@ -3,10 +3,10 @@
 
 #include <Camera.h>
 
-#include <ResourceRegistry.h>
+#include <AssetRegistry.h>
 #include <MaterialResourceManager.h>
 #include <MeshLoading/MeshResourceManager.h>
-#include <Shader/ShaderResourceManager.h>
+#include <Shader/ShaderManager.h>
 #include "Texture/TextureResourceManager.h"
 
 Renderer::Renderer()
@@ -46,10 +46,15 @@ bool Renderer::Init()
 	if (!mRenderingBackend->Init())
 		return false;
 
-	ResourceRegistry* registry = ResourceRegistry::GetInstance();
-	registry->GetManager<ShaderResourceManager>()->Init();
-	registry->RegisterManager<MaterialResourceManager>();
-	registry->RegisterManager<MeshResourceManager>();
+	mShaderManager->Init();
+
+	AssetRegistry* registry = AssetRegistry::GetInstance();
+	MaterialResourceManager* materialManager = registry->GetManager<MaterialResourceManager>();
+	materialManager->Init();
+	//registry->GetManager<ShaderManager>()->Init();
+	//registry->RegisterManager<MaterialResourceManager>();
+	//registry->RegisterManager<MeshResourceManager>();
+
 
 	if (!mRenderQueue->Init())
 		return false;
@@ -125,6 +130,11 @@ InputLayoutManager* Renderer::GetInputLayoutManager()
 RenderQueue* Renderer::GetRenderQueue()
 {
 	return mRenderQueue;
+}
+
+ShaderManager* Renderer::GetShaderManager()
+{
+	return mShaderManager;
 }
 
 void Renderer::SetActiveCamera(Camera* aCamera)

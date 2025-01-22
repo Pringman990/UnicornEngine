@@ -21,7 +21,7 @@ project "Sandbox"
 	includeDependencies("Sandbox", 
 	{
 		dirs.Sandbox,
-		"ResourceCore",
+		"AssetCore",
 		"Renderer",
 		"Singleton",
 		"Core"
@@ -29,7 +29,7 @@ project "Sandbox"
 
 	linkDependencies("Sandbox", 
 	{
-		"ResourceCore",
+		"AssetCore",
 		"Renderer",
 		"Singleton",
 		"Core"

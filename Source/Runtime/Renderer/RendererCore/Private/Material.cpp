@@ -18,7 +18,8 @@ void Material::BindTextures()
 {
     for (auto& [slot, texture] : mTextures)
     {
-        texture->Bind(slot);
+        //We skip Zero because thats reserved for cubemap
+        texture->Bind(slot + 1);
     }
 }
 

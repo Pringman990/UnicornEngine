@@ -1,7 +1,7 @@
 #pragma once
 #pragma message("pch ECS!")
 
-#include <ReflectionRegistry.h>
+#include <Reflection/ReflectionRegistry.h>
 
 #include <string>
 #include <functional>

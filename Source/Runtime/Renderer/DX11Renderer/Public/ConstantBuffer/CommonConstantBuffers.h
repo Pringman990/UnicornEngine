@@ -26,7 +26,7 @@ struct alignas(16) ObjectConstantBufferData
 
 struct alignas(16) LightConstantBufferData
 {
-	Matrix temp; //Remove this
+	//Matrix temp; //Remove this
 
 //	struct alignas(16) PointLight
 //	{
@@ -36,11 +36,19 @@ struct alignas(16) LightConstantBufferData
 //	}pointLights[MAX_NUMBER_OF_LIGHTS];
 //
 //	uint32_t numPointLights = 0;
-//	uint32_t pad3 = 0;
-//	uint32_t pad4 = 0;
-//
-//	uint32_t numberOfMips = 0;
-//	Vector4 ambientLightColorAndIntensity = {};
+	uint32_t pad0 = 0;
+	int32_t isUsingCubemap = 0;
+	uint32_t cubemapNumberOfMips = 0;
+	uint32_t pad1;
+	Vector4 ambientLightColorAndIntensity = {};
+
 //	Vector4 directionalLightDirection = {};
 //	Vector4 directionalLightColorAndIntensity = {};
+
+	bool operator!=(const LightConstantBufferData& aOther)
+	{
+		return (aOther.cubemapNumberOfMips != this->cubemapNumberOfMips) ||
+			(aOther.ambientLightColorAndIntensity != this->ambientLightColorAndIntensity) ||
+			(aOther.isUsingCubemap != this->isUsingCubemap);
+	}
 };

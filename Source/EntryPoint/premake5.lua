@@ -30,20 +30,17 @@ project "EntryPoint"
 		dirs.EntryPoint .. "Public",
 		"Core",
 		"Renderer",
-		"EngineCore"
 	})
 
 	linkDependencies("EntryPoint", 
 	{
 		"Core",
 		"Renderer",
-		"EngineCore"
 	})
 
 	filter("configurations:Debug Editor")
 		includedirs {
 			dirs.Editor,
-			dirs.EditorCore
 		}	
 		links {
 			"Editor"
@@ -51,10 +48,46 @@ project "EntryPoint"
 	filter("configurations:MemoryDebug Editor")
 		includedirs {
 			dirs.Editor,
-			dirs.EditorCore
 		}	
 		links {
 			"Editor"
 		} 
+
+		 filter {"configurations:MemoryDebug"}
+      -- Additional post-build command to copy debug-specific DLLs
+      postbuildcommands {
+         "echo Copying debug DLLs from " .. UCE_DLL_DIR .. "/debug to " .. UCE_EXECUTABLE_DIR,
+         "xcopy /Q /Y /I \"" .. UCE_DLL_DIR .. "\\debug\\*.dll\" \"" .. UCE_EXECUTABLE_DIR .. "\\\"",
+         "xcopy /Q /Y /I \"" .. UCE_DLL_DIR .. "\\debug\\*.pdb\" \"" .. UCE_EXECUTABLE_DIR .. "\\\""
+      }
+
+    filter ("configurations:MemoryDebug Editor")
+      postbuildcommands {
+         "echo Copying debug DLLs from " .. UCE_DLL_DIR .. "/debug to " .. UCE_EXECUTABLE_DIR,
+         "xcopy /Q /Y /I \"" .. UCE_DLL_DIR .. "\\debug\\*.dll\" \"" .. UCE_EXECUTABLE_DIR .. "\\\"",
+         "xcopy /Q /Y /I \"" .. UCE_DLL_DIR .. "\\debug\\*.pdb\" \"" .. UCE_EXECUTABLE_DIR .. "\\\""
+      }
+
+    filter ("configurations:Debug")
+      postbuildcommands {
+         "echo Copying debug DLLs from " .. UCE_DLL_DIR .. "/debug to " .. UCE_EXECUTABLE_DIR,
+         "xcopy /Q /Y /I \"" .. UCE_DLL_DIR .. "\\debug\\*.dll\" \"" .. UCE_EXECUTABLE_DIR .. "\\\"",
+         "xcopy /Q /Y /I \"" .. UCE_DLL_DIR .. "\\debug\\*.pdb\" \"" .. UCE_EXECUTABLE_DIR .. "\\\""
+      }
+      
+    filter ("configurations:Debug Editor")
+      postbuildcommands {
+         "echo Copying debug DLLs from " .. UCE_DLL_DIR .. "/debug to " .. UCE_EXECUTABLE_DIR,
+         "xcopy /Q /Y /I \"" .. UCE_DLL_DIR .. "\\debug\\*.dll\" \"" .. UCE_EXECUTABLE_DIR .. "\\\"",
+         "xcopy /Q /Y /I \"" .. UCE_DLL_DIR .. "\\debug\\*.pdb\" \"" .. UCE_EXECUTABLE_DIR .. "\\\""
+      }
+
+   filter "configurations:Retail"
+      -- Additional post-build command to copy release-specific DLLs
+      postbuildcommands {
+         "echo Copying release DLLs from " .. UCE_DLL_DIR .. "/release to " .. UCE_EXECUTABLE_DIR,
+         "xcopy /Q /Y /I \"" .. UCE_DLL_DIR .. "\\release\\*.dll\" \"" .. UCE_EXECUTABLE_DIR .. "\\\""
+      }
+      print("Output directory: " .. UCE_EXECUTABLE_DIR)
 
 filter {}
