@@ -2,14 +2,14 @@
 #include "Texture/Texture.h"
 
 #include "Texture/TextureResourceManager.h"
-#include <ResourceRegistry.h>
+#include <AssetRegistry.h>
 
 Texture::Texture()
 	:
-	mType(eTextureType::eInvalid),
 	mMipLevel(0),
 	mTextureID(UniqueID::InvalidID),
-	mSize(0,0)
+	mSize(0,0),
+	mType(TextureType::eInvalid)
 {
 }
 
@@ -19,11 +19,11 @@ Texture::~Texture()
 
 void Texture::Destroy()
 {
-	TextureResourceManager* textureManager = ResourceRegistry::GetInstance()->GetManager<TextureResourceManager>();
+	TextureResourceManager* textureManager = AssetRegistry::GetInstance()->GetManager<TextureResourceManager>();
 	textureManager->DestroyTexture(mTextureID);
 }
 
-eTextureType Texture::GetType()
+const TextureType Texture::GetTextureType() const
 {
 	return mType;
 }

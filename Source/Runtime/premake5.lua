@@ -1,23 +1,22 @@
 --Runtime Root Directories
 print("Including Runtime")
 
-dirs["Core"]						= os.realpath(dirs.Runtime .. "Core/")
-dirs["ResourceCore"]				= os.realpath(dirs.Runtime .. "ResourceCore/")
-dirs["GUIFramework"]				= os.realpath(dirs.Runtime .. "GUIFramework/")
+dirs["Singleton"]					= os.realpath(dirs.Runtime .. "Singleton/Public")
+dirs["Core"]						= os.realpath(dirs.Runtime .. "Core/Public")
+dirs["AssetCore"]					= os.realpath(dirs.Runtime .. "AssetCore/Public")
 dirs["Renderer"]					= os.realpath(dirs.Runtime .. "Renderer/")
-dirs["ECS"]							= os.realpath(dirs.Runtime .. "ECS/")
-dirs["EngineCore"]					= os.realpath(dirs.Runtime .. "EngineCore/")
+dirs["ECS"]							= os.realpath(dirs.Runtime .. "ECS/Public")
+
+group "Runtime/Singleton"
+include (normalizePath(dirs.Singleton))
+group ""
 
 group "Runtime/Core"
-include (dirs.Core)
+include (normalizePath(dirs.Core))
 group ""
 
-group "Runtime/ResourceCore"
-include (dirs.ResourceCore)
-group ""
-
-group "Runtime/GUIFramework"
-include (dirs.GUIFramework)
+group "Runtime/AssetCore"
+include (normalizePath(dirs.AssetCore))
 group ""
 
 group "Runtime/Renderer"
@@ -25,9 +24,5 @@ include (dirs.Renderer)
 group ""
 
 group "Runtime/ECS"
-include (dirs.ECS)
-group ""
-
-group "Runtime/EngineCore"
-include (dirs.EngineCore)
+include (normalizePath(dirs.ECS))
 group ""

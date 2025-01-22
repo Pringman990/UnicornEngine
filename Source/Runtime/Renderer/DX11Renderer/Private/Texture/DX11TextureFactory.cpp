@@ -12,7 +12,7 @@ DX11TextureFactory::~DX11TextureFactory()
 {
 }
 
-Texture* DX11TextureFactory::CreateTexture(const std::string& aPath)
+Texture* DX11TextureFactory::LoadTextureFromFile(const std::string& aPath)
 {
 	ID3D11Device* device = DX11RenderingBackend::_GetInstance()->GetDevice();
 
@@ -34,18 +34,37 @@ Texture* DX11TextureFactory::CreateTexture(const std::string& aPath)
 		return nullptr;
 	}
 
-	eTextureType textureType = eTextureType::eInvalid;
+	Texture* texture;
 	{
 		D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		textureView->GetDesc(&srvDesc);
 
+		D3D11_TEXTURE2D_DESC textureDesc = {};
+		texture2D->GetDesc(&textureDesc);
+
 		if (srvDesc.ViewDimension == D3D11_SRV_DIMENSION_TEXTURECUBE)
 		{
-			textureType = eTextureType::eTextureCube;
+			DX11TextureCube* dx11TextureCube = new DX11TextureCube();
+			dx11TextureCube->mTextureCube = texture2D;
+
+			dx11TextureCube->mSize.x = static_cast<float>(textureDesc.Width);
+			dx11TextureCube->mSize.y = static_cast<float>(textureDesc.Height);
+			dx11TextureCube->mMipLevel = textureDesc.MipLevels;
+			dx11TextureCube->mSRV = textureView;
+
+			texture = dx11TextureCube;
 		}
 		else if (srvDesc.ViewDimension == D3D11_SRV_DIMENSION_TEXTURE2D)
 		{
-			textureType = eTextureType::eTexture2D;
+			DX11Texture2D* dx11Texture2D = new DX11Texture2D();
+			dx11Texture2D->mTexture2D = texture2D;
+
+			dx11Texture2D->mSize.x = static_cast<float>(textureDesc.Width);
+			dx11Texture2D->mSize.y = static_cast<float>(textureDesc.Height);
+			dx11Texture2D->mMipLevel = textureDesc.MipLevels;
+			dx11Texture2D->mSRV = textureView;
+
+			texture = dx11Texture2D;
 		}
 		else
 		{
@@ -56,25 +75,10 @@ Texture* DX11TextureFactory::CreateTexture(const std::string& aPath)
 		}
 	}
 
-	DX11Texture* dx11Texture = new DX11Texture();
-	dx11Texture->mTexture2D = texture2D;
-
-	dx11Texture->mType = textureType;
-
-	{
-		D3D11_TEXTURE2D_DESC textureDesc = {};
-		texture2D->GetDesc(&textureDesc);
-
-		dx11Texture->mSize.x = static_cast<float>(textureDesc.Width);
-		dx11Texture->mSize.y = static_cast<float>(textureDesc.Height);
-		dx11Texture->mMipLevel = textureDesc.MipLevels;
-		dx11Texture->mSRV = textureView;
-	}
-
-	return dx11Texture;
+	return texture;
 }
 
-DX11Texture* DX11TextureFactory::CreateTexture(const Vector2& aSize)
+DX11Texture2D* DX11TextureFactory::CreateTexture2D(const Vector2& aSize)
 {
 	ID3D11Device* device = DX11RenderingBackend::_GetInstance()->GetDevice();
 
@@ -113,18 +117,17 @@ DX11Texture* DX11TextureFactory::CreateTexture(const Vector2& aSize)
 		return nullptr;
 	}
 
-	DX11Texture* dx11Texture = new DX11Texture();
+	DX11Texture2D* dx11Texture = new DX11Texture2D();
 	dx11Texture->mSize = aSize;
 	dx11Texture->mMipLevel = textureDesc.MipLevels;
 	dx11Texture->mSRV = textureView;
 	dx11Texture->mTexture2D = texture2D;
-	dx11Texture->mType = eTextureType::eTexture2D;
 	dx11Texture->mTextureID = UniqueID::InvalidID;
 
 	return dx11Texture;
 }
 
-bool DX11TextureFactory::CreateTexture(DX11Texture* aTexture, D3D11_TEXTURE2D_DESC aTextureDesc, D3D11_SHADER_RESOURCE_VIEW_DESC aSRVDesc)
+bool DX11TextureFactory::CreateTexture2D(DX11Texture2D* aTexture, D3D11_TEXTURE2D_DESC aTextureDesc, D3D11_SHADER_RESOURCE_VIEW_DESC aSRVDesc)
 {
 	ID3D11Device* device = DX11RenderingBackend::_GetInstance()->GetDevice();
 
@@ -151,7 +154,7 @@ bool DX11TextureFactory::CreateTexture(DX11Texture* aTexture, D3D11_TEXTURE2D_DE
 	return true;
 }
 
-DX11Texture* DX11TextureFactory::CreateTexture(ID3D11Texture2D* aTexture)
+DX11Texture2D* DX11TextureFactory::CreateTexture2D(ID3D11Texture2D* aTexture)
 {
 	ID3D11Device* device = DX11RenderingBackend::_GetInstance()->GetDevice();
 
@@ -173,12 +176,11 @@ DX11Texture* DX11TextureFactory::CreateTexture(ID3D11Texture2D* aTexture)
 		return nullptr;
 	}
 
-	DX11Texture* dx11Texture = new DX11Texture();
+	DX11Texture2D* dx11Texture = new DX11Texture2D();
 	dx11Texture->mSize = Vector2(static_cast<float>(textureDesc.Width), static_cast<float>(textureDesc.Height));
 	dx11Texture->mMipLevel = textureDesc.MipLevels;
 	dx11Texture->mSRV = textureView;
 	dx11Texture->mTexture2D = aTexture;
-	dx11Texture->mType = eTextureType::eTexture2D;
 	dx11Texture->mTextureID = UniqueID::InvalidID;
 
 	return dx11Texture;

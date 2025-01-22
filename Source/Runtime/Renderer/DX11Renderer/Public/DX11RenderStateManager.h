@@ -27,6 +27,8 @@ public:
 	
 	virtual void SetObjectTransform(const Transform& aTransform) override;
 
+	virtual void SetAmbientLight(AmbientLight* aAmbientLight) override;
+
 	virtual void DrawMesh(uint32 aStartIndex, uint32 aIndexCount) override;
 
 	void FinishCommandList() override;
@@ -37,11 +39,13 @@ private:
 	struct RenderState
 	{
 		ObjectConstantBufferData objectConstantBufferData = {};
+		LightConstantBufferData lightConstantBufferData = {};
 		DX11VertexBuffer* vertexBuffer = nullptr;
 		DX11IndexBuffer* indexBuffer = nullptr;
 		InputLayout* inputLayout = nullptr;
 		DX11PixelShaderBackend* pixelShader = nullptr;
 		DX11VertexShaderBackend* vertexShader = nullptr;
+		AmbientLight* ambientLight = nullptr;
 	} mCurrentState;
 
 	RenderState mGPUState;
@@ -49,4 +53,5 @@ private:
 	ID3D11DeviceContext* mRendererDefferedContext;
 
 	DX11ConstantBuffer* mObjConstant;
+	DX11ConstantBuffer* mLightConstant;
 };

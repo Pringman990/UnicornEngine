@@ -60,6 +60,7 @@ void MeshLoader::ProcessAiNodes(aiNode* aNode, const aiScene* aScene, std::vecto
 	{
 		Mesh* mesh = new Mesh();
 		uint32 indexOffset = 0;
+		uint32 vertexOffset = 0;
 		std::vector<Vertex> vertices;
 		std::vector<uint32> indices;
 		
@@ -67,7 +68,7 @@ void MeshLoader::ProcessAiNodes(aiNode* aNode, const aiScene* aScene, std::vecto
 		for (uint32 i = 0; i < aNode->mNumMeshes; i++)
 		{
 			aiMesh* aiMesh = aScene->mMeshes[aNode->mMeshes[i]];
-			ConvertAiMeshToMesh(aiMesh, aScene, mesh, indexOffset, vertices, indices);
+			ConvertAiMeshToMesh(aiMesh, aScene, mesh, indexOffset, vertexOffset, vertices, indices);
 		}
 		
 		mesh->mVertexCount = static_cast<uint32>(vertices.size());
@@ -89,6 +90,7 @@ void MeshLoader::ConvertAiMeshToMesh(
 	const aiScene* aScene,
 	Mesh* aMesh,
 	uint32& aIndexOffset,
+	uint32& aVertexOffset,
 	std::vector<Vertex>& someVertices,
 	std::vector<uint32>& someIndices
 )
@@ -124,24 +126,28 @@ void MeshLoader::ConvertAiMeshToMesh(
 	}
 
 	//We know it will always be a max of 3 indcies per face as we us aiProcess_Triangulate when importing the scene
-	//someIndices.resize(aIndexOffset + (aAiMesh->mNumFaces * 3));
+	size_t initalSize = someIndices.size();
+	someIndices.resize((initalSize + (aAiMesh->mNumFaces * 3)));
+	
+	std::for_each(std::execution::par, aAiMesh->mFaces, aAiMesh->mFaces + aAiMesh->mNumFaces, 
+		[&](const aiFace& face) { 
+			size_t faceIndex = &face - aAiMesh->mFaces; 
+			size_t globalOffset = initalSize + (faceIndex * 3);
+	
+			someIndices[globalOffset] = face.mIndices[0] + aVertexOffset;
+			someIndices[globalOffset + 1] = face.mIndices[1] + aVertexOffset;
+			someIndices[globalOffset + 2] = face.mIndices[2] + aVertexOffset;
+		});
 
-	//std::for_each(std::execution::par, aAiMesh->mFaces, aAiMesh->mFaces + aAiMesh->mNumFaces,
-	//	[&](const aiFace& face) {
-	//		size_t faceIndex = &face - aAiMesh->mFaces;
-	//		size_t globalOffset = aIndexOffset + (faceIndex * 3);
-
-	//		someIndices[globalOffset] = face.mIndices[0];
-	//		someIndices[globalOffset + 1] = face.mIndices[1];
-	//		someIndices[globalOffset + 2] = face.mIndices[2];
-	//	});
-
-	for (UINT i = 0; i < aAiMesh->mNumFaces; i++) {
-		aiFace face = aAiMesh->mFaces[i];
-
-		for (UINT j = 0; j < face.mNumIndices; j++)
-			someIndices.push_back(face.mIndices[j] + aIndexOffset);
-	}
+	//for (UINT i = 0; i < aAiMesh->mNumFaces; i++) {
+	//	aiFace face = aAiMesh->mFaces[i];
+	//
+	//	for (UINT j = 0; j < face.mNumIndices; j++)
+	//	{
+	//		int32 index = face.mIndices[j] + aVertexOffset;
+	//		someIndices.push_back(index);
+	//	}
+	//}
 
 	Material* material = nullptr;
 	if (aAiMesh->mMaterialIndex >= 0)
@@ -157,7 +163,8 @@ void MeshLoader::ConvertAiMeshToMesh(
 	 
 	aMesh->mSubMeshes.push_back(subMesh);
 
-	aIndexOffset += static_cast<uint32>(aAiMesh->mNumVertices);
+	aIndexOffset = static_cast<uint32>(someIndices.size());
+	aVertexOffset += aAiMesh->mNumVertices;
 }
 
 Material* MeshLoader::LoadMaterial(aiMaterial* /*aAiMaterial*/)
@@ -175,7 +182,7 @@ Material* MeshLoader::LoadMaterial(aiMaterial* /*aAiMaterial*/)
 	//if (assimpMaterial->GetTexture(aiTextureType_SPECULAR, 0, &texturePath) == AI_SUCCESS) {
 	//	material->specularTexture = LoadTexture(texturePath.C_Str());
 	//}
-	MaterialResourceManager* materialManager = GET_RESOURCE_MANAGER(MaterialResourceManager);
+	MaterialResourceManager* materialManager = GET_ASSET_MANAGER(MaterialResourceManager);
 	Material* material = materialManager->GetMaterial("__UNCE_Defualt_Material");
 	return material;
 }

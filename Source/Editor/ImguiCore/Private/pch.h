@@ -8,7 +8,8 @@
 #include <imgui_internal.h>
 #include "IconFontDefines.h"
 
-#include <Application.h>
+#include <Application/Application.h>
+#include <FileWatcher/FileWatcher.h>
 
 #include <SimpleMath.h>
 #include <vector>

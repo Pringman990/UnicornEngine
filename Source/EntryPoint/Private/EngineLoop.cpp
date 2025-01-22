@@ -1,17 +1,18 @@
 #include "EngineLoop.h"
 
-#include <Application.h>
-#include <Generic/GenericApplication.h>
+#include <Application/Application.h>
+#include <Application/Generic/GenericApplication.h>
 #include <Renderer.h>
 #include <RendererFactory.h>
 
-#include <EventDispatcher.h>
-#include <ResourceRegistry.h>
-#include <InputMapper.h>
+#include <EventDispatcher/EventDispatcher.h>
+#include <AssetRegistry.h>
+#include <Input/InputMapper.h>
 
-#include <Logger.h>
-#include <Timer.h>
+#include <Logger/Logger.h>
+#include <Timer/Timer.h>
 #include <SimpleMath.h>
+#include <FileWatcher/FileWatcher.h>
 
 #ifdef _EDITOR
 #include <Editor.h>
@@ -22,7 +23,8 @@ EngineLoop::EngineLoop()
 	mShouldExit(false),
 	mGenericApplication(nullptr),
 	mRenderer(nullptr),
-	mSandboxRender(nullptr)
+	mSandboxRender(nullptr),
+	mSandBoxModule()
 
 {
 }
@@ -36,6 +38,7 @@ EngineLoop::~EngineLoop()
 
 	Renderer::Shutdown();
 	InputMapper::Shutdown();
+	FileWatcher::Shutdown();
 	Application::Shutdown();
 	EventDispatcher::Shutdown();
 
@@ -60,6 +63,16 @@ bool EngineLoop::Init()
 	{
 		_ENSURE_CORE(false, "Engine Loop Failed To Create Application");
 		return false;
+	}
+
+	{
+		FileWatcher::Create();
+		if (!FileWatcher::GetInstance()->Init())
+		{
+			_ENSURE_CORE(false, "Engine Loop Failed To Init FileWatcher");
+			return false;
+		}
+		mFileWatcher = FileWatcher::GetInstance();
 	}
 
 	InputMapper::Create();
@@ -163,6 +176,7 @@ void EngineLoop::Update()
 	if (mShouldExit)
 		return;
 
+	mFileWatcher->Watch();
 
 	mRenderer->PreRender();
 

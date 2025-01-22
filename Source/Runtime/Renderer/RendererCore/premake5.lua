@@ -27,7 +27,7 @@ project "RendererCore"
 		dirs.RendererCore,
 		"FBXSDK",
 		"Assimp",
-		"ResourceCore",
+		"AssetCore",
 		"Math",
 		"Core"
 	})
@@ -36,7 +36,7 @@ project "RendererCore"
 	{
 		"FBXSDK",
 		"Assimp",
-		"ResourceCore",
+		"AssetCore",
 		"Core"
 	})
 

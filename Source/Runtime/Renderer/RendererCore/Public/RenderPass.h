@@ -1,12 +1,16 @@
 #pragma once
 #include "RenderCommandList.h"
 #include "RenderTarget/RenderTarget.h"
+#include "Lights/AmbientLight.h"
 
 struct RenderPassAttachment
 {
 	RenderPassAttachment() : shouldClear(true) {}
 
 	std::optional<RenderTarget*> rendertarget;
+
+	AmbientLight* ambientlights;
+
 	bool shouldClear;
 };
 

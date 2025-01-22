@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Win32DX11ImguiBackend.h"
 
-#include <Windows/WindowsApplication.h>
+#include <Application/Windows/WindowsApplication.h>
 #include <DX11RenderingBackend.h>
 
 Win32DX11ImguiBackend::Win32DX11ImguiBackend()
@@ -24,6 +24,7 @@ bool Win32DX11ImguiBackend::Init()
 
 	ImGui::LoadIniSettingsFromDisk("imgui.ini");
 
+	std::string contentPath = FileWatcher::GetInstance()->GetContentPath();
 	{
 		static const ImWchar ranges[] =
 		{
@@ -36,7 +37,7 @@ bool Win32DX11ImguiBackend::Init()
 		config.OversampleH = 4;
 		config.OversampleV = 4;
 		config.PixelSnapH = false;
-		io.Fonts->AddFontFromFileTTF("..\\..\\Assets\\SalmaproMedium-0Wooo.ttf", 14.f, &config, ranges);
+		io.Fonts->AddFontFromFileTTF((contentPath + "\\SalmaproMedium-0Wooo.ttf").c_str(), 14.f, &config, ranges);
 
 		io.Fonts->Build();
 	}
@@ -47,7 +48,7 @@ bool Win32DX11ImguiBackend::Init()
 	icons_config.MergeMode = true;
 	icons_config.PixelSnapH = true;
 
-	io.Fonts->AddFontFromFileTTF(FONT_ICON_FILE_NAME_FAS, 11.0f, &icons_config, icons_ranges);
+	io.Fonts->AddFontFromFileTTF((contentPath + "\\fa-solid-900.ttf").c_str(), 11.0f, &icons_config, icons_ranges);
 	io.Fonts->Build();
 
 	WindowsApplication* windowsApp = static_cast<WindowsApplication*>(Application::GetInstance()->GetApplication());

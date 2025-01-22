@@ -1,15 +1,16 @@
 #pragma once
 #pragma message("pch RendererCore!")
 
-#include <Logger.h>
+#include <Logger/Logger.h>
 #include <unordered_map>
 #include <vector>
-#include <UniqueID.h>
+#include <UniqueID/UniqueID.h>
 #include <SimpleMath.h>
-#include <Transform.h>
-#include <Utility.h>
-#include <StandardTypes.h>
+#include <Math/Transform.h>
+#include <Utility/Utility.h>
+#include <StandardTypes/StandardTypes.h>
+#include <FileWatcher/FileWatcher.h>
 
 #include "Vertex.h"
 
-#include <ResourceRegistry.h>
+#include <AssetRegistry.h>

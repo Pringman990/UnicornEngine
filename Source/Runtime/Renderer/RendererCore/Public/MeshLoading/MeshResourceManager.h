@@ -1,21 +1,22 @@
 #pragma once
-#include <IResourceManager.h>
+#include <IAssetManager.h>
 
-#include "ResourceRegistry.h"
+#include "AssetRegistry.h"
 #include "Mesh.h"
 
-class MeshResourceManager : public IResourceManager
+class MeshResourceManager : public IAssetManager<Mesh>
 {
+	friend class AssetRegistry;
 public:
-	MeshResourceManager();
-	~MeshResourceManager() override;
+	virtual Mesh* LoadAsset() override;
 
 	std::vector<Mesh*> LoadMeshesFromFile(const std::string& aFilePath);
 	Mesh* GetMesh(const std::string& aFileAssetPath);
 
 private:
+	MeshResourceManager();
+	~MeshResourceManager() override;
+private:
 	std::unordered_map<std::string, Mesh*> mAssetMeshes;
 	std::unordered_map<std::string, std::vector<Mesh*>> mMeshesFromFile;
 };
-
-//REGISTER_RESOURCEMANAGER(MeshResourceManager)

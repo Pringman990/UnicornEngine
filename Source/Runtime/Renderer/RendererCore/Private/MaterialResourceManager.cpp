@@ -1,15 +1,17 @@
 #include "pch.h"
 #include "MaterialResourceManager.h"
 
-#include "Shader/ShaderResourceManager.h"
+#include "Shader/ShaderManager.h"
 #include "Shader/InputLayoutManager.h"
 #include "Renderer.h"
 
 #include "Texture/TextureResourceManager.h"
 
 MaterialResourceManager::MaterialResourceManager()
+	:
+	mHasInitilized(false)
 {
-	CreateMaterial("__UNCE_Defualt_Material");
+	
 }
 
 MaterialResourceManager::~MaterialResourceManager()
@@ -22,6 +24,18 @@ MaterialResourceManager::~MaterialResourceManager()
 	mMaterials.clear();
 }
 
+void MaterialResourceManager::Init()
+{
+	CreateMaterial("__UNCE_Defualt_Material");
+	mHasInitilized = true;
+}
+
+Material* MaterialResourceManager::LoadAsset()
+{
+	_ENSURE_RENDERER(mHasInitilized, "Has not been Initilized yet");
+	return nullptr;
+}
+
 Material* MaterialResourceManager::CreateMaterial(const std::string& aName)
 {
 	auto it = mMaterials.find(aName);
@@ -31,7 +45,7 @@ Material* MaterialResourceManager::CreateMaterial(const std::string& aName)
 		return nullptr;
 	}
 
-	ShaderResourceManager* shaderManager = GET_RESOURCE_MANAGER(ShaderResourceManager);
+	ShaderManager* shaderManager = Renderer::GetInstance()->GetShaderManager();
 	Shader* shader = shaderManager->TryGetShader(eShaderTypes::eMatrial, "__UNCE_Defualt_Material");
 	MaterialShader* materialShader = static_cast<MaterialShader*>(shader);
 
@@ -40,12 +54,13 @@ Material* MaterialResourceManager::CreateMaterial(const std::string& aName)
 
 	InputLayoutManager* layoutManager = Renderer::GetInstance()->GetInputLayoutManager();
 	material->mInputLayout = layoutManager->TryGetLayout(eInputLayoutStandardTypes::eModel, materialShader->GetVertexShader());
-	
-	TextureResourceManager* textureManager = GET_RESOURCE_MANAGER(TextureResourceManager);
-	Texture* texture0 = textureManager->LoadTextureFromFile("../../Assets/Textures/defaultMaterial_c.dds");
+
+	std::string contentPath = FileWatcher::GetInstance()->GetContentPath();
+	TextureResourceManager* textureManager = GET_ASSET_MANAGER(TextureResourceManager);
+	Texture* texture0 = textureManager->LoadTextureFromFile(contentPath + "/Textures/defaultMaterial_c.dds");
 	material->AddTexture(0, texture0);
 
-	mMaterials.insert({aName, material});
+	mMaterials.insert({ aName, material });
 
 	return material;
 }

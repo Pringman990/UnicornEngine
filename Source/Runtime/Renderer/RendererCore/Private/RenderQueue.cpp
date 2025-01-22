@@ -49,6 +49,11 @@ void RenderQueue::ExecuteRenderPass(const RenderPass& aRenderPass)
 			if (attachment.shouldClear)
 				attachment.rendertarget.value()->Clear();
 		}
+
+		if (attachment.ambientlights)
+		{
+			mRenderStateManager->SetAmbientLight(attachment.ambientlights);
+		}
 	}
 
 	// We send multiple as this is ONE renderpass and for like a G-Buffer 
@@ -92,7 +97,6 @@ void RenderQueue::ExecuteCommandList(const RenderCommandList& aCommandList)
 				mRenderStateManager->SetInputLayoutShader(subMesh.material->GetInputLayout());
 				mRenderStateManager->SetMaterialShader(subMesh.material->GetShader());
 				subMesh.material->BindTextures();
-
 				mRenderStateManager->DrawMesh(subMesh.startIndex, subMesh.indexCount);
 			}
 			break;

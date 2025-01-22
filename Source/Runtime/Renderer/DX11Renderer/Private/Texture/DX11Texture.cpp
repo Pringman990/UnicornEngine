@@ -3,25 +3,26 @@
 
 #include "Texture/DX11TextureFactory.h"
 
-DX11Texture::DX11Texture()
+#pragma region Texture2D
+DX11Texture2D::DX11Texture2D()
 	:
 	mSRV(nullptr),
 	mTexture2D(nullptr)
 {
 }
 
-DX11Texture::~DX11Texture()
+DX11Texture2D::~DX11Texture2D()
 {
 	mSRV.Reset();
 	mTexture2D.Reset();
 }
 
-void DX11Texture::Bind(uint32 aSlot)
+void DX11Texture2D::Bind(uint32 aSlot) const 
 {
 	DX11RenderingBackend::_GetInstance()->GetDeviceContext()->PSSetShaderResources(aSlot, 1, mSRV.GetAddressOf());
 }
 
-void DX11Texture::Resize(const Vector2& aNewSize)
+void DX11Texture2D::Resize(const Vector2& aNewSize)
 {
 
 	D3D11_TEXTURE2D_DESC oldTextureDesc = GetTexture2DDesc();
@@ -33,15 +34,15 @@ void DX11Texture::Resize(const Vector2& aNewSize)
 
 	Release();
 
-	if (!DX11TextureFactory::CreateTexture(this, oldTextureDesc, oldSrvDesc))
+	if (!DX11TextureFactory::CreateTexture2D(this, oldTextureDesc, oldSrvDesc))
 	{
-		_LOG_RENDERER_ERROR("Failed to resize DX11Texture");
+		_LOG_RENDERER_ERROR("Failed to resize DX11Texture2D");
 	}
 
 	mSize = aNewSize;
 }
 
-void DX11Texture::Release()
+void DX11Texture2D::Release()
 {
 	if (mSRV)
 		mSRV.Reset();
@@ -49,35 +50,62 @@ void DX11Texture::Release()
 		mTexture2D.Reset();
 }
 
-void* DX11Texture::GetUnderlyingSRV()
+void* DX11Texture2D::GetUnderlyingSRV()
 {
 	return static_cast<void*>(mSRV.Get());
 }
 
-ID3D11ShaderResourceView* DX11Texture::GetSRV()
+ID3D11ShaderResourceView* DX11Texture2D::GetSRV()
 {
 	return mSRV.Get();
 }
 
-ID3D11ShaderResourceView** DX11Texture::GetAddressOfSRV()
+ID3D11ShaderResourceView** DX11Texture2D::GetAddressOfSRV()
 {
 	return mSRV.GetAddressOf();
 }
 
-ID3D11Texture2D* DX11Texture::GetTexture2D()
+ID3D11Texture2D* DX11Texture2D::GetTexture2D()
 {
 	return mTexture2D.Get();
 }
 
-ID3D11Texture2D** DX11Texture::GetAdressOfTexture2D()
+ID3D11Texture2D** DX11Texture2D::GetAdressOfTexture2D()
 {
 	return mTexture2D.GetAddressOf();
 }
 
-D3D11_TEXTURE2D_DESC DX11Texture::GetTexture2DDesc() const
+D3D11_TEXTURE2D_DESC DX11Texture2D::GetTexture2DDesc() const
 {
 	D3D11_TEXTURE2D_DESC desc = {};
 	mTexture2D->GetDesc(&desc);
 
 	return desc;
 }
+#pragma endregion
+
+#pragma region TextureCube
+DX11TextureCube::DX11TextureCube()
+	:
+	mSRV(nullptr),
+	mTextureCube(nullptr)
+{
+}
+
+DX11TextureCube::~DX11TextureCube()
+{
+	mSRV.Reset();
+	mTextureCube.Reset();
+}
+
+void DX11TextureCube::Bind(uint32 aSlot) const
+{
+	DX11RenderingBackend::_GetInstance()->GetDeviceContext()->PSSetShaderResources(aSlot, 1, mSRV.GetAddressOf());
+}
+
+void* DX11TextureCube::GetUnderlyingSRV()
+{
+	return static_cast<void*>(mSRV.Get());
+}
+
+#pragma endregion

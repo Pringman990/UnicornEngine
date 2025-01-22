@@ -1,23 +1,28 @@
 #pragma once
-#include <IResourceManager.h>
+#include <IAssetManager.h>
 #include "Texture.h"
 
 class ITextureFactory;
 
-class TextureResourceManager : public IResourceManager
+class TextureResourceManager : public IAssetManager<Texture>
 {
+	friend class AssetRegistry;
 public:
-	TextureResourceManager();
-	~TextureResourceManager() override;
-
-	void SetFactory(ITextureFactory* aFactory);
+	template<typename T>
+	void SetFactory()
+	{
+		mFactory = new T;
+	}
 
 	Texture* LoadTextureFromFile(const std::string& aPath);
+
+	Texture* LoadAsset() override;
 
 	void DestroyTexture(UniqueID aTextureID);
 
 private:
-
+	TextureResourceManager();
+	~TextureResourceManager() override;
 private:
 	ITextureFactory* mFactory;
 

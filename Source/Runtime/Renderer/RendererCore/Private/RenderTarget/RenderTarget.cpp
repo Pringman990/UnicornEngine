@@ -16,7 +16,7 @@ RenderTarget::~RenderTarget()
 
 void RenderTarget::Destroy()
 {
-    RenderTargetResourceManager* manager = ResourceRegistry::GetInstance()->GetManager<RenderTargetResourceManager>();
+    RenderTargetResourceManager* manager = AssetRegistry::GetInstance()->GetManager<RenderTargetResourceManager>();
     manager->DestroyRenderTarget(this);
 }
 

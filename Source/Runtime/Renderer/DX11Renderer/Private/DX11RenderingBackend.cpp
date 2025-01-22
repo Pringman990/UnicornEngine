@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "DX11RenderingBackend.h"
 
-#include <Application.h>
-#include <Windows/WindowsApplication.h>
+#include <Application/Application.h>
+#include <Application/Windows/WindowsApplication.h>
 #include "RenderTarget/DX11RenderTarget.h"
 #include "RenderTarget/DX11RenderTargetFactory.h"
 
@@ -11,8 +11,8 @@
 #include "Shader/DX11PixelShaderBackend.h"
 #include "Shader/DX11VertexShaderBackend.h"
 #include "DX11ShaderFactory.h"
-#include "Shader/ShaderResourceManager.h"
-#include "ResourceRegistry.h"
+#include "Shader/ShaderManager.h"
+#include "AssetRegistry.h"
 #include "ConstantBuffer/DX11ConstantBuffer.h"
 #include "Camera.h"
 

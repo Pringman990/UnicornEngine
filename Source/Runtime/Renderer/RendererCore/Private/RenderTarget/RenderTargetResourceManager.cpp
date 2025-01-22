@@ -15,6 +15,11 @@ RenderTargetResourceManager::~RenderTargetResourceManager()
 	mFactory = nullptr;
 }
 
+RenderTarget* RenderTargetResourceManager::LoadAsset()
+{
+	return nullptr;
+}
+
 RenderTarget* RenderTargetResourceManager::CreateRenderTarget(Vector2 aSize, bool EnableDepthTesting)
 {
 	_ENSURE_RENDERER((aSize.x > 0 && aSize.y > 0), "RenderTarget size needs to be bigger then (0,0)");

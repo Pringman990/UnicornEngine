@@ -19,12 +19,12 @@ using Microsoft::WRL::ComPtr;
 
 #include <Vertex.h>
 
-#include <ResourceRegistry.h>
+#include <AssetRegistry.h>
 #include <RenderTarget/RenderTargetResourceManager.h>
 
-#include <StandardTypes.h>
-#include <Logger.h>
-#include <Utility.h>
+#include <StandardTypes/StandardTypes.h>
+#include <Logger/Logger.h>
+#include <Utility/Utility.h>
 
 #include <SimpleMath.h>
 
