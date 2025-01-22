@@ -17,6 +17,10 @@ EditorWindowManager::~EditorWindowManager()
 	mActiveWindows.clear();
 }
 
+void EditorWindowManager::Shutdown()
+{
+}
+
 void EditorWindowManager::CreateWindow(const std::string& aWindowType)
 {
 	auto it = mRegisteredWindows.find(aWindowType);

@@ -4,12 +4,13 @@
 #include "EngineLoop.h"
 #include <MemoryDebugger/MemoryDebugger.h>
 #include <Reflection/ReflectionRegistry.h>
+#include <AssetRegistry.h>
 
 int32_t GuardedMain()
 {
 	_TRACK_MEMORY(true, true);
 	{
-		//AssetRegistry::Create();
+		AssetRegistry::Create();
 		Logger::Create();
 		Logger::GetInstance()->Init();
 
@@ -39,7 +40,7 @@ int32_t GuardedMain()
 		Timer::Shutdown();
 		Logger::Shutdown();
 	}
-	//AssetRegistry::Shutdown();
+	AssetRegistry::Shutdown();
 	_STOP_TRACK_MEMORY();
 
 	return 0;

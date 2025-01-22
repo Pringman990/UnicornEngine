@@ -49,11 +49,12 @@ bool Renderer::Init()
 	mShaderManager->Init();
 
 	AssetRegistry* registry = AssetRegistry::GetInstance();
+	
+	registry->RegisterManager<MeshResourceManager>();
+	registry->RegisterManager<MaterialResourceManager>();
 	MaterialResourceManager* materialManager = registry->GetManager<MaterialResourceManager>();
 	materialManager->Init();
-	//registry->GetManager<ShaderManager>()->Init();
-	//registry->RegisterManager<MaterialResourceManager>();
-	//registry->RegisterManager<MeshResourceManager>();
+	
 
 
 	if (!mRenderQueue->Init())
