@@ -19,16 +19,17 @@ project "Renderer"
 	includeDependencies("Renderer", 
 	{
 		dirs.Renderer,
-		"RendererCore",
 		"RawShaders",
-		"DX11Renderer",
+		"Core",
+		"DDSTextureLoader",
 	})
 
 	linkDependencies("Renderer", 
 	{
-		"RendererCore",
 		"RawShaders",
-		"DX11Renderer",
+		"DXGI",
+		"Core",
+		"DDSTextureLoader",
 	})
 
 	files {
@@ -38,9 +39,25 @@ project "Renderer"
 		"**.c"
 	}
 
+	defines{
+		"GRAPHICS_DEBUG_INFORMATION"
+	}
+
+	vpaths { ["Public/*"] = {"Public/**.h", "Public/**.hpp", "Public/**.c", "Public/**.cpp"} }
+	vpaths { ["Private/*"] = {"Private/**.h", "Private/**.hpp", "Private/**.c", "Private/**.cpp"}}
+
 	pchheader "pch.h"
 	pchsource "Private/pch.cpp"
 	forceincludes { "pch.h" }
 
-	vpaths { ["Public/*"] = {"Public/**.h", "Public/**.hpp", "Public/**.c", "Public/**.cpp"} }
-	vpaths { ["Private/*"] = {"Private/**.h", "Private/**.hpp", "Private/**.c", "Private/**.cpp"}}
+		if not os.isfile("Private/pch.h") then
+        io.writefile("Private/pch.h", 
+        "#pragma once\n" .. 
+        "#pragma message(\"pch Renderer!\")\n\n"
+        )
+    end
+   
+    if not os.isfile("Private/pch.cpp") then
+        io.writefile("Private/pch.cpp", 
+        "#include \"pch.h\"")
+    end

@@ -12,8 +12,8 @@
 #define SANDBOX_API 
 #endif // _WIN32
 
-#include <Mesh.h>
 #include <Math/Transform.h>
+#include <Camera.h>
 
 class GameWorld
 {
@@ -25,7 +25,7 @@ public:
 	void Render();
 
 private:
-	std::vector<std::pair<Mesh*, Transform>> mMeshes;
+	Camera mCamera;
 };
 
 extern "C" SANDBOX_API void InitGameWorld();

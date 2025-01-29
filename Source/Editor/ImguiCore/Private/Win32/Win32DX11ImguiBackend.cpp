@@ -2,7 +2,7 @@
 #include "Win32DX11ImguiBackend.h"
 
 #include <Application/Windows/WindowsApplication.h>
-#include <DX11RenderingBackend.h>
+#include <Renderer.h>
 
 Win32DX11ImguiBackend::Win32DX11ImguiBackend()
 {
@@ -57,10 +57,10 @@ bool Win32DX11ImguiBackend::Init()
 
 	windowsApp->AddWinProcObserver(this);
 
-	DX11RenderingBackend* dx11Renderer = static_cast<DX11RenderingBackend*>(Renderer::GetInstance()->GetRenderingBackend());
-	_ENSURE_EDITOR(dx11Renderer, "We are using win32 dx11 but renderer is not dx11?");
+	Renderer* renderer = Renderer::GetInstance();
+	_ENSURE_EDITOR(renderer, "We are using win32 dx11 but renderer is not dx11?");
 
-	if (!ImGui_ImplDX11_Init(dx11Renderer->GetDevice(), dx11Renderer->GetDeviceContext()))
+	if (!ImGui_ImplDX11_Init(renderer->GetDevice(), renderer->GetDeviceContext()))
 		return false;
 
 	return true;

@@ -1,13 +1,13 @@
 #include "pch.h"
 #include "SceneWindow.h"
 
-#include <Renderer.h>
+//#include <Renderer.h>
 #include <Timer/Timer.h>
-#include <Camera.h>
+//#include <Camera.h>
 
 SceneWindow::SceneWindow()
-	:
-	mSceneView(nullptr)
+	//:
+	//mSceneView(nullptr)
 {
 	mWindowDisplayName = "Scene";
 	mWindowCreationFlags = (
@@ -20,13 +20,13 @@ SceneWindow::SceneWindow()
 
 SceneWindow::~SceneWindow()
 {
-	mSceneView->Destroy();
+	//mSceneView->Destroy();
 }
 
 bool SceneWindow::Init()
 {
-	RenderTargetResourceManager* manager = AssetRegistry::GetInstance()->GetManager<RenderTargetResourceManager>();
-	mSceneView = manager->CreateRenderTarget(Vector2(128,128));
+	//RenderTargetResourceManager* manager = AssetRegistry::GetInstance()->GetManager<RenderTargetResourceManager>();
+	//mSceneView = manager->CreateRenderTarget(Vector2(128,128));
 	
 	return true;
 }
@@ -35,7 +35,7 @@ void SceneWindow::Render()
 {
 	mEditorCamera.Update(Timer::GetInstance()->GetDeltaTime());
 
-	mSceneView->Clear();
+//	mSceneView->Clear();
 
 	static ImVec2 lastWindowSize = ImVec2();
 	ImVec2 currentWindowSize = ImGui::GetWindowSize();
@@ -44,13 +44,13 @@ void SceneWindow::Render()
 	{
 		//TODO: Update camera projection matrix to match the new size.
 		//Also rember to always update the camera when changing to another rendertarget so the aspect ratio matches
-		mSceneView->Resize(Vector2(currentWindowSize.x, currentWindowSize.y));
-		mEditorCamera.GetCamera()->SetPerspective(90, (currentWindowSize.x / currentWindowSize.y), 0.001f, 1000.f);
-		lastWindowSize = currentWindowSize;
+	//	mSceneView->Resize(Vector2(currentWindowSize.x, currentWindowSize.y));
+	//	mEditorCamera.GetCamera()->SetPerspective(90, (currentWindowSize.x / currentWindowSize.y), 0.001f, 1000.f);
+	//	lastWindowSize = currentWindowSize;
 	}
 
-	mSceneView->Bind();
+//	mSceneView->Bind();
 
-	ImGui::SetCursorPos(ImVec2(0, 0));
-	ImGui::Image((ImTextureID)(intptr_t)mSceneView->GetTexture()->GetUnderlyingSRV(), currentWindowSize);
+	//ImGui::SetCursorPos(ImVec2(0, 0));
+	//ImGui::Image((ImTextureID)(intptr_t)mSceneView->GetTexture()->GetUnderlyingSRV(), currentWindowSize);
 }

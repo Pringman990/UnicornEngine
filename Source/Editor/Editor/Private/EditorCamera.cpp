@@ -1,14 +1,14 @@
 #include "pch.h"
 #include "EditorCamera.h"
 
-#include <Camera.h>
-#include <Renderer.h>
+//#include <Camera.h>
+//#include <Renderer.h>
 
 EditorCamera::EditorCamera()
 	:
 	mMoveSpeed(10),
-	mRotationSpeed(1),
-	mCamera(Renderer::GetInstance()->GetActiveCamera())
+	mRotationSpeed(1)
+	//mCamera(Renderer::GetInstance()->GetActiveCamera())
 {
 }
 
@@ -16,7 +16,7 @@ EditorCamera::~EditorCamera()
 {
 }
 
-void EditorCamera::Update(float aDeltaTime)
+void EditorCamera::Update(float /*aDeltaTime*/)
 {
 	if (!ImGui::IsKeyDown(ImGuiKey_MouseRight))
 	{
@@ -24,7 +24,7 @@ void EditorCamera::Update(float aDeltaTime)
 		return;
 	}
 
-	Transform& transform = mCamera->GetTransform();
+	/*Transform& transform = mCamera->GetTransform();
 	Matrix matrix = transform.GetMatrix();
 	Vector3 position = transform.GetPosition();
 	Vector3 right = matrix.Right();
@@ -81,7 +81,7 @@ void EditorCamera::Update(float aDeltaTime)
 	transform.SetRotation(smoothedRotation);
 
 	transform.SetPosition(position);
-	InputMapper::GetInstance()->CaptureMouse();
+	InputMapper::GetInstance()->CaptureMouse();*/
 }
 
 Camera* EditorCamera::GetCamera()

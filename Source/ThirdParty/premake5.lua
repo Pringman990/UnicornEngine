@@ -8,6 +8,7 @@ dirs["FBXSDK"]				= os.realpath(dirs.ThirdParty .. "FBXSDK/")
 dirs["Assimp"]				= os.realpath(dirs.ThirdParty .. "Assimp/")
 dirs["DDSTextureLoader"]	= os.realpath(dirs.ThirdParty .. "DDSTextureLoader/")
 dirs["Imgui"]				= os.realpath(dirs.ThirdParty .. "Imgui/")
+dirs["FastNoiseLite"]		= os.realpath(dirs.ThirdParty .. "FastNoiseLite/")
 
 group "ThirdParty"
 include (dirs.SimpleMath)
@@ -17,4 +18,5 @@ include (dirs.FBXSDK)
 include (dirs.Assimp)
 include (dirs.DDSTextureLoader)
 include (dirs.Imgui)
+include (dirs.FastNoiseLite)
 group ""

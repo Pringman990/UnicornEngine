@@ -1,6 +1,6 @@
 #pragma once
 #include "EditorWindow.h"
-#include <RenderTarget/RenderTarget.h>
+//#include <RenderTarget/RenderTarget.h>
 #include "EditorCamera.h"
 
 class SceneWindow : public EditorWindow
@@ -13,8 +13,8 @@ public:
 	virtual void Render() override;
 
 private:
-	RenderTarget* mSceneView;
+	//RenderTarget* mSceneView;
 	EditorCamera mEditorCamera;
 };
 
-REGISTER_EDITORWINDOW(SceneWindow)
+//REGISTER_EDITORWINDOW(SceneWindow)
