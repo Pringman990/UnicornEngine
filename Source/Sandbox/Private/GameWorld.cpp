@@ -21,6 +21,7 @@
 #include <Voxel.h>
 #include <Texture.h>
 #include <Mesh.h>
+#include <Threading/ThreadPool.h>
 
 
 namespace {
@@ -32,6 +33,7 @@ namespace {
 	std::shared_ptr<Mesh> cube;
 	std::vector<Chunk> chunks;
 	std::vector<std::shared_ptr<Mesh>> testMesh;
+	std::mutex chunksMutex;
 }
 
 GameWorld::GameWorld()
@@ -40,6 +42,18 @@ GameWorld::GameWorld()
 
 GameWorld::~GameWorld()
 {
+}
+
+void GenerateAndStoreChunk(int Count) {
+	std::vector<Chunk> chunks2 = ChunkGenerator::GenerateChunksFromPerlin(Count);
+
+	// Lock and store the chunk safely
+	std::lock_guard<std::mutex> lock(chunksMutex);
+	for (size_t i = 0; i < chunks2.size(); i++)
+	{
+		chunks2[i].RemoveOccludedVoxels();
+		testMesh.push_back(ChunkMesher::MeshifyChunk(chunks2[i]));
+	}
 }
 
 void GameWorld::Init()
@@ -51,7 +65,9 @@ void GameWorld::Init()
 	mCamera.GetTransform().SetPosition({ 0,0,-5 });
 	Renderer::GetInstance()->SetMainCamera(&mCamera);
 
-	chunks = ChunkGenerator::GenerateChunksFromPerlin(20);
+	ThreadPool::GetInstance()->Enqueue([](){ GenerateAndStoreChunk(10); });
+
+//	chunks = ChunkGenerator::GenerateChunksFromPerlin(20);
 	//chunks[0].RemoveOccludedVoxels();
 	//mainRayShader.Init(
 	//	"../../Binaries/Shaders/PrimaryRay_CS.cso", 
@@ -61,11 +77,11 @@ void GameWorld::Init()
 	//	720,
 	//	&chunks[0].voxels
 	//);
-	for (int i = 0; i < chunks.size(); i++)
-	{
-		chunks[i].RemoveOccludedVoxels();
-		testMesh.push_back(ChunkMesher::MeshifyChunk(chunks[i]));
-	}
+	//for (int i = 0; i < chunks.size(); i++)
+	//{
+	//	//chunks[i].RemoveOccludedVoxels();
+	//	testMesh.push_back(ChunkMesher::MeshifyChunk(chunks[i]));
+	//}
 
 	std::vector<Vertex> vertices =
 	{

@@ -4,6 +4,7 @@
 #include "EngineLoop.h"
 #include <MemoryDebugger/MemoryDebugger.h>
 #include <Reflection/ReflectionRegistry.h>
+#include <Threading/ThreadPool.h>
 
 int32_t GuardedMain()
 {
@@ -12,6 +13,8 @@ int32_t GuardedMain()
 		//AssetRegistry::Create();
 		Logger::Create();
 		Logger::GetInstance()->Init();
+
+		ThreadPool::Create();
 
 		EngineLoop engineLoop;
 
@@ -37,6 +40,7 @@ int32_t GuardedMain()
 
 		ReflectionRegistry::Shutdown();
 		Timer::Shutdown();
+		ThreadPool::Shutdown();
 		Logger::Shutdown();
 	}
 	//AssetRegistry::Shutdown();
