@@ -63,6 +63,7 @@ Logger::~Logger()
 		});
 
 	spdlog::drop("Core");
+	spdlog::drop("Engine");
 	spdlog::drop("Editor");
 	spdlog::drop("Renderer");
 	spdlog::drop("Client");
@@ -79,6 +80,7 @@ void Logger::Init()
 #endif // _DEBUG
 
 	mCoreLogger		= spdlog::basic_logger_mt("Core", "../Logs/core_log.txt");
+	mEngineLogger	= spdlog::basic_logger_mt("Engine", "../Logs/engine_log.txt");
 	mEditorLogger	= spdlog::basic_logger_mt("Editor", "../Logs/editor_log.txt");
 	mRendererLogger = spdlog::basic_logger_mt("Renderer", "../Logs/renderer_log.txt");
 	mClientLogger	= spdlog::basic_logger_mt("Client", "../Logs/client_log.txt");
@@ -90,6 +92,13 @@ void Logger::Init()
 	coreSink->add_sink(mainSink);
 #ifdef _DEBUG
 	coreSink->add_sink(consoleCustomSink);
+#endif // _DEBUG
+
+	auto engineSink = std::make_shared<spdlog::sinks::dist_sink_mt>();
+	engineSink->add_sink(mEngineLogger->sinks()[0]);
+	engineSink->add_sink(mainSink);
+#ifdef _DEBUG
+	engineSink->add_sink(consoleCustomSink);
 #endif // _DEBUG
 
 	auto rendererSink = std::make_shared<spdlog::sinks::dist_sink_mt>();
@@ -115,6 +124,9 @@ void Logger::Init()
 
 	mCoreLogger->sinks().clear();
 	mCoreLogger->sinks().push_back(coreSink);
+
+	mEngineLogger->sinks().clear();
+	mEngineLogger->sinks().push_back(engineSink);
 
 	mEditorLogger->sinks().clear();
 	mEditorLogger->sinks().push_back(editorSink);

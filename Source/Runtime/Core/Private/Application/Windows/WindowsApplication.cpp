@@ -82,7 +82,7 @@ LRESULT WindowsApplication::ProccessWindowsMessages(HWND hWnd, UINT message, WPA
 	{
 	case WM_SIZE:
 	{
-		//DX11RenderingBackend::GetInstance().ResizeBackBuffer(LOWORD(lParam), HIWORD(lParam));
+		//Renderer::GetInstance().ResizeBackBuffer(LOWORD(lParam), HIWORD(lParam));
 		break;
 	}
 	case WM_DESTROY:

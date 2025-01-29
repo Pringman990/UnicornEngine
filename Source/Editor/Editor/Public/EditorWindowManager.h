@@ -1,12 +1,18 @@
 #pragma once
-#include <Singleton.h>
 
 class EditorWindow;
 
-class EditorWindowManager : public Singleton<EditorWindowManager>
+class EditorWindowManager
 {
 public:
-	using WindowCreator = std::function<EditorWindow*()>;
+	using WindowCreator = std::function<EditorWindow* ()>;
+
+	static EditorWindowManager* GetInstance()
+	{
+		static EditorWindowManager instance;
+		return &instance;
+	}
+	void Shutdown() {};
 
 	void RegisterWindowType(const std::string& aType, WindowCreator aCreator) {
 		mRegisteredWindows[aType] = std::move(aCreator);
@@ -25,4 +31,3 @@ private:
 	std::unordered_map<std::string, WindowCreator> mRegisteredWindows;
 	std::vector<EditorWindow*> mActiveWindows;
 };
-

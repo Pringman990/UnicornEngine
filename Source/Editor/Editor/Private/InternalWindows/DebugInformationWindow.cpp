@@ -2,7 +2,7 @@
 #include "DebugInformationWindow.h"
 
 #include <Timer/Timer.h>
-#include <Renderer.h>
+//#include <Renderer.h>
 
 DebugInformationWindow::DebugInformationWindow()
 {
@@ -20,12 +20,12 @@ bool DebugInformationWindow::Init()
 
 void DebugInformationWindow::Render()
 {
-    static bool vsync = Renderer::GetInstance()->IsVsyncEnabled();
+    //static bool vsync = Renderer::GetInstance()->IsVsyncEnabled();
 
-    if (ImGui::Checkbox("Vsync", &vsync))
-    {
-        Renderer::GetInstance()->SetVsync(vsync);
-    }
+    //if (ImGui::Checkbox("Vsync", &vsync))
+    //{
+    //    Renderer::GetInstance()->SetVsync(vsync);
+    //}
 
     std::string fps = "FPS: ";
     fps += std::to_string(Timer::GetInstance()->GetFps());

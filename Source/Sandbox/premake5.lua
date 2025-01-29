@@ -24,6 +24,7 @@ project "Sandbox"
 		"AssetCore",
 		"Renderer",
 		"Singleton",
+		"Engine",
 		"Core"
 	})
 
@@ -32,6 +33,7 @@ project "Sandbox"
 		"AssetCore",
 		"Renderer",
 		"Singleton",
+		"Engine",
 		"Core"
 	})
 

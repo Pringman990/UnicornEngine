@@ -12,6 +12,7 @@ public:
 	void Init();
 
 	inline std::shared_ptr<spdlog::logger>& GetCore()  { return mCoreLogger;};
+	inline std::shared_ptr<spdlog::logger>& GetEngine()  { return mEngineLogger;};
 	inline std::shared_ptr<spdlog::logger>& GetClient() { return mClientLogger; };
 	inline std::shared_ptr<spdlog::logger>& GetEditor() { return mEditorLogger; };
 	inline std::shared_ptr<spdlog::logger>& GetRenderer() { return mRendererLogger; };
@@ -23,6 +24,7 @@ private:
 private:
 
 	std::shared_ptr<spdlog::logger> mCoreLogger;
+	std::shared_ptr<spdlog::logger> mEngineLogger;
 	std::shared_ptr<spdlog::logger> mRendererLogger;
 	std::shared_ptr<spdlog::logger> mEditorLogger;
 	std::shared_ptr<spdlog::logger> mClientLogger;
@@ -70,6 +72,27 @@ private:
 #define _LOG_CORE_CRITICAL(...) \
     _PAUSE_TRACK_MEMORY(true); \
     ::Logger::GetInstance()->GetCore()->critical(__VA_ARGS__); \
+    _PAUSE_TRACK_MEMORY(false)
+
+//Engine Logs
+#define _LOG_ENGINE_INFO(...) \
+    _PAUSE_TRACK_MEMORY(true); \
+    ::Logger::GetInstance()->GetEngine()->info(__VA_ARGS__); \
+    _PAUSE_TRACK_MEMORY(false)
+
+#define _LOG_ENGINE_WARNING(...) \
+    _PAUSE_TRACK_MEMORY(true); \
+    ::Logger::GetInstance()->GetEngine()->warn(__VA_ARGS__); \
+    _PAUSE_TRACK_MEMORY(false)
+
+#define _LOG_ENGINE_ERROR(...) \
+    _PAUSE_TRACK_MEMORY(true); \
+    ::Logger::GetInstance()->GetEngine()->error(__VA_ARGS__); \
+    _PAUSE_TRACK_MEMORY(false)
+
+#define _LOG_ENGINE_CRITICAL(...) \
+    _PAUSE_TRACK_MEMORY(true); \
+    ::Logger::GetInstance()->GetEngine()->critical(__VA_ARGS__); \
     _PAUSE_TRACK_MEMORY(false)
 
 //Renderer Logs
@@ -125,6 +148,11 @@ private:
 #define _LOG_CORE_ERROR(...) (void)(0)
 #define _LOG_CORE_CRITICAL(...)
 
+#define _LOG_ENGINE_INFO(...) (void)(0)
+#define _LOG_ENGINE_WARNING(...) (void)(0)
+#define _LOG_ENGINE_ERROR(...) (void)(0)
+#define _LOG_ENGINE_CRITICAL(...)
+
 #define _LOG_RENDERER_INFO(...) (void)(0)
 #define _LOG_RENDERER_WARNING(...) (void)(0)
 #define _LOG_RENDERER_ERROR(...) (void)(0)
@@ -159,6 +187,17 @@ private:
         }                                                          \
     } while (0)
 
+#define _ENSURE_ENGINE(condition, message)								   \
+ do {															   \
+        if (!(condition)) {                                        \
+           _LOG_ENGINE_CRITICAL("Assertion failed: {}, File: {}, Line: {}",				\
+						message,								\
+                        __FILE__,						\
+                        __LINE__ );				\
+            __debugbreak(); /* Triggers a breakpoint in VS */      \
+        }                                                          \
+    } while (0)
+
 #define _ENSURE_RENDERER(condition, message)								   \
  do {															   \
         if (!(condition)) {                                        \
@@ -183,6 +222,7 @@ private:
 #else
 #define ENSURE(cond, msg) ((void)0)
 #define _ENSURE_CORE(cond, msg) ((void)0)
+#define _ENSURE_ENGINE(cond, msg) ((void)0)
 #define _ENSURE_RENDERER(cond, msg) ((void)0)
 #define _ENSURE_EDITOR(cond, msg) ((void)0)
 #endif

@@ -14,7 +14,7 @@ Editor::Editor()
 
 Editor::~Editor()
 {
-	EditorWindowManager::Shutdown();
+	EditorWindowManager::GetInstance()->Shutdown();
 
 	delete mImguiBackend;
 	mImguiBackend = nullptr;

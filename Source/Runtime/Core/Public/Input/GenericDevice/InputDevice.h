@@ -1,4 +1,5 @@
 #pragma once
+#include <SimpleMath.h>
 
 class InputMapper;
 

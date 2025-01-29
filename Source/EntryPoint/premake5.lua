@@ -30,12 +30,14 @@ project "EntryPoint"
 		dirs.EntryPoint .. "Public",
 		"Core",
 		"Renderer",
+		"Engine",
 	})
 
 	linkDependencies("EntryPoint", 
 	{
 		"Core",
 		"Renderer",
+		"Engine",
 	})
 
 	filter("configurations:Debug Editor")

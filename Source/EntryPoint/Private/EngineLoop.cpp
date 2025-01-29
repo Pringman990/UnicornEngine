@@ -2,12 +2,12 @@
 
 #include <Application/Application.h>
 #include <Application/Generic/GenericApplication.h>
-#include <Renderer.h>
-#include <RendererFactory.h>
 
 #include <EventDispatcher/EventDispatcher.h>
-#include <AssetRegistry.h>
+//#include <AssetRegistry.h>
 #include <Input/InputMapper.h>
+#include <Renderer.h>
+#include <StandardTypes/StandardTypes.h>
 
 #include <Logger/Logger.h>
 #include <Timer/Timer.h>
@@ -24,8 +24,8 @@ EngineLoop::EngineLoop()
 	mGenericApplication(nullptr),
 	mRenderer(nullptr),
 	mSandboxRender(nullptr),
-	mSandBoxModule()
-
+	mSandBoxModule(),
+	mFileWatcher(nullptr)
 {
 }
 
@@ -36,8 +36,9 @@ EngineLoop::~EngineLoop()
 	mEditor = nullptr;
 #endif // _EDITOR
 
-	Renderer::Shutdown();
+	FreeLibrary(mSandBoxModule);
 	InputMapper::Shutdown();
+	Renderer::Shutdown();
 	FileWatcher::Shutdown();
 	Application::Shutdown();
 	EventDispatcher::Shutdown();
@@ -45,7 +46,6 @@ EngineLoop::~EngineLoop()
 	mRenderer = nullptr;
 	mGenericApplication = nullptr;
 
-	FreeLibrary(mSandBoxModule);
 }
 
 bool EngineLoop::Init()
@@ -83,8 +83,8 @@ bool EngineLoop::Init()
 		_PAUSE_TRACK_MEMORY(true); // We turn off tracking because there is a phantom memory leak
 		Renderer::Create();
 		_PAUSE_TRACK_MEMORY(false);
-		mRenderer = RendererFactory::CreateRenderer();
-		_ENSURE_CORE(mRenderer, "Engine Loop Failed To Create Renderer");
+		mRenderer = Renderer::GetInstance();
+		//_ENSURE_CORE(mRenderer, "Engine Loop Failed To Create Renderer");
 
 		_LOG_CORE_INFO("Renderer Initilizing");
 		TIMER_START_READING("__Engine Loop Renderer Init__");
@@ -180,6 +180,7 @@ void EngineLoop::Update()
 
 	mRenderer->PreRender();
 
+	mRenderer->RenderToBackbuffer();
 	mSandboxRender();
 
 #ifdef _EDITOR
@@ -187,9 +188,8 @@ void EngineLoop::Update()
 	mEditor->Render();
 #endif // _EDITOR
 
-	mRenderer->GetRenderQueue()->Execute();
+	//mRenderer->GetRenderQueue()->Execute();
 
-	mRenderer->RenderToBackbuffer();
 
 #ifdef _EDITOR
 	mEditor->EndFrame();
