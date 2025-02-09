@@ -15,7 +15,7 @@ int32_t GuardedMain()
 		Logger::GetInstance()->Init();
 
 		ThreadPool::Create();
-
+		ThreadPool* threadPool = ThreadPool::GetInstance();
 		EngineLoop engineLoop;
 
 		Timer::Create();
@@ -31,8 +31,10 @@ int32_t GuardedMain()
 		//This is the main loop for the whole engine
 		while (engineLoop.EngineLoopClose())
 		{
+			threadPool->ProcessCallbacks();
 			timer->Update();
 			engineLoop.Update();
+			threadPool->ProcessCallbacks();
 		}
 
 		_LOG_CORE_INFO("Main loop exited, starting cleanup");

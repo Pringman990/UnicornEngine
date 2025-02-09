@@ -1,10 +1,11 @@
 #include "Common.hlsli"
 
-ModelPixelInputType main(ModelVertexInputType input)
+MeshPixelInput main(MeshVertexInput input)
 {
-    ModelPixelInputType result;
+    MeshPixelInput result;
     
     result.position = input.position;
+    result.worldPosition = input.position;
     result.uv = input.uv;
     return result;
 }

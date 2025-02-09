@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "RenderTarget.h"
 
-#include "Texture.h"
+#include "Texture2D.h"
 
 RenderTarget::RenderTarget()
     :

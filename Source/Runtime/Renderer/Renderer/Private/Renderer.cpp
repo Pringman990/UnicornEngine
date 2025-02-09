@@ -6,10 +6,11 @@
 
 #include "RenderTarget.h"
 #include "ConstantBuffer/ConstantBuffer.h"
+#include "RendererWindowsMessageObserver.h"
 
 #include "Vertex.h"
 #include "Camera.h"
-#include "Texture.h"
+#include "Texture2D.h"
 
 Renderer::Renderer()
 	:
@@ -39,6 +40,8 @@ Renderer::~Renderer()
 	delete mObjConstant;
 	mObjConstant = nullptr;
 	
+	delete mWindowsMessageObserver;
+	mWindowsMessageObserver = nullptr;
 
 #ifdef _MEMORY_DEBUG
 	Microsoft::WRL::ComPtr<ID3D11Debug> debug;
@@ -86,6 +89,12 @@ bool Renderer::Init()
 		return false;
 	}
 
+	if (!SetupRasterizerState())
+	{
+		_LOG_RENDERER_CRITICAL("Failed to setup rasterizerstate");
+		return false;
+	}
+
 	mDefaultCamera = new Camera();
 	mDefaultCamera->SetPerspective(90, (16 / 9), 0.001f, 1000.f);
 
@@ -102,7 +111,16 @@ bool Renderer::Init()
 	objBuffer.modelToWorld = Matrix();
 	mObjConstant->Init(sizeof(ObjectConstantBufferData), &objBuffer);
 	mObjConstant->Bind(ConstantBuffers::eObjectConstantBuffer);
+	
+	mWindowsMessageObserver = new RendererWindowsMessageObserver();
+	windowsApp->AddWinProcObserver(mWindowsMessageObserver);
 
+	mLightConstant = new ConstantBuffer();
+	LightConstantBufferData lightBuffer;
+	lightBuffer.directionalLightDirection = Vector4(0,1,0,1);
+	lightBuffer.directionalLightColorAndIntensity = Color(1, 1,1,1.f);
+	mLightConstant->Init(sizeof(LightConstantBufferData), &lightBuffer);
+	mLightConstant->Bind(ConstantBuffers::eLightConstantBuffer);
 	return true;
 }
 
@@ -147,10 +165,34 @@ void Renderer::Present()
 	mSwapChain->Present(mVsync, 0);
 }
 
-void Renderer::UpdateObjectBuffer(const Matrix& aMatrix)
+void Renderer::DisableDepthWriting()
+{
+	mDeviceContext->OMSetDepthStencilState(mDSSWriteZero.Get(), 1);
+}
+
+void Renderer::EnableDepthWriting()
+{
+	mDeviceContext->OMSetDepthStencilState(mBackBuffer->GetDSS(), 1);
+}
+
+void Renderer::ResizeBackbuffer(int32 aWidth, int32 aHeight)
+{
+	if (mSwapChain != nullptr && mBackBuffer != nullptr)
+	{
+		mBackBuffer->Release();
+		mSwapChain->ResizeBuffers(0, aWidth, aHeight, DXGI_FORMAT_UNKNOWN, 0);
+		WindowsApplication* application = static_cast<WindowsApplication*>(Application::GetInstance()->GetApplication());
+		if (!SetupBackBufferAndDepthBuffer(application))
+			return;
+	}
+}
+
+void Renderer::UpdateObjectBuffer(const Matrix& aMatrix, const float3& aMinBounds, const float3& aMaxBounds)
 {
 	ObjectConstantBufferData objBuffer;
 	objBuffer.modelToWorld = aMatrix;
+	objBuffer.objectMinBounds = aMinBounds;
+	objBuffer.objectMaxBounds = aMaxBounds;
 	mObjConstant->UpdateData(&objBuffer);
 	mObjConstant->Bind(ConstantBuffers::eObjectConstantBuffer);
 }
@@ -158,6 +200,11 @@ void Renderer::UpdateObjectBuffer(const Matrix& aMatrix)
 void Renderer::SetMainCamera(Camera* aCamera)
 {
 	mCurrentCamera = aCamera;
+}
+
+Camera* Renderer::GetMainCamera()
+{
+	return mCurrentCamera;
 }
 
 #pragma region INTERNAL_FUNCTIONS
@@ -290,6 +337,18 @@ bool Renderer::SetupBackBufferAndDepthBuffer(WindowsApplication* aApp)
 	mBackBuffer = RenderTarget::Create(backBufferTexture, true);
 	_ENSURE_RENDERER(mBackBuffer, "Failed to create backbuffer");
 
+	D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
+	depthStencilDesc.DepthEnable = true;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+
+	result = mDevice->CreateDepthStencilState(&depthStencilDesc, mDSSWriteZero.GetAddressOf());
+	if (FAILED(result))
+	{
+		_LOG_RENDERER_ERROR("Failed to create mDSSWriteZero: {}", result);
+		return false;
+	}
+
 	return true;
 }
 
@@ -318,6 +377,30 @@ bool Renderer::SetupSamplerState()
 
 	mDeviceContext->PSSetSamplers(0, 1, mSamplerState.GetAddressOf());
 
+	return true;
+}
+
+bool Renderer::SetupRasterizerState()
+{
+	D3D11_RASTERIZER_DESC rastDesc = {};
+	rastDesc.FillMode = D3D11_FILL_SOLID;               // Fill triangles
+	rastDesc.CullMode = D3D11_CULL_NONE;
+	rastDesc.FrontCounterClockwise = FALSE;             // Front face is clockwise
+	rastDesc.DepthBias = 0;
+	rastDesc.SlopeScaledDepthBias = 0.0f;
+	rastDesc.DepthBiasClamp = 0.0f;
+	rastDesc.ScissorEnable = FALSE;
+	rastDesc.MultisampleEnable = FALSE;
+	rastDesc.AntialiasedLineEnable = FALSE;
+
+	ID3D11RasterizerState* state = nullptr;
+	HRESULT hr = mDevice->CreateRasterizerState(&rastDesc, &state);
+	if (FAILED(hr))
+	{
+		_LOG_RENDERER_CRITICAL("Failed to setup Device: {}", hr);
+		return false;
+	}
+	mDeviceContext->RSSetState(state);
 	return true;
 }
 
@@ -356,4 +439,47 @@ ID3D11SamplerState** Renderer::GetAdressOfSamplerState()
 const GraphicsCardInfo& Renderer::GetGraphicsCardInfo() const
 {
 	return mGrapicsCardInfo;
+}
+
+ComPtr<ID3D11Buffer> Renderer::CreateIndexBuffer(const std::vector<uint32>& aIndexArray)
+{
+	ComPtr<ID3D11Buffer> buffer;
+
+	D3D11_BUFFER_DESC indexBufferDesc{};
+	indexBufferDesc.ByteWidth = static_cast<UINT>(aIndexArray.size()) * static_cast<UINT>(sizeof(uint32));
+	indexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+	D3D11_SUBRESOURCE_DATA indexSubresourceData{};
+	indexSubresourceData.pSysMem = &aIndexArray[0];
+
+	HRESULT hr = mDevice->CreateBuffer(&indexBufferDesc, &indexSubresourceData, buffer.GetAddressOf());
+	if (FAILED(hr))
+	{
+		_LOG_RENDERER_ERROR("Failed to create index buffer. HRESULT: {}", hr);
+		return nullptr;
+	}
+	return buffer;
+}
+
+ComPtr<ID3D11Buffer> Renderer::CreateVertexBuffer(const std::vector<Vertex>& aVertexArray)
+{
+	ComPtr<ID3D11Buffer> buffer;
+
+	D3D11_BUFFER_DESC vertexBufferDesc{};
+	vertexBufferDesc.ByteWidth = static_cast<UINT>(aVertexArray.size()) * static_cast<UINT>(sizeof(Vertex));
+	vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+	D3D11_SUBRESOURCE_DATA vertexSubresourceData{};
+	vertexSubresourceData.pSysMem = &aVertexArray[0];
+
+	HRESULT hr = mDevice->CreateBuffer(&vertexBufferDesc, &vertexSubresourceData, buffer.GetAddressOf());
+	if (FAILED(hr))
+	{
+		_LOG_RENDERER_ERROR("Failed to create vertex buffer. HRESULT: {}", hr);
+		return nullptr;
+	}
+
+	return buffer;
 }

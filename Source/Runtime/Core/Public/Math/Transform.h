@@ -6,7 +6,7 @@ class Transform
 public:
 	bool operator != (const Transform& V) const noexcept;
 public:
-	Transform() = default;
+	Transform() : mPosition(Vector3(0, 0, 0)), mQRotation(Quaternion(0,0,0,0)), mScale(Vector3(1,1,1)) {};
 	Transform(Vector3 aPosition, Quaternion aQRotation, Vector3 aScale)
 		:
 		mPosition(aPosition),
@@ -45,6 +45,7 @@ public:
 		return result;
 	}
 
+	static const Transform Identity;
 private:
 	Vector3 mPosition = {};
 	Vector3 mScale = { 1,1,1 };

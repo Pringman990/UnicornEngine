@@ -2,6 +2,7 @@
 #include "ChunkGenerator.h"
 
 #include <FastNoiseLite.h>
+#include <Utility/Array3D.h>
 
 ChunkGenerator::ChunkGenerator()
 {
@@ -11,57 +12,45 @@ ChunkGenerator::~ChunkGenerator()
 {
 }
 
-std::vector<Chunk> ChunkGenerator::GenerateChunksFromPerlin(const uint32& aSize)
+ChunkLoadData* ChunkGenerator::GenerateChunkFromPerlin(const int32& aWorldX, const int32& aWorldZ)
 {
 	FastNoiseLite fn;
+	fn.SetFrequency(0.03f);
 
-	std::vector<Chunk> chunks(aSize * aSize);
-	for (uint32 noiseY = 0; noiseY < aSize; noiseY++)
+	ChunkLoadData* chunkData = new ChunkLoadData();
+	chunkData->position = Vector3((float)aWorldX * VOXEL_SIZE, 0.0f, (float)aWorldZ * VOXEL_SIZE);
+	chunkData->scale = Vector3(Vector3(CHUNK_SIZE_XZ * VOXEL_SIZE, CHUNK_SIZE_Y * VOXEL_SIZE, CHUNK_SIZE_XZ * VOXEL_SIZE));
+	chunkData->voxelData.Resize(CHUNK_SIZE_XZ, CHUNK_SIZE_Y, CHUNK_SIZE_XZ);
+
+	for (int x = 0; x < CHUNK_SIZE_XZ; ++x)
 	{
-		for (uint32 noiseX = 0; noiseX < aSize; noiseX++)
+		for (int z = 0; z < CHUNK_SIZE_XZ; ++z)
 		{
-			uint32 index = noiseY * aSize + noiseX;
+			float worldX = (aWorldX + x) * ((CHUNK_SIZE_XZ * VOXEL_SIZE) / CHUNK_SIZE_XZ);
+			float worldZ = (aWorldZ  + z) * ((CHUNK_SIZE_XZ * VOXEL_SIZE) / CHUNK_SIZE_XZ);
 
-			chunks[index].position = Vector3((float)(noiseX * CHUNK_SIZE), 0.0f, (float)(noiseY * CHUNK_SIZE)) * VOXEL_SIZE;
+			float noiseValue = fn.GetNoise(worldX, worldZ);
+			int terrainHeight = static_cast<int>(((noiseValue + 1.0f) * 0.5f) * CHUNK_SIZE_Y);
 
-			for (int x = 0; x < CHUNK_SIZE; ++x)
+			for (int y = 0; y < CHUNK_SIZE_Y; ++y)
 			{
-				for (int z = 0; z < CHUNK_SIZE; ++z)
+				if (y <= terrainHeight)
 				{
-					float worldX = (float)(noiseX * CHUNK_SIZE + x) * VOXEL_SIZE;
-					float worldZ = (float)(noiseY * CHUNK_SIZE + z) * VOXEL_SIZE;
-
-					float noiseValue = fn.GetNoise(worldX, worldZ);
-					int terrainHeight = static_cast<int32>((noiseValue + 1.0f) * 0.5f * CHUNK_SIZE);
-					
-					for (int y = 0; y < CHUNK_SIZE; ++y)
+					if (y == terrainHeight)
 					{
-						Voxel& voxel = chunks[index].GetVoxel(x, y, z);
-						voxel.worldPosition = Vector3(worldX, (float)y * VOXEL_SIZE, worldZ);
-						voxel.color = Color(1, 1, 1, 1.0f); //Default
-						
-						if (y <= terrainHeight)
-						{
-							voxel.isSolid = 1;
-							if (y == terrainHeight)
-							{
-								voxel.color = Color(0.0f, 0.8f, 0.0f, 1.0f); // Green (RGBA)
-							}
-							else
-							{
-								voxel.color = Color(0.6f, 0.3f, 0.0f, 1.0f); // Brown (RGBA)
-							}
-						}
-						else
-						{
-							voxel.isSolid = 0;
-						}
+						chunkData->voxelData.At(x,y,z) = 1;
 					}
+					else
+					{
+						chunkData->voxelData.At(x,y,z) = 2;
+					}
+				}
+				else
+				{
+					chunkData->voxelData.At(x, y, z) = 0; // Air
 				}
 			}
 		}
 	}
-
-
-	return chunks;
+	return chunkData;
 }

@@ -4,7 +4,7 @@
 class ChunkGenerator
 {
 public:
-	static std::vector<Chunk> GenerateChunksFromPerlin(const uint32& aSize);
+	static ChunkLoadData* GenerateChunkFromPerlin(const int32& aWorldX, const int32& aWorldZ);
 
 private:
 	ChunkGenerator();

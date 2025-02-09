@@ -84,7 +84,7 @@ bool EngineLoop::Init()
 		Renderer::Create();
 		_PAUSE_TRACK_MEMORY(false);
 		mRenderer = Renderer::GetInstance();
-		//_ENSURE_CORE(mRenderer, "Engine Loop Failed To Create Renderer");
+		_ENSURE_CORE(mRenderer, "Engine Loop Failed To Create Renderer");
 
 		_LOG_CORE_INFO("Renderer Initilizing");
 		TIMER_START_READING("__Engine Loop Renderer Init__");

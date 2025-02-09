@@ -22,6 +22,7 @@ project "Renderer"
 		"RawShaders",
 		"Core",
 		"DDSTextureLoader",
+		"Assimp",
 	})
 
 	linkDependencies("Renderer", 
@@ -30,6 +31,7 @@ project "Renderer"
 		"DXGI",
 		"Core",
 		"DDSTextureLoader",
+		"Assimp",
 	})
 
 	files {

@@ -12,7 +12,7 @@ enum FaceType
 };
 
 void AddFace(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices,
-    float x, float y, float z, FaceType faceType, Color /*color*/)
+    float x, float y, float z, FaceType faceType)
 {
     Vector3 basePosition = Vector3(x, y, z) * VOXEL_SIZE; // Scale position
     Vector3 faceVertices[4];
@@ -72,7 +72,7 @@ void AddFace(std::vector<Vertex>& vertices, std::vector<uint32_t>& indices,
     int indexStart = (int)vertices.size();
     for (int i = 0; i < 4; ++i) {
         Vector4 pos = Vector4(faceVertices[i], 1);
-        vertices.push_back({ pos, Vector2()});
+        vertices.push_back({ pos});
     }
 
     // Add indices (two triangles per face)

@@ -14,6 +14,7 @@ struct ID3D11DepthStencilState;
 struct ID3D11SamplerState;
 struct IDXGIAdapter3;
 struct ID3D11Texture2D;
+struct ID3D11Buffer;
 
 struct Chunk;
 struct Vertex;
@@ -23,6 +24,7 @@ class RenderTarget;
 class Camera;
 
 class ConstantBuffer;
+class RendererWindowsMessageObserver;
 
 struct GraphicsCardInfo
 {
@@ -46,9 +48,15 @@ public:
 	void CopyTextureToBackbuffer(ID3D11Texture2D* aTexture);
 	void Present();
 
-	void UpdateObjectBuffer(const Matrix& aMatrix);
+	void DisableDepthWriting();
+	void EnableDepthWriting();
+
+	void ResizeBackbuffer(int32 aWidth, int32 aHeight);
+
+	void UpdateObjectBuffer(const Matrix& aMatrix, const float3& aMinBounds, const float3& aMaxBounds);
 
 	void SetMainCamera(Camera* aCamera);
+	Camera* GetMainCamera();
 
 	ID3D11Device* GetDevice();
 	ID3D11DeviceContext* GetDeviceContext();
@@ -59,6 +67,9 @@ public:
 
 	const GraphicsCardInfo& GetGraphicsCardInfo() const;
 
+	ComPtr<ID3D11Buffer> CreateIndexBuffer(const std::vector<uint32>& aIndexArray);
+	ComPtr<ID3D11Buffer> CreateVertexBuffer(const std::vector<Vertex>& aVertexArray);
+
 private:
 	Renderer();
 	~Renderer();
@@ -67,11 +78,13 @@ private:
 	bool SetupSwapChain(WindowsApplication* aApp);
 	bool SetupBackBufferAndDepthBuffer(WindowsApplication* aApp);
 	bool SetupSamplerState();
+	bool SetupRasterizerState();
 private:
 	ComPtr<ID3D11Device> mDevice;
 	ComPtr<ID3D11DeviceContext> mDeviceContext;
 	ComPtr<IDXGISwapChain1> mSwapChain;
 	ComPtr<ID3D11SamplerState> mSamplerState;
+	ComPtr<ID3D11DepthStencilState> mDSSWriteZero;
 #ifdef _DEBUG
 	ComPtr<IDXGIAdapter3> mAdapter3;
 #endif
@@ -79,9 +92,12 @@ private:
 	GraphicsCardInfo mGrapicsCardInfo;
 	ConstantBuffer* mObjConstant = nullptr; 
 	ConstantBuffer* mCamConstant = nullptr; 
+	ConstantBuffer* mLightConstant = nullptr; 
 	Camera* mDefaultCamera = nullptr; 
 	Camera* mCurrentCamera = nullptr; 
 	
+	RendererWindowsMessageObserver* mWindowsMessageObserver;
+
 	RenderTarget* mBackBuffer;
 	Color mClearColor;
 	bool mVsync;
