@@ -9,22 +9,43 @@ cbuffer CameraConstantBuffer : register(b0)
 cbuffer ObjectConstantBuffer : register(b1)
 {
     float4x4 modelToWorld;
+    float3 objectMinBounds;
+    float pad2;
+    float3 objectMaxBounds;
+    float pad1;
 }
 
-struct ModelVertexInputType
+cbuffer MaterialConstantBuffer : register(b2)
+{
+    float4 colors[256];
+}
+
+cbuffer LightConstantBuffer : register(b3)
+{
+    float4 directionalLightDirection;
+    float4 directionalLightColorAndIntensity;
+}
+
+struct MeshVertexInput
 {
     float4 position : POSITION;
-    float2 uv : TEXCOORD0;
+    float2 uv : TEXCOORD0; 
 };
 
-struct ModelPixelInputType
+struct MeshPixelInput
 {
     float4 position : SV_POSITION;
-    float4 worldPosition : POSITION;
-    float2 uv : TEXCOORD0;
+    float4 worldPosition : TEXCOORD0;
+    float2 uv : TEXCOORD1;
 };
 
-struct PixelOutput
+struct ColorOutput
 {
-    float4 color : SV_TARGET;
+    float4 color : SV_TARGET0;
+};
+
+struct ColorDepthOutput
+{
+    float4 color : SV_TARGET0;
+    float depth : SV_Depth;
 };

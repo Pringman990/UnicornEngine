@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Texture.h"
+#include "Texture2D.h"
 
 #include<DDSTextureLoader11.h>
 
@@ -7,7 +7,8 @@ Texture2D::Texture2D()
 	:
 	mSRV(nullptr),
 	mTexture2D(nullptr),
-	mSize(Vector2(0,0))
+	mSize(Vector2(0,0)),
+	mMipLevel(0)
 {
 }
 
@@ -17,9 +18,20 @@ Texture2D::~Texture2D()
 	mTexture2D.Reset();
 }
 
-void Texture2D::Bind(uint32 aSlot) const 
+void Texture2D::BindPS(uint32 aSlot) const 
 {
 	Renderer::GetInstance()->GetDeviceContext()->PSSetShaderResources(aSlot, 1, mSRV.GetAddressOf());
+}
+
+void Texture2D::BindCS(uint32 aSlot) const
+{
+	Renderer::GetInstance()->GetDeviceContext()->CSSetShaderResources(aSlot, 1, mSRV.GetAddressOf());
+}
+
+void Texture2D::UnbindCS(uint32 aSlot) const
+{
+	ID3D11ShaderResourceView* srv = nullptr;
+	Renderer::GetInstance()->GetDeviceContext()->CSSetShaderResources(aSlot, 1, &srv);
 }
 
 void Texture2D::Resize(const Vector2& aNewSize)
@@ -134,6 +146,36 @@ bool Texture2D::Create(Texture2D* aTexture, D3D11_TEXTURE2D_DESC aTextureDesc, D
 	aTexture->mTexture2D = texture2D;
 
 	return true;
+}
+
+Texture2D* Texture2D::Create(D3D11_TEXTURE2D_DESC aTextureDesc)
+{
+	ID3D11Device* device = Renderer::GetInstance()->GetDevice();
+
+	ComPtr<ID3D11Texture2D> texture2D;
+	ComPtr<ID3D11ShaderResourceView> textureView;
+
+	HRESULT hr = device->CreateTexture2D(&aTextureDesc, nullptr, texture2D.GetAddressOf());
+	if (FAILED(hr))
+	{
+		_LOG_RENDERER_ERROR("Failed to create Texture2D: {}", hr);
+		return nullptr;
+	}
+
+	hr = device->CreateShaderResourceView(texture2D.Get(), nullptr, textureView.GetAddressOf());
+	if (FAILED(hr))
+	{
+		_LOG_RENDERER_ERROR("Failed to create SRV: {}", hr);
+		return nullptr;
+	}
+	
+	Texture2D* texture = new Texture2D();
+	texture->mSize = Vector2((float)aTextureDesc.Width, (float)aTextureDesc.Height);
+	texture->mMipLevel = aTextureDesc.MipLevels;
+	texture->mSRV = textureView;
+	texture->mTexture2D = texture2D;
+
+	return texture;
 }
 
 Texture2D* Texture2D::Create(ID3D11Texture2D* aTexture)

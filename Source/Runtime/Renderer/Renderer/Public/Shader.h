@@ -10,7 +10,10 @@ public:
 	Shader();
 	~Shader();
 
-	static std::shared_ptr<Shader> CreateDefault();
+	void Bind();
+
+	static std::shared_ptr<Shader> CreateDefaultVoxel();
+	static std::shared_ptr<Shader> CreateDefaultPolygon();
 	static std::shared_ptr<Shader> Create(const std::string& aVSPath, const std::string& aPSPath);
 
 	ID3D11VertexShader* GetVertexShader();

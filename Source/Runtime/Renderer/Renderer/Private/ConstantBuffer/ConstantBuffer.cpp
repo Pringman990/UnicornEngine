@@ -27,7 +27,12 @@ bool ConstantBuffer::Init(uint32_t aSize, void* someData)
 	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 	desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	desc.ByteWidth = aSize;
-	HRESULT result = Renderer::GetInstance()->GetDevice()->CreateBuffer(&desc, nullptr, &mBuffer);
+
+	D3D11_SUBRESOURCE_DATA initData;
+	initData.pSysMem = someData;
+	initData.SysMemPitch = aSize;
+
+	HRESULT result = Renderer::GetInstance()->GetDevice()->CreateBuffer(&desc, &initData, &mBuffer);
 	if (FAILED(result))
 	{
 		_com_error err(result);
@@ -55,4 +60,5 @@ void ConstantBuffer::Bind(ConstantBuffers aSlot)
 
 	context->VSSetConstantBuffers(aSlot, 1, mBuffer.GetAddressOf());
 	context->PSSetConstantBuffers(aSlot, 1, mBuffer.GetAddressOf());
+	context->CSSetConstantBuffers(aSlot, 1, mBuffer.GetAddressOf());
 }
