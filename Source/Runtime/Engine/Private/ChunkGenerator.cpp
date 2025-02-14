@@ -34,11 +34,19 @@ ChunkLoadData* ChunkGenerator::GenerateChunkFromPerlin(const int32& aWorldX, con
 
 			for (int y = 0; y < CHUNK_SIZE_Y; ++y)
 			{
-				if (y <= terrainHeight)
+				if (y < 100)
 				{
-					if (y == terrainHeight)
+					chunkData->voxelData.At(x, y, z) = 3;
+				}
+				else if (y <= terrainHeight)
+				{
+					if (y == terrainHeight && !(y < 110))
 					{
 						chunkData->voxelData.At(x,y,z) = 1;
+					}
+					else if (y < 110)
+					{
+						chunkData->voxelData.At(x, y, z) = 4;
 					}
 					else
 					{

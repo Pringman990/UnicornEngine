@@ -8,8 +8,7 @@ Texture2D worldPositionTexture : register(t2);
 ColorOutput main(MeshPixelInput input)
 {
     ColorOutput result;
-   // result.color = Texture0.Sample(DefaultSampler, input.uv);
- //   result.color = Texture0.Sample(DefaultSampler, input.uv);
+    //result.color = Texture0.Sample(DefaultSampler, input.uv);
     result.color = colorTexture.Sample(DefaultSampler, input.uv);
     //result.depth = worldPositionTexture.Sample(DefaultSampler, input.uv).z;
    // result.color = float4(1,0,0,1);

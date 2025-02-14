@@ -9,6 +9,7 @@
 #include "RendererWindowsMessageObserver.h"
 
 #include "Vertex.h"
+#include "Mesh.h"
 #include "Camera.h"
 #include "Texture2D.h"
 
@@ -187,12 +188,12 @@ void Renderer::ResizeBackbuffer(int32 aWidth, int32 aHeight)
 	}
 }
 
-void Renderer::UpdateObjectBuffer(const Matrix& aMatrix, const float3& aMinBounds, const float3& aMaxBounds)
+void Renderer::UpdateObjectBuffer(const Matrix& aMatrix, const ObjectBounds& aBounds)
 {
 	ObjectConstantBufferData objBuffer;
 	objBuffer.modelToWorld = aMatrix;
-	objBuffer.objectMinBounds = aMinBounds;
-	objBuffer.objectMaxBounds = aMaxBounds;
+	objBuffer.objectMinBounds = aBounds.min;
+	objBuffer.objectMaxBounds = aBounds.max;
 	mObjConstant->UpdateData(&objBuffer);
 	mObjConstant->Bind(ConstantBuffers::eObjectConstantBuffer);
 }

@@ -9,22 +9,47 @@ Texture3D<uint> ChunksData : register(t3);
 
 RWTexture2D<float4> OutputTexture : register(u0);
 
+struct ChunkBounds
+{
+    float3 min;
+    float3 max;
+};
+
+StructuredBuffer<ChunkBounds> ChunkBoundsBuffer : register(t4);
+
 #define CHUNK_COUNT 10
 #define CHUNK_SIZE_XZ 128
 #define CHUNK_SIZE_Y 256
+#define EPSILON 1e-4
+
+bool RayBoxIntersect(float3 rayOrigin, float3 rayDir, float3 boxMin, float3 boxMax, out float tMin, out float tMax)
+{
+    float3 t0 = (boxMin - rayOrigin) / (rayDir + EPSILON);
+    float3 t1 = (boxMax - rayOrigin) / (rayDir + EPSILON);
+
+    float3 tMinVec = min(t0, t1);
+    float3 tMaxVec = max(t0, t1);
+
+    tMin = max(max(tMinVec.x, tMinVec.y), tMinVec.z);
+    tMax = min(min(tMaxVec.x, tMaxVec.y), tMaxVec.z);
+    
+    if (tMin < 0.0)
+        tMin = 0.0;
+
+    return (tMax > tMin) && (tMax > 0);
+
+}
 
 float3 WorldPosToAtlasIndex(float3 worldPos)
 {
-    // Compute chunk indices
-    int chunkX = (int) floor(worldPos.x / CHUNK_SIZE_XZ);
-    int chunkZ = (int) floor(worldPos.z / CHUNK_SIZE_XZ);
+    int chunkX = floor(worldPos.x / CHUNK_SIZE_XZ);
+    int chunkZ = floor(worldPos.z / CHUNK_SIZE_XZ);
 
-    // Convert world position to local voxel coordinates
-    int localX = ((uint) worldPos.x % CHUNK_SIZE_XZ + CHUNK_SIZE_XZ) % CHUNK_SIZE_XZ;
-    int localY = (uint) worldPos.y;
-    int localZ = ((uint) worldPos.z % CHUNK_SIZE_XZ + CHUNK_SIZE_XZ) % CHUNK_SIZE_XZ;
+    // Ensure correct modulo behavior for negative coordinates
+    int localX = ((int) worldPos.x % CHUNK_SIZE_XZ + CHUNK_SIZE_XZ) % CHUNK_SIZE_XZ;
+    int localY = max(0, min((int) worldPos.y, CHUNK_SIZE_Y - 1));
+    int localZ = ((int) worldPos.z % CHUNK_SIZE_XZ + CHUNK_SIZE_XZ) % CHUNK_SIZE_XZ;
 
-    // Compute the global atlas position
     int atlasX = chunkX * CHUNK_SIZE_XZ + localX;
     int atlasY = localY;
     int atlasZ = chunkZ * CHUNK_SIZE_XZ + localZ;
@@ -34,52 +59,69 @@ float3 WorldPosToAtlasIndex(float3 worldPos)
 
 bool RayMarchShadow(float3 worldPos, float3 sunDir)
 {
-    // Convert world position to voxel index
-    int3 voxelIndex = WorldPosToAtlasIndex(worldPos);
+   // int3 voxelCoords = WorldPosToAtlasIndex(worldPos);
 
-    // Define voxel stepping parameters
-    float3 deltaDist = abs(1.0 / (sunDir + 1e-5)); // Prevent div by zero
-    int3 step = int3(sign(sunDir));
-
-    // Compute voxel boundary intersections
-    float3 nextBoundary = (voxelIndex + (step > 0 ? 1 : 0));
-    float3 tMax = (nextBoundary - worldPos) / sunDir;
+    int chunkX = (int) floor(worldPos.x / CHUNK_SIZE_XZ);
+    int chunkZ = (int) floor(worldPos.z / CHUNK_SIZE_XZ);
+    int chunkIndex = chunkZ * CHUNK_COUNT + chunkX;
+    float3 objectMinBounds = ChunkBoundsBuffer[chunkIndex].min;
+    float3 objectMaxBounds = ChunkBoundsBuffer[chunkIndex].max;
     
-    // March through voxels
-    for (int i = 0; i < 128; i++)  // Reduce iteration count
+    float3 rayOrigin = worldPos;
+    float3 rayDir = normalize(sunDir);
+    
+    float tMin, tMax;
+    if (!RayBoxIntersect(rayOrigin, rayDir, objectMinBounds, objectMaxBounds, tMin, tMax))
     {
-        uint voxel = ChunksData.Load(int4(voxelIndex, 0));
+        return false;
+    }
+    tMin = max(tMin, 0.0);
+    
+    float3 voxelSize = (objectMaxBounds - objectMinBounds) / float3(CHUNK_SIZE_XZ, CHUNK_SIZE_Y, CHUNK_SIZE_XZ);
+    
+    float3 startPos = rayOrigin + rayDir * (tMin + EPSILON);
+    int3 voxelCoords = int3(floor((startPos - objectMinBounds) / voxelSize));
+    voxelCoords = clamp(voxelCoords, int3(0, 0, 0), int3(CHUNK_SIZE_XZ - 1, CHUNK_SIZE_Y - 1, CHUNK_SIZE_XZ - 1));
 
-        if (voxel != 0)
+    // **Voxel stepping**
+    float3 deltaDist = abs(voxelSize / rayDir + EPSILON);
+    int3 step = int3(sign(rayDir));
+    float3 nextBoundary = (voxelCoords + (step > 0 ? 1 : 0)) * voxelSize + objectMinBounds;
+    float3 tMaxDist = (nextBoundary - startPos) / rayDir;
+    
+    for (int i = 0; i < 512; i++) 
+    {
+        if (voxelCoords.x < 0 || voxelCoords.y < 0 || voxelCoords.z < 0 ||
+            voxelCoords.x >= CHUNK_SIZE_XZ ||
+            voxelCoords.y >= CHUNK_SIZE_Y ||
+            voxelCoords.z >= CHUNK_SIZE_XZ)
+        {
+            return false; // Light reached, no shadow
+        }
+        
+        uint voxelIndex = ChunksData.Load(int4(voxelCoords, 0));
+        if (voxelIndex > 0)
         {
             return true; // Blocked
         }
 
         // Determine the next voxel to step into
-        if (tMax.x < tMax.y && tMax.x < tMax.z)
+        if (tMaxDist.x < tMaxDist.y && tMaxDist.x < tMaxDist.z)
         {
-            voxelIndex.x += step.x;
-            tMax.x += deltaDist.x;
+            voxelCoords.x += step.x;
+            tMaxDist.x += deltaDist.x;
         }
-        else if (tMax.y < tMax.z)
+        else if (tMaxDist.y < tMaxDist.z)
         {
-            voxelIndex.y += step.y;
-            tMax.y += deltaDist.y;
+            voxelCoords.y += step.y;
+            tMaxDist.y += deltaDist.y;
         }
         else
         {
-            voxelIndex.z += step.z;
-            tMax.z += deltaDist.z;
+            voxelCoords.z += step.z;
+            tMaxDist.z += deltaDist.z;
         }
 
-        // Early exit if out of bounds
-        if (voxelIndex.x < 0 || voxelIndex.y < 0 || voxelIndex.z < 0 ||
-            voxelIndex.x >= CHUNK_COUNT * CHUNK_SIZE_XZ ||
-            voxelIndex.y >= CHUNK_SIZE_Y ||
-            voxelIndex.z >= CHUNK_COUNT * CHUNK_SIZE_XZ)
-        {
-            return false; // Light reached, no shadow
-        }
     }
 
     return false; // No obstacles found
@@ -88,33 +130,19 @@ bool RayMarchShadow(float3 worldPos, float3 sunDir)
 [numthreads(16, 16, 1)]
 void main(uint3 dispatchThreadID : SV_DispatchThreadID)
 {
-    //float4 abledo = GBufferAlbedoTexture.Load(int3(dispatchThreadID.xy, 0));
-    //float4 normal = GBufferNormalTexture.Load(int3(dispatchThreadID.xy, 0));
-    //float4 worldPosition = GBufferWorldPositionTexture.Load(int3(dispatchThreadID.xy, 0));
-  
-    //float3 rayOrigin = worldPosition.xyz;
-    //float3 rayDir = normalize(-directionalLightDirection);
-  
-    //float shadowFactor = 1.0;
-    //if (RayMarchShadow(rayOrigin, rayDir))
-    //{
-    //    shadowFactor = 0.0; // 30% of light still reaches surface (soft shadow)
-    //}
-
-    //OutputTexture[dispatchThreadID.xy] = abledo * directionalLightColorAndIntensity * directionalLightColorAndIntensity.a * shadowFactor;
-
-    // Sample G-buffer textures
-    float4 albedo = GBufferAlbedoTexture.Load(int3(dispatchThreadID.xy, 0));
+    float4 abledo = GBufferAlbedoTexture.Load(int3(dispatchThreadID.xy, 0));
+    float4 normal = GBufferNormalTexture.Load(int3(dispatchThreadID.xy, 0));
     float4 worldPosition = GBufferWorldPositionTexture.Load(int3(dispatchThreadID.xy, 0));
+  
+    float3 rayOrigin = worldPosition.xyz;
+    float3 rayDir = normalize(directionalLightDirection /** -1*/ );
+  
+    float shadowFactor = 1.0;
+    if (RayMarchShadow(rayOrigin, rayDir))
+    {
+        shadowFactor = 0.3; // 30% of light still reaches surface (soft shadow)
+    }
 
-    // Reconstruct depth from world position
-    float depth = worldPosition.z; // Assuming Z is depth
-    depth = saturate(depth / 100.0f); // Normalize depth (adjust divisor for scene scale)
-
-    // Blend color with depth to prevent incorrect transparency
-    float depthFactor = 1.0 - depth; // Invert depth so closer pixels are stronger
-    float3 finalColor = albedo.rgb * depthFactor;
-
-    // Write final color (no need for separate depth texture)
-    OutputTexture[dispatchThreadID.xy] = float4(finalColor, 1.0);
+    //OutputTexture[dispatchThreadID.xy] = float4(shadowFactor, shadowFactor, shadowFactor, 1);
+    OutputTexture[dispatchThreadID.xy] = abledo * directionalLightColorAndIntensity * directionalLightColorAndIntensity.a * shadowFactor;
 }

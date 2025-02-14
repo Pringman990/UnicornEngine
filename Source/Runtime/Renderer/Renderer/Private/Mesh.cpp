@@ -22,10 +22,10 @@ void Mesh::Draw()
 
 	Vector3 pos = mTransform.GetPosition();
 	Vector3 halfSize = mTransform.GetScale() / 2;
-	Vector3 maxBounds = pos + halfSize;
-	Vector3 minBounds = pos - halfSize;
+	mBounds.max = pos + halfSize;
+	mBounds.min = pos - halfSize;
 
-	renderer->UpdateObjectBuffer(mTransform.GetMatrix(), minBounds, maxBounds);
+	renderer->UpdateObjectBuffer(mTransform.GetMatrix(), mBounds);
 
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
@@ -39,12 +39,6 @@ void Mesh::Draw()
 		subMesh.material->Bind();
 		deviceContext->DrawIndexed(subMesh.indexCount, subMesh.startIndex, 0);
 	}
-
-	//deviceContext->PSSetShader(mShader->GetPixelShader(), nullptr, 0);
-	//deviceContext->VSSetShader(mShader->GetVertexShader(), nullptr, 0);
-	//deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	//deviceContext->IASetInputLayout(mShader->GetInputLayout());
-
 }
 
 void Mesh::SetMaterial(uint32 aSubMeshIndex, std::shared_ptr<Material>& aMaterial)

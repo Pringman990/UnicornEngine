@@ -24,6 +24,7 @@
 #include <TextureCube.h>
 #include <Mesh.h>
 #include <GBuffer.h>
+#include <StructuredBuffer.h>
 #include <Application/Application.h>
 #include <MeshLoader.h>
 #include <Threading/ThreadPool.h>
@@ -39,7 +40,7 @@ namespace {
 	std::shared_ptr<Mesh> fullQuad;
 	std::shared_ptr<GBuffer> gbuffer;
 	std::shared_ptr<UAVTexture> uavTexture;
-
+	StructuredBuffer* gChunkMinMaxBuffer;
 	Texture3D* gChunksData;
 }
 
@@ -122,6 +123,8 @@ void GameWorld::Init()
 	MaterialConstantBufferData colorData;
 	colorData.colors[1] = float4(0, 1, 0, 1);
 	colorData.colors[2] = float4(0.6f, 0.3f, 0, 1);
+	colorData.colors[3] = float4(0, 1.0f, 1, 1);
+	colorData.colors[4] = float4(1, 0.79f, 0.29f, 1);
 	colorBuffer.Init(sizeof(MaterialConstantBufferData), &colorData);
 
 	IWindowInfo& windowInfo = Application::GetInstance()->GetApplication()->GetWindowInfo();
@@ -146,7 +149,6 @@ void GameWorld::Init()
 	fullQuad = Mesh::Create(vertices, indices);
 	std::shared_ptr<Material> material = Material::Create("../../Binaries/Shaders/Full_Screen_Quad_VS.cso", "../../Binaries/Shaders/Full_Screen_Quad_PS.cso");
 	fullQuad->SetMaterial(0, material);
-	//fullQuad->GetMaterial(0)->SetTexture(0, gbuffer->GetAlbedoTexture());
 	fullQuad->GetMaterial(0)->SetTexture(0, uavTexture->GetTexture2D());
 
 	auto context = Renderer::GetInstance()->GetDeviceContext();
@@ -178,6 +180,19 @@ void GameWorld::Init()
 			);
 		}
 	}
+
+	std::vector<ObjectBounds> chunkBoundsData(CHUNK_COUNT * CHUNK_COUNT);
+	for (int x = 0; x < CHUNK_COUNT; x++)
+	{
+		for (int z = 0; z < CHUNK_COUNT; z++)
+		{
+			int index = z * CHUNK_COUNT + x;
+			chunkBoundsData[index].min = { (float)(x * CHUNK_SIZE_XZ), 0, (float)(z * CHUNK_SIZE_XZ) };
+			chunkBoundsData[index].max = { (float)((x + 1) * CHUNK_SIZE_XZ), (float)CHUNK_SIZE_Y, (float)((z + 1) * CHUNK_SIZE_XZ) };
+		}
+	}
+	
+	gChunkMinMaxBuffer = StructuredBuffer::Create(sizeof(ObjectBounds), (uint32)chunkBoundsData.size(), chunkBoundsData.data());
 }
 
 void GameWorld::Render()
@@ -201,6 +216,7 @@ void GameWorld::Render()
 	//gbuffer->BindTexturesToCS(0);
 	//uavTexture->BindCS(0);
 	//gChunksData->BindCS(3);
+	//gChunkMinMaxBuffer->Bind(4);
 	//shadowShader.Dispatch((1200 + 15) / 16, (720 + 15) / 16, 1);
 	//uavTexture->UnbindCS(0);
 	//gbuffer->UnbindTexturesFromCS(0);
