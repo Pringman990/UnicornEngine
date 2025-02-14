@@ -9,6 +9,12 @@ using Microsoft::WRL::ComPtr;
 struct ID3D11Buffer;
 class Shader;
 
+struct ObjectBounds
+{
+	Vector3 min;
+	Vector3 max;
+};
+
 struct SubMesh
 {
 	std::shared_ptr<Material> material = nullptr;
@@ -39,6 +45,7 @@ private:
 	ComPtr<ID3D11Buffer> mIndexBuffer;
 
 	Transform mTransform;
+	ObjectBounds mBounds;
 
 	/**
 	* We use vertex count for displaying in editor.

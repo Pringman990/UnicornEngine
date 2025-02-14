@@ -1,15 +1,15 @@
 #include "Common.hlsli"
 
 SamplerState DefaultSampler : register(s0);
-Texture3D<uint> VoxelData : register(t0);
+Texture3D<uint1> VoxelData : register(t0);
 
-//struct GBufferOutput
-//{
-//    float4 albedo : SV_Target0;
-//    float4 normal : SV_Target1;
-//    float4 worldPosition : SV_Target2;
-//    float depth : SV_Depth;
-//};
+struct GBufferOutput
+{
+    float4 albedo : SV_Target0;
+    float4 normal : SV_Target1;
+    float4 worldPosition : SV_Target2;
+    float depth : SV_Depth;
+};
 
 #define CHUNK_SIZE_XZ 128
 #define CHUNK_SIZE_Y 256
@@ -33,11 +33,10 @@ bool RayBoxIntersect(float3 rayOrigin, float3 rayDir, float3 boxMin, float3 boxM
 
 }
 
-ColorDepthOutput main(MeshPixelInput input)
+GBufferOutput main(MeshPixelInput input)
 {
-    ColorDepthOutput result;
-    result.color = float4(0, 0, 0, 1);
-   // result.depth = 1.0;
+    GBufferOutput result;
+    result.albedo = float4(0, 0, 0, 1);
     
     float3 rayOrigin = cameraPosition;
     float3 rayDir = normalize(input.worldPosition.xyz - cameraPosition);
@@ -72,8 +71,7 @@ ColorDepthOutput main(MeshPixelInput input)
     
         if (voxelIndex > 0)
         {
-            //result.albedo = colors[voxelIndex];
-            result.color = colors[voxelIndex];
+            result.albedo = colors[voxelIndex];
             
             if (tMin < EPSILON)
                 tMin = 0.0;
@@ -87,7 +85,8 @@ ColorDepthOutput main(MeshPixelInput input)
             result.depth = clipPos.z / clipPos.w;
             if (tMin == 0.0)
                 result.depth = saturate(result.depth - 0.0001);
-          //  result.worldPosition = result.depth;
+           // result.worldPosition = result.depth;
+            result.worldPosition = float4(hitPosition, 1.0);
             return result;
         }
         

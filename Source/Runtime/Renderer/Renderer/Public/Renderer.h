@@ -18,6 +18,7 @@ struct ID3D11Buffer;
 
 struct Chunk;
 struct Vertex;
+struct ObjectBounds;
 
 class WindowsApplication;
 class RenderTarget;
@@ -53,7 +54,7 @@ public:
 
 	void ResizeBackbuffer(int32 aWidth, int32 aHeight);
 
-	void UpdateObjectBuffer(const Matrix& aMatrix, const float3& aMinBounds, const float3& aMaxBounds);
+	void UpdateObjectBuffer(const Matrix& aMatrix, const ObjectBounds& aBounds);
 
 	void SetMainCamera(Camera* aCamera);
 	Camera* GetMainCamera();
