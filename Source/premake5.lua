@@ -62,7 +62,7 @@ solution "Unicorn Engine"
 	flags {"FatalWarnings", "MultiProcessorCompile"}
     warnings "Extra"
     externalanglebrackets "On"
-
+	disablewarnings { "4244" }
     filter {}
 
 

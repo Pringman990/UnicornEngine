@@ -19,6 +19,7 @@ using Microsoft::WRL::ComPtr;
 #include <fstream>
 
 #include <Vertex.h>
+#include <Shader.h>
 
 #include <StandardTypes/StandardTypes.h>
 #include <Logger/Logger.h>

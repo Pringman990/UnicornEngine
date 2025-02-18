@@ -14,12 +14,12 @@ Shader::~Shader()
 	mInputLayout.Reset();
 }
 
-void Shader::Bind()
+void Shader::Bind(D3D_PRIMITIVE_TOPOLOGY aTopology)
 {
 	ID3D11DeviceContext* deviceContext = Renderer::GetInstance()->GetDeviceContext();
 	deviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0);
 	deviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0);
-	deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	deviceContext->IASetPrimitiveTopology(aTopology);
 	deviceContext->IASetInputLayout(mInputLayout.Get());
 }
 
@@ -167,6 +167,50 @@ std::shared_ptr<Shader> Shader::Create(const std::string& aVSPath, const std::st
 		};
 
 		HRESULT result = device->CreateInputLayout(layout, 2, vsData.data(), vsData.size(), &shader->mInputLayout);
+		if (FAILED(result))
+		{
+			_LOG_RENDERER_WARNING("Failed to setup Device, {}", result);
+			return nullptr;
+		}
+	}
+	return shader;
+}
+
+std::shared_ptr<Shader> Shader::Create(const std::string& aVSPath, const std::string& aPSPath, D3D11_INPUT_ELEMENT_DESC aLayout[], uint32 aLayoutCount)
+{
+	Renderer* renderer = Renderer::GetInstance();
+	ID3D11Device* device = renderer->GetDevice();
+
+	std::shared_ptr<Shader> shader = std::make_shared<Shader>();
+	std::string vsData;
+	{
+		//Load Vertex Shader
+		std::ifstream vsFile;
+		vsFile.open(aVSPath, std::ios::binary);
+		vsData = { std::istreambuf_iterator<char>(vsFile), std::istreambuf_iterator<char>() };
+		HRESULT result = device->CreateVertexShader(vsData.data(), vsData.size(), nullptr, &shader->mVertexShader);
+		if (FAILED(result))
+		{
+			_LOG_RENDERER_WARNING("Failed to setup Device, {}", result);
+			return nullptr;
+		}
+		vsFile.close();
+
+		//Load Pixel Shader
+		std::ifstream psFile;
+		psFile.open(aPSPath, std::ios::binary);
+		std::string psData = { std::istreambuf_iterator<char>(psFile), std::istreambuf_iterator<char>() };
+		result = device->CreatePixelShader(psData.data(), psData.size(), nullptr, &shader->mPixelShader);
+		if (FAILED(result))
+		{
+			_LOG_RENDERER_WARNING("Failed to setup Device, {}", result);
+			return nullptr;
+		}
+		psFile.close();
+	}
+
+	{
+		HRESULT result = device->CreateInputLayout(aLayout, aLayoutCount, vsData.data(), vsData.size(), &shader->mInputLayout);
 		if (FAILED(result))
 		{
 			_LOG_RENDERER_WARNING("Failed to setup Device, {}", result);

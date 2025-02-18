@@ -1,5 +1,8 @@
 #pragma once
 #include <string>
+#include <random>
+#include <SimpleMath.h>
+#include "StandardTypes/StandardTypes.h"
 
 /// <summary>
  /// Adds element to the back of the vector
@@ -67,4 +70,36 @@ inline std::wstring StringToWString(const std::string& aString)
     mbstowcs_s(&size_needed, &wideString[0], wideString.size() + 1, aString.c_str(), aString.size() + 1);
 
     return wideString;
+}
+
+inline int32 RandomInt(int32 aMin, int32 aMax)
+{
+    static std::random_device rd;  // Seed
+    static std::mt19937 rng(rd()); // Random number generator
+    std::uniform_int_distribution<int32> dist(aMin, aMax);
+    return dist(rng);
+}
+
+inline float RandomFloat(float aMin, float aMax)
+{
+    static std::random_device rd;  // Seed
+    static std::mt19937 rng(rd()); // Random number generator
+    std::uniform_real_distribution<float> dist(aMin, aMax);
+    return dist(rng);
+}
+
+inline Color OffsetColor(Color VectorToModify, float RModifier, float GModifier, float BModifier)
+{
+    Color resultVector;
+
+    resultVector.x = VectorToModify.x * RandomFloat(1 - RModifier, 1 + RModifier);
+    resultVector.y = VectorToModify.y * RandomFloat(1 - GModifier, 1 + GModifier);
+    resultVector.z = VectorToModify.z * RandomFloat(1 - BModifier, 1 + BModifier);
+    resultVector.w = VectorToModify.w;
+    return resultVector;
+}
+
+inline Color OffsetColor(Color VectorToModify, float Modifier)
+{
+    return OffsetColor(VectorToModify, Modifier, Modifier, Modifier);
 }

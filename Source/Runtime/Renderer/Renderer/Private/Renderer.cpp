@@ -21,7 +21,8 @@ Renderer::Renderer()
 	mSamplerState(nullptr),
 	mBackBuffer(nullptr),
 	mClearColor(Color(0.5f, 0.5f, 0.7f, 0)),
-	mVsync(false)
+	mVsync(false),
+	mDrawCalls(0)
 {
 
 }
@@ -96,6 +97,8 @@ bool Renderer::Init()
 		return false;
 	}
 
+	mDebugLineRenderer.Init();
+
 	mDefaultCamera = new Camera();
 	mDefaultCamera->SetPerspective(90, (16 / 9), 0.001f, 1000.f);
 
@@ -127,7 +130,7 @@ bool Renderer::Init()
 
 void Renderer::PreRender()
 {
-	//TODO: Add Drawcalls = 0
+	mDrawCalls = 0;
 
 	mDeviceContext->ClearRenderTargetView(mBackBuffer->GetRTV(), (float*)&mClearColor);
 	mDeviceContext->ClearDepthStencilView(mBackBuffer->GetDSV(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -339,7 +342,7 @@ bool Renderer::SetupBackBufferAndDepthBuffer(WindowsApplication* aApp)
 	_ENSURE_RENDERER(mBackBuffer, "Failed to create backbuffer");
 
 	D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
-	depthStencilDesc.DepthEnable = true;
+	depthStencilDesc.DepthEnable = false;
 	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 
@@ -442,6 +445,22 @@ const GraphicsCardInfo& Renderer::GetGraphicsCardInfo() const
 	return mGrapicsCardInfo;
 }
 
+void Renderer::DrawDebugLine(const Vector3& aStart, const Vector3& aEnd, const Color& aColor)
+{
+	mDebugLineRenderer.DrawLine(aStart, aEnd, aColor);
+}
+
+void Renderer::DrawDebugCube(const Vector3& aCenter, const Vector3& aSize, const Color& aColor)
+{
+	mDebugLineRenderer.DrawCube(aCenter, aSize, aColor);
+}
+
+void Renderer::RenderDebugLines()
+{
+	mDebugLineRenderer.UpdateBuffer();
+	mDebugLineRenderer.Render();
+}
+
 ComPtr<ID3D11Buffer> Renderer::CreateIndexBuffer(const std::vector<uint32>& aIndexArray)
 {
 	ComPtr<ID3D11Buffer> buffer;
@@ -483,4 +502,14 @@ ComPtr<ID3D11Buffer> Renderer::CreateVertexBuffer(const std::vector<Vertex>& aVe
 	}
 
 	return buffer;
+}
+
+void Renderer::AddDrawCall()
+{
+	mDrawCalls++;
+}
+
+uint32 Renderer::GetDrawCalls()
+{
+	return mDrawCalls;
 }

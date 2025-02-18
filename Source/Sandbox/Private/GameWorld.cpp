@@ -29,7 +29,7 @@
 #include <MeshLoader.h>
 #include <Threading/ThreadPool.h>
 
-#define CHUNK_COUNT 10
+#define CHUNK_COUNT 1
 
 namespace {
 	GameWorld gameworld;
@@ -108,7 +108,7 @@ void GameWorld::Init()
 	}
 
 	for (int32 i = 0; i < data.size(); i++)
-	{
+	{ 
 		Chunk chunk;
 		chunk.cube = Mesh::CreateCube();
 		chunk.cube->GetTransform().SetPosition(data[i]->position);
@@ -116,15 +116,42 @@ void GameWorld::Init()
 		Texture3D* texture = Texture3D::Create(data[i]->voxelData);
 		chunk.cube->GetMaterial(0)->SetTexture(0, texture);
 		chunk.voxelsTexture = texture;
+		chunk.octree = new Octree();
+		if (i == 1)
+		{
+			auto arr = Array3D<uint8>(128, 128, 128, 0);
+			arr[0] = 1;
+			chunk.octree->Build(arr, 128, data[i]->position);
+		}
+		else
+			chunk.octree->Build(data[i]->voxelData, 128, data[i]->position);
 		delete data[i];
 		chunks.push_back(chunk);
 	}
 
 	MaterialConstantBufferData colorData;
-	colorData.colors[1] = float4(0, 1, 0, 1);
-	colorData.colors[2] = float4(0.6f, 0.3f, 0, 1);
-	colorData.colors[3] = float4(0, 1.0f, 1, 1);
-	colorData.colors[4] = float4(1, 0.79f, 0.29f, 1);
+	float mod = 0.05f;
+	colorData.colors[1] = OffsetColor(Color(0, 1.0f, 1, 1), mod); //water
+	colorData.colors[2] = OffsetColor(Color(0, 1.0f, 1, 1), mod); //water
+	//colorData.colors[2] = float4(1, 1, 1, 1); //water
+	//
+	//colorData.colors[3] = float4(1, 0.79f, 0.29f, 1); //Sand
+	//colorData.colors[4] = float4(255.f / 255.f, 222.f / 255.f, 181.f / 255.f, 1);
+	//colorData.colors[5] = float4(255.f / 255.f, 218.f / 255.f, 185.f / 255.f, 1);
+	//
+	//colorData.colors[6] = float4(0, 1, 0, 1); //Green
+	//colorData.colors[7] = float4(50.f / 255.f, 205.f / 255.f, 50.f / 255.f, 1);
+	//colorData.colors[8] = float4(127.f / 255.f, 255.f / 255.f, 0, 1);
+	//
+	colorData.colors[9] = float4(0.6f, 0.3f, 0, 1); //Brown
+	colorData.colors[3] = OffsetColor(Color(1, 0.79f, 0.29f, 1), mod);
+	colorData.colors[4] = OffsetColor(Color(1, 0.79f, 0.29f, 1), mod);
+	colorData.colors[5] = OffsetColor(Color(1, 0.79f, 0.29f, 1), mod);
+	
+	colorData.colors[6] = OffsetColor(Color(0, 1, 0, 1), mod);
+	colorData.colors[7] = OffsetColor(Color(0, 1, 0, 1), mod);
+	colorData.colors[8] = OffsetColor(Color(0, 1, 0, 1), mod);
+
 	colorBuffer.Init(sizeof(MaterialConstantBufferData), &colorData);
 
 	IWindowInfo& windowInfo = Application::GetInstance()->GetApplication()->GetWindowInfo();
@@ -199,6 +226,10 @@ void GameWorld::Render()
 {
 	colorBuffer.Bind(ConstantBuffers::eMaterialConstantBuffer);
 	
+	//for (int32 i = 0; i < 1000; i++)
+	//{
+	//	Renderer::GetInstance()->DrawDebugLine(Vector3(), Vector3(10000,0,0));
+	//}
 
 	gbuffer->ClearRenderTargets();
 	gbuffer->BindRenderTargets();
@@ -210,7 +241,10 @@ void GameWorld::Render()
 	for (int i = 0; i < chunks.size(); i++)
 	{
 		chunks[i].cube->Draw();
+		Vector3 pos = chunks[i].cube->GetTransform().GetPosition();
+		chunks[i].octree->DrawDebug(pos);
 	}
+	Renderer::GetInstance()->RenderDebugLines();
 	gbuffer->UnbindRenderTargets();
 
 	//gbuffer->BindTexturesToCS(0);
@@ -220,7 +254,7 @@ void GameWorld::Render()
 	//shadowShader.Dispatch((1200 + 15) / 16, (720 + 15) / 16, 1);
 	//uavTexture->UnbindCS(0);
 	//gbuffer->UnbindTexturesFromCS(0);
-	
+
 	Renderer::GetInstance()->RenderToBackbuffer();
 	gbuffer->BindTexturesToPS(1);
 	fullQuad->Draw();

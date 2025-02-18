@@ -3,6 +3,7 @@
 
 #include <FastNoiseLite.h>
 #include <Utility/Array3D.h>
+#include <Utility/Utility.h>
 
 ChunkGenerator::ChunkGenerator()
 {
@@ -30,27 +31,27 @@ ChunkLoadData* ChunkGenerator::GenerateChunkFromPerlin(const int32& aWorldX, con
 			float worldZ = (aWorldZ  + z) * ((CHUNK_SIZE_XZ * VOXEL_SIZE) / CHUNK_SIZE_XZ);
 
 			float noiseValue = fn.GetNoise(worldX, worldZ);
-			int terrainHeight = static_cast<int>(((noiseValue + 1.0f) * 0.5f) * CHUNK_SIZE_Y);
+			int terrainHeight = static_cast<int>(((noiseValue + 1.0f) * 0.5f) * CHUNK_SIZE_Y) * 0.1f;
 
 			for (int y = 0; y < CHUNK_SIZE_Y; ++y)
 			{
+				 if (y <= terrainHeight)
+				{
 				if (y < 100)
 				{
-					chunkData->voxelData.At(x, y, z) = 3;
+					chunkData->voxelData.At(x, y, z) = RandomInt(1, 2); //water
 				}
-				else if (y <= terrainHeight)
-				{
 					if (y == terrainHeight && !(y < 110))
 					{
-						chunkData->voxelData.At(x,y,z) = 1;
+						chunkData->voxelData.At(x, y, z) = RandomInt(6,8); //Green
 					}
 					else if (y < 110)
 					{
-						chunkData->voxelData.At(x, y, z) = 4;
+						chunkData->voxelData.At(x, y, z) = RandomInt(4, 5); //Sand
 					}
 					else
 					{
-						chunkData->voxelData.At(x,y,z) = 2;
+						chunkData->voxelData.At(x, y, z) = 9; //Brown
 					}
 				}
 				else
