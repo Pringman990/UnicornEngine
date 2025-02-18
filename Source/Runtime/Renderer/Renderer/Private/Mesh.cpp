@@ -21,9 +21,8 @@ void Mesh::Draw()
 	ID3D11DeviceContext* deviceContext = renderer->GetDeviceContext();
 
 	Vector3 pos = mTransform.GetPosition();
-	Vector3 halfSize = mTransform.GetScale() / 2;
-	mBounds.max = pos + halfSize;
-	mBounds.min = pos - halfSize;
+	mBounds.max = pos + mTransform.GetScale();
+	mBounds.min = pos;
 
 	renderer->UpdateObjectBuffer(mTransform.GetMatrix(), mBounds);
 
@@ -38,6 +37,7 @@ void Mesh::Draw()
 		SubMesh& subMesh = mSubMeshes[i];
 		subMesh.material->Bind();
 		deviceContext->DrawIndexed(subMesh.indexCount, subMesh.startIndex, 0);
+		Renderer::GetInstance()->AddDrawCall();
 	}
 }
 
@@ -67,21 +67,15 @@ std::shared_ptr<Mesh> Mesh::CreateCube()
 {
 	std::vector<Vertex> vertices =
 	{
-		{{ -0.5f, 0.5f, -0.5f, 1}},
+		{{ 0.0f, 1.0f, 0.0f, 1}},  // Top-left-front (was -0.5, 0.5, -0.5)
+	{{ 1.0f, 1.0f, 0.0f, 1}},  // Top-right-front
+	{{ 0.0f, 0.0f, 0.0f, 1}},  // Bottom-left-front
+	{{ 1.0f, 0.0f, 0.0f, 1}},  // Bottom-right-front
 
-		{{ 0.5f, 0.5f, -0.5f, 1}},
-
-		{ {-0.5f, -0.5f, -0.5f, 1 } },
-
-		{ { 0.5f, -0.5f, -0.5f , 1 }},
-
-		{ { -0.5f, 0.5f, 0.5f , 1 }},
-
-		{ { 0.5f, 0.5f, 0.5f , 1  }},
-
-		{ { -0.5f, -0.5f, 0.5f , 1 }},
-
-		{ {0.5f, -0.5f, 0.5f , 1 }},
+	{{ 0.0f, 1.0f, 1.0f, 1}},  // Top-left-back
+	{{ 1.0f, 1.0f, 1.0f, 1}},  // Top-right-back
+	{{ 0.0f, 0.0f, 1.0f, 1}},  // Bottom-left-back
+	{{ 1.0f, 0.0f, 1.0f, 1}},  // Bottom-right-back
 	};
 
 	std::vector<uint32> indices =
@@ -142,10 +136,10 @@ std::shared_ptr<Mesh> Mesh::Create(std::vector<Vertex>& someVertices, std::vecto
 		indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		D3D11_SUBRESOURCE_DATA indexData = { 0 };
 		indexData.pSysMem = someIndices.data();
-		
+
 		subMesh.startIndex = 0;
 		subMesh.indexCount = (int)someIndices.size();
-		
+
 		HRESULT result = device->CreateBuffer(&indexBufferDesc, &indexData, &mesh->mIndexBuffer);
 		if (FAILED(result))
 		{
@@ -156,7 +150,7 @@ std::shared_ptr<Mesh> Mesh::Create(std::vector<Vertex>& someVertices, std::vecto
 	return mesh;
 }
 
-Transform& Mesh::GetTransform() 
+Transform& Mesh::GetTransform()
 {
 	return mTransform;
 }

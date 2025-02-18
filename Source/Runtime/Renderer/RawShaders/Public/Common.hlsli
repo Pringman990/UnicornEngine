@@ -39,6 +39,18 @@ struct MeshPixelInput
     float2 uv : TEXCOORD1;
 };
 
+struct LineVertexInput
+{
+    float3 position : POSITION;
+    float4 color : COLOR;
+};
+
+struct LinePixelInput
+{
+    float4 position : SV_POSITION;
+    float4 color : COLOR;
+};
+
 struct ColorOutput
 {
     float4 color : SV_TARGET0;

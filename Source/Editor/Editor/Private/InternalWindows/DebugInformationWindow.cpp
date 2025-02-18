@@ -2,7 +2,7 @@
 #include "DebugInformationWindow.h"
 
 #include <Timer/Timer.h>
-//#include <Renderer.h>
+#include <Renderer.h>
 
 DebugInformationWindow::DebugInformationWindow()
 {
@@ -30,4 +30,8 @@ void DebugInformationWindow::Render()
     std::string fps = "FPS: ";
     fps += std::to_string(Timer::GetInstance()->GetFps());
     ImGui::Text(fps.c_str());
+
+    std::string drawcalls = "DrawCalls: ";
+    drawcalls += std::to_string(Renderer::GetInstance()->GetDrawCalls());
+    ImGui::Text(drawcalls.c_str());
 }

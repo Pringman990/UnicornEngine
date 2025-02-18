@@ -1,6 +1,7 @@
 #pragma once
 #include <Singleton.h>
 #include <StandardTypes/StandardTypes.h>
+#include <DebugLineRenderer.h>
 
 #include <wrl/client.h>
 using Microsoft::WRL::ComPtr;
@@ -67,9 +68,17 @@ public:
 	ID3D11SamplerState** GetAdressOfSamplerState();
 
 	const GraphicsCardInfo& GetGraphicsCardInfo() const;
+	void DrawDebugLine(const Vector3& aStart, const Vector3& aEnd, const Color& aColor = Color(0, 1, 0, 1));
+	void DrawDebugCube(const Vector3& aCenter, const Vector3& aSize, const Color& aColor = Color(0, 1, 0, 1));
+
+	//TODO: remove this and make a proper pipeline for rendering not all in gameworld
+	void RenderDebugLines();
 
 	ComPtr<ID3D11Buffer> CreateIndexBuffer(const std::vector<uint32>& aIndexArray);
 	ComPtr<ID3D11Buffer> CreateVertexBuffer(const std::vector<Vertex>& aVertexArray);
+
+	void AddDrawCall();
+	uint32 GetDrawCalls();
 
 private:
 	Renderer();
@@ -102,4 +111,8 @@ private:
 	RenderTarget* mBackBuffer;
 	Color mClearColor;
 	bool mVsync;
+
+	uint32 mDrawCalls;
+
+	DebugLineRenderer mDebugLineRenderer;
 };

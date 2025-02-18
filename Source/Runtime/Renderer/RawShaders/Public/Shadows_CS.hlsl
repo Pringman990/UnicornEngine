@@ -19,7 +19,7 @@ StructuredBuffer<ChunkBounds> ChunkBoundsBuffer : register(t4);
 
 #define CHUNK_COUNT 10
 #define CHUNK_SIZE_XZ 128
-#define CHUNK_SIZE_Y 256
+#define CHUNK_SIZE_Y 128
 #define EPSILON 1e-4
 
 bool RayBoxIntersect(float3 rayOrigin, float3 rayDir, float3 boxMin, float3 boxMax, out float tMin, out float tMax)
