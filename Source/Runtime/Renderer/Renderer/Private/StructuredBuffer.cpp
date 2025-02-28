@@ -9,14 +9,14 @@ StructuredBuffer::~StructuredBuffer()
 {
 }
 
-StructuredBuffer* StructuredBuffer::Create(uint32 aTypeSize, uint32 aDataSize, void* someInitalData)
+StructuredBuffer* StructuredBuffer::Create(uint32 aTypeSize, uint32 aDataCount, void* someInitalData)
 {
 	StructuredBuffer* buffer = new StructuredBuffer();
 	ID3D11Device* device = Renderer::GetInstance()->GetDevice();
 
 	D3D11_BUFFER_DESC bufferDesc = {};
 	bufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	bufferDesc.ByteWidth = aTypeSize * aDataSize;
+	bufferDesc.ByteWidth = aTypeSize * aDataCount;
 	bufferDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 	bufferDesc.CPUAccessFlags = 0;
 	bufferDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
@@ -35,7 +35,7 @@ StructuredBuffer* StructuredBuffer::Create(uint32 aTypeSize, uint32 aDataSize, v
 	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
 	srvDesc.Buffer.FirstElement = 0;
-	srvDesc.Buffer.NumElements = aDataSize;
+	srvDesc.Buffer.NumElements = aDataCount;
 
 	hr = device->CreateShaderResourceView(buffer->mStructuredBuffer.Get(), &srvDesc, buffer->mSRV.GetAddressOf());
 	if (FAILED(hr)) 
@@ -46,7 +46,12 @@ StructuredBuffer* StructuredBuffer::Create(uint32 aTypeSize, uint32 aDataSize, v
 	return buffer;
 }
 
-void StructuredBuffer::Bind(uint32 aSlot)
+void StructuredBuffer::BindToCS(uint32 aSlot)
 {
 	Renderer::GetInstance()->GetDeviceContext()->CSSetShaderResources(aSlot, 1, mSRV.GetAddressOf());
+}
+
+void StructuredBuffer::BindToPS(uint32 aSlot)
+{
+	Renderer::GetInstance()->GetDeviceContext()->PSSetShaderResources(aSlot, 1, mSRV.GetAddressOf());
 }

@@ -14,8 +14,8 @@
 struct Chunk
 {
 	Texture3D* voxelsTexture = nullptr;
-	std::shared_ptr<Mesh> cube;
-	Octree* octree;
+	std::shared_ptr<Mesh> cube = nullptr;
+	Octree* octree = nullptr;
 };
 
 struct ChunkLoadData

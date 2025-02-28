@@ -4,6 +4,7 @@
 #include <FastNoiseLite.h>
 #include <Utility/Array3D.h>
 #include <Utility/Utility.h>
+#include <Threading/ThreadPool.h>
 
 ChunkGenerator::ChunkGenerator()
 {
@@ -62,4 +63,50 @@ ChunkLoadData* ChunkGenerator::GenerateChunkFromPerlin(const int32& aWorldX, con
 		}
 	}
 	return chunkData;
+}
+
+void ChunkGenerator::GenerateChunksThreaded(const uint32& aChunkCount, std::function<void(std::vector<Chunk>)> aCallback)
+{
+	ThreadPool::GetInstance()->Enqueue(
+		[=]()
+		{
+			std::vector<ChunkLoadData*> data(aChunkCount * aChunkCount);
+			for (int32 x = 0; x < aChunkCount; x++)
+			{
+				for (int32 z = 0; z < aChunkCount; z++)
+				{
+					data[x * aChunkCount + z] = ChunkGenerator::GenerateChunkFromPerlin(x * CHUNK_SIZE_XZ, z * CHUNK_SIZE_XZ);
+				}
+			}
+			return data;
+		},
+		[callback = std::move(aCallback)](std::vector<ChunkLoadData*> ChunkData)
+		{
+			std::vector<Chunk> chunks;
+			for (int32 i = 0; i < ChunkData.size(); i++)
+			{
+				Chunk chunk;
+
+				chunk.cube = Mesh::CreateCube();
+				std::shared_ptr<Shader> chunkShader = Shader::CreateDefaultChunk();
+				chunk.cube->GetMaterial(0)->SetShader(chunkShader);
+
+				chunk.cube->GetTransform().SetPosition(ChunkData[i]->position);
+				chunk.cube->GetTransform().SetScale(ChunkData[i]->scale);
+
+				Texture3D* texture = Texture3D::Create(ChunkData[i]->voxelData);
+				chunk.cube->GetMaterial(0)->SetTexture(0, texture);
+				chunk.voxelsTexture = texture;
+
+				chunk.octree = new Octree();
+				chunk.octree->Build(ChunkData[i]->voxelData, 128, ChunkData[i]->position);
+
+				delete ChunkData[i];
+				chunks.push_back(chunk);
+			} 
+
+			if(callback)
+				callback(chunks);
+		}
+	);
 }
