@@ -85,7 +85,7 @@ GBufferOutput main(MeshPixelInput input)
             result.depth = clipPos.z / clipPos.w;
             if (tMin == 0.0)
                 result.depth = saturate(result.depth - 0.0001);
-           // result.worldPosition = result.depth;
+            
             result.worldPosition = float4(hitPosition, 1.0);
             return result;
         }

@@ -15,6 +15,8 @@
 #include <Math/Transform.h>
 #include <Camera.h>
 
+struct Chunk;
+
 class GameWorld
 {
 public:
@@ -23,7 +25,8 @@ public:
 
 	void Init();
 	void Render();
-
+private:
+	void UpdateCamera();
 private:
 	Camera mCamera;
 };

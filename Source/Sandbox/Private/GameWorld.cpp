@@ -41,6 +41,7 @@ namespace {
 	std::shared_ptr<GBuffer> gbuffer;
 	std::shared_ptr<UAVTexture> uavTexture;
 	StructuredBuffer* gChunkMinMaxBuffer;
+
 	Texture3D* gChunksData;
 }
 
@@ -68,37 +69,52 @@ void GameWorld::Init()
 	auto shader = Shader::Create("../../Binaries/Shaders/Mesh_VS.cso", "../../Binaries/Shaders/Sky_Sphere_PS.cso");
 	skySphere->GetMaterial(0)->SetShader(shader);
 	skySphere->GetMaterial(0)->SetTexture(0, TextureCube::Create("../../Content/Textures/cube_1024_preblurred_angle3_Skansen3.dds"));
-	skySphere->GetTransform().SetScale(Vector3(400,400,400));
+	skySphere->GetTransform().SetScale(Vector3(400, 400, 400));
 
-	//ThreadPool::GetInstance()->Enqueue(
-	//	[]()
-	//	{
-	//		std::vector<ChunkLoadData*> data(CHUNK_COUNT * CHUNK_COUNT);
-	//		for (int x = 0; x < CHUNK_COUNT; x++)
-	//		{
-	//			for (int z = 0; z < CHUNK_COUNT; z++)
-	//			{
-	//				data[x * CHUNK_COUNT + z] = ChunkGenerator::GenerateChunkFromPerlin(x * CHUNK_SIZE_XZ, z * CHUNK_SIZE_XZ);
-	//			}
-	//		}
-	//		return data;
-	//	},
-	//	[](std::vector<ChunkLoadData*> ChunkData)
-	//	{
-	//		for (int32 i = 0; i < ChunkData.size(); i++)
-	//		{
-	//			Chunk chunk;
-	//			chunk.cube = Mesh::CreateCube();
-	//			chunk.cube->GetTransform().SetPosition(ChunkData[i]->position);
-	//			chunk.cube->GetTransform().SetScale(ChunkData[i]->scale);
-	//			chunk.cube->GetMaterial(0)->SetTexture(0, Texture3D::Create(ChunkData[i]->voxelData));
-	//			delete ChunkData[i];
-	//			chunks.push_back(chunk);
-	//		}
-	//	}
-	//);
+	ChunkGenerator::GenerateChunksThreaded(CHUNK_COUNT, [&](std::vector<Chunk> someChunks) {
+		chunks = someChunks;
+		});
 
-	std::vector<ChunkLoadData*> data(CHUNK_COUNT * CHUNK_COUNT);
+	/*ThreadPool::GetInstance()->Enqueue(
+		[]()
+		{
+			std::vector<ChunkLoadData*> data(CHUNK_COUNT * CHUNK_COUNT);
+			for (int x = 0; x < CHUNK_COUNT; x++)
+			{
+				for (int z = 0; z < CHUNK_COUNT; z++)
+				{
+					data[x * CHUNK_COUNT + z] = ChunkGenerator::GenerateChunkFromPerlin(x * CHUNK_SIZE_XZ, z * CHUNK_SIZE_XZ);
+				}
+			}
+			return data;
+		},
+		[](std::vector<ChunkLoadData*> ChunkData)
+		{
+			for (int32 i = 0; i < ChunkData.size(); i++)
+			{
+				Chunk chunk;
+
+				chunk.cube = Mesh::CreateCube();
+				std::shared_ptr<Shader> chunkShader = Shader::CreateDefaultChunk();
+				chunk.cube->GetMaterial(0)->SetShader(chunkShader);
+
+				chunk.cube->GetTransform().SetPosition(ChunkData[i]->position);
+				chunk.cube->GetTransform().SetScale(ChunkData[i]->scale);
+
+				Texture3D* texture = Texture3D::Create(ChunkData[i]->voxelData);
+				chunk.cube->GetMaterial(0)->SetTexture(0, texture);
+				chunk.voxelsTexture = texture;
+
+				chunk.octree = new Octree();
+				chunk.octree->Build(ChunkData[i]->voxelData, 128, ChunkData[i]->position);
+
+				delete ChunkData[i];
+				chunks.push_back(chunk);
+			}
+		}
+	);*/
+
+	/*std::vector<ChunkLoadData*> data(CHUNK_COUNT * CHUNK_COUNT);
 	for (int x = 0; x < CHUNK_COUNT; x++)
 	{
 		for (int z = 0; z < CHUNK_COUNT; z++)
@@ -108,26 +124,26 @@ void GameWorld::Init()
 	}
 
 	for (int32 i = 0; i < data.size(); i++)
-	{ 
+	{
 		Chunk chunk;
+
 		chunk.cube = Mesh::CreateCube();
+		std::shared_ptr<Shader> chunkShader = Shader::CreateDefaultChunk();
+		chunk.cube->GetMaterial(0)->SetShader(chunkShader);
+
 		chunk.cube->GetTransform().SetPosition(data[i]->position);
 		chunk.cube->GetTransform().SetScale(data[i]->scale);
+
 		Texture3D* texture = Texture3D::Create(data[i]->voxelData);
 		chunk.cube->GetMaterial(0)->SetTexture(0, texture);
 		chunk.voxelsTexture = texture;
+
 		chunk.octree = new Octree();
-		if (i == 1)
-		{
-			auto arr = Array3D<uint8>(128, 128, 128, 0);
-			arr[0] = 1;
-			chunk.octree->Build(arr, 128, data[i]->position);
-		}
-		else
-			chunk.octree->Build(data[i]->voxelData, 128, data[i]->position);
+		chunk.octree->Build(data[i]->voxelData, 128, data[i]->position);
+
 		delete data[i];
 		chunks.push_back(chunk);
-	}
+	}*/
 
 	MaterialConstantBufferData colorData;
 	float mod = 0.05f;
@@ -147,7 +163,7 @@ void GameWorld::Init()
 	colorData.colors[3] = OffsetColor(Color(1, 0.79f, 0.29f, 1), mod);
 	colorData.colors[4] = OffsetColor(Color(1, 0.79f, 0.29f, 1), mod);
 	colorData.colors[5] = OffsetColor(Color(1, 0.79f, 0.29f, 1), mod);
-	
+
 	colorData.colors[6] = OffsetColor(Color(0, 1, 0, 1), mod);
 	colorData.colors[7] = OffsetColor(Color(0, 1, 0, 1), mod);
 	colorData.colors[8] = OffsetColor(Color(0, 1, 0, 1), mod);
@@ -171,14 +187,14 @@ void GameWorld::Init()
 		0, 1, 2, // First triangle
 		2, 1, 3  // Second triangle
 	};
-	uavTexture = UAVTexture::Create(Vector2(1200,720));
+	uavTexture = UAVTexture::Create(Vector2(1200, 720));
 
 	fullQuad = Mesh::Create(vertices, indices);
 	std::shared_ptr<Material> material = Material::Create("../../Binaries/Shaders/Full_Screen_Quad_VS.cso", "../../Binaries/Shaders/Full_Screen_Quad_PS.cso");
 	fullQuad->SetMaterial(0, material);
 	fullQuad->GetMaterial(0)->SetTexture(0, uavTexture->GetTexture2D());
 
-	auto context = Renderer::GetInstance()->GetDeviceContext();
+	/*auto context = Renderer::GetInstance()->GetDeviceContext();
 
 	gChunksData = Texture3D::CreateUAV(Vector3(CHUNK_COUNT * CHUNK_SIZE_XZ, CHUNK_SIZE_Y, CHUNK_COUNT * CHUNK_SIZE_XZ));
 	for (int z = 0; z < CHUNK_COUNT; z++)
@@ -186,7 +202,7 @@ void GameWorld::Init()
 		for (int x = 0; x < CHUNK_COUNT; x++)
 		{
 			int chunkIndex = z * CHUNK_COUNT + x;
-			int offsetX = x * CHUNK_SIZE_XZ;  
+			int offsetX = x * CHUNK_SIZE_XZ;
 			int offsetZ = z * CHUNK_SIZE_XZ;
 
 			D3D11_BOX region;
@@ -196,7 +212,7 @@ void GameWorld::Init()
 			region.bottom = CHUNK_SIZE_Y;
 			region.front = 0;
 			region.back = CHUNK_SIZE_XZ;
-			
+
 			context->CopySubresourceRegion(
 				gChunksData->GetTexture3D(),                // Destination texture
 				0,                           // Mip level
@@ -218,28 +234,23 @@ void GameWorld::Init()
 			chunkBoundsData[index].max = { (float)((x + 1) * CHUNK_SIZE_XZ), (float)CHUNK_SIZE_Y, (float)((z + 1) * CHUNK_SIZE_XZ) };
 		}
 	}
-	
-	gChunkMinMaxBuffer = StructuredBuffer::Create(sizeof(ObjectBounds), (uint32)chunkBoundsData.size(), chunkBoundsData.data());
+
+	gChunkMinMaxBuffer = StructuredBuffer::Create(sizeof(ObjectBounds), (uint32)chunkBoundsData.size(), chunkBoundsData.data());*/
 }
 
 void GameWorld::Render()
 {
 	colorBuffer.Bind(ConstantBuffers::eMaterialConstantBuffer);
-	
-	//for (int32 i = 0; i < 1000; i++)
-	//{
-	//	Renderer::GetInstance()->DrawDebugLine(Vector3(), Vector3(10000,0,0));
-	//}
 
 	gbuffer->ClearRenderTargets();
-	gbuffer->BindRenderTargets();
-	
+	gbuffer->BindRenderTargets(); 
+
 	Renderer::GetInstance()->DisableDepthWriting();
 	skySphere->Draw();
 	Renderer::GetInstance()->EnableDepthWriting();
-	
 	for (int i = 0; i < chunks.size(); i++)
 	{
+		//chunks[i].octree->BindFlattenedOctreeToPS(1);
 		chunks[i].cube->Draw();
 		Vector3 pos = chunks[i].cube->GetTransform().GetPosition();
 		chunks[i].octree->DrawDebug(pos);
@@ -247,18 +258,23 @@ void GameWorld::Render()
 	Renderer::GetInstance()->RenderDebugLines();
 	gbuffer->UnbindRenderTargets();
 
-	//gbuffer->BindTexturesToCS(0);
-	//uavTexture->BindCS(0);
-	//gChunksData->BindCS(3);
-	//gChunkMinMaxBuffer->Bind(4);
-	//shadowShader.Dispatch((1200 + 15) / 16, (720 + 15) / 16, 1);
-	//uavTexture->UnbindCS(0);
-	//gbuffer->UnbindTexturesFromCS(0);
+	/*gbuffer->BindTexturesToCS(0);
+	uavTexture->BindCS(0);
+	gChunksData->BindCS(3);
+	gChunkMinMaxBuffer->BindToCS(4);
+	shadowShader.Dispatch((1200 + 15) / 16, (720 + 15) / 16, 1);
+	uavTexture->UnbindCS(0);
+	gbuffer->UnbindTexturesFromCS(0);*/
 
 	Renderer::GetInstance()->RenderToBackbuffer();
 	gbuffer->BindTexturesToPS(1);
 	fullQuad->Draw();
 
+	UpdateCamera();
+}
+
+void GameWorld::UpdateCamera()
+{
 	if (!GetAsyncKeyState(VK_RBUTTON))
 	{
 		InputMapper::GetInstance()->ReleaseMouse();

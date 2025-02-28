@@ -35,6 +35,7 @@ bool Editor::Init()
 	EditorWindowManager::GetInstance()->CreateWindow("SceneWindow");
 	EditorWindowManager::GetInstance()->CreateWindow("GraphicsDebugWindow");
 	EditorWindowManager::GetInstance()->CreateWindow("DebugInformationWindow");
+	//EditorWindowManager::GetInstance()->CreateWindow("ChunkDebugWindow");
 
 	return true;
 }

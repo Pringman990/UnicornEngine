@@ -30,14 +30,16 @@ project "Editor"
 		dirs.Editor,
 		"ImguiCore",
 		"Renderer",
-		"Core"
+		"Core",
+		"Engine"
 	})
 
 	linkDependencies("Editor", 
 	{
 		"ImguiCore",
 		"Renderer",
-		"Core"
+		"Core",
+		"Engine"
 	})
 
 	pchheader "pch.h"

@@ -6,8 +6,9 @@ public:
 	StructuredBuffer();
 	~StructuredBuffer();
 
-	static StructuredBuffer* Create(uint32 aTypeSize, uint32 aDataSize, void* someInitalData = nullptr);
-	void Bind(uint32 aSlot);
+	static StructuredBuffer* Create(uint32 aTypeSize, uint32 aDataCount, void* someInitalData = nullptr);
+	void BindToCS(uint32 aSlot);
+	void BindToPS(uint32 aSlot);
 
 private:
 	ComPtr<ID3D11Buffer> mStructuredBuffer;

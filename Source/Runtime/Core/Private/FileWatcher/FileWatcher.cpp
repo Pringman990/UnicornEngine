@@ -113,22 +113,22 @@ void FileWatcher::ProcessDirectoryChange(FILE_NOTIFY_INFORMATION* aNotifyInforma
 	switch (aNotifyInformation->Action)
 	{
 	case FILE_ACTION_ADDED:
-		_LOG_CORE_INFO("File added: %s", WStringToString(stringPath));
+		_LOG_CORE_INFO("File added: {}", WStringToString(stringPath));
 		break;
 	case FILE_ACTION_REMOVED:
-		_LOG_CORE_INFO("File removed %s", WStringToString(stringPath));
+		_LOG_CORE_INFO("File removed {}", WStringToString(stringPath));
 		break;
 	case FILE_ACTION_MODIFIED:
-		_LOG_CORE_INFO("File modified: %s", WStringToString(stringPath));
+		_LOG_CORE_INFO("File modified: {}", WStringToString(stringPath));
 		break;
 	case FILE_ACTION_RENAMED_OLD_NAME:
-		_LOG_CORE_INFO("File renamed from: %s", WStringToString(stringPath));
+		_LOG_CORE_INFO("File renamed from: {}", WStringToString(stringPath));
 		break;
 	case FILE_ACTION_RENAMED_NEW_NAME:
-		_LOG_CORE_INFO("File renamed to: %s", WStringToString(stringPath));
+		_LOG_CORE_INFO("File renamed to: {}", WStringToString(stringPath));
 		break;
 	default:
-		_LOG_CORE_INFO("Unknown action: %s", WStringToString(stringPath));
+		_LOG_CORE_INFO("Unknown action: {}", WStringToString(stringPath));
 		break;
 	}
 #endif // _DEBUG
