@@ -2,6 +2,7 @@
 
 SamplerState DefaultSampler : register(s0);
 Texture3D<uint1> VoxelData : register(t0);
+Texture3D<uint1> ChunkTextures : register(t1);
 
 struct GBufferOutput
 {
@@ -32,28 +33,9 @@ bool RayBoxIntersect(float3 rayOrigin, float3 rayDir, float3 boxMin, float3 boxM
     return (tMax > tMin) && (tMax > 0);
 }
 
-GBufferOutput main(MeshPixelInput input)
+uint CheckVoxelTextureForHit(float3 rayOrigin, float3 rayDirection, float tMin, float3 startPosition)
 {
-    GBufferOutput result;
-    result.albedo = float4(0,0,0,0);
-    result.normal = float4(0,0,0,0);
-    result.worldPosition = float4(0,0,0,0);
-    result.depth = float(0);
-
-    float3 rayOrigin = cameraPosition;
-    float3 rayDirection = input.worldPosition.xyz - cameraPosition;
-    
-    float tMin = 0; //Enter time
-    float tMax = 0; //Exit time
-    
-    //Check if we hit the chunk
-    if (!RayBoxIntersect(rayOrigin, rayDirection, objectMinBounds, objectMaxBounds, tMin, tMax))
-        discard;
-        
     float3 voxelSize = float3(objectMaxBounds - objectMinBounds) / float3(CHUNK_SIZE_XZ, CHUNK_SIZE_Y, CHUNK_SIZE_XZ);
-    
-    //Find world start position of ray in chunk
-    float3 startPosition = rayOrigin + rayDirection * (tMin + EPSILON);
     
     //world-space->boundary->voxel-space
     int3 voxelTexCoord = int3(floor((startPosition - objectMinBounds) / voxelSize));
@@ -76,21 +58,7 @@ GBufferOutput main(MeshPixelInput input)
         //Check if voxel is solid (0 = air)
         if (voxelTexColorIndex > 0)
         {
-            result.albedo = colors[voxelTexColorIndex];
-            
-            if (tMin < EPSILON)
-                tMin = 0.0f;
-            
-            float4 clipPosition = mul(worldToClipMatrix, float4(startPosition, 1.0f));
-            if (clipPosition.w < EPSILON)
-                clipPosition.w = EPSILON;
-            
-            result.depth = clipPosition.z / clipPosition.w;
-            if (tMin == 0.0f)
-                result.depth = saturate(result.depth - 0.0001f);
-            
-            result.worldPosition = float4(startPosition, 1.0f);
-            return result;
+            return voxelTexColorIndex;
         }
         
         if (tMaxDistance.x < tMaxDistance.y && tMaxDistance.x < tMaxDistance.z)
@@ -117,10 +85,54 @@ GBufferOutput main(MeshPixelInput input)
             voxelTexCoord.z >= CHUNK_SIZE_XZ
             )
         {
-            discard;
+            return 0;
         }
-
     }
+    return 0;
+}
+
+GBufferOutput main(MeshPixelInput input)
+{
+    GBufferOutput result;
+    result.albedo = float4(0,0,0,0);
+    result.normal = float4(0,0,0,0);
+    result.worldPosition = float4(0,0,0,0);
+    result.depth = float(0);
+
+    float3 rayOrigin = cameraPosition;
+    float3 rayDirection = input.worldPosition.xyz - cameraPosition;
+    
+    float tMin = 0; //Enter time
+    float tMax = 0; //Exit time
+    
+    //Check if we hit the chunk
+    if (!RayBoxIntersect(rayOrigin, rayDirection, objectMinBounds, objectMaxBounds, tMin, tMax))
+        discard;
+    
+     //Find world start position of ray in chunk
+    float3 startPosition = rayOrigin + rayDirection * (tMin + EPSILON);
+    
+    uint hitVoxelTexIndex = CheckVoxelTextureForHit(rayOrigin, rayDirection, tMin, startPosition);
+    if (hitVoxelTexIndex != 0)
+    {
+        result.albedo = colors[hitVoxelTexIndex];
+            
+        if (tMin < EPSILON)
+            tMin = 0.0f;
+            
+        float4 clipPosition = mul(worldToClipMatrix, float4(startPosition, 1.0f));
+        if (clipPosition.w < EPSILON)
+            clipPosition.w = EPSILON;
+            
+        result.depth = clipPosition.z / clipPosition.w;
+        if (tMin == 0.0f)
+            result.depth = saturate(result.depth - 0.0001f);
+            
+        result.worldPosition = float4(startPosition, 1.0f);
+        return result;
+    }
+    
+      
     
     discard;
     return result;

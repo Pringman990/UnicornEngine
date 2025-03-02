@@ -16,11 +16,6 @@ Octree::~Octree()
 void Octree::Build(const Array3D<uint8>& someVoxels, int aNodeSize, const Vector3& aChunkPosition)
 {
 	mRootNode = BuildInternal(someVoxels, aNodeSize, aChunkPosition, aChunkPosition);
-	if (mRootNode)
-	{
-		FlattenOctree(mRootNode.get());
-		mChunkOctree = StructuredBuffer::Create(sizeof(int32), (uint32)mFlattenedOctree.size(), mFlattenedOctree.data());
-	}
 }
 
 void Octree::DrawDebug(const Vector3& aRootPosition)
@@ -83,8 +78,6 @@ std::unique_ptr<Octree::OctreeNode> Octree::BuildInternal(const Array3D<uint8>& 
 	int32 childSize = aNodeSize / 2;
 	for (int32 i = 0; i < 8; i++)
 	{
-		//check if child has any solid voxles in it 
-		//if so split it and run again.
 		Vector3 childOffset(
 			((i & 1) ? 1.0f : 0.0f) * childSize * VOXEL_SIZE,
 			((i & 2) ? 1.0f : 0.0f) * childSize * VOXEL_SIZE,
@@ -132,36 +125,6 @@ bool Octree::HasSolidVoxel(const Array3D<uint8>& someVoxels, int aNodeSize, cons
 		}
 	}
 	return false;
-}
-
-int32 Octree::FlattenOctree(Octree::OctreeNode* aNode)
-{
-	if (!aNode)
-		return -1;
-
-	int32 nodeIndex = (int32)mFlattenedOctree.size();
-	mFlattenedOctree.resize(nodeIndex + 8, -1);
-
-	mNodeToFlatIndex[aNode] = nodeIndex;
-
-	if (aNode->isLeaf)
-	{
-		for (int32 i = 0; i < 8; i++)
-		{
-			mFlattenedOctree[nodeIndex + i] = -10;
-		}
-		return nodeIndex;
-	}
-
-	for (int32 i = 0; i < 8; i++)
-	{
-		if (aNode->children[i])
-		{
-			mFlattenedOctree[nodeIndex + i] = FlattenOctree(aNode->children[i].get());
-		}
-	}
-
-	return nodeIndex;
 }
 
 void Octree::DrawDebugRecursive(const std::unique_ptr<OctreeNode>& aNode, int aNodeSize, const Vector3& aPosition)
