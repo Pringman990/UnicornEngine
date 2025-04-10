@@ -1,0 +1,11 @@
+[Bb]inaries/Shaders/
+[Bb]inaries/Logs/
+[Bb]inaries/Win64/
+[Ii]ntermediate/
+
+*.vs
+*.sln
+
+/DawnCache
+debug.log
+/GPUCache
