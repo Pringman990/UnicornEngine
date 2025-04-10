@@ -17,6 +17,7 @@ Win32DX12ImguiBackend::~Win32DX12ImguiBackend()
 
 bool Win32DX12ImguiBackend::Init()
 {
+	_PAUSE_TRACK_MEMORY(true);
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable;
@@ -50,6 +51,8 @@ bool Win32DX12ImguiBackend::Init()
 
 	io.Fonts->AddFontFromFileTTF((contentPath + "\\fa-solid-900.ttf").c_str(), 11.0f, &icons_config, icons_ranges);
 	io.Fonts->Build();
+
+	_PAUSE_TRACK_MEMORY(false);
 
 	WindowsApplication* windowsApp = static_cast<WindowsApplication*>(Application::GetInstance()->GetApplication());
 	if (!ImGui_ImplWin32_Init(windowsApp->GetWindowsWindowInfo().windowHandle))
