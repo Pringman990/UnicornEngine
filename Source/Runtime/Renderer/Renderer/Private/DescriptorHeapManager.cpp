@@ -6,10 +6,10 @@ DescriptorHeapManager::DescriptorHeapManager(D3D12_DESCRIPTOR_HEAP_TYPE aType, u
 	mHeap(nullptr),
 	mType(aType),
 	mCPUHeapStart(),
+	mFlags(D3D12_DESCRIPTOR_HEAP_FLAG_NONE),
 	mDescriptorCount(aDescriptorCount),
 	mIncrementSize(0),
-	mNextFreeIndex(0),
-	mFlags(D3D12_DESCRIPTOR_HEAP_FLAG_NONE)
+	mNextFreeIndex(0)
 {
 
 }
@@ -92,21 +92,6 @@ void DescriptorHeapManager::Free(D3D12_CPU_DESCRIPTOR_HANDLE aHandle)
 	}
 }
 
-ID3D12DescriptorHeap* DescriptorHeapManager::GetHeap()
-{
-	return mHeap.Get();
-}
-
-D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetHeapCPUStart()
-{
-	return mCPUHeapStart;
-}
-
-uint32 DescriptorHeapManager::GetIncrementSize()
-{
-	return mIncrementSize;
-}
-
 bool DescriptorHeapManager::Resize()
 {
 	uint32 newSize = mDescriptorCount + (mDescriptorCount / 2);
@@ -136,4 +121,19 @@ bool DescriptorHeapManager::Resize()
 	mDescriptorCount = newSize;
 	
 	return true;
+}
+
+ID3D12DescriptorHeap* DescriptorHeapManager::GetHeap()
+{
+	return mHeap.Get();
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::GetHeapCPUStart()
+{
+	return mCPUHeapStart;
+}
+
+uint32 DescriptorHeapManager::GetIncrementSize()
+{
+	return mIncrementSize;
 }

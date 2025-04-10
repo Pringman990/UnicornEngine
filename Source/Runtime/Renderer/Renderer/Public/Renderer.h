@@ -1,6 +1,8 @@
 #pragma once
 #include <Singleton.h>
 #include <StandardTypes/StandardTypes.h>
+#include <EventDispatcher/Notifier.h>
+
 #include "DescriptorHeapManager.h"
 
 #include <wrl/client.h>
@@ -35,7 +37,6 @@ struct GraphicsCardInfo
 	uint64 approxFreeVideoMemory = 0;
 };
 
-
 class Renderer : public Singleton<Renderer>
 {
 	friend class Singleton<Renderer>;
@@ -64,9 +65,14 @@ public:
 	DescriptorHeapManager& GetSamplerHeapManager();
 
 	void WaitForGPU();
+
+	MultiNotifierArgs<Vector2> OnBackbufferResize;
+
 private:
 	Renderer();
 	~Renderer();
+
+	void ProcessWindowsMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	bool SetupDevice();
 	bool SetupCommandQueue();
@@ -87,15 +93,13 @@ private:
 
 	ComPtr<ID3D12Fence> mFence;
 	HANDLE mFenceEvent;
-	uint64 mFenceValue = 0;
+	uint64 mFenceValue;
 	uint32 mFrameIndex;
 
 	DescriptorHeapManager mRTVHeapManager;
 	DescriptorHeapManager mDSVHeapManager;
 	DescriptorHeapManager mSRVHeapManager;
 	DescriptorHeapManager mSamplerHeapManager;
-	
-	RendererWindowsMessageObserver* mWindowsMessageObserver;
 
 	Color mClearColor;
 	bool mVsync;

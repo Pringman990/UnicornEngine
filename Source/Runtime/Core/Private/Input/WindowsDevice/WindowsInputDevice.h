@@ -1,11 +1,9 @@
 #pragma once
 #include "Input/GenericDevice/InputDevice.h"
-#include <Application/Windows/IWindowsMessageObserver.h>
 
 class WindowsInputDevice
 	:
-	public InputDevice,
-	public IWindowsMessageObserver
+	public InputDevice
 {
 public:
 	WindowsInputDevice(InputMapper* aMapper);
@@ -13,7 +11,6 @@ public:
 
 	virtual void Init() override;
 	virtual void Update() override;
-	virtual void ProccessMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) override;
 
 	virtual void GetKeys(std::unordered_map<std::string, uint32_t>& aStringKeyMap) override;
 

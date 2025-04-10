@@ -16,7 +16,6 @@ Texture2D::Texture2D()
 Texture2D::~Texture2D()
 {
 	Release();
-	//mSRV.Reset();
 }
 
 void Texture2D::Resize(const Vector2& aNewSize)
@@ -36,6 +35,8 @@ void Texture2D::Release()
 		Renderer::GetInstance()->GetSRVHeapManager().Free(mSRVHandle);
 		mSRV.Reset();
 	}
+	mSize = {0,0};
+	mMipLevel = 0;
 }
 
 Texture2D* Texture2D::Create(const std::wstring& aDDSPath)

@@ -35,9 +35,8 @@ private:
 	Editor* mEditor = nullptr;
 #endif // _EDITOR
 
-	SandboxRender mSandboxRender;
-
 	HMODULE mSandBoxModule;
+	SandboxRender mSandboxRender;
 
 	bool mShouldExit;
 };

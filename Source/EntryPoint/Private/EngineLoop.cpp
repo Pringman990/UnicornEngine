@@ -3,7 +3,6 @@
 #include <Application/Application.h>
 #include <Application/Generic/GenericApplication.h>
 
-#include <EventDispatcher/EventDispatcher.h>
 //#include <AssetRegistry.h>
 #include <Input/InputMapper.h>
 #include <Renderer.h>
@@ -20,12 +19,12 @@
 
 EngineLoop::EngineLoop()
 	:
-	mShouldExit(false),
 	mGenericApplication(nullptr),
 	mRenderer(nullptr),
-	mSandboxRender(nullptr),
+	mFileWatcher(nullptr),
 	mSandBoxModule(),
-	mFileWatcher(nullptr)
+	mSandboxRender(nullptr),
+	mShouldExit(false)
 {
 }
 
@@ -41,11 +40,10 @@ EngineLoop::~EngineLoop()
 	Renderer::Shutdown();
 	FileWatcher::Shutdown();
 	Application::Shutdown();
-	EventDispatcher::Shutdown();
 
 	mRenderer = nullptr;
 	mGenericApplication = nullptr;
-
+	mFileWatcher = nullptr;
 }
 
 bool EngineLoop::Init()
@@ -53,11 +51,10 @@ bool EngineLoop::Init()
 	TIMER_START_READING("__Engine Loop Init__");
 	_LOG_CORE_INFO("Engine Loop Starting Init");
 
-	EventDispatcher::Create();
-	EventDispatcher::GetInstance()->RegisterReceiver(DispatchEvents::eEngineExit, [&]() { RequestExit(); });
-
 	Application::Create();
 	mGenericApplication = Application::GetInstance()->_CreateApplication();
+
+	mGenericApplication->OnApplicationRequestExist.AddRaw(this, &EngineLoop::RequestExit);
 
 	if (!mGenericApplication->Init())
 	{
@@ -81,30 +78,41 @@ bool EngineLoop::Init()
 	{
 		_LOG_CORE_INFO("Creating Renderer");
 		_PAUSE_TRACK_MEMORY(true); // We turn off tracking because there is a phantom memory leak
+		
 		Renderer::Create();
+		
 		_PAUSE_TRACK_MEMORY(false);
+		
 		mRenderer = Renderer::GetInstance();
 		_ENSURE_CORE(mRenderer, "Engine Loop Failed To Create Renderer");
 
-		_LOG_CORE_INFO("Renderer Initilizing");
+		_LOG_CORE_INFO("Renderer Initializing");
+		
 		TIMER_START_READING("__Engine Loop Renderer Init__");
 		if (!mRenderer->Init())
 		{
 			_ENSURE_CORE(false, "Engine Loop Failed To Init Renderer");
 			return false;
 		}
+		
 		float rendererInitTime = TIMER_END_READING("__Engine Loop Renderer Init__");
-		_LOG_CORE_INFO("Renderer has finished Initilize, it took: {:0.7f}s", rendererInitTime);
+		_LOG_CORE_INFO("Renderer has finished Initialize, it took: {:0.7f}s", rendererInitTime);
 	}
 
 #ifdef _EDITOR
 	{
+		_LOG_CORE_INFO("Editor Initializing");
+		TIMER_START_READING("__Engine Loop Editor Init__");
+
 		mEditor = new Editor();
 		if (!mEditor->Init())
 		{
 			_ENSURE_CORE(false, "Engine Loop Failed To Init Editor");
 			return false;
 		}
+
+		float editorInitTime = TIMER_END_READING("__Engine Loop Editor Init__");
+		_LOG_CORE_INFO("Editor has finished Initialize, it took: {:0.7f}s", editorInitTime);
 	}
 #endif // _EDITOR
 
@@ -145,17 +153,14 @@ bool EngineLoop::Init()
 #endif // WIN64
 
 		SandboxInit initGameWorld = (SandboxInit)GetProcAddress(mSandBoxModule, "InitGameWorld");
-
 		if (!initGameWorld) {
 			std::cerr << "Could not locate the functions" << std::endl;
 			FreeLibrary(mSandBoxModule);
 			return false;
 		}
-
 		initGameWorld();
 
 		mSandboxRender = (SandboxRender)GetProcAddress(mSandBoxModule, "RenderGameWorld");
-
 		if (!mSandboxRender) {
 			std::cerr << "Could not locate the functions" << std::endl;
 			FreeLibrary(mSandBoxModule);
@@ -166,7 +171,7 @@ bool EngineLoop::Init()
 	}
 
 	float initTime = TIMER_END_READING("__Engine Loop Init__");
-	_LOG_CORE_INFO("Engine Loop has finished Initilize, it took: {:0.7f}s", initTime);
+	_LOG_CORE_INFO("Engine Loop has finished Initialize, it took: {:0.7f}s", initTime);
 	return true;
 }
 
@@ -187,9 +192,6 @@ void EngineLoop::Update()
 	mEditor->BeginFrame();
 	mEditor->Render();
 #endif // _EDITOR
-
-	//mRenderer->GetRenderQueue()->Execute();
-
 
 #ifdef _EDITOR
 	mEditor->EndFrame();

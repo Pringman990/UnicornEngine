@@ -10,7 +10,6 @@
 
 #include <Application/Application.h>
 #include <FileWatcher/FileWatcher.h>
-#include <EventDispatcher/EventDispatcher.h>
 
 #include <SimpleMath.h>
 #include <vector>

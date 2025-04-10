@@ -52,7 +52,7 @@ void WindowsInputDevice::Init()
 		return;
 	}
 
-	application->AddWinProcObserver(this);
+	//application->AddWinProcObserver(this);
 }
 
 void WindowsInputDevice::Update()
@@ -61,73 +61,73 @@ void WindowsInputDevice::Update()
 	mTentativeMouseDelta = { 0, 0 };
 }
 
-void WindowsInputDevice::ProccessMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	wParam;
-	hWnd;
-
-	if (message == WM_INPUT)
-	{
-		UINT dwSize = 0;
-		GetRawInputData((HRAWINPUT)lParam, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER));
-
-		LPBYTE lpb = new BYTE[dwSize];
-		if (lpb == nullptr)
-			return;
-
-		if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) != dwSize)
-		{
-			_LOG_CORE_ERROR("GetRawInputData Did Not Return Correct Size");
-		}
-
-		RAWINPUT* raw = (RAWINPUT*)lpb;
-		if (raw->header.dwType == RIM_TYPEKEYBOARD)
-		{
-			RAWKEYBOARD rawKeyboard = raw->data.keyboard;
-			USHORT virtualKey = rawKeyboard.VKey;
-			USHORT flags = rawKeyboard.Flags;
-
-			bool isKeyDown = !(flags & RI_KEY_BREAK);
-
-			ProccessVirtualKeyboardKeys(virtualKey, isKeyDown);
-		}
-
-		if (raw->header.dwType == RIM_TYPEMOUSE)
-		{
-			mTentativeMouseDelta.x += raw->data.mouse.lLastX;
-			mTentativeMouseDelta.y += raw->data.mouse.lLastY;
-		}
-
-		if (raw->header.dwType == RIM_TYPEMOUSE)
-		{
-			RAWMOUSE rawMouse = raw->data.mouse;
-
-			if (rawMouse.usFlags == MOUSE_MOVE_RELATIVE) {
-				//std::cout << "Mouse Move: X = " << rawMouse.lLastX << " Y = " << rawMouse.lLastY << std::endl;
-			}
-
-			if (rawMouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_DOWN) {
-				//std::cout << "Left Mouse Button Down" << std::endl;
-			}
-			if (rawMouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_UP) {
-				//std::cout << "Left Mouse Button Up" << std::endl;
-			}
-			if (rawMouse.usButtonFlags & RI_MOUSE_RIGHT_BUTTON_DOWN) {
-				//std::cout << "Right Mouse Button Down" << std::endl;
-			}
-			if (rawMouse.usButtonFlags & RI_MOUSE_RIGHT_BUTTON_UP) {
-				//std::cout << "Right Mouse Button Up" << std::endl;
-			}
-			if (rawMouse.usButtonFlags & RI_MOUSE_WHEEL) {
-				short wheelDelta = (short)rawMouse.usButtonData;
-				wheelDelta;
-				//std::cout << "Mouse Wheel: " << wheelDelta << std::endl;
-			}
-		}
-
-		delete[] lpb;
-	}
-}
+//void WindowsInputDevice::ProccessMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+//{
+//	wParam;
+//	hWnd;
+//
+//	if (message == WM_INPUT)
+//	{
+//		UINT dwSize = 0;
+//		GetRawInputData((HRAWINPUT)lParam, RID_INPUT, NULL, &dwSize, sizeof(RAWINPUTHEADER));
+//
+//		LPBYTE lpb = new BYTE[dwSize];
+//		if (lpb == nullptr)
+//			return;
+//
+//		if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) != dwSize)
+//		{
+//			_LOG_CORE_ERROR("GetRawInputData Did Not Return Correct Size");
+//		}
+//
+//		RAWINPUT* raw = (RAWINPUT*)lpb;
+//		if (raw->header.dwType == RIM_TYPEKEYBOARD)
+//		{
+//			RAWKEYBOARD rawKeyboard = raw->data.keyboard;
+//			USHORT virtualKey = rawKeyboard.VKey;
+//			USHORT flags = rawKeyboard.Flags;
+//
+//			bool isKeyDown = !(flags & RI_KEY_BREAK);
+//
+//			ProccessVirtualKeyboardKeys(virtualKey, isKeyDown);
+//		}
+//
+//		if (raw->header.dwType == RIM_TYPEMOUSE)
+//		{
+//			mTentativeMouseDelta.x += raw->data.mouse.lLastX;
+//			mTentativeMouseDelta.y += raw->data.mouse.lLastY;
+//		}
+//
+//		if (raw->header.dwType == RIM_TYPEMOUSE)
+//		{
+//			RAWMOUSE rawMouse = raw->data.mouse;
+//
+//			if (rawMouse.usFlags == MOUSE_MOVE_RELATIVE) {
+//				//std::cout << "Mouse Move: X = " << rawMouse.lLastX << " Y = " << rawMouse.lLastY << std::endl;
+//			}
+//
+//			if (rawMouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_DOWN) {
+//				//std::cout << "Left Mouse Button Down" << std::endl;
+//			}
+//			if (rawMouse.usButtonFlags & RI_MOUSE_LEFT_BUTTON_UP) {
+//				//std::cout << "Left Mouse Button Up" << std::endl;
+//			}
+//			if (rawMouse.usButtonFlags & RI_MOUSE_RIGHT_BUTTON_DOWN) {
+//				//std::cout << "Right Mouse Button Down" << std::endl;
+//			}
+//			if (rawMouse.usButtonFlags & RI_MOUSE_RIGHT_BUTTON_UP) {
+//				//std::cout << "Right Mouse Button Up" << std::endl;
+//			}
+//			if (rawMouse.usButtonFlags & RI_MOUSE_WHEEL) {
+//				short wheelDelta = (short)rawMouse.usButtonData;
+//				wheelDelta;
+//				//std::cout << "Mouse Wheel: " << wheelDelta << std::endl;
+//			}
+//		}
+//
+//		delete[] lpb;
+//	}
+//}
 
 void WindowsInputDevice::GetKeys(std::unordered_map<std::string, uint32_t>& aStringKeyMap)
 {

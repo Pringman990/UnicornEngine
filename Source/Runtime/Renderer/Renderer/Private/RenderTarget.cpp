@@ -5,6 +5,13 @@
 
 RenderTarget::RenderTarget()
     :
+	mRTVHandle({}),
+	mDSVHandle({}),
+	mDDSDesc({}),
+	mRTV(nullptr),
+	mDepthStencilBuffer(nullptr),
+	mViewport({}),
+	mScissorRect({}),
 	mIsDepthTesting(true),
 	mSRV(nullptr)
 {
@@ -16,11 +23,6 @@ RenderTarget::~RenderTarget()
 
 	delete mSRV;
 	mSRV = nullptr;
-
-//Renderer::GetInstance()->GetRTVHeapManager().Free(mRTVHandle);
-//mRTV.Reset();
-//Renderer::GetInstance()->GetDSVHeapManager().Free(mDSVHandle);
-//mDepthStencilBuffer.Reset();
 }
 
 void RenderTarget::Resize(Vector2 aSize)
@@ -44,12 +46,16 @@ void RenderTarget::Release(bool ReleaseSRV)
 	{
 		Renderer::GetInstance()->GetRTVHeapManager().Free(mRTVHandle);
 		mRTV.Reset();
+		mRTVHandle = {};
 	}
 	
 	if (mDepthStencilBuffer) 
 	{
 		Renderer::GetInstance()->GetDSVHeapManager().Free(mDSVHandle);
 		mDepthStencilBuffer.Reset();
+		
+		mDSVHandle = {};
+		mDDSDesc = {};
 	}
 
 	if (mSRV && ReleaseSRV)

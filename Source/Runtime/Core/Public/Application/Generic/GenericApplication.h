@@ -1,5 +1,6 @@
 #pragma once
 #include "Application/Generic/IWindow.h"
+#include "EventDispatcher/Notifier.h"
 
 class GenericApplication
 {
@@ -14,5 +15,6 @@ public:
 
 	virtual IWindowInfo& GetWindowInfo();
 
-private:
+	MultiNotifier OnApplicationRequestExist;
+protected:
 };

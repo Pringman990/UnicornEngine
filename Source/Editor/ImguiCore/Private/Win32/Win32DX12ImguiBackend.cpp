@@ -58,7 +58,7 @@ bool Win32DX12ImguiBackend::Init()
 	if (!ImGui_ImplWin32_Init(windowsApp->GetWindowsWindowInfo().windowHandle))
 		return false;
 
-	windowsApp->AddWinProcObserver(this);
+	windowsApp->OnWndProc.AddRaw(this, &Win32DX12ImguiBackend::ProccessMessages);
 
 	Renderer* renderer = Renderer::GetInstance();
 	ID3D12DescriptorHeap* srvHeap = renderer->GetSRVHeapManager().GetHeap();
@@ -73,8 +73,7 @@ bool Win32DX12ImguiBackend::Init()
 	))
 		return false;
 	
-	EventDispatcher::GetInstance()->RegisterReceiver(DispatchEvents::eBackbufferResize, [this]() { ResizeBackBuffer(); });
-
+	renderer->OnBackbufferResize.AddRaw(this, &Win32DX12ImguiBackend::ResizeBackBuffer);
 	return true;
 }
 
@@ -105,7 +104,7 @@ void Win32DX12ImguiBackend::ProccessMessages(HWND hWnd, UINT message, WPARAM wPa
 	ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam);
 }
 
-void Win32DX12ImguiBackend::ResizeBackBuffer()
+void Win32DX12ImguiBackend::ResizeBackBuffer(Vector2 aNewSize)
 {
 	ImGui_ImplDX12_InvalidateDeviceObjects();
 	ImGui_ImplDX12_CreateDeviceObjects();

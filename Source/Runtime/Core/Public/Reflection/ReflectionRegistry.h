@@ -22,10 +22,6 @@ struct ReflectionTypeInfo
 	std::vector<ReflectionMemberInfo> members;
 	std::shared_ptr<std::type_index> type;
 	std::function<std::vector<char>(void)> createInstance;
-
-	//Serializing
-	//std::function<void(YAML::Emitter&, void*&)> saveFunction;
-	//std::function<void(YAML::Node, void*&)> loadFunction;
 };
 
 class ReflectionRegistry : public Singleton<ReflectionRegistry>
@@ -67,24 +63,3 @@ private:
 
 #define REGISTER_MEMBER(TYPE, MEMBER) \
     info.members.push_back({#MEMBER, offsetof(TYPE, MEMBER), sizeof(TYPE::MEMBER), typeid(decltype(TYPE::MEMBER))});
-
-//#define ECOMPONENT(...)
-//#define EMEMBER(...)
-//
-////EMember properties
-//enum {
-//	HideInInspector,
-//	Const,
-//	Category
-//};
-//
-//ECOMPONENT()
-//struct Transform
-//{
-//	EMEMBER(HideInInspector, Const)
-//	int a;
-//};
-//
-//REGISTER_COMPONENT(Transform, 
-//	REGISTER_MEMBER(Transform, Transform::a)
-//)

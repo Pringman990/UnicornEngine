@@ -3,8 +3,6 @@
 
 #include <dwmapi.h>
 #include <Windows.h>
-#include <EventDispatcher/EventDispatcher.h>
-
 
 namespace winInternal
 {
@@ -22,8 +20,8 @@ WindowsApplication::WindowsApplication()
 
 WindowsApplication::~WindowsApplication()
 {
-	mWinProcObservers.clear();
 	winInternal::windowsApplication = nullptr;
+	OnWndProc.RemoveAll();
 }
 
 bool WindowsApplication::Init()
@@ -54,29 +52,12 @@ void WindowsApplication::Update()
 	}
 
 	if (close)
-		EventDispatcher::GetInstance()->Dispatch(DispatchEvents::eEngineExit);
-}
-
-void WindowsApplication::AddWinProcObserver(IWindowsMessageObserver* aObserver)
-{
-	mWinProcObservers.push_back(aObserver);
-}
-
-void WindowsApplication::RemoveWinProcObserver(IWindowsMessageObserver* aObserver)
-{
-	auto it = std::find(mWinProcObservers.begin(), mWinProcObservers.end(), aObserver);
-	if (it != mWinProcObservers.end())
-	{
-		mWinProcObservers.erase(it);
-	}
+		OnApplicationRequestExist.Notify();
 }
 
 LRESULT WindowsApplication::ProccessWindowsMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	for (uint32_t i = 0; i < mWinProcObservers.size(); i++)
-	{
-		mWinProcObservers[i]->ProccessMessages(hWnd, message, wParam, lParam);
-	}
+	OnWndProc.Notify(hWnd, message, wParam, lParam);
 
 	switch (message)
 	{

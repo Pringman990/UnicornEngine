@@ -1,8 +1,7 @@
 #pragma once
 #include "IImguiBackend.h"
-#include "Application/Windows/IWindowsMessageObserver.h"
 
-class Win32DX12ImguiBackend : public IImguiBackend, public IWindowsMessageObserver
+class Win32DX12ImguiBackend : public IImguiBackend
 {
 public:
 	Win32DX12ImguiBackend();
@@ -13,8 +12,8 @@ public:
 	virtual void RenderFrame() override;
 	virtual void EndFrame() override;
 
-	virtual void ProccessMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) override;
+	void ProccessMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
-	void ResizeBackBuffer();
+	void ResizeBackBuffer(Vector2 aNewSize);
 };

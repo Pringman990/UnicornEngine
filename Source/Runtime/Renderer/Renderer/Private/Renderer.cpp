@@ -6,7 +6,6 @@
 
 #include "RenderTarget.h"
 #include "ConstantBuffer/ConstantBuffer.h"
-#include "RendererWindowsMessageObserver.h"
 
 
 #include "Vertex.h"
@@ -19,15 +18,24 @@
 Renderer::Renderer()
 	:
 	mDevice(nullptr),
+	mCommandQueue(nullptr),
 	mSwapChain(nullptr),
-	mClearColor(Color(0.5f, 0.5f, 0.7f, 0)),
-	mVsync(false),
-	mDrawCalls(0),
-	mIsResizing(false),
+	mDXGIFactory(nullptr),
+	mBackBuffers(nullptr),
+	mMainCommandAllocators(nullptr),
+	mMainCommandList(nullptr),
+	mFence(nullptr),
+	mFenceEvent(nullptr),
+	mFenceValue(0),
+	mFrameIndex(0),
 	mRTVHeapManager(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 64),
 	mDSVHeapManager(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 64),
 	mSRVHeapManager(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 512),
-	mSamplerHeapManager(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, 16)
+	mSamplerHeapManager(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, 16),
+	mClearColor(Color(0.5f, 0.5f, 0.7f, 0)),
+	mVsync(true),
+	mDrawCalls(0),
+	mIsResizing(false)
 {
 
 }
@@ -35,10 +43,6 @@ Renderer::Renderer()
 Renderer::~Renderer()
 {
 	WaitForGPU();
-
-	delete mWindowsMessageObserver;
-	mWindowsMessageObserver = nullptr;
-
 
 	for (uint32 i = 0; i < BACKBUFFER_COUNT; i++)
 	{
@@ -136,8 +140,7 @@ bool Renderer::Init()
 		return false;
 	}
 
-	mWindowsMessageObserver = new RendererWindowsMessageObserver();
-	windowsApp->AddWinProcObserver(mWindowsMessageObserver);
+	windowsApp->OnWndProc.AddRaw(this, &Renderer::ProcessWindowsMessages);
 	return true;
 }
 
@@ -195,6 +198,32 @@ void Renderer::Present()
 	mFrameIndex = mSwapChain->GetCurrentBackBufferIndex();
 }
 
+void Renderer::ProcessWindowsMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	switch (message)
+	{
+	case WM_ENTERSIZEMOVE:
+	{
+		SetIsResizingBackbuffer(true);
+		break;
+	}
+	case WM_EXITSIZEMOVE:
+	{
+		SetIsResizingBackbuffer(false);
+		ResizeBackbuffer(LOWORD(lParam), HIWORD(lParam));
+		break;
+	}
+	case WM_SIZE:
+	{
+		if (!IsResizingBackbuffer() && wParam != SIZE_MINIMIZED)
+		{
+			ResizeBackbuffer(LOWORD(lParam), HIWORD(lParam));
+		}
+		break;
+	}
+	}
+}
+
 void Renderer::ResizeBackbuffer(int32 aWidth, int32 aHeight)
 {
 	if (mSwapChain != nullptr)
@@ -232,7 +261,8 @@ void Renderer::ResizeBackbuffer(int32 aWidth, int32 aHeight)
 		{
 			_LOG_RENDERER_ERROR("Failed to resize backbuffers");
 		}
-		EventDispatcher::GetInstance()->Dispatch(DispatchEvents::eBackbufferResize);
+		//EventDispatcher::GetInstance()->Dispatch(DispatchEvents::eBackbufferResize);
+		OnBackbufferResize.Notify(Vector2(aWidth, aHeight));
 	}
 }
 
@@ -399,6 +429,7 @@ void Renderer::WaitForGPU()
 
 #pragma endregion
 
+#pragma region Getters/Setters
 ID3D12Device* Renderer::GetDevice()
 {
 	return mDevice.Get();
@@ -458,3 +489,4 @@ DescriptorHeapManager& Renderer::GetSamplerHeapManager()
 {
 	return mSamplerHeapManager;
 }
+#pragma endregion
