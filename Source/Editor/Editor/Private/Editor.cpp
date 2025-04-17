@@ -35,15 +35,7 @@ bool Editor::Init()
 		return false;
 	}
 
-	//TODO: remove hardcoding windows
-	EditorWindowManager::GetInstance()->RegisterWindowType("SceneWindow", []() {return new SceneWindow(); });
-	EditorWindowManager::GetInstance()->CreateWindow("SceneWindow");
-	
-	EditorWindowManager::GetInstance()->RegisterWindowType("GraphicsDebugWindow", []() {return new GraphicsDebugWindow(); });
-	EditorWindowManager::GetInstance()->CreateWindow("GraphicsDebugWindow");
-	
-	EditorWindowManager::GetInstance()->RegisterWindowType("DebugInformationWindow", []() {return new DebugInformationWindow(); });
-	EditorWindowManager::GetInstance()->CreateWindow("DebugInformationWindow");
+	RegisterEditorWindows();
 
 	return true;
 }
@@ -63,4 +55,16 @@ void Editor::Render()
 void Editor::EndFrame()
 {
 	mImguiBackend->EndFrame();
+}
+
+void Editor::RegisterEditorWindows()
+{
+	EditorWindowManager::GetInstance()->RegisterWindowType("SceneWindow", []() {return new SceneWindow(); });
+	EditorWindowManager::GetInstance()->CreateWindow("SceneWindow");
+
+	EditorWindowManager::GetInstance()->RegisterWindowType("GraphicsDebugWindow", []() {return new GraphicsDebugWindow(); });
+	EditorWindowManager::GetInstance()->CreateWindow("GraphicsDebugWindow");
+
+	EditorWindowManager::GetInstance()->RegisterWindowType("DebugInformationWindow", []() {return new DebugInformationWindow(); });
+	EditorWindowManager::GetInstance()->CreateWindow("DebugInformationWindow");
 }

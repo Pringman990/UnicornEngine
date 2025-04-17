@@ -14,5 +14,7 @@ public:
 	void EndFrame();
 
 private:
+	void RegisterEditorWindows();
+private:
 	IImguiBackend* mImguiBackend;
 };

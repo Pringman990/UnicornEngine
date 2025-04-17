@@ -40,14 +40,14 @@ project "EntryPoint"
 		"Engine",
 	})
 
-	filter("configurations:Debug Editor")
+	filter("configurations:Debug_Editor")
 		includedirs {
 			dirs.Editor,
 		}	
 		links {
 			"Editor"
 		} 
-	filter("configurations:MemoryDebug Editor")
+	filter("configurations:MemoryDebug_Editor")
 		includedirs {
 			dirs.Editor,
 		}	
@@ -63,7 +63,7 @@ project "EntryPoint"
          "xcopy /Q /Y /I \"" .. UCE_DLL_DIR .. "\\debug\\*.pdb\" \"" .. UCE_EXECUTABLE_DIR .. "\\\""
       }
 
-    filter ("configurations:MemoryDebug Editor")
+    filter ("configurations:MemoryDebug_Editor")
       postbuildcommands {
          "echo Copying debug DLLs from " .. UCE_DLL_DIR .. "/debug to " .. UCE_EXECUTABLE_DIR,
          "xcopy /Q /Y /I \"" .. UCE_DLL_DIR .. "\\debug\\*.dll\" \"" .. UCE_EXECUTABLE_DIR .. "\\\"",
@@ -77,7 +77,7 @@ project "EntryPoint"
          "xcopy /Q /Y /I \"" .. UCE_DLL_DIR .. "\\debug\\*.pdb\" \"" .. UCE_EXECUTABLE_DIR .. "\\\""
       }
       
-    filter ("configurations:Debug Editor")
+    filter ("configurations:Debug_Editor")
       postbuildcommands {
          "echo Copying debug DLLs from " .. UCE_DLL_DIR .. "/debug to " .. UCE_EXECUTABLE_DIR,
          "xcopy /Q /Y /I \"" .. UCE_DLL_DIR .. "\\debug\\*.dll\" \"" .. UCE_EXECUTABLE_DIR .. "\\\"",

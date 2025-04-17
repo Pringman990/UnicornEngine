@@ -1,7 +1,6 @@
 #pragma once
+#include <Core.h>
 #include <Singleton.h>
-#include <StandardTypes/StandardTypes.h>
-#include <EventDispatcher/Notifier.h>
 
 #include "DescriptorHeapManager.h"
 

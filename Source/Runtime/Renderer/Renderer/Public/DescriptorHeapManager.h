@@ -1,4 +1,6 @@
 #pragma once
+#include <Core.h>
+
 #include <d3dx12.h>
 #include <wrl/client.h>
 using Microsoft::WRL::ComPtr;

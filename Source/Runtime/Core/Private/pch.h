@@ -10,3 +10,4 @@
 
 #include <StandardTypes/StandardTypes.h>
 #include <SimpleMath.h>
+#include <Logger/Logger.h>

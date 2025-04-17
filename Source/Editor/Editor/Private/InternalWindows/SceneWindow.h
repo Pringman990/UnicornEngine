@@ -1,7 +1,9 @@
 #pragma once
+#include <Core.h>
 #include "EditorWindow.h"
 //#include <RenderTarget/RenderTarget.h>
 #include "EditorCamera.h"
+
 
 class SceneWindow : public EditorWindow
 {

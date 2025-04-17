@@ -88,7 +88,7 @@ function linkDependencies(dependent, dependencies)
     resolveLinksDependencies(dependent, resolved, {})
 
     project(dependent)
-    
+
     for dependency, _ in pairs(resolved) do
         if dependency ~= dependent then
             links { dependency }

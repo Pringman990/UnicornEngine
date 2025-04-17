@@ -1,17 +1,5 @@
 #include "EngineLoop.h"
-
-#include <Application/Application.h>
-#include <Application/Generic/GenericApplication.h>
-
-//#include <AssetRegistry.h>
-#include <Input/InputMapper.h>
 #include <Renderer.h>
-#include <StandardTypes/StandardTypes.h>
-
-#include <Logger/Logger.h>
-#include <Timer/Timer.h>
-#include <SimpleMath.h>
-#include <FileWatcher/FileWatcher.h>
 
 #ifdef _EDITOR
 #include <Editor.h>
@@ -22,8 +10,6 @@ EngineLoop::EngineLoop()
 	mGenericApplication(nullptr),
 	mRenderer(nullptr),
 	mFileWatcher(nullptr),
-	mSandBoxModule(),
-	mSandboxRender(nullptr),
 	mShouldExit(false)
 {
 }
@@ -35,7 +21,8 @@ EngineLoop::~EngineLoop()
 	mEditor = nullptr;
 #endif // _EDITOR
 
-	FreeLibrary(mSandBoxModule);
+	ModuleManager::GetInstance()->UnLoadModule("Sandbox");
+
 	InputMapper::Shutdown();
 	Renderer::Shutdown();
 	FileWatcher::Shutdown();
@@ -118,54 +105,26 @@ bool EngineLoop::Init()
 
 	{
 		_PAUSE_TRACK_MEMORY(true);
-#ifdef _WIN64
 
-#ifdef _EDITOR
-#ifdef _MEMORY_DEBUG
-		mSandBoxModule = LoadLibraryA("Sandbox_MemoryDebug Editor.dll");
-		if (!mSandBoxModule)
+		if (!ModuleManager::GetInstance()->LoadModule("Sandbox"))
 		{
 			return false;
 		}
-#else
-		mSandBoxModule = LoadLibraryA("Sandbox_Debug editor.dll");
-		if (!mSandBoxModule)
-		{
-			return false;
-		}
-#endif // _MEMORY_DEBUG
-#else
-#ifdef _MEMORY_DEBUG
-		mSandBoxModule = LoadLibraryA("Sandbox_MemoryDebug.dll");
-		if (!mSandBoxModule)
-		{
-			return false;
-		}
-#else
-		mSandBoxModule = LoadLibraryA("Sandbox_Debug.dll");
-		if (!mSandBoxModule)
-		{
-			return false;
-		}
-#endif
-#endif // _EDITOR
 
-#endif // WIN64
+		//SandboxInit initGameWorld = (SandboxInit)GetProcAddress(mSandBoxModule, "InitGameWorld");
+		//if (!initGameWorld) {
+		//	std::cerr << "Could not locate the functions" << std::endl;
+		//	FreeLibrary(mSandBoxModule);
+		//	return false;
+		//}
+		//initGameWorld();
 
-		SandboxInit initGameWorld = (SandboxInit)GetProcAddress(mSandBoxModule, "InitGameWorld");
-		if (!initGameWorld) {
-			std::cerr << "Could not locate the functions" << std::endl;
-			FreeLibrary(mSandBoxModule);
-			return false;
-		}
-		initGameWorld();
-
-		mSandboxRender = (SandboxRender)GetProcAddress(mSandBoxModule, "RenderGameWorld");
-		if (!mSandboxRender) {
-			std::cerr << "Could not locate the functions" << std::endl;
-			FreeLibrary(mSandBoxModule);
-			return false;
-		}
+		//mSandboxRender = (SandboxRender)GetProcAddress(mSandBoxModule, "RenderGameWorld");
+		//if (!mSandboxRender) {
+		//	std::cerr << "Could not locate the functions" << std::endl;
+		//	FreeLibrary(mSandBoxModule);
+		//	return false;
+		//}
 
 		_PAUSE_TRACK_MEMORY(false);
 	}
@@ -186,7 +145,6 @@ void EngineLoop::Update()
 	mRenderer->PreRender();
 
 	mRenderer->RenderToBackbuffer();
-	mSandboxRender();
 
 #ifdef _EDITOR
 	mEditor->BeginFrame();

@@ -1,4 +1,5 @@
 #pragma once
+#include <Core.h>
 #include "EditorWindow.h"
 
 class DebugInformationWindow : public EditorWindow

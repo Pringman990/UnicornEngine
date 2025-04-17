@@ -1,5 +1,7 @@
 print("Including Source/")
 
+require "export-compile-commands"
+
 include "../Scripts/Premake/common.lua"
 
 solution "Unicorn Engine"
@@ -8,9 +10,9 @@ solution "Unicorn Engine"
     
     configurations {
         "MemoryDebug",
-        "MemoryDebug Editor",
+        "MemoryDebug_Editor",
         "Debug",
-        "Debug editor",
+        "Debug_Editor",
         "Retail"
     }
 
@@ -25,31 +27,31 @@ solution "Unicorn Engine"
 		runtime "Debug"
 		symbols "Full"
 		optimize "Off"
-		defines {"_MEMORY_DEBUG", "_DEBUG"}
+		defines {'BUILD_CONFIG="MemoryDebug"', "_MEMORY_DEBUG", "_DEBUG"}
 
-	filter ("configurations:MemoryDebug Editor")
+	filter ("configurations:MemoryDebug_Editor")
 		runtime "Debug"
 		symbols "Full"
 		optimize "Off"
-		defines {"_MEMORY_DEBUG", "_DEBUG", "_EDITOR"}
+		defines {'BUILD_CONFIG="MemoryDebug_Editor"', "_MEMORY_DEBUG", "_DEBUG", "_EDITOR"}
 
     filter ("configurations:Debug")
 		runtime "Debug"
 		symbols "Full"
 		optimize "Off"
-		defines {"_DEBUG"}
+		defines {'BUILD_CONFIG="Debug"', "_DEBUG"}
 
-	filter("configurations:Debug Editor")
+	filter("configurations:Debug_Editor")
 		runtime "Debug"
 		symbols "Full"
 		optimize "Off"
-		defines {"_EDITOR"}
+		defines {'BUILD_CONFIG="Debug_Editor"', "_EDITOR"}
 
 	filter ("configurations:Retail")
 		runtime "Release"
 		symbols "Off"
 		optimize "Full"
-		defines {"NDEBUG"}
+		defines {'BUILD_CONFIG="Retail"', "NDEBUG"}
 
 	filter ("configurations:Retail", "action:vs*")
 		buildoptions {"/wd4189"}
@@ -66,13 +68,14 @@ solution "Unicorn Engine"
     filter {}
 
 
+
+
 --Source Root Directories
 dirs["ThirdParty"]			= os.realpath(dirs.Source .. "ThirdParty/")
 dirs["Runtime"]			    = os.realpath(dirs.Source .. "Runtime/")
 dirs["Editor"]			    = os.realpath(dirs.Source .. "Editor/")
 dirs["EntryPoint"]			= os.realpath(dirs.Source .. "EntryPoint/")
 dirs["Sandbox"]				= os.realpath(dirs.Source .. "Sandbox/Public/")
-
 
 --Inluding all thirdparty standalone libs
 include (dirs.ThirdParty)

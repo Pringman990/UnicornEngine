@@ -1,4 +1,5 @@
 #pragma once
+#include <Core.h>
 
 #ifdef _WIN64
 #include <Windows.h>
@@ -34,9 +35,6 @@ private:
 #ifdef _EDITOR
 	Editor* mEditor = nullptr;
 #endif // _EDITOR
-
-	HMODULE mSandBoxModule;
-	SandboxRender mSandboxRender;
 
 	bool mShouldExit;
 };

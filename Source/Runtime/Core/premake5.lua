@@ -74,7 +74,8 @@ project "Core"
 		"SimpleMath",
 		"Singleton",
 		"Spdlog",
-		"StackWalker"
+		"StackWalker",
+		"Build"
 	})
 
 	linkDependencies("Core", 

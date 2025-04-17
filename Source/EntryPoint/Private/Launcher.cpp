@@ -1,11 +1,7 @@
 #include <stdint.h>
-#include <Logger/Logger.h>
 #include <Singleton.h>
-#include <Timer/Timer.h>
 #include "EngineLoop.h"
-#include <MemoryDebugger/MemoryDebugger.h>
-#include <Reflection/ReflectionRegistry.h>
-#include <Threading/ThreadPool.h>
+#include <Core.h>
 
 int32_t GuardedMain()
 {
@@ -21,6 +17,8 @@ int32_t GuardedMain()
 
 		Timer::Create();
 		Timer* timer = Timer::GetInstance();
+
+		ModuleManager::Create();
 
 		if (!engineLoop.Init())
 		{
@@ -42,10 +40,13 @@ int32_t GuardedMain()
 		_LOG_CORE_INFO("Main cleanup done, Goodbye welcome back!");
 
 		//ReflectionRegistry::Shutdown();
-		Timer::Shutdown();
-		ThreadPool::Shutdown();
-		Logger::Shutdown();
 	}
+	
+	ModuleManager::Shutdown();
+	Timer::Shutdown();
+	ThreadPool::Shutdown();
+	Logger::Shutdown();
+
 	//AssetRegistry::Shutdown();
 	_Singleton::CheckAllHasShutdown();
 	_STOP_TRACK_MEMORY();

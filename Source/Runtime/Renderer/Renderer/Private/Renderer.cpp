@@ -1,12 +1,10 @@
 #include "pch.h"
 #include "Renderer.h"
 
-#include <Application/Application.h>
-#include <Application/Windows/WindowsApplication.h>
-
 #include "RenderTarget.h"
 #include "ConstantBuffer/ConstantBuffer.h"
 
+#include <Application/Windows/WindowsApplication.h>
 
 #include "Vertex.h"
 #include "Camera.h"

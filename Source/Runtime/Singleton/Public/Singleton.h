@@ -74,3 +74,8 @@ namespace _Singleton
 		assert(__sSingletons.size() <= 0);
 	}
 }
+
+#define IMPLEMENT_SINGLETON(CLASSNAME) \
+	class CLASSNAME : public Singleton<CLASSNAME> \
+{ \
+	friend class Singleton<CLASSNAME>;

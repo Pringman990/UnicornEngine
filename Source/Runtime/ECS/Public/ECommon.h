@@ -1,10 +1,5 @@
 #pragma once
-#include <typeindex>
-#include <functional>
-#include <unordered_map>
-#include <string>
-#include <memory>
-
+#include <Core.h>
 
 class EWorld;
 #undef max

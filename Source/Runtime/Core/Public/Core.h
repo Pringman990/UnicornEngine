@@ -1,5 +1,14 @@
 #pragma once
 
+//STL
+#include <vector>
+#include <unordered_map>
+#include <map>
+#include <functional>
+#include <string>
+#include <typeindex>
+#include <memory>
+
 //Application
 #include <Application/Application.h>
 #include <Application/Generic/GenericApplication.h>
@@ -26,3 +35,13 @@
 //Utility
 #include <Utility/Array3D.h>
 #include <Utility/Utility.h>
+
+#include <Module/ModuleManager.h>
+
+#include <Threading/ThreadPool.h>
+
+#include <Timer/Timer.h>
+
+#include <FileWatcher/FileWatcher.h>
+
+#include <Input/InputMapper.h>

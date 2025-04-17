@@ -1,5 +1,5 @@
 #pragma once
-#include "EditorWindowRegistrar.h"
+#include <Core.h>
 
 class EditorWindow
 {

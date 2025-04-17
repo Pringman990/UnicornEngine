@@ -1,4 +1,5 @@
 #pragma once
+#include <Core.h>
 #include "ECommon.h"
 //#include "memory/EComponentAllocator.h"
 
