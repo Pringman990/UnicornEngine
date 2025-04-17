@@ -1,7 +1,5 @@
 print("Including Source/")
 
-require "export-compile-commands"
-
 include "../Scripts/Premake/common.lua"
 
 solution "Unicorn Engine"
