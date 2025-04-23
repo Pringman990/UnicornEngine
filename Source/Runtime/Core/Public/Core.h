@@ -8,6 +8,7 @@
 #include <string>
 #include <typeindex>
 #include <memory>
+#include <bitset>
 
 //Application
 #include <Application/Application.h>
@@ -45,3 +46,5 @@
 #include <FileWatcher/FileWatcher.h>
 
 #include <Input/InputMapper.h>
+
+#include <Reflection/ReflectionRegistry.h>

@@ -21,14 +21,16 @@ project "Engine"
 		dirs.Engine,
 		"Core",
 		"Singleton",
-		"Renderer"
+		"Renderer",
+		"ECS"
 	})
 
 	linkDependencies("Engine", 
 	{
 		"Core",
 		"Singleton",
-		"Renderer"
+		"Renderer",
+		"ECS"
 	})
 
 	files {

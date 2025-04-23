@@ -15,7 +15,11 @@ project "EntryPoint"
 		"**.h",
 		"**.hpp",
 		"**.cpp",
-		"**.c"
+		"**.c",
+		dirs.Inter_Generated .. "**.h",
+		dirs.Inter_Generated .. "**.hpp",
+		dirs.Inter_Generated .. "**.cpp",
+		dirs.Inter_Generated .. "**.c"
 	}
 
 	vpaths { ["Public/*"] = {"Public/**.h", "Public/**.hpp", "Public/**.c", "Public/**.cpp"} }

@@ -20,6 +20,7 @@ dirs["Binaries_ThirdParty"]	= os.realpath(dirs.Binaries .. "ThirdParty/")
 dirs["Inter_Temp"]			= os.realpath(dirs.Intermediate .. "Temp/")
 dirs["Inter_ProjectFiles"]	= os.realpath(dirs.Intermediate .. "ProjectFiles/")
 dirs["Inter_Lib"]	        = os.realpath(dirs.Intermediate .. "Lib/")
+dirs["Inter_Generated"]	    = os.realpath(dirs.Intermediate .. "Generated/")
 
 UCE_TARGET_NAME = "%{prj.name}_%{cfg.buildcfg}"
 UCE_TARGET_DIR = dirs.Inter_Lib .. "%{cfg.buildcfg}"
@@ -146,5 +147,8 @@ function includeDependencies(dependent, dependencies)
             print("--Include Path: " .. resolvedDep)
         end
     end
+
+    includedirs { dirs.Inter_Generated }
+
 end
 

@@ -1,101 +1,136 @@
 #pragma once
 #include <Core.h>
+#include "EComponentAllocator.h"
 
 class EWorld;
 #undef max
 
-using ESignature = uint32_t;
-constexpr ESignature INVALID_SIGNATURE = std::numeric_limits<ESignature>::max();
+using EEntity = uint32;
 
-using EComponentMask = ESignature;
-constexpr EComponentMask INVALID_COMPONENT = std::numeric_limits<EComponentMask>::max();
+constexpr size_t MAX_COMPONENTS = 256;
+using ESignature = std::bitset<MAX_COMPONENTS>;
 
-using EArchetypeMask = ESignature;
-constexpr EArchetypeMask INVALID_ARCHETYPE = std::numeric_limits<EArchetypeMask>::max();
+using EComponentID = size_t;
 
-using EEntity = uint32_t;
-constexpr EEntity INVALID_ENTITY = std::numeric_limits<EEntity>::max();
-
-using EPipeline = uint32_t;
-constexpr EPipeline INVALID_PIPELINE = std::numeric_limits<EPipeline>::max();
-const constexpr EPipeline OnLoad = 0;
-const constexpr EPipeline OnPostLoad = 1;
-const constexpr EPipeline OnPreUpdate = 2;
-const constexpr EPipeline OnUpdate = 3;
-const constexpr EPipeline OnPostUpdate = 4;
-const constexpr EPipeline OnRender = 5;
-const constexpr EPipeline PIPELINE_COUNT = 6;
-
+using EComponentSignature = ESignature;
 using EComponentType = std::type_index;
 
 template<typename... EComponents>
 using ESystemFunctionT = std::function<void(EWorld&, EEntity, EComponents&...)>;
+
 using ESystemFunction = std::function<void(EWorld&, EEntity)>;
+
+enum EPipeline
+{
+	ELoad,
+	EPostLoad,
+	EPreUpdate,
+	EUpdate,
+	EPostUpdate,
+	ERender,
+	ECount
+};
 
 struct ESystem final
 {
-	EPipeline pipeline = OnUpdate;
+	EPipeline pipeline = EUpdate;
 	std::string name = "";
 	ESignature signature = 0;
 	ESystemFunction function;
 };
 
-using EPipelineSystemMap = std::unordered_map<EPipeline, std::vector<std::shared_ptr<ESystem>>>;
+using EPipelineSystemMap = std::unordered_map<EPipeline, std::vector<ESystem>>;
 using ENameSystemMap = std::unordered_map<std::string, ESystem>;
 
+struct Archetype
+{
+	Archetype(EComponentSignature aSignature) : signature(aSignature) {};
 
+	const EComponentSignature signature;
+	std::unordered_map<EComponentID, EComponentAllocator> components;
+	std::vector<EEntity> entities;
+
+};
+
+struct EntityLocation
+{
+	Archetype* archetype;
+	uint32 indexInArray;
+};
 
 namespace internal
 {
 	class EComponentRegistry final
 	{
 	public:
-		static EComponentRegistry& GetInstance()
+		template<typename T>
+		static void RegisterComponent()
 		{
-			static EComponentRegistry instance;
-			return instance;
+			static EComponentID nextID = 1;
+
+			ReflectionTypeInfo info = ReflectionRegistry::GetInstance()->GetTypeInfo(typeid(T));
+
+			auto it = sNameToID.find(info.name);
+			if (it != sNameToID.end())
+			{
+				_LOG_CORE_WARNING("Trying to register already registered component: {}", info.name);
+				return;
+			}
+
+			sNameToID[info.name] = nextID;
+			sIDToName[nextID] = info.name;
+			nextID++;
+
+			_LOG_CORE_INFO("Registered Component to EComponentRegistry: {}", info.name);
 		}
 
 		template<typename T>
-		EComponentMask TryGetMask()
+		static EComponentID GetID()
 		{
-			auto typeIndex = std::type_index(typeid(T));
-			auto it = mMasks.find(typeIndex);
-			if (it == mMasks.end())
-			{
-				EComponentMask newMask = 1 << mNextMask++;
-				mMasks[typeIndex] = newMask;
-				return newMask;
-			}
-			return it->second;
-		}
+			ReflectionTypeInfo info = ReflectionRegistry::GetInstance()->GetTypeInfo(typeid(T));
 
-		EComponentMask TryGetMask(std::type_index aComponentType)
-		{
-			auto it = mMasks.find(aComponentType);
-			if (it == mMasks.end())
+			auto it = sNameToID.find(info.name);
+			if (it == sNameToID.end())
 			{
-				EComponentMask newMask = 1 << mNextMask++;
-				mMasks[aComponentType] = newMask;
-				return newMask;
+				_LOG_CORE_WARNING("Trying to get id of non-registered component: {}", info.name);
+				return 0;
 			}
 			return it->second;
 		}
 
 		template<typename ...EComponents>
-		ESignature CalulateSignature()
+		static EComponentSignature CalulateSignature()
 		{
-			ESignature signature = 0;
-			((signature |= (1 << TryGetMask<EComponents>())), ...);
-			return signature;
+			EComponentSignature sig;
+			(sig.set(GetID<EComponents>()), ...);
+			return sig;
+		}
+
+		template<typename EComponent>
+		static EComponentSignature CalulateSignature(EComponentSignature aSignature)
+		{
+			(aSignature.set(GetID<EComponent>()));
+			return aSignature;
+		}
+
+		static std::vector<EComponentID> GetIdsFromSignature(EComponentSignature& aSignature)
+		{
+			std::vector<EComponentID> ids;
+			for (uint32 i = 0; i < aSignature.count(); i++)
+			{
+				ids.push_back(aSignature[i]);
+			}
+
+			return ids;
+		}
+
+		static const std::string& GetName(EComponentID aId)
+		{
+			return sIDToName[aId];
 		}
 
 	private:
-		EComponentRegistry() : mNextMask(0) {};
-		~EComponentRegistry() {};
-
-	private:
-		std::unordered_map<std::type_index, EComponentMask> mMasks;
-		EComponentMask mNextMask;
+		inline static std::unordered_map<std::string, EComponentID> sNameToID;
+		inline static std::unordered_map<EComponentID, std::string> sIDToName;
 	};
 }

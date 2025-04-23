@@ -3,6 +3,8 @@
 #include "EngineLoop.h"
 #include <Core.h>
 
+#include <EngineComponents/ETransform.h>
+
 int32_t GuardedMain()
 {
 	_TRACK_MEMORY(true, true);
@@ -17,6 +19,8 @@ int32_t GuardedMain()
 
 		Timer::Create();
 		Timer* timer = Timer::GetInstance();
+
+		ReflectionRegistry::Create();
 
 		ModuleManager::Create();
 
@@ -39,7 +43,7 @@ int32_t GuardedMain()
 		_LOG_CORE_INFO("Main loop exited, starting cleanup");
 		_LOG_CORE_INFO("Main cleanup done, Goodbye welcome back!");
 
-		//ReflectionRegistry::Shutdown();
+		ReflectionRegistry::Shutdown();
 	}
 	
 	ModuleManager::Shutdown();

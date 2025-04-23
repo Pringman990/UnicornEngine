@@ -11,9 +11,18 @@ ReflectionRegistry::~ReflectionRegistry()
 	mNameToType.clear();
 }
 
-void ReflectionRegistry::RegisterType(std::type_index aType, ReflectionTypeInfo aInfo)
+void ReflectionRegistry::RegisterType(ReflectionTypeInfo aInfo)
 {
-	mRegistry[aType] = aInfo;
+	_LOG_CORE_INFO("Reflection registry type registered: {}", aInfo.name);
+
+	auto it = mNameToType.find(aInfo.name);
+	if (it != mNameToType.end())
+	{
+		_LOG_CORE_CRITICAL("ReflectionRegistry: Trying to register already registered: {}", aInfo.name);
+		return;
+	}
+
+	mRegistry[*aInfo.typeIndex] = aInfo;
 	mNameToType[aInfo.name] = aInfo;
 }
 
@@ -33,4 +42,35 @@ ReflectionTypeInfo ReflectionRegistry::GetTypeInfo(const std::string& aName)
 		return it->second;
 
 	return ReflectionTypeInfo();
+}
+
+void ReflectionRegistry::EnqueueDefferedRegistration(DeffRegistartionFn aRegFunction)
+{
+	GetDefferedQueue().push_back(aRegFunction);
+}
+
+void ReflectionRegistry::ProcessDefferedRegistration()
+{
+#ifdef _DEBUG_PRINT_REFLECTION_REGISTRY
+		_LOG_CORE_INFO("================================================");
+#endif // _DEBUG_PRINT_REFLECTION_REGISTRY
+
+
+	_LOG_CORE_INFO("Processing deffered reflection registry...");
+	for (auto& fn : GetDefferedQueue())
+	{
+		fn();
+	}
+	GetDefferedQueue().clear();
+	_LOG_CORE_INFO("Processing deffered reflection registry complete");
+
+#ifdef _DEBUG_PRINT_REFLECTION_REGISTRY
+	_LOG_CORE_INFO("================================================");
+#endif // _DEBUG_PRINT_REFLECTION_REGISTRY
+}
+
+std::vector<ReflectionRegistry::DeffRegistartionFn>& ReflectionRegistry::GetDefferedQueue()
+{
+	static std::vector<DeffRegistartionFn> queue;
+	return queue;
 }

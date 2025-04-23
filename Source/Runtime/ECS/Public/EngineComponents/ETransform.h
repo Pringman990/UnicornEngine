@@ -1,14 +1,24 @@
 #pragma once
+#include "ETransform.gen.h"
+
+//[[EComponent]]
+//struct ETransform
+//{
+//	[[EMember]]
+//	Vector3 position = { 0,0,0 };
+//	
+//	[[EMember]]
+//	Vector3 rotation = { 0,0,0 };
+//	
+//	[[EMember]]
+//	Vector3 scale = { 1,1,1 };
+//};
 
 struct ETransform
 {
-	Vector3 position = { 0,0,0 };
-	Vector3 rotation = { 0,0,0 };
-	Vector3 scale = { 1,1,1 };
+	int position;
+	long c;
+	char a;
+	char t;
+	char b;
 };
-
-REGISTER_COMPONENT(ETransform,
-	REGISTER_MEMBER(ETransform, position)
-	REGISTER_MEMBER(ETransform, rotation)
-	REGISTER_MEMBER(ETransform, scale)
-)

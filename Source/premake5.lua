@@ -54,6 +54,9 @@ solution "Unicorn Engine"
 	filter ("configurations:Retail", "action:vs*")
 		buildoptions {"/wd4189"}
 
+	filter "action:vs*"
+		flags{"LinkTimeOptimization"}
+
 	filter "system:windows"
 		symbols "On"		
 		systemversion "latest"

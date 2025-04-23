@@ -129,6 +129,8 @@ bool EngineLoop::Init()
 		_PAUSE_TRACK_MEMORY(false);
 	}
 
+	ReflectionRegistry::ProcessDefferedRegistration();
+
 	float initTime = TIMER_END_READING("__Engine Loop Init__");
 	_LOG_CORE_INFO("Engine Loop has finished Initialize, it took: {:0.7f}s", initTime);
 	return true;
