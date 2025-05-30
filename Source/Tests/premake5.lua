@@ -22,7 +22,7 @@ project "Tests"
 		dirs.Tests,
 		"GoogleTest",
 		"EntryPoint"
-	})
+	}) 
 
 	linkDependencies("Tests", 
 	{

@@ -1,5 +1,5 @@
 #pragma once
-#include "ETransform.gen.h"
+//#include "ETransform.gen.h"
 
 //[[EComponent]]
 //struct ETransform
