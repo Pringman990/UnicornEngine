@@ -1,48 +1,27 @@
-name: CI Build, Test & Coverage
+name: Build and Test
 
 on:
-  push:
-    branches: [main, develop]
   pull_request:
-    branches: [main, develop]
+    branches:
+      - main
+      - develop
 
 jobs:
-  build-test-coverage:
+  build-and-test:
     runs-on: windows-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install dependencies (if any)
-        run: |
-          choco install --no-progress premake
-          # Add other installs if needed
+      - name: Install Premake (via Chocolatey)
+        run: choco install --no-progress premake
 
-      - name: Generate Visual Studio project files with Premake
+      - name: Generate Visual Studio project
         run: premake5 vs2019
 
       - name: Build solution
-        run: msbuild UnicornEngine.sln /p:Configuration=Release /m
+        run: msbuild UnicornEngine.sln /p:Configuration=Debug_Editor /m
 
       - name: Run unit tests
-        run: ./Binaries/Win64/Tests_Debug_Editor.exe --gtest_output=xml:TestResults.xml
-
-      - name: Install OpenCppCoverage
-        run: choco install --no-progress opencppcoverage
-
-      - name: Run coverage with OpenCppCoverage
-        run: |
-          OpenCppCoverage.exe --sources . --exclude-files ".*external.*" -- ./Binaries/Win64/Tests_Debug_Editor.exe
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-results
-          path: TestResults.xml
-
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage-report
-          path: coverage.xml  # or wherever OpenCppCoverage outputs
+        run: ./Binaries/Win64/Tests.exe --gtest_output=xml:TestResults.xml
