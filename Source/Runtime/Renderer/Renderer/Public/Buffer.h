@@ -25,7 +25,7 @@ public:
 private:
 	Buffer(Buffer::Type Type, DXGI_FORMAT Format = DXGI_FORMAT_UNKNOWN);
 private:
-	ComPtr<ID3D12Resource> mResource;
+	ComPtr<ID3D12Resource> mResource; 
 	const Type mType;
 
 	D3D12_VERTEX_BUFFER_VIEW mVBV;
