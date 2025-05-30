@@ -24,8 +24,11 @@ jobs:
         run: echo "${{ github.workspace }}\scripts\Premake" | Out-File -FilePath $Env:GITHUB_PATH -Encoding utf8 -Append
         shell: pwsh
 
-      - name: Generate Visual Studio project
-        run: premake5 vs2019
+      - name: Generate Visual Studio project files with Premake
+        run: |
+          pushd Source
+          ../premake5.exe --file=premake5.lua vs2022
+        shell: cmd
 
       - name: Build solution
         run: msbuild UnicornEngine.sln /p:Configuration=Debug_Editor /m
