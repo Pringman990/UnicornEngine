@@ -94,7 +94,7 @@ Buffer Buffer::CreateConstant(const void* Data, size_t Size, size_t Align)
 	memcpy(idata, Data, Size); 
 	buffer.mResource->Unmap(0, nullptr);
 
-	return buffer;
+	return buffer; 
 }
  
 void Buffer::Upload(const void* Data, size_t Size)
