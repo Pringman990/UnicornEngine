@@ -91,10 +91,10 @@ Buffer Buffer::CreateConstant(const void* Data, size_t Size, size_t Align)
 
 	void* idata = nullptr;
 	buffer.mResource->Map(0, nullptr, &idata);
-	memcpy(idata, Data, Size);
-	buffer.mResource->Unmap(0, nullptr);
+	memcpy(idata, Data, Size); 
+	buffer.mResource->Unmap(0, nullptr); 
 
-	return buffer;
+	return buffer; 
 }
  
 void Buffer::Upload(const void* Data, size_t Size)
