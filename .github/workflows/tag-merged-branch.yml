@@ -1,30 +1,46 @@
-name: Archive Branch Tag
+name: Archive Merged Branch
 
 on:
   pull_request:
     types: [closed]
+  push:
+    branches:
+      - main
 
 jobs:
   tag:
-    if: github.event.pull_request.merged == true
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
+    if: |
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true) ||
+      (github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Merge pull request'))
+
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0    # fetch full history, important for tags
+          fetch-depth: 0  # Required to push tags
 
-      - name: Configure Git user
+      - name: Set up Git config
         run: |
-          git config user.email "bot@example.com"
-          git config user.name "AutoTag Bot"
-        shell: bash
+          git config user.name "GitHub Action Bot"
+          git config user.email "action@github.com"
 
-      - name: Create and push archive tag
+      - name: Determine branch and commit info
+        id: vars
         run: |
-          BRANCH_NAME=${{ github.event.pull_request.head.ref }}
-          COMMIT_SHA=${{ github.event.pull_request.merge_commit_sha }}
-          echo "Tagging branch '$BRANCH_NAME' at commit $COMMIT_SHA"
-          git tag archive/${BRANCH_NAME} ${COMMIT_SHA}
-          git push origin archive/${BRANCH_NAME}
-        shell: bash
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BRANCH="${{ github.event.pull_request.head.ref }}"
+            SHA="${{ github.event.pull_request.merge_commit_sha }}"
+          else
+            # Extract branch name from merge commit message
+            BRANCH=$(git log -1 --pretty=%B | sed -n 's/.*Merge pull request #[0-9]* from .*\///p')
+            SHA=$(git rev-parse HEAD)
+          fi
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          echo "sha=$SHA" >> $GITHUB_OUTPUT
+
+      - name: Tag and Push
+        run: |
+          echo "Tagging archive/${{ steps.vars.outputs.branch }} at ${{ steps.vars.outputs.sha }}"
+          git tag archive/${{ steps.vars.outputs.branch }} ${{ steps.vars.outputs.sha }}
+          git push origin archive/${{ steps.vars.outputs.branch }}
             
