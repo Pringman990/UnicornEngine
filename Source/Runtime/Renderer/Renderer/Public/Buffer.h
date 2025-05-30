@@ -24,7 +24,7 @@ public:
 	 
 private: 
 	Buffer(Buffer::Type Type, DXGI_FORMAT Format = DXGI_FORMAT_UNKNOWN); 
-private:
+private: 
 	ComPtr<ID3D12Resource> mResource;  
 	const Type mType;  
 
