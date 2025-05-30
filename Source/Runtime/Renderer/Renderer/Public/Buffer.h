@@ -23,7 +23,7 @@ public:
 	D3D12_INDEX_BUFFER_VIEW GetIBV() const;
 	 
 private:
-	Buffer(Buffer::Type Type, DXGI_FORMAT Format = DXGI_FORMAT_UNKNOWN);
+	Buffer(Buffer::Type Type, DXGI_FORMAT Format = DXGI_FORMAT_UNKNOWN); 
 private:
 	ComPtr<ID3D12Resource> mResource;  
 	const Type mType;  
