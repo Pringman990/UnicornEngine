@@ -26,7 +26,7 @@ jobs:
 
       - uses: microsoft/setup-msbuild@v1.1
       - name: Build solution
-        run: msbuild UnicornEngine.sln /p:Configuration=Debug_Editor /m
+        run: msbuild Unicorn Engine.sln /p:Configuration=Debug_Editor /m
 
       - name: Generate Visual Studio project files with Premake
         run: Scripts\build.bat
