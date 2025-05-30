@@ -96,7 +96,7 @@ Buffer Buffer::CreateConstant(const void* Data, size_t Size, size_t Align)
 
 	return buffer;
 }
-
+ 
 void Buffer::Upload(const void* Data, size_t Size)
 {
 	void* idata = nullptr;
