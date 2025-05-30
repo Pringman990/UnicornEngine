@@ -7,7 +7,7 @@ project "Tests"
 	cppdialect "C++20"
 	kind "ConsoleApp"
 
-	targetname(UCE_TARGET_NAME)
+	targetname("%{prj.name}")
     targetdir (UCE_EXECUTABLE_DIR)
 
     objdir(UCE_OBJ_DIR)
