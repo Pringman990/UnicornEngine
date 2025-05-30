@@ -84,7 +84,7 @@ Buffer Buffer::CreateConstant(const void* Data, size_t Size, size_t Align)
 		nullptr,
 		IID_PPV_ARGS(buffer.mResource.GetAddressOf())
 	);
-
+	 
 	if (FAILED(hr)) {
 		_LOG_RENDERER_ERROR("Failed to create constant buffer\n");
 	}
