@@ -25,6 +25,7 @@ public:
 	static Texture2D* Create(ID3D12Resource* aRTVResource);
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetSRVHandle() const;
+	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle() const;
 	ComPtr<ID3D12Resource>& GetResource();
 
 	D3D12_RESOURCE_DESC GetDesc() const;
@@ -32,6 +33,7 @@ public:
 private:
 	ComPtr<ID3D12Resource> mSRV;
 	D3D12_CPU_DESCRIPTOR_HANDLE mSRVHandle;
+	D3D12_GPU_DESCRIPTOR_HANDLE mGPUHandle;
 
 	Vector2 mSize;
 	uint32 mMipLevel;

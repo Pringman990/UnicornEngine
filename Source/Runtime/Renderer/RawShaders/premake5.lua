@@ -32,7 +32,7 @@ project "RawShaders"
 	vpaths { ["Public/*"] = {"Public/**.h", "Public/**.hpp", "Public/**.c", "Public/**.cpp", "Public/**.hlsl", "Public/**.hlsli"} }
 	vpaths { ["Private/*"] = {"Private/**.h", "Private/**.hpp", "Private/**.c", "Private/**.cpp", "Private/**.hlsl", "Private/**.hlsli"}}
 
-	shadermodel("5.0")
+	shadermodel("6.0")
 
 	filter("files:**.hlsl")
 		flags("ExcludeFromBuild")

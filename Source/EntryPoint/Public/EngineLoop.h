@@ -36,5 +36,7 @@ private:
 	Editor* mEditor = nullptr;
 #endif // _EDITOR
 
+	SandboxRender mSandboxRender;
+
 	bool mShouldExit;
 };

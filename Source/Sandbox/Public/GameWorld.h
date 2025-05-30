@@ -14,6 +14,7 @@
 
 #include <Math/Transform.h>
 #include <Camera.h>
+#include <Core.h>
 
 class GameWorld
 {
@@ -22,6 +23,7 @@ public:
 	~GameWorld();
 
 	void Init();
+	void InitCompute();
 	void Render();
 private:
 	void UpdateCamera();

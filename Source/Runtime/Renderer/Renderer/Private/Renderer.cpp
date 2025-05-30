@@ -19,8 +19,6 @@ Renderer::Renderer()
 	mCommandQueue(nullptr),
 	mSwapChain(nullptr),
 	mDXGIFactory(nullptr),
-	mBackBuffers(nullptr),
-	mMainCommandAllocators(nullptr),
 	mMainCommandList(nullptr),
 	mFence(nullptr),
 	mFenceEvent(nullptr),
@@ -28,7 +26,7 @@ Renderer::Renderer()
 	mFrameIndex(0),
 	mRTVHeapManager(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 64),
 	mDSVHeapManager(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 64),
-	mSRVHeapManager(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 512),
+	mSRVHeapManager(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, SRV_HEAP_SIZE),
 	mSamplerHeapManager(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, 16),
 	mClearColor(Color(0.5f, 0.5f, 0.7f, 0)),
 	mVsync(true),
@@ -59,7 +57,7 @@ Renderer::~Renderer()
 	mSwapChain.Reset();
 	mDXGIFactory.Reset();
 	mMainCommandList.Reset();
-	mFence.Reset();	
+	mFence.Reset();
 
 #ifdef _MEMORY_DEBUG
 	OutputDebugStringA("=================================================DX12 Debug Info=================================================\n");
@@ -138,6 +136,14 @@ bool Renderer::Init()
 		return false;
 	}
 
+	if (!SetupDefaultRootSignatures())
+	{
+		_LOG_RENDERER_CRITICAL("Failed to setup default root signatures");
+		return false;
+	}
+
+	mMainCamera = new Camera();
+
 	windowsApp->OnWndProc.AddRaw(this, &Renderer::ProcessWindowsMessages);
 	return true;
 }
@@ -148,7 +154,7 @@ void Renderer::PreRender()
 
 	mMainCommandAllocators[mFrameIndex]->Reset();
 	mMainCommandList->Reset(mMainCommandAllocators[mFrameIndex].Get(), nullptr);
-	
+
 	RenderTarget* backbufferTarget = mBackBuffers[mFrameIndex];
 
 	D3D12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
@@ -163,17 +169,19 @@ void Renderer::PreRender()
 
 	mMainCommandList->ClearRenderTargetView(rtvHandle, mClearColor, 0, nullptr);
 	mMainCommandList->ClearDepthStencilView(backbufferTarget->GetDSVHandle(), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
-	
+
 	mMainCommandList->RSSetViewports(1, &backbufferTarget->GetViewport());
 	mMainCommandList->RSSetScissorRects(1, &backbufferTarget->GetScissorRect());
-	
-	ID3D12DescriptorHeap* heaps[] = { mSRVHeapManager.GetHeap() };
-	mMainCommandList->SetDescriptorHeaps(1, heaps);
+
+	ID3D12DescriptorHeap* heaps[] = { mSRVHeapManager.GetHeap()/*, mSamplerHeapManager.GetHeap()*/ };
+	mMainCommandList->SetDescriptorHeaps(_countof(heaps), heaps);
+
+
 }
 
 void Renderer::RenderToBackbuffer()
 {
-
+	mMainCommandList->OMSetRenderTargets(1, &mBackBuffers[mFrameIndex]->GetRTVHandle(), false, nullptr);
 }
 
 void Renderer::Present()
@@ -259,14 +267,18 @@ void Renderer::ResizeBackbuffer(int32 aWidth, int32 aHeight)
 		{
 			_LOG_RENDERER_ERROR("Failed to resize backbuffers");
 		}
-		//EventDispatcher::GetInstance()->Dispatch(DispatchEvents::eBackbufferResize);
 		OnBackbufferResize.Notify(Vector2(aWidth, aHeight));
 	}
 }
 
 void Renderer::SetMainCamera(Camera* aCamera)
 {
-	//mCurrentCamera = aCamera;
+	mMainCamera = aCamera;
+}
+
+Camera* Renderer::GetMainCamera()
+{
+	return mMainCamera;
 }
 
 #pragma region INTERNAL_FUNCTIONS
@@ -321,7 +333,7 @@ bool Renderer::SetupCommandQueue()
 
 bool Renderer::SetupSwapChain(WindowsApplication* aApp)
 {
-	IWindowInfo windowInfo = aApp->GetWindowInfo();
+	IWindowInfo& windowInfo = aApp->GetWindowInfo();
 
 	DXGI_SWAP_CHAIN_DESC1 desc = {};
 	desc.BufferCount = BACKBUFFER_COUNT;
@@ -414,6 +426,44 @@ bool Renderer::SetupFence()
 	return true;
 }
 
+bool Renderer::SetupDefaultRootSignatures()
+{
+	{
+		CD3DX12_STATIC_SAMPLER_DESC sampler2d;
+		sampler2d.Init(
+			0,
+			D3D12_FILTER_MIN_MAG_MIP_LINEAR,
+			D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+			D3D12_TEXTURE_ADDRESS_MODE_WRAP,
+			D3D12_TEXTURE_ADDRESS_MODE_WRAP
+		);
+
+		CD3DX12_DESCRIPTOR_RANGE srvRange;
+		srvRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1000, 0, 0, D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND);
+
+		CD3DX12_ROOT_PARAMETER params[2] = { {},{} };
+		params[0].InitAsDescriptorTable(1, &srvRange, D3D12_SHADER_VISIBILITY_PIXEL); //t0
+		params[1].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL); //b0
+
+		CD3DX12_ROOT_SIGNATURE_DESC sigDesc;
+		sigDesc.Init(
+			_countof(params),
+			params,
+			1,
+			&sampler2d,
+			D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
+		);
+
+		if(!mRootSignatureManager.Create(sigDesc, "SpriteBindless"))
+		{
+			_LOG_RENDERER_ERROR("Failed to create SpriteBindless root signature");
+			return false;
+		}
+	}
+
+	return true;
+}
+
 void Renderer::WaitForGPU()
 {
 	mFenceValue++;
@@ -427,64 +477,12 @@ void Renderer::WaitForGPU()
 
 #pragma endregion
 
-#pragma region Getters/Setters
-ID3D12Device* Renderer::GetDevice()
-{
-	return mDevice.Get();
-}
-
-IDXGISwapChain4* Renderer::GetSwapChain()
-{
-	return mSwapChain.Get();
-}
-
-ID3D12GraphicsCommandList* Renderer::GetMainCommandList()
-{
-	return mMainCommandList.Get();
-}
-
-ID3D12CommandQueue* Renderer::GetCommandQueue()
-{
-	return mCommandQueue.Get();
-}
-
 void Renderer::AddDrawCall()
 {
 	mDrawCalls++;
-}
-
-uint32 Renderer::GetDrawCalls()
-{
-	return mDrawCalls;
 }
 
 void Renderer::SetIsResizingBackbuffer(bool shouldResize)
 {
 	mIsResizing = shouldResize;
 }
-
-bool Renderer::IsResizingBackbuffer()
-{
-	return mIsResizing;
-}
-
-DescriptorHeapManager& Renderer::GetRTVHeapManager()
-{
-	return mRTVHeapManager;
-}
-
-DescriptorHeapManager& Renderer::GetDSVHeapManager()
-{
-	return mDSVHeapManager;
-}
-
-DescriptorHeapManager& Renderer::GetSRVHeapManager()
-{
-	return mSRVHeapManager;
-}
-
-DescriptorHeapManager& Renderer::GetSamplerHeapManager()
-{
-	return mSamplerHeapManager;
-}
-#pragma endregion

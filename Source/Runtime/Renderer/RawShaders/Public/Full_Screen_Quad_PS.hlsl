@@ -1,16 +1,13 @@
-#include "Common.hlsli"
+Texture2D<float4> computeResult : register(t0);
+SamplerState samp : register(s0);
 
-SamplerState DefaultSampler : register(s0);
-Texture2D Texture0 : register(t0);
-Texture2D colorTexture : register(t1);
-Texture2D worldPositionTexture : register(t2);
-
-ColorOutput main(MeshPixelInput input)
+struct PSInput
 {
-    ColorOutput result;
-    //result.color = Texture0.Sample(DefaultSampler, input.uv);
-    result.color = colorTexture.Sample(DefaultSampler, input.uv);
-    //result.depth = worldPositionTexture.Sample(DefaultSampler, input.uv).z;
-   // result.color = float4(1,0,0,1);
-    return result;
+    float4 pos : SV_POSITION; // Required even if unused
+    float2 uv : TEXCOORD0;
+};
+
+float4 main(PSInput input) : SV_TARGET
+{
+    return computeResult.Sample(samp, input.uv);
 }

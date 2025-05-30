@@ -85,6 +85,7 @@ Texture2D* Texture2D::Create(const std::wstring& aDDSPath)
 	srvDesc.Texture2D.MipLevels = textureDesc.MipLevels;
 
 	texture->mSRVHandle = renderer->GetSRVHeapManager().Allocate();
+	texture->mGPUHandle = renderer->GetSRVHeapManager().GetGPUHandleFromCPUHandle(texture->mSRVHandle);
 	renderer->GetDevice()->CreateShaderResourceView(texture->mSRV.Get(), &srvDesc, texture->mSRVHandle);
 
 	texture->mSize = Vector2(textureDesc.Width, textureDesc.Height);
@@ -148,6 +149,7 @@ Texture2D* Texture2D::Create(const Vector2& aSize, D3D12_RESOURCE_FLAGS someFlag
 	srvDesc.Texture2D.MipLevels = textureDesc.MipLevels;
 
 	texture->mSRVHandle = renderer->GetSRVHeapManager().Allocate();
+	texture->mGPUHandle = renderer->GetSRVHeapManager().GetGPUHandleFromCPUHandle(texture->mSRVHandle);
 	device->CreateShaderResourceView(texture->mSRV.Get(), &srvDesc, texture->mSRVHandle);
 
 	texture->mSize = Vector2(textureDesc.Width, textureDesc.Height);
@@ -193,6 +195,7 @@ bool Texture2D::Create(Texture2D* aTexture, const Vector2& aNewSize, D3D12_RESOU
 	srvDesc.Texture2D.MipLevels = aTextureDesc.MipLevels;
 
 	aTexture->mSRVHandle = renderer->GetSRVHeapManager().Allocate();
+	aTexture->mGPUHandle = renderer->GetSRVHeapManager().GetGPUHandleFromCPUHandle(aTexture->mSRVHandle);
 	device->CreateShaderResourceView(aTexture->mSRV.Get(), &srvDesc, aTexture->mSRVHandle);
 
 	aTexture->mSize = aNewSize;
@@ -225,6 +228,7 @@ Texture2D* Texture2D::Create(ID3D12Resource* aRTVResource)
 	texture->mSize = Vector2(static_cast<float>(resourceDesc.Width), static_cast<float>(resourceDesc.Height));
 	texture->mMipLevel = resourceDesc.MipLevels;
 	texture->mSRVHandle = renderer->GetSRVHeapManager().Allocate();
+	texture->mGPUHandle = renderer->GetSRVHeapManager().GetGPUHandleFromCPUHandle(texture->mSRVHandle);
 	device->CreateShaderResourceView(aRTVResource, &srvDesc, texture->mSRVHandle);
 
 	return texture;
@@ -233,6 +237,11 @@ Texture2D* Texture2D::Create(ID3D12Resource* aRTVResource)
 D3D12_CPU_DESCRIPTOR_HANDLE Texture2D::GetSRVHandle() const
 {
 	return mSRVHandle;
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE Texture2D::GetGPUHandle() const
+{
+	return mGPUHandle;
 }
 
 ComPtr<ID3D12Resource>& Texture2D::GetResource()

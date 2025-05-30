@@ -31,7 +31,7 @@ bool ModuleManager::LoadModule(const std::string& aModuleName)
 		_LOG_CORE_WARNING("ModuleManager: Create function did not exist: {}", aModuleName);
 		return false;
 	}
-	
+
 	IModule* module = createFunction();
 	if (!module)
 	{
@@ -75,4 +75,13 @@ const IModule* ModuleManager::GetModule(const std::string& aModuleName) const
 		return nullptr;
 
 	return it->second.module;
+}
+
+HMODULE ModuleManager::GetHModule(const std::string& aModuleName) const
+{
+	auto it = mLoadedModules.find(aModuleName);
+	if (it == mLoadedModules.end())
+		return HMODULE();
+
+	return it->second.library;
 }

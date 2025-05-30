@@ -51,8 +51,13 @@ inline std::string WStringToString(const std::wstring& aWideString)
 
     std::string basicString;
     basicString.resize(size_needed);
+
     // Convert the string
     wcstombs_s(&size_needed, &basicString[0], basicString.size() + 1, aWideString.c_str(), aWideString.size() + 1);
+
+    if (!basicString.empty() && basicString.back() == '\0') {
+        basicString.pop_back();
+    }
 
     return basicString;
 }
@@ -68,6 +73,10 @@ inline std::wstring StringToWString(const std::string& aString)
     wideString.resize(size_needed);
     // Convert the string
     mbstowcs_s(&size_needed, &wideString[0], wideString.size() + 1, aString.c_str(), aString.size() + 1);
+
+    if (!wideString.empty() && wideString.back() == '\0') {
+        wideString.pop_back();
+    }
 
     return wideString;
 }
@@ -102,4 +111,16 @@ inline Color OffsetColor(Color VectorToModify, float RModifier, float GModifier,
 inline Color OffsetColor(Color VectorToModify, float Modifier)
 {
     return OffsetColor(VectorToModify, Modifier, Modifier, Modifier);
+}
+
+template <typename T>
+inline void hash_combine(size_t& seed, const T& val) 
+{
+    seed ^= std::hash<T>()(val) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+}
+
+inline size_t HashMemory(const void* data, size_t size) 
+{
+    std::string_view view(reinterpret_cast<const char*>(data), size);
+    return std::hash<std::string_view>{}(view);
 }

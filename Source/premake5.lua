@@ -54,8 +54,8 @@ solution "Unicorn Engine"
 	filter ("configurations:Retail", "action:vs*")
 		buildoptions {"/wd4189"}
 
-	filter "action:vs*"
-		flags{"LinkTimeOptimization"}
+	--filter "action:vs*"
+	--	flags{"LinkTimeOptimization"}
 
 	filter "system:windows"
 		symbols "On"		
@@ -77,6 +77,7 @@ dirs["Runtime"]			    = os.realpath(dirs.Source .. "Runtime/")
 dirs["Editor"]			    = os.realpath(dirs.Source .. "Editor/")
 dirs["EntryPoint"]			= os.realpath(dirs.Source .. "EntryPoint/")
 dirs["Sandbox"]				= os.realpath(dirs.Source .. "Sandbox/Public/")
+dirs["Tests"]				= os.realpath(dirs.Source .. "Tests/")
 
 --Inluding all thirdparty standalone libs
 include (dirs.ThirdParty)
@@ -91,3 +92,5 @@ include (dirs.Editor)
 include (dirs.EntryPoint)
 
 include (normalizePath(dirs.Sandbox))
+
+include (dirs.Tests)

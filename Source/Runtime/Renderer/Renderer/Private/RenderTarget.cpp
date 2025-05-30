@@ -123,6 +123,11 @@ const D3D12_CPU_DESCRIPTOR_HANDLE& RenderTarget::GetRTVHandle()
 	return mRTVHandle;
 }
 
+const D3D12_GPU_DESCRIPTOR_HANDLE& RenderTarget::GetGPUHandle()
+{
+	return mGPUHandle;
+}
+
 const D3D12_CPU_DESCRIPTOR_HANDLE& RenderTarget::GetDSVHandle()
 {
 	return mDSVHandle;
@@ -138,6 +143,11 @@ D3D12_RECT& RenderTarget::GetScissorRect()
 	return mScissorRect;
 }
 
+Texture2D* RenderTarget::GetTexture()
+{
+	return mSRV;
+}
+
 bool RenderTarget::CreateInternal(ID3D12Resource* aRTVResource, bool EnableDepthTesting)
 {
 	Renderer* renderer = Renderer::GetInstance();
@@ -151,6 +161,7 @@ bool RenderTarget::CreateInternal(ID3D12Resource* aRTVResource, bool EnableDepth
 	rtvDesc.Texture2D.MipSlice = 0;
 
 	mRTVHandle = renderer->GetRTVHeapManager().Allocate();
+	mGPUHandle = Renderer::GetInstance()->GetRTVHeapManager().GetGPUHandleFromCPUHandle(mRTVHandle);
 	device->CreateRenderTargetView(aRTVResource, &rtvDesc, mRTVHandle);
 
 	//Setup viewport
@@ -242,6 +253,7 @@ void RenderTarget::Create(
 	rtvDesc.Texture2D.MipSlice = 0;
 
 	aRenderTarget->mRTVHandle = renderer->GetRTVHeapManager().Allocate();
+	aRenderTarget->mGPUHandle = Renderer::GetInstance()->GetRTVHeapManager().GetGPUHandleFromCPUHandle(aRenderTarget->mRTVHandle);
 	device->CreateRenderTargetView(aRenderTarget->mSRV->GetResource().Get(), &rtvDesc, aRenderTarget->mRTVHandle);
 
 	//Setup viewport

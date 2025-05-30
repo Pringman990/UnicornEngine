@@ -2,12 +2,17 @@
 #include <Core.h>
 #include <Singleton.h>
 
-#include "DescriptorHeapManager.h"
+#include "DescriptorHeap.h"
+#include "RootSignatureManager.h"
+#include "Camera.h"
 
 #include <wrl/client.h>
 using Microsoft::WRL::ComPtr;
 
 #define BACKBUFFER_COUNT 2
+
+//Don't forget to change in CommonMacros.hlsli aswell
+#define SRV_HEAP_SIZE 1000
 
 struct ID3D12Device;
 struct IDXGISwapChain4;
@@ -47,24 +52,29 @@ public:
 	void ResizeBackbuffer(int32 aWidth, int32 aHeight);
 
 	void SetMainCamera(Camera* aCamera);
-
-	ID3D12Device* GetDevice();
-	IDXGISwapChain4* GetSwapChain();
-	ID3D12GraphicsCommandList* GetMainCommandList();
-	ID3D12CommandQueue* GetCommandQueue();
+	Camera* GetMainCamera();
 
 	void AddDrawCall();
-	uint32 GetDrawCalls();
 	void SetIsResizingBackbuffer(bool shouldResize);
-	bool IsResizingBackbuffer();
-
-	DescriptorHeapManager& GetRTVHeapManager();
-	DescriptorHeapManager& GetDSVHeapManager();
-	DescriptorHeapManager& GetSRVHeapManager();
-	DescriptorHeapManager& GetSamplerHeapManager();
-
+	
 	void WaitForGPU();
 
+	ID3D12Device* GetDevice() { return mDevice.Get(); };
+	IDXGISwapChain4* GetSwapChain() { return mSwapChain.Get(); };
+	ID3D12GraphicsCommandList* GetMainCommandList() { return mMainCommandList.Get(); };
+	ID3D12CommandQueue* GetCommandQueue() { return mCommandQueue.Get(); };
+	
+	DescriptorHeap& GetRTVHeapManager() { return mRTVHeapManager; };
+	DescriptorHeap& GetDSVHeapManager() { return mDSVHeapManager; };
+	DescriptorHeap& GetSRVHeapManager() { return mSRVHeapManager; };
+	DescriptorHeap& GetSamplerHeapManager() { return mSamplerHeapManager; };
+
+	RootSignatureManager& GetRootSignatureManager() { return mRootSignatureManager; };
+
+	bool IsResizingBackbuffer() { return mIsResizing; };
+	uint32 GetDrawCalls() { return mDrawCalls; };
+
+public:
 	MultiNotifierArgs<Vector2> OnBackbufferResize;
 
 private:
@@ -79,6 +89,7 @@ private:
 	bool SetupBackBufferRTVs();
 	bool SetupCommandAllocatorAndMainList();
 	bool SetupFence();
+	bool SetupDefaultRootSignatures();
 private:
 	ComPtr<ID3D12Device> mDevice;
 	ComPtr<ID3D12CommandQueue> mCommandQueue;
@@ -95,13 +106,19 @@ private:
 	uint64 mFenceValue;
 	uint32 mFrameIndex;
 
-	DescriptorHeapManager mRTVHeapManager;
-	DescriptorHeapManager mDSVHeapManager;
-	DescriptorHeapManager mSRVHeapManager;
-	DescriptorHeapManager mSamplerHeapManager;
+	DescriptorHeap mRTVHeapManager;
+	DescriptorHeap mDSVHeapManager;
+	DescriptorHeap mSRVHeapManager;
+	DescriptorHeap mSamplerHeapManager;
 
 	Color mClearColor;
 	bool mVsync;
 	uint32 mDrawCalls;
 	bool mIsResizing;
+
+	Camera* mMainCamera;
+	D3D12_CPU_DESCRIPTOR_HANDLE mDefaultSamplerCPU;
+	D3D12_GPU_DESCRIPTOR_HANDLE mDefaultSamplerGPU;
+
+	RootSignatureManager mRootSignatureManager;
 };

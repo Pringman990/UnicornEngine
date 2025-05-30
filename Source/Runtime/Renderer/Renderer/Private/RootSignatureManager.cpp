@@ -9,57 +9,44 @@ RootSignatureManager::~RootSignatureManager()
 {
 }
 
-ID3D12RootSignature* RootSignatureManager::GetOrCreateRootSignature(const std::string& aShaderByteCode)
+ID3D12RootSignature* RootSignatureManager::Create(const D3D12_ROOT_SIGNATURE_DESC& SignatureDesc, const std::string& Name)
 {
-	std::size_t hash = std::hash<std::string>{}(aShaderByteCode);
-
-	auto it = mRootSignatureCache.find(hash);
+	auto it = mRootSignatureCache.find(Name);
 	if (it != mRootSignatureCache.end()) 
 	{
-		return it->second.Get();
+		_LOG_RENDERER_WARNING("Root signature with name: {}, Already exists.", Name);
+		return nullptr;
 	}
-
-	ComPtr<ID3D12ShaderReflection> shaderReflection;
-	D3DReflect(aShaderByteCode.data(), aShaderByteCode.size(), IID_PPV_ARGS(shaderReflection.GetAddressOf()));
-
-	D3D12_SHADER_DESC shaderDesc = {};
-	shaderReflection->GetDesc(&shaderDesc);
-
-	D3D12_ROOT_SIGNATURE_DESC signatureDesc = {};
-	std::vector<D3D12_ROOT_PARAMETER> rootParameters(shaderDesc.BoundResources);
-
-	for (uint32 i = 0; i < shaderDesc.BoundResources; i++)
-	{
-		D3D12_SHADER_INPUT_BIND_DESC bindDesc = {};
-		shaderReflection->GetResourceBindingDesc(i, &bindDesc);
-
-		D3D12_ROOT_PARAMETER param = {};
-		param.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-		param.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-
-		D3D12_DESCRIPTOR_RANGE range = {};
-		range.BaseShaderRegister = bindDesc.BindPoint;
-		range.NumDescriptors = 1;
-		range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-		
-		param.DescriptorTable.NumDescriptorRanges = 1;
-		param.DescriptorTable.pDescriptorRanges = &range;
-
-		rootParameters[i] = param;
-	}
-
-	signatureDesc.NumParameters = static_cast<uint32>(rootParameters.size());
-	signatureDesc.pParameters = rootParameters.data();
-	signatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
 	ComPtr<ID3DBlob> serializedRootSig;
 	ComPtr<ID3DBlob> errorBlob;
-	D3D12SerializeRootSignature(&signatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
+	HRESULT hr = D3D12SerializeRootSignature(&SignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, serializedRootSig.GetAddressOf(), errorBlob.GetAddressOf());
+	if (FAILED(hr))
+	{
+		_LOG_RENDERER_WARNING("Failed serializing root signature, hr: {}, errorblob: {}", hr, (char*)errorBlob->GetBufferPointer());
+		return nullptr;
+	}
 
 	ComPtr<ID3D12RootSignature> rootSignature;
-	Renderer::GetInstance()->GetDevice()->CreateRootSignature(0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV_ARGS(rootSignature.GetAddressOf()));
+	hr = Renderer::GetInstance()->GetDevice()->CreateRootSignature(0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV_ARGS(rootSignature.GetAddressOf()));
+	if (FAILED(hr))
+	{
+		_LOG_RENDERER_WARNING("Failed create root signature, error: {}", hr);
+		return nullptr;
+	}
 
-	mRootSignatureCache[hash] = rootSignature;
+	mRootSignatureCache[Name] = rootSignature;
 
 	return rootSignature.Get();
+}
+
+ID3D12RootSignature* RootSignatureManager::Get(const std::string& Name)
+{
+	auto it = mRootSignatureCache.find(Name);
+	if (it == mRootSignatureCache.end())
+	{
+		_LOG_RENDERER_WARNING("Root signature with name: {}, doesn't exist.", Name);
+		return nullptr;
+	}
+	return it->second.Get();
 }

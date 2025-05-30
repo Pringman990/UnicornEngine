@@ -12,6 +12,7 @@ public:
 	bool UnLoadModule(const std::string& aModuleName);
 
 	const IModule* GetModule(const std::string& aModuleName) const;
+	HMODULE GetHModule(const std::string& aModuleName) const;
 
 private:
 	ModuleManager();

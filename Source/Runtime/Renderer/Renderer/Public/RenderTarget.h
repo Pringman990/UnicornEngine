@@ -25,16 +25,20 @@ public:
 
 	ComPtr<ID3D12Resource>& GetResource();
 	const D3D12_CPU_DESCRIPTOR_HANDLE& GetRTVHandle();
+	const D3D12_GPU_DESCRIPTOR_HANDLE& GetGPUHandle();
 	const D3D12_CPU_DESCRIPTOR_HANDLE& GetDSVHandle();
 
 	D3D12_VIEWPORT& GetViewport();
 	D3D12_RECT& GetScissorRect();
+
+	Texture2D* GetTexture();
 
 private:
 	bool CreateInternal(ID3D12Resource* aRTVResource, bool EnableDepthTesting);
 private:
 
 	D3D12_CPU_DESCRIPTOR_HANDLE mRTVHandle;
+	D3D12_GPU_DESCRIPTOR_HANDLE mGPUHandle;
 	D3D12_CPU_DESCRIPTOR_HANDLE mDSVHandle;
 
 	D3D12_DEPTH_STENCIL_DESC mDDSDesc;

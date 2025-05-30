@@ -7,8 +7,8 @@ public:
 	CommandList();
 	~CommandList();
 
-	void BindTexture();
-	void BindShader();
+	void SetTexture();
+	void SetShader();
 	void DrawMesh();
 
 private:
