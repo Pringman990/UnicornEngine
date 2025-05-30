@@ -1,22 +1,30 @@
 name: Archive Branch Tag
 
 on:
-    pull_request:
-        types: [closed]
-        
+  pull_request:
+    types: [closed]
+
 jobs:
-    tag:
-        if: github.event.pull_request.merged == true
-        runs-on: windows-latest
-        steps:
-            - name: Tag archived branch
-            run: |
+  tag:
+    if: github.event.pull_request.merged == true
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0    # fetch full history, important for tags
+
+      - name: Configure Git user
+        run: |
+          git config user.email "bot@example.com"
+          git config user.name "AutoTag Bot"
+        shell: bash
+
+      - name: Create and push archive tag
+        run: |
           BRANCH_NAME=${{ github.event.pull_request.head.ref }}
           COMMIT_SHA=${{ github.event.pull_request.merge_commit_sha }}
-          git config --global user.email "bot@example.com"
-          git config --global user.name "AutoTag Bot"
-          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} repo
-          cd repo
+          echo "Tagging branch '$BRANCH_NAME' at commit $COMMIT_SHA"
           git tag archive/${BRANCH_NAME} ${COMMIT_SHA}
           git push origin archive/${BRANCH_NAME}
+        shell: bash
             
