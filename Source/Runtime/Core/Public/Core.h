@@ -11,7 +11,7 @@
 #include <bitset>
 
 //Application
-#include <Application/Application.h> 
+#include <Application/Application.h>  
 #include <Application/Generic/GenericApplication.h>
 #include <Application/Generic/IWindow.h>
 
