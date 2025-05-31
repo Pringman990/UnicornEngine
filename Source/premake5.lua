@@ -11,7 +11,8 @@ solution "Unicorn Engine"
         "MemoryDebug_Editor",
         "Debug",
         "Debug_Editor",
-        "Retail"
+        "Retail",
+		"Tests"
     }
 
 	platforms{ 
@@ -50,6 +51,13 @@ solution "Unicorn Engine"
 		symbols "Off"
 		optimize "Full"
 		defines {'BUILD_CONFIG="Retail"', "NDEBUG"}
+
+	filter ("configurations:Tests")
+		runtime "Debug"
+		symbols "Off"
+		optimize "Full"
+		defines {'BUILD_CONFIG="Tests"', "_EDITOR", "_DEBUG"}
+		linkoptions {"/WX:NO"}
 
 	filter ("configurations:Retail", "action:vs*")
 		buildoptions {"/wd4189"}
