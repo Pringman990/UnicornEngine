@@ -14,7 +14,7 @@ EngineLoop::EngineLoop()
 {
 }
 
-EngineLoop::~EngineLoop()
+EngineLoop::~EngineLoop() 
 {
 #ifdef _EDITOR
 	delete mEditor;
