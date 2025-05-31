@@ -10,6 +10,7 @@ pushd %~dp0..
 :: Bin
 @RD /S /Q "./Binaries/Win64"
 @RD /S /Q "./Binaries/Shaders"
+@RD /S /Q "./Binaries/Logs"
 
 
 :: VS Project Files
