@@ -11,15 +11,19 @@ solution "Unicorn Engine"
         "MemoryDebug_Editor",
         "Debug",
         "Debug_Editor",
-        "Retail"
+        "Retail",
+		"Tests"
     }
 
 	platforms{ 
-		"Win64"
+		"x64"
 	}
 
-	filter("platforms:Win64")
-		architecture "x64"
+	--filter("platforms:Win64")
+		--architecture "x64"
+
+	filter "platforms:x64"
+		architecture "x86_64"
 
   	filter ("configurations:MemoryDebug")
 		runtime "Debug"
@@ -53,6 +57,12 @@ solution "Unicorn Engine"
 
 	filter ("configurations:Retail", "action:vs*")
 		buildoptions {"/wd4189"}
+
+	filter("configurations:Tests")
+		runtime "Debug"
+		symbols "Full"
+		optimize "Off"
+		defines {'BUILD_CONFIG="Debug_Editor"', "_EDITOR", "_DEBUG"}
 
 	--filter "action:vs*"
 	--	flags{"LinkTimeOptimization"}
