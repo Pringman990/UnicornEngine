@@ -65,7 +65,7 @@ solution "Unicorn Engine"
 		flags {"FatalWarnings"}
 
 	filter("configurations:Tests")
-		runtime "Debug"
+		runtime "Debug" 
 		symbols "Full"
 		optimize "Off"
 		defines {'BUILD_CONFIG="Debug_Editor"', "_EDITOR", "_DEBUG"}
