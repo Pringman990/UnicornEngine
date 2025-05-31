@@ -58,6 +58,13 @@ project "EntryPoint"
 		links {
 			"Editor"
 		} 
+	filter("configurations:Tests")
+		includedirs {
+			dirs.Editor,
+		}	
+		links {
+			"Editor"
+		} 
 
 		 filter {"configurations:MemoryDebug"}
       -- Additional post-build command to copy debug-specific DLLs
