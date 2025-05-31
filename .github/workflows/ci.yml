@@ -31,7 +31,7 @@ jobs:
 
       - uses: microsoft/setup-msbuild@v1.1
       - name: Build solution
-        run: msbuild "Unicorn Engine.sln" /p:Configuration=Tests /p:Platform=x64 /p:TreatLinkerWarningAsErrors=false /m
+        run: msbuild "Unicorn Engine.sln" /p:Configuration=Tests /p:Platform=x64 /m
 
       - name: Run unit tests
         run: ./Binaries/Win64/Tests.exe --gtest_output=xml:TestResults.xml
