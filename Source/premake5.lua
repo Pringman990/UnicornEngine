@@ -63,7 +63,6 @@ solution "Unicorn Engine"
 		symbols "Full"
 		optimize "Off"
 		defines {'BUILD_CONFIG="Debug_Editor"', "_EDITOR", "_DEBUG"}
-		linkoptions {"/WX-"}
 
 	--filter "action:vs*"
 	--	flags{"LinkTimeOptimization"}
