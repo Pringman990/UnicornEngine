@@ -63,6 +63,7 @@ solution "Unicorn Engine"
 		symbols "Full"
 		optimize "Off"
 		defines {'BUILD_CONFIG="Debug_Editor"', "_EDITOR", "_DEBUG"}
+		buildoptions {"/wd4099"}
 
 	--filter "action:vs*"
 	--	flags{"LinkTimeOptimization"}
