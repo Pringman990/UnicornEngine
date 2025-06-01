@@ -13,7 +13,16 @@ project "Renderer"
     location (UCE_VCXPROJ_DIR)
 
 	includedirs {
-		normalizePath(dirs.Renderer) .. "/Private"
+		normalizePath(dirs.Renderer) .. "/Private",
+		os.getenv("VULKAN_SDK") .. "/Include"
+	}
+
+	libdirs{
+		os.getenv("VULKAN_SDK") .. "/Lib"
+	}
+
+	links{
+		"vulkan-1"
 	}
 
 	includeDependencies("Renderer", 
@@ -33,6 +42,7 @@ project "Renderer"
 		"DDSTextureLoader",
 		"Assimp",
 	})
+
 
 	files {
 		"**.h",

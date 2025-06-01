@@ -144,7 +144,8 @@ bool Renderer::Init()
 
 	mMainCamera = new Camera();
 
-	windowsApp->OnWndProc.AddRaw(this, &Renderer::ProcessWindowsMessages);
+	windowsApp->OnWindowResizeEvent.AddRaw(this, &Renderer::ResizeBackbuffer);
+
 	return true;
 }
 
@@ -204,6 +205,7 @@ void Renderer::Present()
 	mFrameIndex = mSwapChain->GetCurrentBackBufferIndex();
 }
 
+//TODO: look this over
 void Renderer::ProcessWindowsMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
@@ -232,6 +234,11 @@ void Renderer::ProcessWindowsMessages(HWND hWnd, UINT message, WPARAM wParam, LP
 
 void Renderer::ResizeBackbuffer(int32 aWidth, int32 aHeight)
 {
+	if (IsResizingBackbuffer())
+	{
+		return;
+	}
+
 	if (mSwapChain != nullptr)
 	{
 		WaitForGPU();

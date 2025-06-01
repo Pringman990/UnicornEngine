@@ -2,7 +2,7 @@
 #include "Application/Generic/IWindow.h"
 #include <Windows.h>
 
-struct WindowWindowInfo : public IWindowInfo
+struct WindowsWindowInfo : public IWindowInfo
 {
 	HWND windowHandle = nullptr;
 };

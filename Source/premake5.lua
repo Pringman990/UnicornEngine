@@ -16,14 +16,17 @@ solution "Unicorn Engine"
     }
 
 	platforms{ 
-		"x64"
+		"x64-windows",
+		"x64-sdl",
 	}
 
-	--filter("platforms:Win64")
-		--architecture "x64"
+	architecture "x86_64"
 
-	filter "platforms:x64"
-		architecture "x86_64"
+	filter ("platforms:x64-windows")
+		defines {"_Win32", "_Win64"}
+
+	filter ("platforms:x64-sdl")
+		defines {"_SDL"}
 
   	filter ("configurations:MemoryDebug")
 		runtime "Debug"
@@ -71,18 +74,17 @@ solution "Unicorn Engine"
 		defines {'BUILD_CONFIG="Debug_Editor"', "_EDITOR", "_DEBUG"}
 		linkoptions {"/IGNORE:4099"}
 
-	--filter "action:vs*"
-	--	flags{"LinkTimeOptimization"}
+	--filter "system:windows"
+	--	symbols "On"		
+	--	systemversion "latest"
+	--	defines {"_Win32", "_Win64"}
 
-	filter "system:windows"
-		symbols "On"		
-		systemversion "latest"
-		defines {"_Win32", "_Win64"}
-
+	filter {}
 	flags {"MultiProcessorCompile"}
     warnings "Extra"
     externalanglebrackets "On"
 	disablewarnings { "4244", "4018", "4100", "4189" }
+	linkoptions {"/IGNORE:4006"}
     filter {}
 
 
