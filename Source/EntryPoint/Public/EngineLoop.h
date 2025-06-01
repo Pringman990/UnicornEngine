@@ -7,7 +7,7 @@
 
 class GenericApplication;
 class Renderer;
-class FileWatcher;
+class WindowsFileWatcher;
 
 #ifdef _EDITOR
 class Editor;
@@ -30,7 +30,7 @@ public:
 private:
 	GenericApplication* mGenericApplication;
 	Renderer* mRenderer;
-	FileWatcher* mFileWatcher;
+	WindowsFileWatcher* mFileWatcher;
 
 #ifdef _EDITOR
 	Editor* mEditor = nullptr;

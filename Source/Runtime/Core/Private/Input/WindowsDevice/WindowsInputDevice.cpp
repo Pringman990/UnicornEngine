@@ -52,7 +52,7 @@ void WindowsInputDevice::Init()
 		return;
 	}
 
-	application->OnWndProc.AddRaw(this, &WindowsInputDevice::ProccessMessages);
+	//application->OnWndProc.AddRaw(this, &WindowsInputDevice::ProccessMessages);
 }
 
 void WindowsInputDevice::Update()

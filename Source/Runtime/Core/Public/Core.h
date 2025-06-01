@@ -43,7 +43,9 @@
 
 #include <Timer/Timer.h>
 
-#include <FileWatcher/FileWatcher.h>
+#include <FileSystem/FileSystem.h>
+#include <FileSystem/FileWatcherSubsystem.h>
+#include <FileSystem/FileWatcherBackendFactory.h>
 
 #include <Input/InputMapper.h>
 
