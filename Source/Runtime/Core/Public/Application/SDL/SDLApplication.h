@@ -3,7 +3,7 @@
 #include "Application/SDL/SDLWindowInfo.h"
 
 #ifdef _SDL
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 class SDLApplication : public GenericApplication
 {

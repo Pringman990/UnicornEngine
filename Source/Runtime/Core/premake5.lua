@@ -40,37 +40,11 @@ project "Core"
 
 	includedirs {
 		normalizePath(dirs.Core) .. "/Private",
-		--dirs.StandardTypes,
-		--dirs.MemoryDebugger,
-		--dirs.UniqueID,
-		--dirs.Math,
-		--dirs.Timer,
-		--dirs.Logger,
-		--dirs.EventDispatcher,
-		--dirs.CrashHandler,
-		--dirs.FileWatcher,
-		--dirs.Application,
-		--dirs.Input,
-		--dirs.Reflection,
-		--dirs.Utility,
 	}
 
 	includeDependencies("Core", 
 	{
 		dirs.Core,
-		--dirs.StandardTypes,
-		--dirs.MemoryDebugger,
-		--dirs.UniqueID,
-		--dirs.Math,
-		--dirs.Timer,
-		--dirs.Logger,
-		--dirs.EventDispatcher,
-		--dirs.CrashHandler,
-		--dirs.FileWatcher,
-		--dirs.ApplicationCore,
-		--dirs.Input,
-		--dirs.Reflection,
-		--dirs.Utility,
 		"SimpleMath",
 		"Singleton",
 		"Spdlog",
@@ -96,10 +70,10 @@ project "Core"
 	filter ("platforms:x64-sdl")
 		links {"SDL2"}
 		includedirs {
-			os.getenv("VULKAN_SDK") .. "/Include/SDL2"
+			dirs.SDL .. "/Include"
 		}
 		libdirs{
-			os.getenv("VULKAN_SDK") .. "/Lib"
+			dirs.SDL .. "/Lib"
 		}
 	
 	filter{}
