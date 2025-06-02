@@ -35,7 +35,7 @@ ReflectionTypeInfo ReflectionRegistry::GetTypeInfo(std::type_index aType)
 	return ReflectionTypeInfo();
 }
 
-ReflectionTypeInfo ReflectionRegistry::GetTypeInfo(const std::string& aName)
+ReflectionTypeInfo ReflectionRegistry::GetTypeInfo(const String& aName)
 {
 	auto it = mNameToType.find(aName);
 	if (it != mNameToType.end())
@@ -69,8 +69,8 @@ void ReflectionRegistry::ProcessDefferedRegistration()
 #endif // _DEBUG_PRINT_REFLECTION_REGISTRY
 }
 
-std::vector<ReflectionRegistry::DeffRegistartionFn>& ReflectionRegistry::GetDefferedQueue()
+Vector<ReflectionRegistry::DeffRegistartionFn>& ReflectionRegistry::GetDefferedQueue()
 {
-	static std::vector<DeffRegistartionFn> queue;
+	static Vector<DeffRegistartionFn> queue;
 	return queue;
 }

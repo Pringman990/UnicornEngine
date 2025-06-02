@@ -10,7 +10,7 @@ ThreadPool::ThreadPool()
 	{
 		mWorkers.emplace_back([this]() {
 			while (true) {
-				std::function<void()> task;
+				Func<void()> task;
 				{
 					std::unique_lock<std::mutex> lock(this->mQueueMutex);
 					this->mCondition.wait(lock, [this]() { return this->mShouldStopAll || !this->mTasks.empty(); });

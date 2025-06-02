@@ -24,7 +24,7 @@ struct FileWatchInfo
 class IFileWatcherBackend
 {
 public:
-	using FuncType = std::function<void(FileWatchInfo)>;
+	using FuncType = Func<void(FileWatchInfo)>;
 
 	IFileWatcherBackend() {};
 	virtual ~IFileWatcherBackend() = default;
