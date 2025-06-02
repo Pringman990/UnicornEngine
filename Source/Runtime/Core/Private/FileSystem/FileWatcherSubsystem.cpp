@@ -29,7 +29,7 @@ bool FileWatcherSubsystem::Init(const String& Root, SharedPtr<IFileWatcherBacken
 
 	mBackend->Watch(Root, [&](FileWatchInfo info)
 		{
-			mWatched[info.file].Notify(info);
+			mWatched[info.file].Notify(info); 
 		});
 
 	return true;
