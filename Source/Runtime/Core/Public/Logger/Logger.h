@@ -5,17 +5,18 @@
 #include <string>
 #include <spdlog/spdlog.h>
 #include <MemoryDebugger/MemoryDebugger.h>
+#include "StandardTypes/StandardTypes.h"
 
 class Logger : public Singleton<Logger>
 {
 public:
 	void Init();
 
-	inline std::shared_ptr<spdlog::logger>& GetCore()  { return mCoreLogger;};
-	inline std::shared_ptr<spdlog::logger>& GetEngine()  { return mEngineLogger;};
-	inline std::shared_ptr<spdlog::logger>& GetClient() { return mClientLogger; };
-	inline std::shared_ptr<spdlog::logger>& GetEditor() { return mEditorLogger; };
-	inline std::shared_ptr<spdlog::logger>& GetRenderer() { return mRendererLogger; };
+	inline SharedPtr<spdlog::logger>& GetCore()  { return mCoreLogger;};
+	inline SharedPtr<spdlog::logger>& GetEngine()  { return mEngineLogger;};
+	inline SharedPtr<spdlog::logger>& GetClient() { return mClientLogger; };
+	inline SharedPtr<spdlog::logger>& GetEditor() { return mEditorLogger; };
+	inline SharedPtr<spdlog::logger>& GetRenderer() { return mRendererLogger; };
 
 private:
 	friend class Singleton<Logger>;
@@ -23,11 +24,11 @@ private:
 	~Logger() override;
 private:
 
-	std::shared_ptr<spdlog::logger> mCoreLogger;
-	std::shared_ptr<spdlog::logger> mEngineLogger;
-	std::shared_ptr<spdlog::logger> mRendererLogger;
-	std::shared_ptr<spdlog::logger> mEditorLogger;
-	std::shared_ptr<spdlog::logger> mClientLogger;
+	SharedPtr<spdlog::logger> mCoreLogger;
+	SharedPtr<spdlog::logger> mEngineLogger;
+	SharedPtr<spdlog::logger> mRendererLogger;
+	SharedPtr<spdlog::logger> mEditorLogger;
+	SharedPtr<spdlog::logger> mClientLogger;
 };
 
 #ifdef _DEBUG
@@ -231,13 +232,13 @@ private:
 #include <Utility/Utility.h>
 namespace fmt {
     template <>
-    struct formatter<HRESULT> : public formatter<std::string> {
+    struct formatter<HRESULT> : public formatter<String> {
         template <typename FormatContext>
         auto format(const HRESULT& hr, FormatContext& ctx) {
             _com_error err(hr);
             std::wstring msg = err.ErrorMessage();
-            std::string result = WStringToString(msg);
-            return formatter<std::string>::format(result, ctx); 
+            String result = WStringToString(msg);
+            return formatter<String>::format(result, ctx);
         }
     };
 }

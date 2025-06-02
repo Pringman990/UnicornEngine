@@ -12,7 +12,7 @@ public:
 
 	virtual void Init() = 0;
 	virtual void Update() = 0;
-	virtual void GetKeys(std::unordered_map<std::string, uint32_t>& aStringKeyMap) = 0;
+	virtual void GetKeys(UnorderedMap<String, uint32>& aStringKeyMap) = 0;
 
 	virtual void CaptureMouse() = 0;
 	virtual void ReleaseMouse() = 0;

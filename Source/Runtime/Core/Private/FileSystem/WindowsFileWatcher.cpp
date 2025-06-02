@@ -89,7 +89,7 @@ void WindowsFileWatcher::Watch(const String& RootPath, FuncType Callback)
 
 	if (!result)
 	{
-		std::string lastError = std::to_string(GetLastError());
+		String lastError = std::to_string(GetLastError());
 		_LOG_CORE_ERROR("ReadDirectoryChangesW failed, Error Code: " + lastError);
 		CloseHandle(mMonitoredDirectory);
 		return;

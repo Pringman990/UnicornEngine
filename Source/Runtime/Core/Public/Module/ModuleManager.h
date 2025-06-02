@@ -8,11 +8,11 @@ class ModuleManager : public Singleton<ModuleManager>
 	friend class Singleton<ModuleManager>;
 public:
 
-	bool LoadModule(const std::string& aModuleName);
-	bool UnLoadModule(const std::string& aModuleName);
+	bool LoadModule(const String& aModuleName);
+	bool UnLoadModule(const String& aModuleName);
 
-	const IModule* GetModule(const std::string& aModuleName) const;
-	HMODULE GetHModule(const std::string& aModuleName) const;
+	const IModule* GetModule(const String& aModuleName) const;
+	HMODULE GetHModule(const String& aModuleName) const;
 
 private:
 	ModuleManager();
@@ -25,7 +25,7 @@ private:
 		HMODULE library;
 	};
 
-	std::unordered_map<std::string, ModuleInfo> mLoadedModules;
+	UnorderedMap<String, ModuleInfo> mLoadedModules;
 };
 
 #define IMPLEMENT_MODULE(MODULE_NAME) \

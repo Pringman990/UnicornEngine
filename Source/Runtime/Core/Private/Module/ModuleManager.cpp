@@ -9,7 +9,7 @@ ModuleManager::~ModuleManager()
 {
 }
 
-bool ModuleManager::LoadModule(const std::string& aModuleName)
+bool ModuleManager::LoadModule(const String& aModuleName)
 {
 	auto it = mLoadedModules.find(aModuleName);
 	if (it != mLoadedModules.end())
@@ -51,7 +51,7 @@ bool ModuleManager::LoadModule(const std::string& aModuleName)
 	return true;
 }
 
-bool ModuleManager::UnLoadModule(const std::string& aModuleName)
+bool ModuleManager::UnLoadModule(const String& aModuleName)
 {
 	auto it = mLoadedModules.find(aModuleName);
 	if (it == mLoadedModules.end())
@@ -68,7 +68,7 @@ bool ModuleManager::UnLoadModule(const std::string& aModuleName)
 	return true;
 }
 
-const IModule* ModuleManager::GetModule(const std::string& aModuleName) const
+const IModule* ModuleManager::GetModule(const String& aModuleName) const
 {
 	auto it = mLoadedModules.find(aModuleName);
 	if (it == mLoadedModules.end())
@@ -77,7 +77,7 @@ const IModule* ModuleManager::GetModule(const std::string& aModuleName) const
 	return it->second.module;
 }
 
-HMODULE ModuleManager::GetHModule(const std::string& aModuleName) const
+HMODULE ModuleManager::GetHModule(const String& aModuleName) const
 {
 	auto it = mLoadedModules.find(aModuleName);
 	if (it == mLoadedModules.end())

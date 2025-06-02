@@ -26,13 +26,13 @@ public:
 		}
 	}
 
-	void StartReading(std::string aName)
+	void StartReading(String aName)
 	{
 		std::lock_guard<std::mutex> lock(mReadingMutex);
 		mStartedReadings[aName] = std::chrono::high_resolution_clock::now();
 	}
 
-	const float EndReading(std::string aName, bool SaveAfterEnded = false)
+	const float EndReading(String aName, bool SaveAfterEnded = false)
 	{
 		std::lock_guard<std::mutex> lock(mReadingMutex);
 		auto end = std::chrono::high_resolution_clock::now();
@@ -49,7 +49,7 @@ public:
 		return 0.0f;
 	}
 
-	const float GetSavedReading(std::string aName)
+	const float GetSavedReading(String aName)
 	{
 		std::lock_guard<std::mutex> lock(mReadingMutex);
 		auto it = mSavedReadings.find(aName);
@@ -88,8 +88,8 @@ private:
 	uint32_t mFrameCount = 0;
 	float mElapsedTime = 0.0f;
 
-	std::unordered_map<std::string, std::chrono::high_resolution_clock::time_point> mStartedReadings;
-	std::unordered_map<std::string, float> mSavedReadings;
+	UnorderedMap<String, std::chrono::high_resolution_clock::time_point> mStartedReadings;
+	UnorderedMap<String, float> mSavedReadings;
 };
 
 #define TIMER_START_READING(NAME) Timer::GetInstance()->StartReading(NAME);

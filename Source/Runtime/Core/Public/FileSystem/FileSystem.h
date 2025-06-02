@@ -32,9 +32,9 @@ private:
 	FileSystem();
 	~FileSystem();
 
-	static std::vector<MountPoint>& GetMounts()
+	static Vector<MountPoint>& GetMounts()
 	{
-		static std::vector<MountPoint> mounts;
+		static Vector<MountPoint> mounts;
 		return mounts;
 	}
 

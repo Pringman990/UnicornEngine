@@ -18,9 +18,9 @@ public:
 private:
 	void ChangeArchetype(EEntity anEntity, Archetype* aFrom, Archetype* aTo);
 private:
-	std::unordered_map<EEntity, EntityLocation> mEntityToLocation;
-	std::unordered_map<EComponentSignature, Archetype*> mSigToArchetype;
-	std::vector<Archetype> mArchetypes;
+	UnorderedMap<EEntity, EntityLocation> mEntityToLocation;
+	UnorderedMap<EComponentSignature, Archetype*> mSigToArchetype;
+	Vector<Archetype> mArchetypes;
 };
 
 template<typename T>
@@ -47,7 +47,7 @@ inline T* EWorld::AddComponent(EEntity anEntity, const T& aComponent)
 		//else create new archetype and move entity and its components
 		Archetype archetype(newSignature);
 
-		std::vector<EComponentID> componentIds = internal::EComponentRegistry::GetIdsFromSignature(newSignature);
+		Vector<EComponentID> componentIds = internal::EComponentRegistry::GetIdsFromSignature(newSignature);
 		for (uint32 i = 0; i < componentIds.size(); i++)
 		{
 			EComponentID id = componentIds[i];

@@ -23,7 +23,7 @@ struct PipelineStateDesc
     D3D12_PRIMITIVE_TOPOLOGY_TYPE topologyType;
     DXGI_SAMPLE_DESC sampleDesc;
     D3D12_INPUT_LAYOUT_DESC inputLayout;
-    std::string rootSignature;
+    String rootSignature;
 };
 
 class PSOManager
@@ -40,5 +40,5 @@ private:
 
     size_t HashPSO(const PipelineStateDesc& Desc);
 private:
-	std::unordered_map<std::size_t, ComPtr<ID3D12PipelineState>> mPipelineStates;
+	UnorderedMap<std::size_t, ComPtr<ID3D12PipelineState>> mPipelineStates;
 };

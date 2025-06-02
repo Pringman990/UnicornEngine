@@ -1,8 +1,9 @@
 #include <iostream>
 #include <Windows.h>
 #include <memory>
+#include <StandardTypes/StandardTypes.h>
 
-extern int32_t GuardedMain();
+extern int32 GuardedMain();
 
 void CreateConsoleWindow()
 {
@@ -13,16 +14,16 @@ void CreateConsoleWindow()
 	SetConsoleTitle(L"Console Window");
 }
 
-int32_t GuardedMainWrapper()
+int32 GuardedMainWrapper()
 {
 	return GuardedMain();
 }
 
-int32_t WINAPI WinMain(
+int32 WINAPI WinMain(
 	_In_ HINSTANCE hInInstance, 
 	_In_opt_ HINSTANCE hPrevInstance, 
 	_In_ char* pCmdLine, 
-	_In_ int32_t nCmdShow
+	_In_ int32 nCmdShow
 )
 {
 	hInInstance;
@@ -35,7 +36,7 @@ int32_t WINAPI WinMain(
 	CreateConsoleWindow();
 #endif // 
 
-	int32_t result = GuardedMainWrapper();
+	int32 result = GuardedMainWrapper();
 
 	return result;
 }

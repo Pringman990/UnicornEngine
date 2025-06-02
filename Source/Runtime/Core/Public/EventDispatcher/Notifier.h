@@ -5,7 +5,7 @@ template<typename... Args>
 class MultiNotifierArgs
 {
 public:
-	using FuncType = std::function<void(Args...)>;
+	using FuncType = Func<void(Args...)>;
 
 	void AddLambda(FuncType aLambda)
 	{
@@ -35,13 +35,13 @@ public:
 	}
 
 private:
-	std::vector<FuncType> mBoundFunctions;
+	Vector<FuncType> mBoundFunctions;
 };
 
 class MultiNotifier
 {
 public:
-	using FuncType = std::function<void()>;
+	using FuncType = Func<void()>;
 
 	void AddLambda(FuncType aLambda)
 	{
@@ -71,5 +71,5 @@ public:
 	}
 
 private:
-	std::vector<FuncType> mBoundFunctions;
+	Vector<FuncType> mBoundFunctions;
 };

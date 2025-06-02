@@ -13,7 +13,7 @@ public:
 	void RunRender(EWorld& aWorld);
 
 	template<typename... Components>
-	void RegisterSystem(std::function<void(EWorld&, EEntity, Components&...)> aSystemFunction, const std::string& aName, EPipeline aPipeline)
+	void RegisterSystem(Func<void(EWorld&, EEntity, Components&...)> aSystemFunction, const String& aName, EPipeline aPipeline)
 	{
 		if (mRegisteredSystemsName.contains(aName))
 		{

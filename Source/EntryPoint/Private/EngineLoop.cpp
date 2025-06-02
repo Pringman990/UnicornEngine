@@ -26,7 +26,7 @@ EngineLoop::~EngineLoop()
 	//InputMapper::Shutdown();
 	//Renderer::Shutdown();
 	Application::Shutdown();
-
+	
 	mRenderer = nullptr;
 	mGenericApplication = nullptr;
 	mFileWatcher = nullptr;
@@ -108,13 +108,13 @@ bool EngineLoop::Init()
 
 		SandboxInit initGameWorld = (SandboxInit)GetProcAddress(sanboxModule, "InitGameWorld");
 		if (!initGameWorld) {
-			std::cerr << "Could not init gameworld" << std::endl;
+			_LOG_CORE_INFO("Could not init gameworld");
 		}
 		initGameWorld();
 
 		mSandboxRender = (SandboxRender)GetProcAddress(sanboxModule, "RenderGameWorld");
 		if (!mSandboxRender) {
-			std::cerr << "Could not load render gameworld" << std::endl;
+			_LOG_CORE_INFO("Could not load render gameworld");
 			return false;
 		}
 

@@ -27,11 +27,11 @@ void DebugInformationWindow::Render()
     //    Renderer::GetInstance()->SetVsync(vsync);
     //}
 
-    std::string fps = "FPS: ";
+    String fps = "FPS: ";
     fps += std::to_string(Timer::GetInstance()->GetFps());
     ImGui::Text(fps.c_str());
 
-    std::string drawcalls = "DrawCalls: ";
+    String drawcalls = "DrawCalls: ";
     drawcalls += std::to_string(Renderer::GetInstance()->GetDrawCalls());
     ImGui::Text(drawcalls.c_str());
 }
