@@ -31,6 +31,6 @@ private:
 	D3D12_DESCRIPTOR_HEAP_FLAGS mFlags;
 	uint32 mDescriptorCount;
 	uint32 mIncrementSize;
-	std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> mFreeList;
+	Vector<D3D12_CPU_DESCRIPTOR_HANDLE> mFreeList;
 	uint32 mNextFreeIndex;
 };

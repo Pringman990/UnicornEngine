@@ -32,7 +32,7 @@ class RendererWindowsMessageObserver;
 
 struct GraphicsCardInfo
 {
-	std::string name = "";
+	String name = "";
 	uint32 vendorID = 0;
 	uint64 totalVideoMemoryInMB = 0;	//VRAM
 	uint32 systemMemoryInMB = 0;		//For integrated GPU, the dedicated RAM memory for GPU

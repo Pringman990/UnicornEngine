@@ -12,7 +12,7 @@
  /// FALSE if value already exists
  /// </returns>
 template<typename T>
-inline bool AddUniqueToVector(std::vector<T>& aVector, T& aItem)
+inline bool AddUniqueToVector(Vector<T>& aVector, T& aItem)
 {
     auto it = std::find(aVector.begin(), aVector.end(), aItem);
     if (it == aVector.end())
@@ -31,7 +31,7 @@ inline bool AddUniqueToVector(std::vector<T>& aVector, T& aItem)
  /// FALSE if item was not found in the vector
  /// </returns>
 template<typename T>
-inline bool EraseItemFromVector(std::vector<T>& aVector, T& aItem)
+inline bool EraseItemFromVector(Vector<T>& aVector, T& aItem)
 {
     auto it = std::find(aVector.begin(), aVector.end(), aItem);
     if (it != aVector.end())
@@ -42,14 +42,14 @@ inline bool EraseItemFromVector(std::vector<T>& aVector, T& aItem)
     return false;
 }
 
-inline std::string WStringToString(const std::wstring& aWideString)
+inline String WStringToString(const std::wstring& aWideString)
 {
     size_t size_needed = 0;
     // Get the required size
     wcstombs_s(&size_needed, nullptr, 0, aWideString.c_str(), 0);
     if (size_needed == 0) throw std::runtime_error("Conversion failed");
 
-    std::string basicString;
+    String basicString;
     basicString.resize(size_needed);
 
     // Convert the string
@@ -62,7 +62,7 @@ inline std::string WStringToString(const std::wstring& aWideString)
     return basicString;
 }
 
-inline std::wstring StringToWString(const std::string& aString)
+inline std::wstring StringToWString(const String& aString)
 {
     size_t size_needed = 0;
     // Get the required size

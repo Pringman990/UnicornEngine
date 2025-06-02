@@ -3,9 +3,9 @@
 
 TEST(Utility_Tests, CheckAddUniqueToVector)
 {
-	std::vector<int> expectedVector{ 1, 2 };
+	Vector<int> expectedVector{ 1, 2 };
 
-	std::vector<int> vector;
+	Vector<int> vector;
 
 	int a = 1;
 	AddUniqueToVector(vector, a);
@@ -46,9 +46,9 @@ TEST(Utility_Tests, CheckEraseItemFromVector)
 	DummyItem b{ 2 };
 	DummyItem c{ 3 };
 	DummyItem d{ 4 };
-	std::vector<DummyItem> expectedVector{ b,c,d };
+	Vector<DummyItem> expectedVector{ b,c,d };
 
-	std::vector<DummyItem> vector{ a,b,c,d };
+	Vector<DummyItem> vector{ a,b,c,d };
 
 	//Make sure (a) was removed and nothing else
 	EraseItemFromVector(vector, a);
@@ -58,7 +58,7 @@ TEST(Utility_Tests, CheckEraseItemFromVector)
 TEST(Utility_Tests, CheckStringConversion)
 {
 	//Check normal one step conversion
-	std::string out = WStringToString(L"Hej Hej wstring");
+	String out = WStringToString(L"Hej Hej wstring");
 	std::wstring outW = StringToWString("Hej Hej string");
 	EXPECT_TRUE(out == "Hej Hej wstring");
 	EXPECT_TRUE(outW == L"Hej Hej string");

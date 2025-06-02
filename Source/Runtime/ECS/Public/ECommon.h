@@ -16,9 +16,9 @@ using EComponentSignature = ESignature;
 using EComponentType = std::type_index;
 
 template<typename... EComponents>
-using ESystemFunctionT = std::function<void(EWorld&, EEntity, EComponents&...)>;
+using ESystemFunctionT = Func<void(EWorld&, EEntity, EComponents&...)>;
 
-using ESystemFunction = std::function<void(EWorld&, EEntity)>;
+using ESystemFunction = Func<void(EWorld&, EEntity)>;
 
 enum EPipeline
 {
@@ -34,21 +34,21 @@ enum EPipeline
 struct ESystem final
 {
 	EPipeline pipeline = EUpdate;
-	std::string name = "";
+	String name = "";
 	ESignature signature = 0;
 	ESystemFunction function;
 };
 
-using EPipelineSystemMap = std::unordered_map<EPipeline, std::vector<ESystem>>;
-using ENameSystemMap = std::unordered_map<std::string, ESystem>;
+using EPipelineSystemMap = UnorderedMap<EPipeline, Vector<ESystem>>;
+using ENameSystemMap = UnorderedMap<String, ESystem>;
 
 struct Archetype
 {
 	Archetype(EComponentSignature aSignature) : signature(aSignature) {};
 
 	const EComponentSignature signature;
-	std::unordered_map<EComponentID, EComponentAllocator> components;
-	std::vector<EEntity> entities;
+	UnorderedMap<EComponentID, EComponentAllocator> components;
+	Vector<EEntity> entities;
 
 };
 
@@ -113,9 +113,9 @@ namespace internal
 			return aSignature;
 		}
 
-		static std::vector<EComponentID> GetIdsFromSignature(EComponentSignature& aSignature)
+		static Vector<EComponentID> GetIdsFromSignature(EComponentSignature& aSignature)
 		{
-			std::vector<EComponentID> ids;
+			Vector<EComponentID> ids;
 			for (uint32 i = 0; i < aSignature.count(); i++)
 			{
 				ids.push_back(aSignature[i]);
@@ -124,13 +124,13 @@ namespace internal
 			return ids;
 		}
 
-		static const std::string& GetName(EComponentID aId)
+		static const String& GetName(EComponentID aId)
 		{
 			return sIDToName[aId];
 		}
 
 	private:
-		inline static std::unordered_map<std::string, EComponentID> sNameToID;
-		inline static std::unordered_map<EComponentID, std::string> sIDToName;
+		inline static UnorderedMap<String, EComponentID> sNameToID;
+		inline static UnorderedMap<EComponentID, String> sIDToName;
 	};
 }

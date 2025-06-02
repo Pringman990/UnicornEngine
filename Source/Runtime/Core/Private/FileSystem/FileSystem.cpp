@@ -47,7 +47,7 @@ void FileSystem::UnMount(const MountHandle& Handle)
 
 bool FileSystem::Exists(const String& VirtualPath)
 {
-    std::string proto, relativePath;
+    String proto, relativePath;
     
     if (!ParseVirtualPath(VirtualPath, proto, relativePath))
         return false;
@@ -63,7 +63,7 @@ bool FileSystem::Exists(const String& VirtualPath)
 
 SharedPtr<IFileStream> FileSystem::Open(const String& VirtualPath, FileMode Mode)
 {
-    std::string proto, relativePath;
+    String proto, relativePath;
    
     if (!ParseVirtualPath(VirtualPath, proto, relativePath))
         return nullptr;
@@ -78,7 +78,7 @@ SharedPtr<IFileStream> FileSystem::Open(const String& VirtualPath, FileMode Mode
 
 ByteBuffer FileSystem::ReadAll(const String& VirtualPath)
 {
-    std::string proto, relativePath;
+    String proto, relativePath;
    
     if (!ParseVirtualPath(VirtualPath, proto, relativePath)) 
         return {};
@@ -93,7 +93,7 @@ ByteBuffer FileSystem::ReadAll(const String& VirtualPath)
 
 void FileSystem::WriteAll(const String& VirtualPath, const ByteBuffer& Data)
 {
-    std::string proto, relativePath;
+    String proto, relativePath;
     
     if (!ParseVirtualPath(VirtualPath, proto, relativePath))
         return;

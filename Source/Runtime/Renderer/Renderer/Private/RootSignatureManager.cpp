@@ -9,7 +9,7 @@ RootSignatureManager::~RootSignatureManager()
 {
 }
 
-ID3D12RootSignature* RootSignatureManager::Create(const D3D12_ROOT_SIGNATURE_DESC& SignatureDesc, const std::string& Name)
+ID3D12RootSignature* RootSignatureManager::Create(const D3D12_ROOT_SIGNATURE_DESC& SignatureDesc, const String& Name)
 {
 	auto it = mRootSignatureCache.find(Name);
 	if (it != mRootSignatureCache.end()) 
@@ -40,7 +40,7 @@ ID3D12RootSignature* RootSignatureManager::Create(const D3D12_ROOT_SIGNATURE_DES
 	return rootSignature.Get();
 }
 
-ID3D12RootSignature* RootSignatureManager::Get(const std::string& Name)
+ID3D12RootSignature* RootSignatureManager::Get(const String& Name)
 {
 	auto it = mRootSignatureCache.find(Name);
 	if (it == mRootSignatureCache.end())

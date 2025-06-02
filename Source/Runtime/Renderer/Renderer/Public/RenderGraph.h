@@ -18,17 +18,17 @@ struct ResourceHandle
 
 struct RenderPass
 {
-	std::string name;
-	std::function<void()> execute;
+	String name;
+	Func<void()> execute;
 
-	std::vector<ResourceHandle> reads;
-	std::vector<ResourceHandle> writes;
+	Vector<ResourceHandle> reads;
+	Vector<ResourceHandle> writes;
 };
 
 class RenderGraph
 {
 public:
-	RenderPass& AddPass(const std::string& DebugName);
+	RenderPass& AddPass(const String& DebugName);
 	
 	const ResourceHandle CreateResource();
 
@@ -41,5 +41,5 @@ private:
 	~RenderGraph();
 
 private:
-	std::vector<RenderPass> mPasses;
+	Vector<RenderPass> mPasses;
 };

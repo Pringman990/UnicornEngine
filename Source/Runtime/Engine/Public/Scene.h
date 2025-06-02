@@ -7,16 +7,16 @@ class Scene
 {
 public:
 	Scene();
-	Scene(const std::string& aName);
+	Scene(const String& aName);
 	~Scene();
 
 	bool Init();
 
 	const EWorld& GetEWorld();
-	const std::string& GetName() const;
+	const String& GetName() const;
 
 private:
 	EWorld mECSWorld;
-	std::string mName;
+	String mName;
 
 };

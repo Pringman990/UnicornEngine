@@ -3,6 +3,10 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <map>
+#include <unordered_map>
+#include <set>
+#include <functional>
 
 using uint8	 = uint8_t;
 using uint16 = uint16_t;
@@ -17,9 +21,28 @@ using int64 = int64_t;
 using wchar = wchar_t;
 
 using byte = uint8;
-using ByteBuffer = std::vector<byte>;
 
 using String = std::string;
+
+template<typename T>
+using Vector = std::vector<T>;
+
+using ByteBuffer = Vector<byte>;
+
+template<typename T, std::size_t N>
+using Array = std::array<T, N>;
+
+template<typename T, typename V>
+using Map = std::map<T, V>;
+
+template<typename T, typename V>
+using UnorderedMap = std::unordered_map<T, V>;
+
+template<typename T>
+using Set = std::set<T>;
+
+template<typename T>
+using Func = std::function<T>;
 
 template<typename T>
 using SharedPtr = std::shared_ptr<T>;

@@ -3,10 +3,10 @@
 
 struct IWindowInfo
 {
-	uint32_t windowWidth = 1200;
-	uint32_t windowHeight = 720;
-	uint32_t viewportWidth = 0;
-	uint32_t viewportHeight = 0;
+	uint32 windowWidth = 1200;
+	uint32 windowHeight = 720;
+	uint32 viewportWidth = 0;
+	uint32 viewportHeight = 0;
 
 	const char* name = "Unicorn";
 };
