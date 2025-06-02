@@ -5,7 +5,7 @@ Scene::Scene()
 {
 }
 
-Scene::Scene(const std::string& aName)
+Scene::Scene(const String& aName)
 {
 }
 
@@ -24,7 +24,7 @@ const EWorld& Scene::GetEWorld()
 	return mECSWorld;
 }
 
-const std::string& Scene::GetName() const
+const String& Scene::GetName() const
 {
 	return mName;
 }

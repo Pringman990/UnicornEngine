@@ -125,7 +125,7 @@ public:
 	}
 
 private:
-	std::vector<char> mBuffer;
+	Vector<char> mBuffer;
 	ReflectionTypeInfo mTypeInfo;
 
 	size_t mGrowthRate;

@@ -3,7 +3,7 @@
 #include <chrono>
 
 std::atomic<uint32> IDGenerator::mCounter(0);
-const uint32_t IDGenerator::mSessionID = static_cast<uint32_t>(IDGenerator::GetTimestamp());
+const uint32 IDGenerator::mSessionID = static_cast<uint32>(IDGenerator::GetTimestamp());
 
 uint64 IDGenerator::Generator64ID()
 {

@@ -6,6 +6,7 @@
 #include <typeindex>
 #include <string>
 #include <functional>
+#include "StandardTypes/StandardTypes.h"
 
 
 #define _DEBUG_PRINT_REFLECTION_REGISTRY 1
@@ -31,7 +32,7 @@
 
 struct ReflectionMemberInfo
 {
-	std::string name = "_INVALID";
+	String name = "_INVALID";
 	size_t offset = 0;
 	size_t size = 0;
 	std::type_index typeIndex;
@@ -39,19 +40,19 @@ struct ReflectionMemberInfo
 
 struct ReflectionTypeInfo
 {
-	std::string name = "_INVALID";
+	String name = "_INVALID";
 	size_t size = 0;
 	size_t alignment = 0;
 	bool isTrivial = false;
 
-	std::vector<ReflectionMemberInfo> members;
-	std::shared_ptr<std::type_index> typeIndex;
+	Vector<ReflectionMemberInfo> members;
+	SharedPtr<std::type_index> typeIndex;
 
-	std::function<void(void*, void*)> constructor;
-	std::function<void(void*)> destructor;
+	Func<void(void*, void*)> constructor;
+	Func<void(void*)> destructor;
 
-	std::function<void(void* dst, void* src)> move;
-	std::function<void(void* dst, void* src)> copy;
+	Func<void(void* dst, void* src)> move;
+	Func<void(void* dst, void* src)> copy;
 };
 
 class ReflectionRegistry : public Singleton<ReflectionRegistry>
@@ -62,7 +63,7 @@ public:
 	void RegisterType(ReflectionTypeInfo aInfo);
 
 	ReflectionTypeInfo GetTypeInfo(std::type_index aType);
-	ReflectionTypeInfo GetTypeInfo(const std::string& aName);
+	ReflectionTypeInfo GetTypeInfo(const String& aName);
 
 	static void EnqueueDefferedRegistration(DeffRegistartionFn aRegFunction);
 	static void ProcessDefferedRegistration();
@@ -71,10 +72,10 @@ private:
 	ReflectionRegistry();
 	~ReflectionRegistry();
 
-	static std::vector<DeffRegistartionFn>& GetDefferedQueue();
+	static Vector<DeffRegistartionFn>& GetDefferedQueue();
 private:
-	std::unordered_map<std::type_index, ReflectionTypeInfo> mRegistry;
-	std::unordered_map<std::string, ReflectionTypeInfo> mNameToType;
+	UnorderedMap<std::type_index, ReflectionTypeInfo> mRegistry;
+	UnorderedMap<String, ReflectionTypeInfo> mNameToType;
 
 };
 
@@ -83,7 +84,7 @@ private:
 	info.name = #TYPE; \
 	info.size = sizeof(TYPE); \
 	info.alignment = alignof(TYPE); \
-	info.typeIndex = std::make_shared<std::type_index>(typeid(TYPE)); \
+	info.typeIndex = MakeShared<std::type_index>(typeid(TYPE)); \
 	info.isTrivial = std::is_trivially_copyable_v<TYPE>; \
 	info.constructor = [](void* mem, void* data) { new (mem) TYPE(std::move(*reinterpret_cast<TYPE*>(data))); }; \
 	info.destructor = [](void* mem) { reinterpret_cast<TYPE*>(mem)->~TYPE(); }; \

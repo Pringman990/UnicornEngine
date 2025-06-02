@@ -47,5 +47,5 @@ private:
 
 private:
 	InputDevice* mInputDevice;
-	std::unordered_map<std::string, uint32_t> mNameToKey;
+	UnorderedMap<String, uint32> mNameToKey;
 };

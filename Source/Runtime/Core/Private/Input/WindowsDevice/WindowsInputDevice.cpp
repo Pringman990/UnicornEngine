@@ -129,7 +129,7 @@ void WindowsInputDevice::ProccessMessages(HWND hWnd, UINT message, WPARAM wParam
 	}
 }
 
-void WindowsInputDevice::GetKeys(std::unordered_map<std::string, uint32_t>& aStringKeyMap)
+void WindowsInputDevice::GetKeys(UnorderedMap<String, uint32>& aStringKeyMap)
 {
 #define ADD_KEY_MAPPING(KEY, NAME) aStringKeyMap.insert({#NAME, KEY}); 
 

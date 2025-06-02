@@ -17,7 +17,7 @@ public:
 	}
 
     void log(const spdlog::details::log_msg& msg) override {
-        std::string pattern;
+		std::string pattern;
 
         // Check the log level and apply the appropriate pattern
         switch (msg.level) {
@@ -49,7 +49,7 @@ public:
 	}
 
 private:
-    std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> default_sink;
+    SharedPtr<spdlog::sinks::stdout_color_sink_mt> default_sink;
 };
 
 Logger::Logger()
@@ -58,7 +58,7 @@ Logger::Logger()
 }
 Logger::~Logger()
 {
-	spdlog::apply_all([](std::shared_ptr<spdlog::logger> logger) {
+	spdlog::apply_all([](SharedPtr<spdlog::logger> logger) {
 		logger->flush();
 		});
 
@@ -76,46 +76,47 @@ void Logger::Init()
 	_PAUSE_TRACK_MEMORY(true);
 
 #ifdef _DEBUG
-	auto consoleCustomSink = std::make_shared<CustomSink>();
+	auto consoleCustomSink = MakeShared<CustomSink>();
 #endif // _DEBUG
 
+	//TODO: use filesystem for paths
 	mCoreLogger		= spdlog::basic_logger_mt("Core", "../Logs/core_log.txt");
 	mEngineLogger	= spdlog::basic_logger_mt("Engine", "../Logs/engine_log.txt");
 	mEditorLogger	= spdlog::basic_logger_mt("Editor", "../Logs/editor_log.txt");
 	mRendererLogger = spdlog::basic_logger_mt("Renderer", "../Logs/renderer_log.txt");
 	mClientLogger	= spdlog::basic_logger_mt("Client", "../Logs/client_log.txt");
 
-	auto mainSink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("../logs/full_log.txt", true);
+	auto mainSink = MakeShared<spdlog::sinks::basic_file_sink_mt>("../logs/full_log.txt", true);
 
-	auto coreSink = std::make_shared<spdlog::sinks::dist_sink_mt>();
+	auto coreSink = MakeShared<spdlog::sinks::dist_sink_mt>();
 	coreSink->add_sink(mCoreLogger->sinks()[0]);
 	coreSink->add_sink(mainSink);
 #ifdef _DEBUG
 	coreSink->add_sink(consoleCustomSink);
 #endif // _DEBUG
 
-	auto engineSink = std::make_shared<spdlog::sinks::dist_sink_mt>();
+	auto engineSink = MakeShared<spdlog::sinks::dist_sink_mt>();
 	engineSink->add_sink(mEngineLogger->sinks()[0]);
 	engineSink->add_sink(mainSink);
 #ifdef _DEBUG
 	engineSink->add_sink(consoleCustomSink);
 #endif // _DEBUG
 
-	auto rendererSink = std::make_shared<spdlog::sinks::dist_sink_mt>();
+	auto rendererSink = MakeShared<spdlog::sinks::dist_sink_mt>();
 	rendererSink->add_sink(mRendererLogger->sinks()[0]);
 	rendererSink->add_sink(mainSink);
 #ifdef _DEBUG
 	rendererSink->add_sink(consoleCustomSink);
 #endif // _DEBUG
 
-	auto editorSink = std::make_shared<spdlog::sinks::dist_sink_mt>();
+	auto editorSink = MakeShared<spdlog::sinks::dist_sink_mt>();
 	editorSink->add_sink(mEditorLogger->sinks()[0]);
 	editorSink->add_sink(mainSink);
 #ifdef _DEBUG
 	editorSink->add_sink(consoleCustomSink);
 #endif // _DEBUG
 
-	auto clientSink = std::make_shared<spdlog::sinks::dist_sink_mt>();
+	auto clientSink = MakeShared<spdlog::sinks::dist_sink_mt>();
 	clientSink->add_sink(mClientLogger->sinks()[0]);
 	clientSink->add_sink(mainSink);
 #ifdef _DEBUG

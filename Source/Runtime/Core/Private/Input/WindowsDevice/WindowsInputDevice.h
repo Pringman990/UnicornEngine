@@ -12,7 +12,7 @@ public:
 	virtual void Init() override;
 	virtual void Update() override;
 
-	virtual void GetKeys(std::unordered_map<std::string, uint32_t>& aStringKeyMap) override;
+	virtual void GetKeys(UnorderedMap<String, uint32>& aStringKeyMap) override;
 
 	virtual void CaptureMouse() override;
 	virtual void ReleaseMouse() override;

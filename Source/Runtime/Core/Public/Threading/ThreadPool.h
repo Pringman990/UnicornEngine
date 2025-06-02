@@ -10,7 +10,7 @@ class ThreadPool : public Singleton<ThreadPool>
 public:
 	template <typename TaskFunc, typename CallbackFunc>
 	void Enqueue(TaskFunc&& taskFunc, CallbackFunc&& callbackFunc) {
-		auto task = std::make_shared<std::packaged_task<typename std::invoke_result<TaskFunc>::type()>>(
+		auto task = MakeShared<std::packaged_task<typename std::invoke_result<TaskFunc>::type()>>(
 			std::forward<TaskFunc>(taskFunc)
 		);
 
@@ -54,9 +54,9 @@ private:
 	ThreadPool();
 	~ThreadPool();
 private:
-	std::vector<std::thread> mWorkers;
-	std::queue<std::function<void()>> mTasks;
-	std::queue<std::function<void()>> mCallbackQueue;
+	Vector<std::thread> mWorkers;
+	std::queue<Func<void()>> mTasks;
+	std::queue<Func<void()>> mCallbackQueue;
 	std::mutex mQueueMutex;
 	std::mutex mCallbackMutex;
 	std::condition_variable mCondition;
