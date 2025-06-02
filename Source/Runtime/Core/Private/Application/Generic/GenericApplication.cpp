@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Application/Generic/GenericApplication.h"
 #include "Application/Windows/WindowsApplicationMisc.h"
+#include "Application/SDL/SDLApplicationMisc.h"
 
 GenericApplication::GenericApplication()
 {
@@ -8,6 +9,8 @@ GenericApplication::GenericApplication()
 
 GenericApplication::~GenericApplication()
 {
+	OnApplicationRequestExist.RemoveAll();
+	OnWindowResizeEvent.RemoveAll();
 }
 
 GenericApplication* GenericApplication::Create()

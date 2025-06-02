@@ -8,7 +8,7 @@ struct IWindowInfo
 	uint32_t viewportWidth = 0;
 	uint32_t viewportHeight = 0;
 
-	const wchar_t* name = L"Unicorn";
+	const char* name = "Unicorn";
 };
 
 class IWindow

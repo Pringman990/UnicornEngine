@@ -17,63 +17,64 @@ Win32DX12ImguiBackend::~Win32DX12ImguiBackend()
 
 bool Win32DX12ImguiBackend::Init()
 {
-	_PAUSE_TRACK_MEMORY(true);
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable;
-	ImGuiIO& io = ImGui::GetIO();
-	
-	ImGui::LoadIniSettingsFromDisk("imgui.ini");
+	//_PAUSE_TRACK_MEMORY(true);
+	//IMGUI_CHECKVERSION();
+	//ImGui::CreateContext();
+	//ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable;
+	//ImGuiIO& io = ImGui::GetIO();
+	//
+	//ImGui::LoadIniSettingsFromDisk("imgui.ini");
 
-	std::string contentPath = FileWatcher::GetInstance()->GetContentPath();
-	{
-		static const ImWchar ranges[] =
-		{
-			0x0020, 0x00FF, // Basic Latin + Latin Supplement
-			0x0104, 0x017C, // Polish characters and more
-			0,
-		};
+	//std::string contentPath = WindowsFileWatcher::GetInstance()->GetContentPath();
+	//{
+	//	static const ImWchar ranges[] =
+	//	{
+	//		0x0020, 0x00FF, // Basic Latin + Latin Supplement
+	//		0x0104, 0x017C, // Polish characters and more
+	//		0,
+	//	};
 
-		ImFontConfig config;
-		config.OversampleH = 4;
-		config.OversampleV = 4;
-		config.PixelSnapH = false;
-		io.Fonts->AddFontFromFileTTF((contentPath + "\\SalmaproMedium-0Wooo.ttf").c_str(), 14.f, &config, ranges);
+	//	ImFontConfig config;
+	//	config.OversampleH = 4;
+	//	config.OversampleV = 4;
+	//	config.PixelSnapH = false;
+	//	io.Fonts->AddFontFromFileTTF((contentPath + "\\SalmaproMedium-0Wooo.ttf").c_str(), 14.f, &config, ranges);
 
-		io.Fonts->Build();
-	}
+	//	io.Fonts->Build();
+	//}
 
-	// merge in icons from Font Awesome
-	static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_16_FA, 0 };
-	ImFontConfig icons_config;
-	icons_config.MergeMode = true;
-	icons_config.PixelSnapH = true;
+	//// merge in icons from Font Awesome
+	//static const ImWchar icons_ranges[] = { ICON_MIN_FA, ICON_MAX_16_FA, 0 };
+	//ImFontConfig icons_config;
+	//icons_config.MergeMode = true;
+	//icons_config.PixelSnapH = true;
 
-	io.Fonts->AddFontFromFileTTF((contentPath + "\\fa-solid-900.ttf").c_str(), 11.0f, &icons_config, icons_ranges);
-	io.Fonts->Build();
+	//io.Fonts->AddFontFromFileTTF((contentPath + "\\fa-solid-900.ttf").c_str(), 11.0f, &icons_config, icons_ranges);
+	//io.Fonts->Build();
 
-	_PAUSE_TRACK_MEMORY(false);
+	//_PAUSE_TRACK_MEMORY(false);
 
-	WindowsApplication* windowsApp = static_cast<WindowsApplication*>(Application::GetInstance()->GetApplication());
-	if (!ImGui_ImplWin32_Init(windowsApp->GetWindowsWindowInfo().windowHandle))
-		return false;
+	//WindowsApplication* windowsApp = static_cast<WindowsApplication*>(Application::GetInstance()->GetApplication());
+	//if (!ImGui_ImplWin32_Init(windowsApp->GetWindowsWindowInfo().windowHandle))
+	//	return false;
 
-	windowsApp->OnWndProc.AddRaw(this, &Win32DX12ImguiBackend::ProccessMessages);
+	////TODO:fix this
+	////windowsApp->OnWndProc.AddRaw(this, &Win32DX12ImguiBackend::ProccessMessages);
 
-	Renderer* renderer = Renderer::GetInstance();
-	ID3D12DescriptorHeap* srvHeap = renderer->GetSRVHeapManager().GetHeap();
+	//Renderer* renderer = Renderer::GetInstance();
+	//ID3D12DescriptorHeap* srvHeap = renderer->GetSRVHeapManager().GetHeap();
 
-	if (!ImGui_ImplDX12_Init(
-		renderer->GetDevice(), 
-		BACKBUFFER_COUNT, 
-		DXGI_FORMAT_R8G8B8A8_UNORM,
-		srvHeap,
-		srvHeap->GetCPUDescriptorHandleForHeapStart(),
-		srvHeap->GetGPUDescriptorHandleForHeapStart()
-	))
-		return false;
-	
-	renderer->OnBackbufferResize.AddRaw(this, &Win32DX12ImguiBackend::ResizeBackBuffer);
+	//if (!ImGui_ImplDX12_Init(
+	//	renderer->GetDevice(), 
+	//	BACKBUFFER_COUNT, 
+	//	DXGI_FORMAT_R8G8B8A8_UNORM,
+	//	srvHeap,
+	//	srvHeap->GetCPUDescriptorHandleForHeapStart(),
+	//	srvHeap->GetGPUDescriptorHandleForHeapStart()
+	//))
+	//	return false;
+	//
+	//renderer->OnBackbufferResize.AddRaw(this, &Win32DX12ImguiBackend::ResizeBackBuffer);
 	return true;
 }
 

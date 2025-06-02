@@ -16,5 +16,8 @@ public:
 	virtual IWindowInfo& GetWindowInfo();
 
 	MultiNotifier OnApplicationRequestExist;
+
+	//Window Events
+	MultiNotifierArgs<int32, int32> OnWindowResizeEvent;
 protected:
 };

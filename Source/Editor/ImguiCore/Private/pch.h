@@ -9,7 +9,6 @@
 #include "IconFontDefines.h"
 
 #include <Application/Application.h>
-#include <FileWatcher/FileWatcher.h>
 
 #include <SimpleMath.h>
 #include <vector>

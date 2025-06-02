@@ -93,6 +93,17 @@ project "Core"
 		"**.c"
 	}
 
+	filter ("platforms:x64-sdl")
+		links {"SDL2"}
+		includedirs {
+			os.getenv("VULKAN_SDK") .. "/Include/SDL2"
+		}
+		libdirs{
+			os.getenv("VULKAN_SDK") .. "/Lib"
+		}
+	
+	filter{}
+
 	pchheader "pch.h"
 	pchsource "Private/pch.cpp"
 	forceincludes { "pch.h" }

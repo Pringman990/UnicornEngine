@@ -18,10 +18,8 @@ public:
 	bool CreateWindow();
 
 	IWindowInfo& GetWindowInfo() override;
-	WindowWindowInfo& GetWindowsWindowInfo();
-
-	MultiNotifierArgs<HWND, UINT, WPARAM, LPARAM> OnWndProc;
+	WindowsWindowInfo& GetWindowsWindowInfo();
 
 private:
-	WindowWindowInfo mWindowInfo;
+	WindowsWindowInfo mWindowInfo;
 };
