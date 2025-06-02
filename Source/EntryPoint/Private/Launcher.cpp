@@ -9,10 +9,15 @@ int32_t GuardedMain()
 {
 	_TRACK_MEMORY(true, true);
 	{
-		//AssetRegistry::Create();
+		FileSystem::Init();
+
 		Logger::Create();
 		Logger::GetInstance()->Init();
 
+		FileWatcherSubsystem::Create();
+		FileWatcherSubsystem::GetInstance()->Init(std::filesystem::current_path().parent_path().parent_path().string(), FileWatcherBackendFactory::Create());
+
+		//AssetRegistry::Create();
 		ThreadPool::Create();
 		ThreadPool* threadPool = ThreadPool::GetInstance();
 		EngineLoop engineLoop;
@@ -52,6 +57,9 @@ int32_t GuardedMain()
 	Logger::Shutdown();
 
 	//AssetRegistry::Shutdown();
+
+	FileWatcherSubsystem::Shutdown();
+
 	_Singleton::CheckAllHasShutdown();
 	_STOP_TRACK_MEMORY();
 

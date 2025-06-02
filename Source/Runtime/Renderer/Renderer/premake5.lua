@@ -23,6 +23,7 @@ project "Renderer"
 		"Core",
 		"DDSTextureLoader",
 		"Assimp",
+		"Vulkan",
 	})
 
 	linkDependencies("Renderer", 
@@ -32,7 +33,9 @@ project "Renderer"
 		"Core",
 		"DDSTextureLoader",
 		"Assimp",
+		"Vulkan",
 	})
+
 
 	files {
 		"**.h",
