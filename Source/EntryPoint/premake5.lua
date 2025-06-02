@@ -44,6 +44,10 @@ project "EntryPoint"
 		"Engine",
 	})
 
+	dependson {
+		"Sandbox"
+	}
+
 	filter("configurations:Debug_Editor")
 		includedirs {
 			dirs.Editor,

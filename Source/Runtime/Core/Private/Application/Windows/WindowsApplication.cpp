@@ -4,6 +4,7 @@
 #include <dwmapi.h>
 #include <Windows.h>
 
+#ifdef _Win64
 namespace winInternal
 {
 	/// <summary>
@@ -21,7 +22,6 @@ WindowsApplication::WindowsApplication()
 WindowsApplication::~WindowsApplication()
 {
 	winInternal::windowsApplication = nullptr;
-	OnWndProc.RemoveAll();
 }
 
 bool WindowsApplication::Init()
@@ -57,8 +57,6 @@ void WindowsApplication::Update()
 
 LRESULT WindowsApplication::ProccessWindowsMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	OnWndProc.Notify(hWnd, message, wParam, lParam);
-
 	switch (message)
 	{
 	case WM_DESTROY:
@@ -74,6 +72,11 @@ LRESULT WindowsApplication::ProccessWindowsMessages(HWND hWnd, UINT message, WPA
 	case WM_ACTIVATE:
 	{
 
+		break;
+	}
+	case WM_SIZE:
+	{
+		OnWindowResizeEvent.Notify(LOWORD(lParam), HIWORD(wParam));
 		break;
 	}
 	//case WM_NCHITTEST:
@@ -108,13 +111,16 @@ LRESULT WindowsApplication::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPAR
 
 bool WindowsApplication::CreateWindow()
 {
+	std::wstring w = StringToWString(mWindowInfo.name);
+	const wchar_t* name = w.c_str();
+
 	WNDCLASSEXW wc = {};
 	wc.cbSize = sizeof(WNDCLASSEXW);
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	wc.lpfnWndProc = WndProc;
 	wc.hInstance = GetModuleHandle(NULL);
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wc.lpszClassName = mWindowInfo.name;
+	wc.lpszClassName = name;
 	if (!RegisterClassExW(&wc))
 	{
 		return false;
@@ -123,8 +129,8 @@ bool WindowsApplication::CreateWindow()
 	DWORD style = WS_OVERLAPPEDWINDOW;
 
 	HWND hwnd = CreateWindowExW(0L,
-		mWindowInfo.name,
-		mWindowInfo.name,
+		name,
+		name,
 		style,
 		CW_USEDEFAULT,
 		CW_USEDEFAULT,
@@ -151,7 +157,68 @@ IWindowInfo& WindowsApplication::GetWindowInfo()
 	return mWindowInfo;
 }
 
-WindowWindowInfo& WindowsApplication::GetWindowsWindowInfo()
+WindowsWindowInfo& WindowsApplication::GetWindowsWindowInfo()
 {
 	return mWindowInfo;
 }
+
+#else
+WindowsApplication::WindowsApplication()
+{
+	_LOG_CORE_INFO("We are not using SDL");
+	assert(false);
+}
+
+WindowsApplication::~WindowsApplication()
+{
+}
+
+bool WindowsApplication::Init()
+{
+	_LOG_CORE_INFO("We are not using SDL");
+	assert(false);
+	return false;
+}
+
+void WindowsApplication::Update()
+{
+	_LOG_CORE_INFO("We are not using SDL");
+	assert(false);
+}
+
+LRESULT WindowsApplication::ProccessWindowsMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	_LOG_CORE_INFO("We are not using SDL");
+	assert(false);
+	return 0;
+}
+
+LRESULT WindowsApplication::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	_LOG_CORE_INFO("We are not using SDL");
+	assert(false);
+	return 0;
+}
+
+bool WindowsApplication::CreateWindow()
+{
+	_LOG_CORE_INFO("We are not using SDL");
+	assert(false);
+
+	return false;
+}
+
+IWindowInfo& WindowsApplication::GetWindowInfo()
+{
+	_LOG_CORE_INFO("We are not using SDL");
+	assert(false);
+	return mWindowInfo;
+}
+
+WindowsWindowInfo& WindowsApplication::GetWindowsWindowInfo()
+{
+	_LOG_CORE_INFO("We are not using SDL");
+	assert(false);
+	return mWindowInfo;
+}
+#endif
