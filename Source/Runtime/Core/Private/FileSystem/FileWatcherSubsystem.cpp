@@ -44,4 +44,4 @@ void FileWatcherSubsystem::Watch(const std::string& path, std::function<void(con
 void FileWatcherSubsystem::Update()
 {
 	mBackend->Update();
-}
+} 
