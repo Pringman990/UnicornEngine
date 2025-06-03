@@ -47,7 +47,7 @@ ComPtr<ID3D12PipelineState> PSOManager::CreateGraphicsPSO(const PipelineStateDes
 {
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
 	psoDesc.InputLayout = Desc.inputLayout;
-	psoDesc.pRootSignature = Renderer::GetInstance()->GetRootSignatureManager().Get(Desc.rootSignature);
+	psoDesc.pRootSignature = Renderer::Get()->GetRootSignatureManager().Get(Desc.rootSignature);
 	psoDesc.VS = Desc.vs;
 	psoDesc.PS = Desc.ps;
 	psoDesc.RasterizerState = Desc.rasterizerState;
@@ -60,7 +60,7 @@ ComPtr<ID3D12PipelineState> PSOManager::CreateGraphicsPSO(const PipelineStateDes
 	memcpy(psoDesc.RTVFormats, Desc.rtvFormats, sizeof(DXGI_FORMAT) * _countof(Desc.rtvFormats));
 
 	ComPtr<ID3D12PipelineState> pipelineState = nullptr;
-	HRESULT hr = Renderer::GetInstance()->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(pipelineState.GetAddressOf()));
+	HRESULT hr = Renderer::Get()->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(pipelineState.GetAddressOf()));
 	if (FAILED(hr)) 
 	{
 		_LOG_RENDERER_ERROR("Failed to create graphics pso");

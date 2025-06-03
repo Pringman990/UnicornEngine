@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include <Singleton.h>
+#include <EngineSubsystem.h>
 #include "EngineLoop.h"
 #include <Core.h>
 
@@ -12,18 +12,18 @@ int32_t GuardedMain()
 		FileSystem::Init();
 
 		Logger::Create();
-		Logger::GetInstance()->Init();
+		Logger::Get()->Init();
 
 		FileWatcherSubsystem::Create();
-		FileWatcherSubsystem::GetInstance()->Init(std::filesystem::current_path().parent_path().parent_path().string(), FileWatcherBackendFactory::Create());
+		FileWatcherSubsystem::Get()->Init(std::filesystem::current_path().parent_path().parent_path().string(), FileWatcherBackendFactory::Create());
 
 		//AssetRegistry::Create();
 		ThreadPool::Create();
-		ThreadPool* threadPool = ThreadPool::GetInstance();
+		ThreadPool* threadPool = ThreadPool::Get();
 		EngineLoop engineLoop;
 
 		Timer::Create();
-		Timer* timer = Timer::GetInstance();
+		Timer* timer = Timer::Get();
 
 		ReflectionRegistry::Create();
 
@@ -60,7 +60,7 @@ int32_t GuardedMain()
 
 	FileWatcherSubsystem::Shutdown();
 
-	_Singleton::CheckAllHasShutdown();
+	__SingletonRegistryFunctions::EnsureAllShutdown();
 	_STOP_TRACK_MEMORY();
 
 	return 0;

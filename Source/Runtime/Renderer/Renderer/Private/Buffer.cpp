@@ -14,7 +14,7 @@ Buffer Buffer::CreateVertex(const void* Data, size_t Size)
 	CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
 	CD3DX12_RESOURCE_DESC vbufferDesc = CD3DX12_RESOURCE_DESC::Buffer(Size);
 
-	HRESULT hr = Renderer::GetInstance()->GetDevice()->CreateCommittedResource(
+	HRESULT hr = Renderer::Get()->GetDevice()->CreateCommittedResource(
 		&heapProps,
 		D3D12_HEAP_FLAG_NONE,
 		&vbufferDesc,
@@ -45,7 +45,7 @@ Buffer Buffer::CreateIndex(const void* Data, size_t Size, DXGI_FORMAT Format)
 	CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
 	CD3DX12_RESOURCE_DESC ibufferDesc = CD3DX12_RESOURCE_DESC::Buffer(Size);
 
-	HRESULT hr = Renderer::GetInstance()->GetDevice()->CreateCommittedResource(
+	HRESULT hr = Renderer::Get()->GetDevice()->CreateCommittedResource(
 		&heapProps,
 		D3D12_HEAP_FLAG_NONE,
 		&ibufferDesc,
@@ -76,7 +76,7 @@ Buffer Buffer::CreateConstant(const void* Data, size_t Size, size_t Align)
 	CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_UPLOAD);
 	CD3DX12_RESOURCE_DESC cbufferDesc = CD3DX12_RESOURCE_DESC::Buffer(Align);
 
-	HRESULT hr = Renderer::GetInstance()->GetDevice()->CreateCommittedResource(
+	HRESULT hr = Renderer::Get()->GetDevice()->CreateCommittedResource(
 		&heapProps,
 		D3D12_HEAP_FLAG_NONE,
 		&cbufferDesc,

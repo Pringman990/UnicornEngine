@@ -47,7 +47,7 @@ void Editor::BeginFrame()
 
 void Editor::Render()
 {
-	EditorWindowManager::GetInstance()->RenderActiveWindows();
+	EditorWindowManager::Get()->RenderActiveWindows();
 
 	mImguiBackend->RenderFrame();
 }
@@ -59,12 +59,12 @@ void Editor::EndFrame()
 
 void Editor::RegisterEditorWindows()
 {
-	EditorWindowManager::GetInstance()->RegisterWindowType("SceneWindow", []() {return new SceneWindow(); });
-	EditorWindowManager::GetInstance()->CreateWindow("SceneWindow");
+	EditorWindowManager::Get()->RegisterWindowType("SceneWindow", []() {return new SceneWindow(); });
+	EditorWindowManager::Get()->CreateWindow("SceneWindow");
 
-	EditorWindowManager::GetInstance()->RegisterWindowType("GraphicsDebugWindow", []() {return new GraphicsDebugWindow(); });
-	EditorWindowManager::GetInstance()->CreateWindow("GraphicsDebugWindow");
+	EditorWindowManager::Get()->RegisterWindowType("GraphicsDebugWindow", []() {return new GraphicsDebugWindow(); });
+	EditorWindowManager::Get()->CreateWindow("GraphicsDebugWindow");
 
-	EditorWindowManager::GetInstance()->RegisterWindowType("DebugInformationWindow", []() {return new DebugInformationWindow(); });
-	EditorWindowManager::GetInstance()->CreateWindow("DebugInformationWindow");
+	EditorWindowManager::Get()->RegisterWindowType("DebugInformationWindow", []() {return new DebugInformationWindow(); });
+	EditorWindowManager::Get()->CreateWindow("DebugInformationWindow");
 }

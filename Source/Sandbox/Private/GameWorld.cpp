@@ -95,7 +95,7 @@ void GameWorld::Init()
 	//float aspect = (16.f / 9.f);
 	//mCamera.SetPerspective(90, aspect, 0.01f, 1000.f);
 	//mCamera.GetTransform().SetPosition({ 0,0,-5 });
-	//Renderer::GetInstance()->SetMainCamera(&mCamera);
+	//Renderer::Get()->SetMainCamera(&mCamera);
 
 
 	
@@ -103,7 +103,7 @@ void GameWorld::Init()
 
 void GameWorld::Render()
 {
-	//auto cmdList = Renderer::GetInstance()->GetMainCommandList();
+	//auto cmdList = Renderer::Get()->GetMainCommandList();
 
 
 }
@@ -112,7 +112,7 @@ void GameWorld::UpdateCamera()
 {
 	if (!GetAsyncKeyState(VK_RBUTTON))
 	{
-		InputMapper::GetInstance()->ReleaseMouse();
+		InputMapper::Get()->ReleaseMouse();
 		return;
 	}
 
@@ -123,11 +123,11 @@ void GameWorld::UpdateCamera()
 	Vector3 up = matrix.Up();
 	Vector3 forward = matrix.Forward();
 
-	float realMovementSpeed = 5 * Timer::GetInstance()->GetDeltaTime();
+	float realMovementSpeed = 5 * Timer::Get()->GetDeltaTime();
 
 	if (GetAsyncKeyState(VK_LSHIFT))
 	{
-		realMovementSpeed = 10 * Timer::GetInstance()->GetDeltaTime();
+		realMovementSpeed = 10 * Timer::Get()->GetDeltaTime();
 	}
 
 	if (GetAsyncKeyState('W'))
@@ -157,10 +157,10 @@ void GameWorld::UpdateCamera()
 
 	Vector3 currentRotation = transform.GetEularRotation();
 	Vector3 targetRotation = currentRotation;
-	Vector2 dPos = InputMapper::GetInstance()->GetMouseDelta();
+	Vector2 dPos = InputMapper::Get()->GetMouseDelta();
 	if (dPos.x != 0 || dPos.y != 0)
 	{
-		float realRotationSpeed = 1 * Timer::GetInstance()->GetDeltaTime();
+		float realRotationSpeed = 1 * Timer::Get()->GetDeltaTime();
 
 		targetRotation.y += realRotationSpeed * dPos.x;
 		targetRotation.x += realRotationSpeed * dPos.y;
@@ -171,13 +171,13 @@ void GameWorld::UpdateCamera()
 
 	float lerpSpeed = 30.0f;
 	Vector3 smoothedRotation = {};
-	smoothedRotation.x = std::lerp(currentRotation.x, targetRotation.x, lerpSpeed * Timer::GetInstance()->GetDeltaTime());
-	smoothedRotation.y = std::lerp(currentRotation.y, targetRotation.y, lerpSpeed * Timer::GetInstance()->GetDeltaTime());
+	smoothedRotation.x = std::lerp(currentRotation.x, targetRotation.x, lerpSpeed * Timer::Get()->GetDeltaTime());
+	smoothedRotation.y = std::lerp(currentRotation.y, targetRotation.y, lerpSpeed * Timer::Get()->GetDeltaTime());
 	smoothedRotation.z = 0.0f;
 	transform.SetRotation(smoothedRotation);
 
 	transform.SetPosition(position);
-	InputMapper::GetInstance()->CaptureMouse();
+	InputMapper::Get()->CaptureMouse();
 }
 
 void InitGameWorld()

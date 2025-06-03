@@ -1,5 +1,5 @@
 #pragma once
-#include <Singleton.h>
+#include <EngineSubsystem.h>
 #include "GenericDevice/InputDevice.h"
 
 enum class eInputActionType
@@ -17,7 +17,7 @@ struct InputActionMap
 {
 };
 
-class InputMapper final : public Singleton<InputMapper>
+class InputMapper final : public EngineSubsystem<InputMapper>
 {
 	//using Key = USHORT;
 
@@ -41,7 +41,7 @@ public:
 	Vector2 GetMouseDelta();
 
 private:
-	friend class Singleton<InputMapper>;
+	friend class EngineSubsystem<InputMapper>;
 	InputMapper();
 	~InputMapper();
 

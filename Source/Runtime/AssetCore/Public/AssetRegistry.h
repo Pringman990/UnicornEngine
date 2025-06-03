@@ -1,5 +1,5 @@
 #pragma once
-#include <Singleton.h>
+#include <EngineSubsystem.h>
 
 #include <unordered_map>
 #include <typeindex>
@@ -7,7 +7,7 @@
 
 #include "IAssetManager.h"
 
-class AssetRegistry : public Singleton<AssetRegistry>
+class AssetRegistry : public EngineSubsystem<AssetRegistry>
 {
 public:
 	template<typename _Type>
@@ -59,7 +59,7 @@ public:
 	}
 
 private:
-	friend class Singleton<AssetRegistry>;
+	friend class EngineSubsystem<AssetRegistry>;
 	AssetRegistry();
 	~AssetRegistry();
 private:
@@ -68,5 +68,5 @@ private:
 };
 
 #define GET_ASSET_MANAGER(TYPE) \
-	AssetRegistry::GetInstance()->GetManager<TYPE>();
+	AssetRegistry::Get()->GetManager<TYPE>();
 
