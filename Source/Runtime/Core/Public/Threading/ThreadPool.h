@@ -1,11 +1,11 @@
 #pragma once
-#include <Singleton.h>
+#include <EngineSubsystem.h>
 #include <mutex>
 #include <queue>
 #include <functional>
 #include <future>
 
-class ThreadPool : public Singleton<ThreadPool>
+class ThreadPool : public EngineSubsystem<ThreadPool>
 {
 public:
 	template <typename TaskFunc, typename CallbackFunc>
@@ -50,7 +50,7 @@ public:
 	}
 
 private:
-	friend class Singleton<ThreadPool>;
+	friend class EngineSubsystem<ThreadPool>;
 	ThreadPool();
 	~ThreadPool();
 private:

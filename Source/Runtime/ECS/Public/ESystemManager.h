@@ -1,11 +1,11 @@
 #pragma once
 #include <Core.h>
-#include <Singleton.h>
+#include <EngineSubsystem.h>
 #include "EWorld.h"
 
-class ESystemManager : public Singleton<ESystemManager>
+class ESystemManager : public EngineSubsystem<ESystemManager>
 {
-	friend class Singleton<ESystemManager>;
+	friend class EngineSubsystem<ESystemManager>;
 public:
 
 	void RunLoad(EWorld& aWorld);
@@ -25,7 +25,7 @@ public:
 		system.name = aName;
 		system.function = aSystemFunction;
 		system.pipeline = aPipeline;
-		//system.signature = internal::EComponentRegistry::GetInstance().CalulateSignature<Components...>();
+		//system.signature = internal::EComponentRegistry::Get().CalulateSignature<Components...>();
 
 		mRegisteredSystemsName.insert({ aName, system });
 		mRegisteredSystemsPipeline[aPipeline].push_back(system);

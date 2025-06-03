@@ -32,7 +32,7 @@
 //	initData.pSysMem = someData;
 //	initData.SysMemPitch = aSize;
 //
-//	HRESULT result = Renderer::GetInstance()->GetDevice()->CreateBuffer(&desc, &initData, &mBuffer);
+//	HRESULT result = Renderer::Get()->GetDevice()->CreateBuffer(&desc, &initData, &mBuffer);
 //	if (FAILED(result))
 //	{
 //		_com_error err(result);
@@ -46,7 +46,7 @@
 //
 //void ConstantBuffer::UpdateData(void* someData)
 //{
-//	ID3D11DeviceContext* context = Renderer::GetInstance()->GetDeviceContext();
+//	ID3D11DeviceContext* context = Renderer::Get()->GetDeviceContext();
 //
 //	D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
 //	context->Map(mBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
@@ -56,7 +56,7 @@
 //
 //void ConstantBuffer::Bind(ConstantBuffers aSlot)
 //{
-//	ID3D11DeviceContext* context = context = Renderer::GetInstance()->GetDeviceContext();
+//	ID3D11DeviceContext* context = context = Renderer::Get()->GetDeviceContext();
 //
 //	context->VSSetConstantBuffers(aSlot, 1, mBuffer.GetAddressOf());
 //	context->PSSetConstantBuffers(aSlot, 1, mBuffer.GetAddressOf());

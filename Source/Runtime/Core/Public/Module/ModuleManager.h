@@ -1,11 +1,11 @@
 #pragma once
-#include <Singleton.h>
+#include <EngineSubsystem.h>
 #include "IModule.h"
 #include <Windows.h>
 
-class ModuleManager : public Singleton<ModuleManager>
+class ModuleManager : public EngineSubsystem<ModuleManager>
 {
-	friend class Singleton<ModuleManager>;
+	friend class EngineSubsystem<ModuleManager>;
 public:
 
 	bool LoadModule(const String& aModuleName);

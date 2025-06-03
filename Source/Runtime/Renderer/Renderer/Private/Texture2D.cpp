@@ -32,7 +32,7 @@ void Texture2D::Release()
 {
 	if (mSRV)
 	{
-		Renderer::GetInstance()->GetSRVHeapManager().Free(mSRVHandle);
+		Renderer::Get()->GetSRVHeapManager().Free(mSRVHandle);
 		mSRV.Reset();
 	}
 	mSize = {0,0};
@@ -41,7 +41,7 @@ void Texture2D::Release()
 
 Texture2D* Texture2D::Create(const std::wstring& aDDSPath)
 {
-	Renderer* renderer = Renderer::GetInstance();
+	Renderer* renderer = Renderer::Get();
 	Texture2D* texture = new Texture2D();
 
 	DirectX::ResourceUploadBatch uploadBatch(renderer->GetDevice());
@@ -102,7 +102,7 @@ Texture2D* Texture2D::Create(const Vector2& aSize, D3D12_RESOURCE_FLAGS someFlag
 		return nullptr;
 	}
 
-	Renderer* renderer = Renderer::GetInstance();
+	Renderer* renderer = Renderer::Get();
 	ID3D12Device* device = renderer->GetDevice();
 
 	D3D12_RESOURCE_DESC textureDesc = {};
@@ -160,7 +160,7 @@ Texture2D* Texture2D::Create(const Vector2& aSize, D3D12_RESOURCE_FLAGS someFlag
 
 bool Texture2D::Create(Texture2D* aTexture, const Vector2& aNewSize, D3D12_RESOURCE_DESC aTextureDesc)
 {
-	Renderer* renderer = Renderer::GetInstance();
+	Renderer* renderer = Renderer::Get();
 	ID3D12Device* device = renderer->GetDevice();
 
 	aTextureDesc.Width = static_cast<uint32>(aNewSize.x);
@@ -206,7 +206,7 @@ bool Texture2D::Create(Texture2D* aTexture, const Vector2& aNewSize, D3D12_RESOU
 
 Texture2D* Texture2D::Create(ID3D12Resource* aRTVResource)
 {
-	Renderer* renderer = Renderer::GetInstance();
+	Renderer* renderer = Renderer::Get();
 	ID3D12Device* device = renderer->GetDevice();
 
 	if (!aRTVResource)
