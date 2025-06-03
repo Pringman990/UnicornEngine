@@ -8,7 +8,7 @@ EditorCamera::EditorCamera()
 	:
 	mMoveSpeed(10),
 	mRotationSpeed(1)
-	//mCamera(Renderer::GetInstance()->GetActiveCamera())
+	//mCamera(Renderer::Get()->GetActiveCamera())
 {
 }
 
@@ -20,7 +20,7 @@ void EditorCamera::Update(float /*aDeltaTime*/)
 {
 	if (!ImGui::IsKeyDown(ImGuiKey_MouseRight))
 	{
-		InputMapper::GetInstance()->ReleaseMouse();
+		InputMapper::Get()->ReleaseMouse();
 		return;
 	}
 
@@ -61,7 +61,7 @@ void EditorCamera::Update(float /*aDeltaTime*/)
 	Vector3 currentRotation = transform.GetEularRotation();
 	Vector3 targetRotation = currentRotation;
 
-	Vector2 dPos = InputMapper::GetInstance()->GetMouseDelta();
+	Vector2 dPos = InputMapper::Get()->GetMouseDelta();
 	if (dPos.x != 0 || dPos.y != 0)
 	{
 		float realRotationSpeed = mRotationSpeed * aDeltaTime;
@@ -81,7 +81,7 @@ void EditorCamera::Update(float /*aDeltaTime*/)
 	transform.SetRotation(smoothedRotation);
 
 	transform.SetPosition(position);
-	InputMapper::GetInstance()->CaptureMouse();*/
+	InputMapper::Get()->CaptureMouse();*/
 }
 
 Camera* EditorCamera::GetCamera()

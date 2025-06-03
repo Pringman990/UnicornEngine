@@ -32,7 +32,7 @@ inline T* EWorld::AddComponent(EEntity anEntity, const T& aComponent)
 	
 	Archetype* newArchetype = nullptr;
 
-	ReflectionRegistry* reflectionRegistry = ReflectionRegistry::GetInstance();
+	ReflectionRegistry* reflectionRegistry = ReflectionRegistry::Get();
 
 	//Check if archetype with new signature exist	
 	auto it = mSigToArchetype.find(newSignature);
