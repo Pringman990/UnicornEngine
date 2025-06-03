@@ -20,5 +20,5 @@ using Microsoft::WRL::ComPtr;
 
 #include <Core.h>
 
-#include <Singleton.h>
+#include <EngineSubsystem.h>
 #include "Renderer.h"

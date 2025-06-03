@@ -1,6 +1,6 @@
 #pragma once
 #include <Core.h>
-#include <Singleton.h>
+#include <EngineSubsystem.h>
 
 #include "DescriptorHeap.h"
 #include "RootSignatureManager.h"
@@ -41,9 +41,9 @@ struct GraphicsCardInfo
 	uint64 approxFreeVideoMemory = 0;
 };
 
-class Renderer : public Singleton<Renderer>
+class Renderer : public EngineSubsystem<Renderer>
 {
-	friend class Singleton<Renderer>;
+	friend class EngineSubsystem<Renderer>;
 public:
 	bool Init();
 	void PreRender();

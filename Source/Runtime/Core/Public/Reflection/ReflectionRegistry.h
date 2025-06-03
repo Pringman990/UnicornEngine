@@ -1,5 +1,5 @@
 #pragma once
-#include <Singleton.h>
+#include <EngineSubsystem.h>
 
 #include <vector>
 #include <memory>
@@ -55,7 +55,7 @@ struct ReflectionTypeInfo
 	Func<void(void* dst, void* src)> copy;
 };
 
-class ReflectionRegistry : public Singleton<ReflectionRegistry>
+class ReflectionRegistry : public EngineSubsystem<ReflectionRegistry>
 {
 public:
 	using DeffRegistartionFn = void(*)();
@@ -68,7 +68,7 @@ public:
 	static void EnqueueDefferedRegistration(DeffRegistartionFn aRegFunction);
 	static void ProcessDefferedRegistration();
 private:
-	friend class Singleton<ReflectionRegistry>;
+	friend class EngineSubsystem<ReflectionRegistry>;
 	ReflectionRegistry();
 	~ReflectionRegistry();
 
@@ -99,7 +99,7 @@ private:
 	info.copy = [](void* dst, void* src) { new (dst) TYPE(*reinterpret_cast<TYPE*>(src)); }; \
 	REFLECTION_LOG_TYPE_INFO(info) \
 	MEMBERS \
-	ReflectionRegistry::GetInstance()->RegisterType(info); 
+	ReflectionRegistry::Get()->RegisterType(info); 
 
 
 #define REFLECTION_CREATE_MEMBER_INFO(TYPE, MEMBER) \

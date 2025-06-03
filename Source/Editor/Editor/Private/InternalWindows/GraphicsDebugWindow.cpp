@@ -14,13 +14,13 @@ GraphicsDebugWindow::~GraphicsDebugWindow()
 
 bool GraphicsDebugWindow::Init()
 {
-   // mGraphicsCardInfo = Renderer::GetInstance()->GetGraphicsCardInfo();
+   // mGraphicsCardInfo = Renderer::Get()->GetGraphicsCardInfo();
     return true;
 }
 
 void GraphicsDebugWindow::Render()
 {
-    //mGraphicsCardInfo = Renderer::GetInstance()->GetGraphicsCardInfo();
+    //mGraphicsCardInfo = Renderer::Get()->GetGraphicsCardInfo();
     //ImGui::Text(mGraphicsCardInfo.name.c_str());
 
     //std::string vram = "Video Memory: ";
