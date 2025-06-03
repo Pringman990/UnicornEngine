@@ -20,18 +20,18 @@ bool DebugInformationWindow::Init()
 
 void DebugInformationWindow::Render()
 {
-    //static bool vsync = Renderer::GetInstance()->IsVsyncEnabled();
+    //static bool vsync = Renderer::Get()->IsVsyncEnabled();
 
     //if (ImGui::Checkbox("Vsync", &vsync))
     //{
-    //    Renderer::GetInstance()->SetVsync(vsync);
+    //    Renderer::Get()->SetVsync(vsync);
     //}
 
     String fps = "FPS: ";
-    fps += std::to_string(Timer::GetInstance()->GetFps());
+    fps += std::to_string(Timer::Get()->GetFps());
     ImGui::Text(fps.c_str());
 
     String drawcalls = "DrawCalls: ";
-    drawcalls += std::to_string(Renderer::GetInstance()->GetDrawCalls());
+    drawcalls += std::to_string(Renderer::Get()->GetDrawCalls());
     ImGui::Text(drawcalls.c_str());
 }

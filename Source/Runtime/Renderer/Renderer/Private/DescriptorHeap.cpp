@@ -103,7 +103,7 @@ bool DescriptorHeap::Resize()
 	desc.Flags = mFlags;
 	desc.NodeMask = 0;
 
-	ID3D12Device* device = Renderer::GetInstance()->GetDevice();
+	ID3D12Device* device = Renderer::Get()->GetDevice();
 
 	ComPtr<ID3D12DescriptorHeap> newHeap;
 	HRESULT hr = device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(newHeap.GetAddressOf()));

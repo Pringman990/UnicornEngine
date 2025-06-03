@@ -74,7 +74,7 @@ Renderer::~Renderer()
 
 bool Renderer::Init()
 {
-	WindowsApplication* windowsApp = static_cast<WindowsApplication*>(Application::GetInstance()->GetApplication());
+	WindowsApplication* windowsApp = static_cast<WindowsApplication*>(Application::Get()->GetApplication());
 
 	if (!SetupDevice())
 	{

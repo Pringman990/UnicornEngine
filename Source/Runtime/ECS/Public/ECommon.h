@@ -68,7 +68,7 @@ namespace internal
 		{
 			static EComponentID nextID = 1;
 
-			ReflectionTypeInfo info = ReflectionRegistry::GetInstance()->GetTypeInfo(typeid(T));
+			ReflectionTypeInfo info = ReflectionRegistry::Get()->GetTypeInfo(typeid(T));
 
 			auto it = sNameToID.find(info.name);
 			if (it != sNameToID.end())
@@ -87,7 +87,7 @@ namespace internal
 		template<typename T>
 		static EComponentID GetID()
 		{
-			ReflectionTypeInfo info = ReflectionRegistry::GetInstance()->GetTypeInfo(typeid(T));
+			ReflectionTypeInfo info = ReflectionRegistry::Get()->GetTypeInfo(typeid(T));
 
 			auto it = sNameToID.find(info.name);
 			if (it == sNameToID.end())

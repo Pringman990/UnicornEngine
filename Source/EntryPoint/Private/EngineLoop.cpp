@@ -21,7 +21,7 @@ EngineLoop::~EngineLoop()
 	mEditor = nullptr;
 #endif // _EDITOR
 
-	ModuleManager::GetInstance()->UnLoadModule("Sandbox");
+	ModuleManager::Get()->UnLoadModule("Sandbox");
 
 	//InputMapper::Shutdown();
 	//Renderer::Shutdown();
@@ -38,7 +38,7 @@ bool EngineLoop::Init()
 	_LOG_CORE_INFO("Engine Loop Starting Init");
 
 	Application::Create();
-	mGenericApplication = Application::GetInstance()->_CreateApplication();
+	mGenericApplication = Application::Get()->_CreateApplication();
 	if (!mGenericApplication)
 	{
 		_ENSURE_CORE(true, "Engine Loop Failed To Create Application");
@@ -53,7 +53,7 @@ bool EngineLoop::Init()
 	mGenericApplication->OnApplicationRequestExist.AddRaw(this, &EngineLoop::RequestExit);
 
 	//InputMapper::Create();
-	//InputMapper::GetInstance()->Init();
+	//InputMapper::Get()->Init();
 
 	//{
 	//	_LOG_CORE_INFO("Creating Renderer");
@@ -63,7 +63,7 @@ bool EngineLoop::Init()
 	//	
 	//	_PAUSE_TRACK_MEMORY(false);
 	//	
-	//	mRenderer = Renderer::GetInstance();
+	//	mRenderer = Renderer::Get();
 	//	_ENSURE_CORE(mRenderer, "Engine Loop Failed To Create Renderer");
 	//
 	//	_LOG_CORE_INFO("Renderer Initializing");
@@ -99,12 +99,12 @@ bool EngineLoop::Init()
 	{
 		_PAUSE_TRACK_MEMORY(true);
 
-		if (!ModuleManager::GetInstance()->LoadModule("Sandbox"))
+		if (!ModuleManager::Get()->LoadModule("Sandbox"))
 		{
 			return false;
 		}
 
-		HMODULE sanboxModule = ModuleManager::GetInstance()->GetHModule("Sandbox");
+		HMODULE sanboxModule = ModuleManager::Get()->GetHModule("Sandbox");
 
 		SandboxInit initGameWorld = (SandboxInit)GetProcAddress(sanboxModule, "InitGameWorld");
 		if (!initGameWorld) {
@@ -149,7 +149,7 @@ void EngineLoop::Update()
 #endif // _EDITOR
 
 	//mRenderer->Present();
-	//InputMapper::GetInstance()->Update();
+	//InputMapper::Get()->Update();
 }
 
 void EngineLoop::RequestExit()

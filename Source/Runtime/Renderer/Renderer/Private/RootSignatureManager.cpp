@@ -28,7 +28,7 @@ ID3D12RootSignature* RootSignatureManager::Create(const D3D12_ROOT_SIGNATURE_DES
 	}
 
 	ComPtr<ID3D12RootSignature> rootSignature;
-	hr = Renderer::GetInstance()->GetDevice()->CreateRootSignature(0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV_ARGS(rootSignature.GetAddressOf()));
+	hr = Renderer::Get()->GetDevice()->CreateRootSignature(0, serializedRootSig->GetBufferPointer(), serializedRootSig->GetBufferSize(), IID_PPV_ARGS(rootSignature.GetAddressOf()));
 	if (FAILED(hr))
 	{
 		_LOG_RENDERER_WARNING("Failed create root signature, error: {}", hr);

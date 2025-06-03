@@ -44,14 +44,14 @@ void RenderTarget::Release(bool ReleaseSRV)
 {
 	if (mRTV)
 	{
-		Renderer::GetInstance()->GetRTVHeapManager().Free(mRTVHandle);
+		Renderer::Get()->GetRTVHeapManager().Free(mRTVHandle);
 		mRTV.Reset();
 		mRTVHandle = {};
 	}
 	
 	if (mDepthStencilBuffer) 
 	{
-		Renderer::GetInstance()->GetDSVHeapManager().Free(mDSVHandle);
+		Renderer::Get()->GetDSVHeapManager().Free(mDSVHandle);
 		mDepthStencilBuffer.Reset();
 		
 		mDSVHandle = {};
@@ -150,7 +150,7 @@ Texture2D* RenderTarget::GetTexture()
 
 bool RenderTarget::CreateInternal(ID3D12Resource* aRTVResource, bool EnableDepthTesting)
 {
-	Renderer* renderer = Renderer::GetInstance();
+	Renderer* renderer = Renderer::Get();
 	ID3D12Device* device = renderer->GetDevice();
 
 	D3D12_RESOURCE_DESC textureDesc = aRTVResource->GetDesc();
@@ -161,7 +161,7 @@ bool RenderTarget::CreateInternal(ID3D12Resource* aRTVResource, bool EnableDepth
 	rtvDesc.Texture2D.MipSlice = 0;
 
 	mRTVHandle = renderer->GetRTVHeapManager().Allocate();
-	mGPUHandle = Renderer::GetInstance()->GetRTVHeapManager().GetGPUHandleFromCPUHandle(mRTVHandle);
+	mGPUHandle = Renderer::Get()->GetRTVHeapManager().GetGPUHandleFromCPUHandle(mRTVHandle);
 	device->CreateRenderTargetView(aRTVResource, &rtvDesc, mRTVHandle);
 
 	//Setup viewport
@@ -244,7 +244,7 @@ void RenderTarget::Create(
 		return;
 	}
 
-	Renderer* renderer = Renderer::GetInstance();
+	Renderer* renderer = Renderer::Get();
 	ID3D12Device* device = renderer->GetDevice();
 
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
@@ -253,7 +253,7 @@ void RenderTarget::Create(
 	rtvDesc.Texture2D.MipSlice = 0;
 
 	aRenderTarget->mRTVHandle = renderer->GetRTVHeapManager().Allocate();
-	aRenderTarget->mGPUHandle = Renderer::GetInstance()->GetRTVHeapManager().GetGPUHandleFromCPUHandle(aRenderTarget->mRTVHandle);
+	aRenderTarget->mGPUHandle = Renderer::Get()->GetRTVHeapManager().GetGPUHandleFromCPUHandle(aRenderTarget->mRTVHandle);
 	device->CreateRenderTargetView(aRenderTarget->mSRV->GetResource().Get(), &rtvDesc, aRenderTarget->mRTVHandle);
 
 	//Setup viewport

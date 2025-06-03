@@ -1,12 +1,12 @@
 #pragma once
 #include <Core.h>
-#include <Singleton.h>
+#include <EngineSubsystem.h>
 
 class EditorWindow;
 
-class EditorWindowManager : public Singleton<EditorWindowManager>
+class EditorWindowManager : public EngineSubsystem<EditorWindowManager>
 {
-	friend class Singleton<EditorWindowManager>;
+	friend class EngineSubsystem<EditorWindowManager>;
 public:
 	using WindowCreator = Func<EditorWindow* ()>;
 

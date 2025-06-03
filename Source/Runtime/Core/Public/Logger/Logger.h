@@ -1,5 +1,5 @@
 #pragma once
-#include <Singleton.h>
+#include <EngineSubsystem.h>
 
 #include <memory>
 #include <string>
@@ -7,7 +7,7 @@
 #include <MemoryDebugger/MemoryDebugger.h>
 #include "StandardTypes/StandardTypes.h"
 
-class Logger : public Singleton<Logger>
+class Logger : public EngineSubsystem<Logger>
 {
 public:
 	void Init();
@@ -19,7 +19,7 @@ public:
 	inline SharedPtr<spdlog::logger>& GetRenderer() { return mRendererLogger; };
 
 private:
-	friend class Singleton<Logger>;
+	friend class EngineSubsystem<Logger>;
 	Logger();
 	~Logger() override;
 private:
@@ -36,106 +36,106 @@ private:
 //User Logs
 #define LOG_INFO(...) \
     _PAUSE_TRACK_MEMORY(true);\
-    ::Logger::GetInstance()->GetClient()->info(__VA_ARGS__);\
+    ::Logger::Get()->GetClient()->info(__VA_ARGS__);\
     _PAUSE_TRACK_MEMORY(false)
 
 #define LOG_WARNING(...)\
     _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::GetInstance()->GetClient()->warn(__VA_ARGS__); \
+    ::Logger::Get()->GetClient()->warn(__VA_ARGS__); \
     _PAUSE_TRACK_MEMORY(false)
 
 #define LOG_ERROR(...)\
     _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::GetInstance()->GetClient()->error(__VA_ARGS__); \
+    ::Logger::Get()->GetClient()->error(__VA_ARGS__); \
     _PAUSE_TRACK_MEMORY(false)
 
 #define LOG_CRITICAL(...) \
     _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::GetInstance()->GetClient()->critical(__VA_ARGS__); \
+    ::Logger::Get()->GetClient()->critical(__VA_ARGS__); \
     _PAUSE_TRACK_MEMORY(false)
 
 //Core Logs
 #define _LOG_CORE_INFO(...) \
     _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::GetInstance()->GetCore()->info(__VA_ARGS__); \
+    ::Logger::Get()->GetCore()->info(__VA_ARGS__); \
     _PAUSE_TRACK_MEMORY(false)
 
 #define _LOG_CORE_WARNING(...) \
     _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::GetInstance()->GetCore()->warn(__VA_ARGS__); \
+    ::Logger::Get()->GetCore()->warn(__VA_ARGS__); \
     _PAUSE_TRACK_MEMORY(false)
 
 #define _LOG_CORE_ERROR(...) \
     _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::GetInstance()->GetCore()->error(__VA_ARGS__); \
+    ::Logger::Get()->GetCore()->error(__VA_ARGS__); \
     _PAUSE_TRACK_MEMORY(false)
 
 #define _LOG_CORE_CRITICAL(...) \
     _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::GetInstance()->GetCore()->critical(__VA_ARGS__); \
+    ::Logger::Get()->GetCore()->critical(__VA_ARGS__); \
     _PAUSE_TRACK_MEMORY(false)
 
 //Engine Logs
 #define _LOG_ENGINE_INFO(...) \
     _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::GetInstance()->GetEngine()->info(__VA_ARGS__); \
+    ::Logger::Get()->GetEngine()->info(__VA_ARGS__); \
     _PAUSE_TRACK_MEMORY(false)
 
 #define _LOG_ENGINE_WARNING(...) \
     _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::GetInstance()->GetEngine()->warn(__VA_ARGS__); \
+    ::Logger::Get()->GetEngine()->warn(__VA_ARGS__); \
     _PAUSE_TRACK_MEMORY(false)
 
 #define _LOG_ENGINE_ERROR(...) \
     _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::GetInstance()->GetEngine()->error(__VA_ARGS__); \
+    ::Logger::Get()->GetEngine()->error(__VA_ARGS__); \
     _PAUSE_TRACK_MEMORY(false)
 
 #define _LOG_ENGINE_CRITICAL(...) \
     _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::GetInstance()->GetEngine()->critical(__VA_ARGS__); \
+    ::Logger::Get()->GetEngine()->critical(__VA_ARGS__); \
     _PAUSE_TRACK_MEMORY(false)
 
 //Renderer Logs
 #define _LOG_RENDERER_INFO(...) \
     _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::GetInstance()->GetRenderer()->info(__VA_ARGS__); \
+    ::Logger::Get()->GetRenderer()->info(__VA_ARGS__); \
     _PAUSE_TRACK_MEMORY(false)
 
 #define _LOG_RENDERER_WARNING(...) \
     _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::GetInstance()->GetRenderer()->warn(__VA_ARGS__); \
+    ::Logger::Get()->GetRenderer()->warn(__VA_ARGS__); \
     _PAUSE_TRACK_MEMORY(false)
 
 #define _LOG_RENDERER_ERROR(...) \
     _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::GetInstance()->GetRenderer()->error(__VA_ARGS__); \
+    ::Logger::Get()->GetRenderer()->error(__VA_ARGS__); \
     _PAUSE_TRACK_MEMORY(false)
 
 #define _LOG_RENDERER_CRITICAL(...) \
     _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::GetInstance()->GetRenderer()->critical(__VA_ARGS__); \
+    ::Logger::Get()->GetRenderer()->critical(__VA_ARGS__); \
     _PAUSE_TRACK_MEMORY(false)
 
 //Editor Logs
 #define _LOG_EDITOR_INFO(...)\
     _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::GetInstance()->GetEditor()->info(__VA_ARGS__); \
+    ::Logger::Get()->GetEditor()->info(__VA_ARGS__); \
     _PAUSE_TRACK_MEMORY(false)
 
 #define _LOG_EDITOR_WARNING(...) \
     _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::GetInstance()->GetEditor()->warn(__VA_ARGS__); \
+    ::Logger::Get()->GetEditor()->warn(__VA_ARGS__); \
     _PAUSE_TRACK_MEMORY(false)
 
 #define _LOG_EDITOR_ERROR(...) \
     _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::GetInstance()->GetEditor()->error(__VA_ARGS__); \
+    ::Logger::Get()->GetEditor()->error(__VA_ARGS__); \
     _PAUSE_TRACK_MEMORY(false)
 
 #define _LOG_EDITOR_CRITICAL(...) \
     _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::GetInstance()->GetEditor()->critical(__VA_ARGS__); \
+    ::Logger::Get()->GetEditor()->critical(__VA_ARGS__); \
     _PAUSE_TRACK_MEMORY(false)
 
 #else

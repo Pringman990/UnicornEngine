@@ -1,10 +1,10 @@
 #pragma once
-#include <Singleton.h>
+#include <EngineSubsystem.h>
 
 #include <chrono>
 #include <mutex>
 
-class Timer : public Singleton<Timer> {
+class Timer : public EngineSubsystem<Timer> {
 public:
 	void Update() {
 		auto currentTime = std::chrono::high_resolution_clock::now();
@@ -70,7 +70,7 @@ public:
 	};
 
 private:
-	friend class Singleton<Timer>;
+	friend class EngineSubsystem<Timer>;
 	Timer() {
 		mLastTime = std::chrono::high_resolution_clock::now();
 	}
@@ -92,5 +92,5 @@ private:
 	UnorderedMap<String, float> mSavedReadings;
 };
 
-#define TIMER_START_READING(NAME) Timer::GetInstance()->StartReading(NAME);
-#define TIMER_END_READING(NAME) Timer::GetInstance()->EndReading(NAME);
+#define TIMER_START_READING(NAME) Timer::Get()->StartReading(NAME);
+#define TIMER_END_READING(NAME) Timer::Get()->EndReading(NAME);
