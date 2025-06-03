@@ -1,11 +1,11 @@
 #pragma once
-#include <Singleton.h>
+#include <EngineSubsystem.h>
 #include "IFileWatcherBackend.h"
 #include "EventDispatcher/Notifier.h"
 
-class FileWatcherSubsystem : public Singleton<FileWatcherSubsystem>
+class FileWatcherSubsystem : public EngineSubsystem<FileWatcherSubsystem>
 {
-	friend class Singleton<FileWatcherSubsystem>;
+	friend class EngineSubsystem<FileWatcherSubsystem>;
 public:
 	bool Init(const String& Root, SharedPtr<IFileWatcherBackend> Backend);
 

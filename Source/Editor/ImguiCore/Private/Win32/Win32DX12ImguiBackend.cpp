@@ -25,7 +25,7 @@ bool Win32DX12ImguiBackend::Init()
 	//
 	//ImGui::LoadIniSettingsFromDisk("imgui.ini");
 
-	//std::string contentPath = WindowsFileWatcher::GetInstance()->GetContentPath();
+	//std::string contentPath = WindowsFileWatcher::Get()->GetContentPath();
 	//{
 	//	static const ImWchar ranges[] =
 	//	{
@@ -54,14 +54,14 @@ bool Win32DX12ImguiBackend::Init()
 
 	//_PAUSE_TRACK_MEMORY(false);
 
-	//WindowsApplication* windowsApp = static_cast<WindowsApplication*>(Application::GetInstance()->GetApplication());
+	//WindowsApplication* windowsApp = static_cast<WindowsApplication*>(Application::Get()->GetApplication());
 	//if (!ImGui_ImplWin32_Init(windowsApp->GetWindowsWindowInfo().windowHandle))
 	//	return false;
 
 	////TODO:fix this
 	////windowsApp->OnWndProc.AddRaw(this, &Win32DX12ImguiBackend::ProccessMessages);
 
-	//Renderer* renderer = Renderer::GetInstance();
+	//Renderer* renderer = Renderer::Get();
 	//ID3D12DescriptorHeap* srvHeap = renderer->GetSRVHeapManager().GetHeap();
 
 	//if (!ImGui_ImplDX12_Init(
@@ -93,7 +93,7 @@ void Win32DX12ImguiBackend::RenderFrame()
 
 void Win32DX12ImguiBackend::EndFrame()
 {
-	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), Renderer::GetInstance()->GetMainCommandList());
+	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), Renderer::Get()->GetMainCommandList());
 	ImGui::UpdatePlatformWindows();
 	ImGui::RenderPlatformWindowsDefault();
 }

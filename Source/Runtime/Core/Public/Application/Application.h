@@ -1,8 +1,8 @@
 #pragma once
-#include <Singleton.h>
+#include <EngineSubsystem.h>
 #include "Generic/GenericApplication.h"
 
-class Application : public Singleton<Application>
+class Application : public EngineSubsystem<Application>
 {
 public:
 	/// <summary>
@@ -16,7 +16,7 @@ public:
 	GenericApplication* _CreateApplication();
 
 private:
-	friend class Singleton<Application>;
+	friend class EngineSubsystem<Application>;
 	Application();
 	~Application();
 private:

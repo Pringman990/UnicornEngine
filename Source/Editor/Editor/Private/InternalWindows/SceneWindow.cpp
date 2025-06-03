@@ -25,7 +25,7 @@ SceneWindow::~SceneWindow()
 
 bool SceneWindow::Init()
 {
-	//RenderTargetResourceManager* manager = AssetRegistry::GetInstance()->GetManager<RenderTargetResourceManager>();
+	//RenderTargetResourceManager* manager = AssetRegistry::Get()->GetManager<RenderTargetResourceManager>();
 	//mSceneView = manager->CreateRenderTarget(Vector2(128,128));
 	
 	return true;
@@ -33,7 +33,7 @@ bool SceneWindow::Init()
 
 void SceneWindow::Render()
 {
-	mEditorCamera.Update(Timer::GetInstance()->GetDeltaTime());
+	mEditorCamera.Update(Timer::Get()->GetDeltaTime());
 
 //	mSceneView->Clear();
 
