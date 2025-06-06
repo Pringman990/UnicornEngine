@@ -9,13 +9,13 @@ class FileWatcherSubsystem : public EngineSubsystem<FileWatcherSubsystem>
 public:
 	bool Init(const String& Root, SharedPtr<IFileWatcherBackend> Backend);
 
-	void Watch(const String& path, Func<void(const FileWatchInfo&)> callback);
+	void Watch(const String& Path, Func<void(const FileWatchInfo&)> Callback);
 
 	template<typename T>
-	void WatchRaw(const String& path, T* owner, void (T::* method)(const FileWatchInfo&))
+	void WatchRaw(const String& Path, T* Owner, void (T::* Method)(const FileWatchInfo&))
 	{
-		auto& entry = mWatched[path];
-		entry.AddRaw(owner, method);
+		auto& entry = mWatched[Path];
+		entry.AddRaw(Owner, Method);
 	}
 
 	void Update();

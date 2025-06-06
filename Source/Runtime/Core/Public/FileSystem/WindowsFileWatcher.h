@@ -12,7 +12,7 @@ public:
 	WindowsFileWatcher();
 	~WindowsFileWatcher();
 private:
-	FileWatchInfo ProcessDirectoryChange(FILE_NOTIFY_INFORMATION* aNotifyInformation);
+	FileWatchInfo ProcessDirectoryChange(FILE_NOTIFY_INFORMATION* NotifyInformation);
 private:
 private:
 	HANDLE mMonitoredDirectory;

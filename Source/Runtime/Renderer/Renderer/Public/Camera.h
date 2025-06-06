@@ -4,21 +4,21 @@
 class Camera
 {
 public:
-	bool operator!=(const Camera& aOther)
+	bool operator!=(const Camera& Other)
 	{
-		return (aOther.mTransform != this->mTransform);
+		return (Other.mTransform != this->mTransform);
 	}
 public:
 	Camera();
 	~Camera();
 
-	void SetPerspective(float aFovAngleY, float aAspectRatio, float aNearZ, float aFarZ);
-	void SetOrthographic(Vector2 aResolution, float aNearZ, float aFarZ);
+	void SetPerspective(float FovAngleY, float AspectRatio, float NearZ, float FarZ);
+	void SetOrthographic(Vector2 Resolution, float NearZ, float FarZ);
 
 	Transform& GetTransform();
 	Matrix& GetProjectionMatrix();
 
-	void GetFarNearPlanes(float& OUT aFar, float& OUT aNear);
+	void GetFarNearPlanes(float& OUT Far, float& OUT Near);
 	Matrix GetClipSpaceMatrix();
 private:
 	Transform mTransform;

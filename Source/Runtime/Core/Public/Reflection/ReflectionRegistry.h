@@ -60,12 +60,12 @@ class ReflectionRegistry : public EngineSubsystem<ReflectionRegistry>
 public:
 	using DeffRegistartionFn = void(*)();
 
-	void RegisterType(ReflectionTypeInfo aInfo);
+	void RegisterType(ReflectionTypeInfo Info);
 
-	ReflectionTypeInfo GetTypeInfo(std::type_index aType);
-	ReflectionTypeInfo GetTypeInfo(const String& aName);
+	ReflectionTypeInfo GetTypeInfo(std::type_index Type);
+	ReflectionTypeInfo GetTypeInfo(const String& Name);
 
-	static void EnqueueDefferedRegistration(DeffRegistartionFn aRegFunction);
+	static void EnqueueDefferedRegistration(DeffRegistartionFn RegFunction);
 	static void ProcessDefferedRegistration();
 private:
 	friend class EngineSubsystem<ReflectionRegistry>;

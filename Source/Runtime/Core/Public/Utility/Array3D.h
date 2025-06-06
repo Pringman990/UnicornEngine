@@ -7,13 +7,13 @@ class Array3D
 public:
 	Array3D() : mSizeX(0), mSizeY(0), mSizeZ(0), mData(nullptr) {};
 	
-	Array3D(uint32 aSizeX, uint32 aSizeY, uint32 aSizeZ)
-		: mSizeX(aSizeX), mSizeY(aSizeY), mSizeZ(aSizeZ), mData(new Type[aSizeX * aSizeY * aSizeZ]) {};
+	Array3D(uint32 SizeX, uint32 SizeY, uint32 SizeZ)
+		: mSizeX(SizeX), mSizeY(SizeY), mSizeZ(SizeZ), mData(new Type[SizeX * SizeY * SizeZ]) {};
 	
-	Array3D(uint32 aSizeX, uint32 aSizeY, uint32 aSizeZ, Type aDefualt)
-		: mSizeX(aSizeX), mSizeY(aSizeY), mSizeZ(aSizeZ), mData(new Type[aSizeX * aSizeY * aSizeZ]())
+	Array3D(uint32 SizeX, uint32 SizeY, uint32 SizeZ, Type Defualt)
+		: mSizeX(SizeX), mSizeY(SizeY), mSizeZ(SizeZ), mData(new Type[SizeX * SizeY * SizeZ]())
 	{
-		memset(mData, aDefualt, aSizeX * aSizeY * aSizeZ * sizeof(Type));
+		memset(mData, Defualt, SizeX * SizeY * SizeZ * sizeof(Type));
 	};
 	
 	~Array3D()
@@ -21,22 +21,22 @@ public:
 		delete[] mData;
 	}
 
-	Type& At(const uint32& aX, const uint32& aY, const uint32& aZ)
+	Type& At(const uint32& X, const uint32& Y, const uint32& Z)
 	{
-		return mData[aX + aY * mSizeX + aZ * (mSizeX * mSizeY)];
+		return mData[X + Y * mSizeX + Z * (mSizeX * mSizeY)];
 	};
 
 	/// <summary>
 	/// IMPORTANT: Resize will delete all currently stored data and create a new array
 	/// </summary>
-	void Resize(uint32 aSizeX, uint32 aSizeY, uint32 aSizeZ)
+	void Resize(uint32 SizeX, uint32 SizeY, uint32 SizeZ)
 	{
 		if (mData)
 			delete[] mData;
 
-		mSizeX = aSizeX;
-		mSizeY = aSizeY;
-		mSizeZ = aSizeZ;
+		mSizeX = SizeX;
+		mSizeY = SizeY;
+		mSizeZ = SizeZ;
 		mData = new Type[mSizeX * mSizeY * mSizeZ];
 	}
 
@@ -46,14 +46,14 @@ public:
 	const uint32& GetSizeY() { return mSizeY; }
 	const uint32& GetSizeZ() { return mSizeZ; }
 public:
-	Type& operator[](const int32& aIndex)
+	Type& operator[](const int32& Index)
 	{
-		return mData[aIndex];
+		return mData[Index];
 	}
 
-	Type& operator[](const int32& aIndex) const
+	Type& operator[](const int32& Index) const
 	{
-		return mData[aIndex];
+		return mData[Index];
 	}
 
 private:

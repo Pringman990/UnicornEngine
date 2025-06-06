@@ -8,14 +8,14 @@ using Microsoft::WRL::ComPtr;
 class DescriptorHeap
 {
 public:
-	DescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE aType, uint32 aSize);
+	DescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32 Size);
 	~DescriptorHeap();
 
-	bool Init(ID3D12Device* aDevice);
+	bool Init(ID3D12Device* Device);
 	void Release();
 
 	D3D12_CPU_DESCRIPTOR_HANDLE Allocate();
-	void Free(D3D12_CPU_DESCRIPTOR_HANDLE aHandle);
+	void Free(D3D12_CPU_DESCRIPTOR_HANDLE Handle);
 
 	ID3D12DescriptorHeap* GetHeap();
 	D3D12_CPU_DESCRIPTOR_HANDLE GetHeapCPUStart();

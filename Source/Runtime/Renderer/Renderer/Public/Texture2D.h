@@ -7,22 +7,22 @@ public:
 	Texture2D();
 	~Texture2D();
 
-	void Resize(const Vector2& aNewSize);
+	void Resize(const Vector2& NewSize);
 	void Release();
 
-	static Texture2D* Create(const std::wstring& aDDSPath);
-	static Texture2D* Create(const Vector2& aSize, D3D12_RESOURCE_FLAGS someFlags = D3D12_RESOURCE_FLAG_NONE);
+	static Texture2D* Create(const std::wstring& DDSPath);
+	static Texture2D* Create(const Vector2& Size, D3D12_RESOURCE_FLAGS Flags = D3D12_RESOURCE_FLAG_NONE);
 
 	/// <summary>
 	///  Used for resizing.
 	///  So the argument must be a valid non-nullptr pointer.
 	/// </summary>
-	static bool Create(Texture2D* aTexture, const Vector2& aNewSize, D3D12_RESOURCE_DESC aTextureDesc);
+	static bool Create(Texture2D* Texture, const Vector2& NewSize, D3D12_RESOURCE_DESC TextureDesc);
 	
 	/// <summary>
 	/// Used when creating the backbuffer
 	/// </summary>
-	static Texture2D* Create(ID3D12Resource* aRTVResource);
+	static Texture2D* Create(ID3D12Resource* RTVResource);
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GetSRVHandle() const;
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle() const;

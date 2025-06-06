@@ -7,7 +7,7 @@ class Scene
 {
 public:
 	Scene();
-	Scene(const String& aName);
+	Scene(const String& Name);
 	~Scene();
 
 	bool Init();

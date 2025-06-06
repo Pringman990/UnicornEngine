@@ -9,18 +9,18 @@ public:
 	RenderTarget();
 	~RenderTarget();
 
-	void Resize(Vector2 aSize);
+	void Resize(Vector2 Size);
 	void Release(bool ReleaseSRV = true);
 
 	bool IsDepthTesting();
 
-	static RenderTarget* Create(const Vector2& aSize, bool EnableDepthTesting = true);
-	static RenderTarget* Create(ID3D12Resource* aRTVResource, bool EnableDepthTesting);
+	static RenderTarget* Create(const Vector2& Size, bool EnableDepthTesting = true);
+	static RenderTarget* Create(ID3D12Resource* RTVResource, bool EnableDepthTesting);
 	static void Create(
-		const Vector2& aSize,
-		RenderTarget* aRenderTarget,
-		D3D12_RESOURCE_DESC aRTVDesc,
-		D3D12_RESOURCE_DESC aDepthDesc
+		const Vector2& Size,
+		RenderTarget* RenderTarget,
+		D3D12_RESOURCE_DESC RTVDesc,
+		D3D12_RESOURCE_DESC DepthDesc
 	);
 
 	ComPtr<ID3D12Resource>& GetResource();
@@ -34,7 +34,7 @@ public:
 	Texture2D* GetTexture();
 
 private:
-	bool CreateInternal(ID3D12Resource* aRTVResource, bool EnableDepthTesting);
+	bool CreateInternal(ID3D12Resource* RTVResource, bool EnableDepthTesting);
 private:
 
 	D3D12_CPU_DESCRIPTOR_HANDLE mRTVHandle;

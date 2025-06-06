@@ -8,15 +8,15 @@ ESystemManager::~ESystemManager()
 {
 }
 
-void ESystemManager::RunLoad(EWorld& aWorld)
+void ESystemManager::RunLoad(EWorld& World)
 {
 
 }
 
-void ESystemManager::RunUpdate(EWorld& aWorld)
+void ESystemManager::RunUpdate(EWorld& World)
 {
 }
 
-void ESystemManager::RunRender(EWorld& aWorld)
+void ESystemManager::RunRender(EWorld& World)
 {
 }

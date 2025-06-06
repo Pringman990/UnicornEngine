@@ -1,13 +1,13 @@
 #include "pch.h"
 #include "DescriptorHeap.h"
 
-DescriptorHeap::DescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE aType, uint32 aDescriptorCount)
+DescriptorHeap::DescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE Type, uint32 DescriptorCount)
 	:
 	mHeap(nullptr),
-	mType(aType),
+	mType(Type),
 	mCPUHeapStart(),
 	mFlags(D3D12_DESCRIPTOR_HEAP_FLAG_NONE),
-	mDescriptorCount(aDescriptorCount),
+	mDescriptorCount(DescriptorCount),
 	mIncrementSize(0),
 	mNextFreeIndex(0)
 {
@@ -25,7 +25,7 @@ void DescriptorHeap::Release()
 	mFreeList.clear();
 }
 
-bool DescriptorHeap::Init(ID3D12Device* aDevice)
+bool DescriptorHeap::Init(ID3D12Device* Device)
 {
 	mFlags = (mType == D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV || mType == D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER) ?
 		D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
@@ -36,14 +36,14 @@ bool DescriptorHeap::Init(ID3D12Device* aDevice)
 	desc.Flags = mFlags;
 	desc.NodeMask = 0;
 
-	HRESULT hr = aDevice->CreateDescriptorHeap(&desc, IID_PPV_ARGS(mHeap.GetAddressOf()));
+	HRESULT hr = Device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(mHeap.GetAddressOf()));
 	if (FAILED(hr))
 	{
 		_LOG_RENDERER_CRITICAL("Failed to init DescriptorHeap: {}", hr);
 		return false;
 	}
 	
-	mIncrementSize = aDevice->GetDescriptorHandleIncrementSize(mType);
+	mIncrementSize = Device->GetDescriptorHandleIncrementSize(mType);
 	mCPUHeapStart = mHeap->GetCPUDescriptorHandleForHeapStart();
 	mGPUHeapStart = mHeap->GetGPUDescriptorHandleForHeapStart();
 
@@ -77,19 +77,19 @@ D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeap::Allocate()
 	return handle;
 }
 
-void DescriptorHeap::Free(D3D12_CPU_DESCRIPTOR_HANDLE aHandle)
+void DescriptorHeap::Free(D3D12_CPU_DESCRIPTOR_HANDLE Handle)
 {
-	if (aHandle.ptr < mCPUHeapStart.ptr ||
-		aHandle.ptr >= (mCPUHeapStart.ptr + (mDescriptorCount * mIncrementSize)))
+	if (Handle.ptr < mCPUHeapStart.ptr ||
+		Handle.ptr >= (mCPUHeapStart.ptr + (mDescriptorCount * mIncrementSize)))
 	{
 		_LOG_RENDERER_WARNING("Tried to free an invalid descriptor handle!");
 		return;
 	}
 
 	if (std::find_if(mFreeList.begin(), mFreeList.end(), 
-		[&](const D3D12_CPU_DESCRIPTOR_HANDLE& handle) { return handle.ptr == aHandle.ptr; }) == mFreeList.end())
+		[&](const D3D12_CPU_DESCRIPTOR_HANDLE& handle) { return handle.ptr == Handle.ptr; }) == mFreeList.end())
 	{
-		mFreeList.push_back(aHandle);
+		mFreeList.push_back(Handle);
 	}
 }
 

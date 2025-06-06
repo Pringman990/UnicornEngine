@@ -5,7 +5,7 @@ Scene::Scene()
 {
 }
 
-Scene::Scene(const String& aName)
+Scene::Scene(const String& Name)
 {
 }
 

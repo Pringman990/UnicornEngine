@@ -232,7 +232,7 @@ void Renderer::ProcessWindowsMessages(HWND hWnd, UINT message, WPARAM wParam, LP
 	}
 }
 
-void Renderer::ResizeBackbuffer(int32 aWidth, int32 aHeight)
+void Renderer::ResizeBackbuffer(int32 Width, int32 Height)
 {
 	if (IsResizingBackbuffer())
 	{
@@ -252,7 +252,7 @@ void Renderer::ResizeBackbuffer(int32 aWidth, int32 aHeight)
 			mBackBuffers[i] = nullptr;
 		}
 
-		HRESULT hr = mSwapChain->ResizeBuffers(BACKBUFFER_COUNT, aWidth, aHeight, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
+		HRESULT hr = mSwapChain->ResizeBuffers(BACKBUFFER_COUNT, Width, Height, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
 		if (FAILED(hr))
 		{
 			_LOG_RENDERER_ERROR("ResizeBuffers failed with error code {}", hr);
@@ -274,13 +274,13 @@ void Renderer::ResizeBackbuffer(int32 aWidth, int32 aHeight)
 		{
 			_LOG_RENDERER_ERROR("Failed to resize backbuffers");
 		}
-		OnBackbufferResize.Notify(Vector2(aWidth, aHeight));
+		OnBackbufferResize.Notify(Vector2(Width, Height));
 	}
 }
 
-void Renderer::SetMainCamera(Camera* aCamera)
+void Renderer::SetMainCamera(Camera* Camera)
 {
-	mMainCamera = aCamera;
+	mMainCamera = Camera;
 }
 
 Camera* Renderer::GetMainCamera()
@@ -338,9 +338,9 @@ bool Renderer::SetupCommandQueue()
 	return true;
 }
 
-bool Renderer::SetupSwapChain(WindowsApplication* aApp)
+bool Renderer::SetupSwapChain(WindowsApplication* App)
 {
-	IWindowInfo& windowInfo = aApp->GetWindowInfo();
+	IWindowInfo& windowInfo = App->GetWindowInfo();
 
 	DXGI_SWAP_CHAIN_DESC1 desc = {};
 	desc.BufferCount = BACKBUFFER_COUNT;
@@ -355,7 +355,7 @@ bool Renderer::SetupSwapChain(WindowsApplication* aApp)
 	ComPtr<IDXGISwapChain1> tempSwapChain;
 	HRESULT hr = mDXGIFactory->CreateSwapChainForHwnd(
 		mCommandQueue.Get(),
-		aApp->GetWindowsWindowInfo().windowHandle,
+		App->GetWindowsWindowInfo().windowHandle,
 		&desc,
 		nullptr,
 		nullptr,
@@ -489,7 +489,7 @@ void Renderer::AddDrawCall()
 	mDrawCalls++;
 }
 
-void Renderer::SetIsResizingBackbuffer(bool shouldResize)
+void Renderer::SetIsResizingBackbuffer(bool Resize)
 {
-	mIsResizing = shouldResize;
+	mIsResizing = Resize;
 }
