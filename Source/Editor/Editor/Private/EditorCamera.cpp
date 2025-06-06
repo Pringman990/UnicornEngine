@@ -16,7 +16,7 @@ EditorCamera::~EditorCamera()
 {
 }
 
-void EditorCamera::Update(float /*aDeltaTime*/)
+void EditorCamera::Update(float /*DeltaTime*/)
 {
 	if (!ImGui::IsKeyDown(ImGuiKey_MouseRight))
 	{

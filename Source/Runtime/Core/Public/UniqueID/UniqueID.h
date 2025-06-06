@@ -12,7 +12,7 @@ public:
 	/// <summary>
 	/// Use with care as setting the id manually can lead to collision in IDs
 	/// </summary>
-	UniqueID(uint64 aID) : mID(aID) {};
+	UniqueID(uint64 ID) : mID(ID) {};
 
 	~UniqueID() {};
 
@@ -22,13 +22,13 @@ public:
 		return newUniqueID;
 	}
 
-	void GetSplit32ID(uint32& aHighOut, uint32& aLowOut)
+	void GetSplit32ID(uint32& HighOut, uint32& LowOut)
 	{
 		uint32 high = static_cast<uint32>(mID & 0xFFFFFFFF);
 		uint32 low = static_cast<uint32>((mID >> 32) & 0xFFFFFFFF);
 
-		aHighOut = high;
-		aLowOut = low;
+		HighOut = high;
+		LowOut = low;
 	}
 
 	const uint64 Get64ID() const { return mID; }

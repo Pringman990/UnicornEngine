@@ -10,12 +10,12 @@ class EditorWindowManager : public EngineSubsystem<EditorWindowManager>
 public:
 	using WindowCreator = Func<EditorWindow* ()>;
 
-	void RegisterWindowType(const String& aType, WindowCreator aCreator) {
-		mRegisteredWindows[aType] = std::move(aCreator);
+	void RegisterWindowType(const String& Type, WindowCreator Creator) {
+		mRegisteredWindows[Type] = std::move(Creator);
 	}
 
 #undef CreateWindow
-	void CreateWindow(const String& aWindowType);
+	void CreateWindow(const String& WindowType);
 
 	void RenderActiveWindows();
 

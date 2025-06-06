@@ -8,12 +8,12 @@ class StackTrace
 public:
 	StackTrace() : myImpl(nullptr) {}
 
-	static StackTrace CaptureStackTrace(int aSkipDepth);
+	static StackTrace CaptureStackTrace(int SkipDepth);
 	void Print() const;
 	std::size_t ComputeHash() const;
-	bool operator==(const StackTrace& aStackTrace) const noexcept
+	bool operator==(const StackTrace& StackTrace) const noexcept
 	{
-		return myImpl == aStackTrace.myImpl;
+		return myImpl == StackTrace.myImpl;
 	}
 private:
 	StackTrace(const StackTraceImpl&);
@@ -24,9 +24,9 @@ namespace std
 {
 	template<> struct hash<StackTrace>
 	{
-		std::size_t operator()(const StackTrace& aStackTrace) const noexcept
+		std::size_t operator()(const StackTrace& StackTrace) const noexcept
 		{
-			return aStackTrace.ComputeHash();
+			return StackTrace.ComputeHash();
 		}
 	};
 }

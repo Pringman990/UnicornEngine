@@ -26,33 +26,33 @@ public:
 		}
 	}
 
-	void StartReading(String aName)
+	void StartReading(String Name)
 	{
 		std::lock_guard<std::mutex> lock(mReadingMutex);
-		mStartedReadings[aName] = std::chrono::high_resolution_clock::now();
+		mStartedReadings[Name] = std::chrono::high_resolution_clock::now();
 	}
 
-	const float EndReading(String aName, bool SaveAfterEnded = false)
+	const float EndReading(String Name, bool SaveAfterEnded = false)
 	{
 		std::lock_guard<std::mutex> lock(mReadingMutex);
 		auto end = std::chrono::high_resolution_clock::now();
-		auto it = mStartedReadings.find(aName);
+		auto it = mStartedReadings.find(Name);
 		if (it != mStartedReadings.end())
 		{
 			float duration = std::chrono::duration<float>(end - it->second).count();
-			mStartedReadings.erase(aName);
+			mStartedReadings.erase(Name);
 			if (SaveAfterEnded)
-				mSavedReadings[aName] = duration;
+				mSavedReadings[Name] = duration;
 
 			return duration;
 		}
 		return 0.0f;
 	}
 
-	const float GetSavedReading(String aName)
+	const float GetSavedReading(String Name)
 	{
 		std::lock_guard<std::mutex> lock(mReadingMutex);
-		auto it = mSavedReadings.find(aName);
+		auto it = mSavedReadings.find(Name);
 		if(it != mSavedReadings.end())
 		{
 			return it->second;

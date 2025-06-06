@@ -6,13 +6,13 @@ class InputMapper;
 class InputDevice
 {
 public:
-	InputDevice(InputMapper* aMapper) : mInputMapper(aMapper) {};
+	InputDevice(InputMapper* Mapper) : mInputMapper(Mapper) {};
 	virtual ~InputDevice() {};
-	static InputDevice* Create(InputMapper* aMapper);
+	static InputDevice* Create(InputMapper* Mapper);
 
 	virtual void Init() = 0;
 	virtual void Update() = 0;
-	virtual void GetKeys(UnorderedMap<String, uint32>& aStringKeyMap) = 0;
+	virtual void GetKeys(UnorderedMap<String, uint32>& StringKeyMap) = 0;
 
 	virtual void CaptureMouse() = 0;
 	virtual void ReleaseMouse() = 0;
