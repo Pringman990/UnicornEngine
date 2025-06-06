@@ -29,6 +29,8 @@ int32_t GuardedMain()
 
 		ModuleManager::Create();
 
+		AssetManager::Create();
+
 		if (!engineLoop.Init())
 		{
 			_ENSURE_CORE(false, "Engine Loop Failed To Init");
@@ -51,14 +53,13 @@ int32_t GuardedMain()
 		ReflectionRegistry::Shutdown();
 	}
 	
+	AssetManager::Shutdown();
 	ModuleManager::Shutdown();
 	Timer::Shutdown();
 	ThreadPool::Shutdown();
+	FileWatcherSubsystem::Shutdown();
 	Logger::Shutdown();
 
-	//AssetRegistry::Shutdown();
-
-	FileWatcherSubsystem::Shutdown();
 
 	__SingletonRegistryFunctions::EnsureAllShutdown();
 	_STOP_TRACK_MEMORY();
