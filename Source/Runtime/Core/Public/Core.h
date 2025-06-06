@@ -50,3 +50,5 @@
 #include <Input/InputMapper.h>
 
 #include <Reflection/ReflectionRegistry.h>
+
+#include <AssetManager/AssetManager.h>
