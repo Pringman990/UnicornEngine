@@ -12,8 +12,8 @@ public:
 		mBoundFunctions.push_back(Lambda);
 	}
 
-	template<typename Owner>
-	void AddRaw(Owner* Owner, void (Owner::* Method)(Args...))
+	template<typename T>
+	void AddRaw(T* Owner, void (T::* Method)(Args...))
 	{
 		mBoundFunctions.push_back([=](Args... args) {(Owner->*Method)(args...); });
 	}
@@ -48,8 +48,8 @@ public:
 		mBoundFunctions.push_back(Lambda);
 	}
 
-	template<typename Owner>
-	void AddRaw(Owner* Owner, void (Owner::* Method)())
+	template<typename T>
+	void AddRaw(T* Owner, void (T::* Method)())
 	{
 		mBoundFunctions.push_back([=]() {(Owner->*Method)(); });
 	}
