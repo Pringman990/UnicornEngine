@@ -9,9 +9,9 @@ MemoryDebugger::~MemoryDebugger()
 {
 }
 
-void MemoryDebugger::StartStackMemoryTracking(bool showFullMemoryTrack, bool showAllAllocations)
+void MemoryDebugger::StartStackMemoryTracking(bool ShowFullMemoryTrack, bool ShowAllAllocations)
 {
-	StartMemoryTracking({ showFullMemoryTrack, showAllAllocations });
+	StartMemoryTracking({ ShowFullMemoryTrack, ShowAllAllocations });
 }
 
 void MemoryDebugger::StopStackMemoryTracking()

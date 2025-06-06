@@ -35,10 +35,10 @@ bool FileWatcherSubsystem::Init(const String& Root, SharedPtr<IFileWatcherBacken
 	return true;
 }
 
-void FileWatcherSubsystem::Watch(const std::string& path, std::function<void(const FileWatchInfo&)> callback)
+void FileWatcherSubsystem::Watch(const std::string& Path, std::function<void(const FileWatchInfo&)> Callback)
 {
-	auto& entry = mWatched[path];
-	entry.AddLambda(callback);
+	auto& entry = mWatched[Path];
+	entry.AddLambda(Callback);
 }
 
 void FileWatcherSubsystem::Update()

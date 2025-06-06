@@ -44,7 +44,7 @@ using ENameSystemMap = UnorderedMap<String, ESystem>;
 
 struct Archetype
 {
-	Archetype(EComponentSignature aSignature) : signature(aSignature) {};
+	Archetype(EComponentSignature Signature) : signature(Signature) {};
 
 	const EComponentSignature signature;
 	UnorderedMap<EComponentID, EComponentAllocator> components;
@@ -107,26 +107,26 @@ namespace internal
 		}
 
 		template<typename EComponent>
-		static EComponentSignature CalulateSignature(EComponentSignature aSignature)
+		static EComponentSignature CalulateSignature(EComponentSignature Signature)
 		{
-			(aSignature.set(GetID<EComponent>()));
-			return aSignature;
+			(Signature.set(GetID<EComponent>()));
+			return Signature;
 		}
 
-		static Vector<EComponentID> GetIdsFromSignature(EComponentSignature& aSignature)
+		static Vector<EComponentID> GetIdsFromSignature(EComponentSignature& Signature)
 		{
 			Vector<EComponentID> ids;
-			for (uint32 i = 0; i < aSignature.count(); i++)
+			for (uint32 i = 0; i < Signature.count(); i++)
 			{
-				ids.push_back(aSignature[i]);
+				ids.push_back(Signature[i]);
 			}
 
 			return ids;
 		}
 
-		static const String& GetName(EComponentID aId)
+		static const String& GetName(EComponentID Id)
 		{
-			return sIDToName[aId];
+			return sIDToName[Id];
 		}
 
 	private:

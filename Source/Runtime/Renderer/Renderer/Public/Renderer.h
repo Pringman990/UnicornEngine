@@ -49,13 +49,13 @@ public:
 	void PreRender();
 	void RenderToBackbuffer();
 	void Present();
-	void ResizeBackbuffer(int32 aWidth, int32 aHeight);
+	void ResizeBackbuffer(int32 Width, int32 Height);
 
-	void SetMainCamera(Camera* aCamera);
+	void SetMainCamera(Camera* Camera);
 	Camera* GetMainCamera();
 
 	void AddDrawCall();
-	void SetIsResizingBackbuffer(bool shouldResize);
+	void SetIsResizingBackbuffer(bool Resize);
 	
 	void WaitForGPU();
 
@@ -85,7 +85,7 @@ private:
 
 	bool SetupDevice();
 	bool SetupCommandQueue();
-	bool SetupSwapChain(WindowsApplication* aApp);
+	bool SetupSwapChain(WindowsApplication* App);
 	bool SetupBackBufferRTVs();
 	bool SetupCommandAllocatorAndMainList();
 	bool SetupFence();

@@ -14,9 +14,9 @@ constexpr std::size_t STACK_TRACE_MAX_LINE_LENGTH = 1024;
 struct StackTraceImpl
 {
 	std::array<const char*, STACK_TRACE_MAX_LINES> myLines = {};
-	bool operator==(const StackTraceImpl& aStackTraceImpl) const noexcept
+	bool operator==(const StackTraceImpl& StackTraceImpl) const noexcept
 	{
-		return memcmp(myLines.data(), aStackTraceImpl.myLines.data(), sizeof(const char*) * STACK_TRACE_MAX_LINES) == 0;
+		return memcmp(myLines.data(), StackTraceImpl.myLines.data(), sizeof(const char*) * STACK_TRACE_MAX_LINES) == 0;
 	}
 };
 
@@ -25,10 +25,10 @@ namespace std
 {
 	template<> struct hash<StackTraceImpl>
 	{
-		std::size_t operator()(const StackTraceImpl& aStackTrace) const noexcept
+		std::size_t operator()(const StackTraceImpl& StackTrace) const noexcept
 		{
 			size_t result = 0;
-			for (auto e : aStackTrace.myLines)
+			for (auto e : StackTrace.myLines)
 			{
 				// Magic function to combine hashes. Should be switched if we add a dependency on a library with hash utility functions
 				result ^= std::hash<const char*>{}(e)+0x9e3779b9 + (result << 6) + (result >> 2);

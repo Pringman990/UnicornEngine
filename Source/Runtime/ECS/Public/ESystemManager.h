@@ -8,27 +8,27 @@ class ESystemManager : public EngineSubsystem<ESystemManager>
 	friend class EngineSubsystem<ESystemManager>;
 public:
 
-	void RunLoad(EWorld& aWorld);
-	void RunUpdate(EWorld& aWorld);
-	void RunRender(EWorld& aWorld);
+	void RunLoad(EWorld& World);
+	void RunUpdate(EWorld& World);
+	void RunRender(EWorld& World);
 
 	template<typename... Components>
-	void RegisterSystem(Func<void(EWorld&, EEntity, Components&...)> aSystemFunction, const String& aName, EPipeline aPipeline)
+	void RegisterSystem(Func<void(EWorld&, EEntity, Components&...)> SystemFunction, const String& Name, EPipeline Pipeline)
 	{
-		if (mRegisteredSystemsName.contains(aName))
+		if (mRegisteredSystemsName.contains(Name))
 		{
-			_LOG_CORE_ERROR("System already exist: {}", aName);
+			_LOG_CORE_ERROR("System already exist: {}", Name);
 			return;
 		}
 
 		ESystem system;
-		system.name = aName;
-		system.function = aSystemFunction;
-		system.pipeline = aPipeline;
+		system.name = Name;
+		system.function = SystemFunction;
+		system.pipeline = Pipeline;
 		//system.signature = internal::EComponentRegistry::Get().CalulateSignature<Components...>();
 
-		mRegisteredSystemsName.insert({ aName, system });
-		mRegisteredSystemsPipeline[aPipeline].push_back(system);
+		mRegisteredSystemsName.insert({ Name, system });
+		mRegisteredSystemsPipeline[Pipeline].push_back(system);
 	}
 
 private:

@@ -129,9 +129,9 @@ void WindowsInputDevice::ProccessMessages(HWND hWnd, UINT message, WPARAM wParam
 	}
 }
 
-void WindowsInputDevice::GetKeys(UnorderedMap<String, uint32>& aStringKeyMap)
+void WindowsInputDevice::GetKeys(UnorderedMap<String, uint32>& StringKeyMap)
 {
-#define ADD_KEY_MAPPING(KEY, NAME) aStringKeyMap.insert({#NAME, KEY}); 
+#define ADD_KEY_MAPPING(KEY, NAME) StringKeyMap.insert({#NAME, KEY}); 
 
 	ADD_KEY_MAPPING(VK_LBUTTON, "LeftMouseButton");
 	ADD_KEY_MAPPING(VK_RBUTTON, "RightMouseButton");

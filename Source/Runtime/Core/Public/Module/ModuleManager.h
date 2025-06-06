@@ -8,11 +8,11 @@ class ModuleManager : public EngineSubsystem<ModuleManager>
 	friend class EngineSubsystem<ModuleManager>;
 public:
 
-	bool LoadModule(const String& aModuleName);
-	bool UnLoadModule(const String& aModuleName);
+	bool LoadModule(const String& ModuleName);
+	bool UnLoadModule(const String& ModuleName);
 
-	const IModule* GetModule(const String& aModuleName) const;
-	HMODULE GetHModule(const String& aModuleName) const;
+	const IModule* GetModule(const String& ModuleName) const;
+	HMODULE GetHModule(const String& ModuleName) const;
 
 private:
 	ModuleManager();

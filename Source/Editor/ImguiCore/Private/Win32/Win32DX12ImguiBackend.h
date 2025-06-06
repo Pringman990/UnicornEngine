@@ -15,5 +15,5 @@ public:
 	void ProccessMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
-	void ResizeBackBuffer(Vector2 aNewSize);
+	void ResizeBackBuffer(Vector2 NewSize);
 };
