@@ -10,13 +10,13 @@ public:
 	~EWorld();
 
 	template<typename T>
-	T* AddComponent(EEntity anEntity, const T& aComponent);
+	T* AddComponent(EEntity Entity, const T& Component);
 
 	template<typename T>
-	T* AddComponent(EEntity anEntity);
+	T* AddComponent(EEntity Entity);
 
 private:
-	void ChangeArchetype(EEntity anEntity, Archetype* aFrom, Archetype* aTo);
+	void ChangeArchetype(EEntity Entity, Archetype* From, Archetype* To);
 private:
 	UnorderedMap<EEntity, EntityLocation> mEntityToLocation;
 	UnorderedMap<EComponentSignature, Archetype*> mSigToArchetype;
@@ -24,9 +24,9 @@ private:
 };
 
 template<typename T>
-inline T* EWorld::AddComponent(EEntity anEntity, const T& aComponent)
+inline T* EWorld::AddComponent(EEntity Entity, const T& Component)
 {
-	Archetype* oldArchetype = mEntityToLocation[anEntity].archetype;
+	Archetype* oldArchetype = mEntityToLocation[Entity].archetype;
 	//Get entity component signature
 	EComponentSignature newSignature = internal::EComponentRegistry::CalulateSignature<T>(oldArchetype->signature);
 	
@@ -40,7 +40,7 @@ inline T* EWorld::AddComponent(EEntity anEntity, const T& aComponent)
 	{
 		//if exist move entity and component to it
 		newArchetype = it->second;
-		ChangeArchetype(anEntity, oldArchetype, newArchetype);
+		ChangeArchetype(Entity, oldArchetype, newArchetype);
 	}
 	else
 	{
@@ -60,18 +60,18 @@ inline T* EWorld::AddComponent(EEntity anEntity, const T& aComponent)
 
 		mArchetypes.push_back(archetype);
 		newArchetype = mArchetypes.back();
-		ChangeArchetype(anEntity, oldArchetype, newArchetype);
+		ChangeArchetype(Entity, oldArchetype, newArchetype);
 	}
 
 	void* allocatedSpace = newArchetype->components[internal::EComponentRegistry::GetID<T>()].Allocate();
 	ReflectionTypeInfo typeInfo = reflectionRegistry->GetTypeInfo(typeid(T));
-	typeInfo.constructor(allocatedSpace, &aComponent);
+	typeInfo.constructor(allocatedSpace, &Component);
 
 	return reinterpret_cast<T*>(allocatedSpace);
 }
 
 template<typename T>
-inline T* EWorld::AddComponent(EEntity anEntity)
+inline T* EWorld::AddComponent(EEntity Entity)
 {
 
 	return nullptr;

@@ -9,7 +9,7 @@ public:
 	EditorCamera();
 	~EditorCamera();
 
-	void Update(float aDeltaTime);
+	void Update(float DeltaTime);
 	Camera* GetCamera();
 private:
 	float mMoveSpeed;

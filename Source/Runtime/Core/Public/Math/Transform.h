@@ -7,19 +7,19 @@ public:
 	bool operator != (const Transform& V) const noexcept;
 public:
 	Transform() : mPosition(Vector3(0, 0, 0)), mQRotation(Quaternion(0,0,0,0)), mScale(Vector3(1,1,1)) {};
-	Transform(Vector3 aPosition, Quaternion aQRotation, Vector3 aScale)
+	Transform(Vector3 Position, Quaternion QRotation, Vector3 Scale)
 		:
-		mPosition(aPosition),
-		mQRotation(aQRotation),
-		mScale(aScale)
+		mPosition(Position),
+		mQRotation(QRotation),
+		mScale(Scale)
 	{
 	};
 
-	Transform(Vector3 aPosition, Vector3 aEularRotation, Vector3 aScale)
+	Transform(Vector3 Position, Vector3 EularRotation, Vector3 Scale)
 		:
-		mPosition(aPosition),
-		mQRotation(Quaternion::CreateFromYawPitchRoll(aEularRotation.y, aEularRotation.x, aEularRotation.z)),
-		mScale(aScale)
+		mPosition(Position),
+		mQRotation(Quaternion::CreateFromYawPitchRoll(EularRotation.y, EularRotation.x, EularRotation.z)),
+		mScale(Scale)
 	{
 	};
 
@@ -28,12 +28,12 @@ public:
 	const Quaternion GetQuaternion() const { return mQRotation; };
 	const Vector3 GetEularRotation() const { return mQRotation.ToEuler(); };
 
-	void SetPosition(Vector3 aPosition) { mPosition = aPosition; };
-	void SetScale(Vector3 aScale) { mScale = aScale; };
-	void SetRotation(Quaternion aQRotation) { mQRotation = aQRotation; };
-	void SetRotation(Vector3 aEularRotation)
+	void SetPosition(Vector3 Position) { mPosition = Position; };
+	void SetScale(Vector3 Scale) { mScale = Scale; };
+	void SetRotation(Quaternion QRotation) { mQRotation = QRotation; };
+	void SetRotation(Vector3 EularRotation)
 	{
-		mQRotation = Quaternion::CreateFromYawPitchRoll(aEularRotation.y, aEularRotation.x, aEularRotation.z);
+		mQRotation = Quaternion::CreateFromYawPitchRoll(EularRotation.y, EularRotation.x, EularRotation.z);
 	};
 
 	Matrix GetMatrix() const

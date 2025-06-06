@@ -98,16 +98,16 @@ void WindowsFileWatcher::Watch(const String& RootPath, FuncType Callback)
 	Callback(info);
 }
 
-FileWatchInfo WindowsFileWatcher::ProcessDirectoryChange(FILE_NOTIFY_INFORMATION* aNotifyInformation)
+FileWatchInfo WindowsFileWatcher::ProcessDirectoryChange(FILE_NOTIFY_INFORMATION* NotifyInformation)
 {
 	FileWatchInfo info;
 
 	std::wstring stringPath = mRootDirectory;
-	stringPath.append(aNotifyInformation->FileName, aNotifyInformation->FileNameLength / sizeof(WCHAR));
+	stringPath.append(NotifyInformation->FileName, NotifyInformation->FileNameLength / sizeof(WCHAR));
 
 	info.file = WStringToString(stringPath);
 
-	switch (aNotifyInformation->Action)
+	switch (NotifyInformation->Action)
 	{
 	case FILE_ACTION_ADDED:
 		_LOG_CORE_INFO("File added: {}", WStringToString(stringPath));

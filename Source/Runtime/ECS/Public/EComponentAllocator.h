@@ -7,13 +7,13 @@ class EComponentAllocator
 public:
 	EComponentAllocator() {};
 
-	EComponentAllocator(ReflectionTypeInfo someTypeInfo, size_t aInitalReserve, size_t aGrowthRate)
+	EComponentAllocator(ReflectionTypeInfo TypeInfo, size_t InitalReserve, size_t GrowthRate)
 		: 
-		mGrowthRate(aGrowthRate * someTypeInfo.size), 
+		mGrowthRate(GrowthRate * TypeInfo.size), 
 		mComponentCount(0),
-		mTypeInfo(someTypeInfo)
+		mTypeInfo(TypeInfo)
 	{
-		mBuffer.reserve(aInitalReserve * mTypeInfo.size);
+		mBuffer.reserve(InitalReserve * mTypeInfo.size);
 	}
 
 	~EComponentAllocator() {};
@@ -38,7 +38,7 @@ public:
 		return ptr;
 	}
 
-	void Swap(size_t aIndexA, size_t aIndexB)
+	void Swap(size_t IndexA, size_t IndexB)
 	{
 		//Create temporary storage
 		std::vector<char> temp;
@@ -47,10 +47,10 @@ public:
 		temp.resize(mTypeInfo.size);
 
 		//Copy A to temporary memory
-		mTypeInfo.move(temp.data(), &mBuffer[aIndexA * mTypeInfo.size]);
+		mTypeInfo.move(temp.data(), &mBuffer[IndexA * mTypeInfo.size]);
 
 		//Move B into where A was
-		mTypeInfo.move(&mBuffer[aIndexA * mTypeInfo.size], &mBuffer[aIndexB * mTypeInfo.size]);
+		mTypeInfo.move(&mBuffer[IndexA * mTypeInfo.size], &mBuffer[IndexB * mTypeInfo.size]);
 
 		//Move A back to where B was/to the back of the array
 		mTypeInfo.move(Back(), temp.data());
@@ -62,21 +62,21 @@ public:
 		mComponentCount--;
 	}
 
-	void* Get(size_t aIndex)
+	void* Get(size_t Index)
 	{
-		return &mBuffer[aIndex * mTypeInfo.size];
+		return &mBuffer[Index * mTypeInfo.size];
 	}
 
 	template<typename T>
-	T& Get(size_t aIndex)
+	T& Get(size_t Index)
 	{
-		return *reinterpret_cast<T*>(&mBuffer[aIndex * mTypeInfo.size]);
+		return *reinterpret_cast<T*>(&mBuffer[Index * mTypeInfo.size]);
 	}
 
 	template<typename T>
-	const T& Get(size_t aIndex) const
+	const T& Get(size_t Index) const
 	{
-		return *reinterpret_cast<const T*>(&mBuffer[aIndex * mTypeInfo.size]);
+		return *reinterpret_cast<const T*>(&mBuffer[Index * mTypeInfo.size]);
 	}
 
 	void* Back()
@@ -108,9 +108,9 @@ public:
 			return *this;
 		}
 
-		bool operator!=(const Iterator& aOther) const
+		bool operator!=(const Iterator& Other) const
 		{
-			return ptr != aOther.ptr;
+			return ptr != Other.ptr;
 		}
 	};
 

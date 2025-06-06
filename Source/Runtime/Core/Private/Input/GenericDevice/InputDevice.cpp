@@ -10,7 +10,7 @@
 #endif // _Win32
 
 
-InputDevice* InputDevice::Create(InputMapper* aMapper)
+InputDevice* InputDevice::Create(InputMapper* Mapper)
 {
 	//TODO: add sdl
 	//return new InputDeviceAPI(aMapper);
