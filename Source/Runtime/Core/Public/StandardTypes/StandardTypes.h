@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <set>
 #include <functional>
+#include <queue>
 
 using uint8	 = uint8_t;
 using uint16 = uint16_t;
@@ -40,6 +41,9 @@ using UnorderedMap = std::unordered_map<T, V>;
 
 template<typename T>
 using Set = std::set<T>;
+
+template<typename T>
+using Queue = std::queue<T>;
 
 template<typename T>
 using Func = std::function<T>;
