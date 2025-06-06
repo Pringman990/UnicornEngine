@@ -17,30 +17,30 @@ Camera::~Camera()
 {
 }
 
-void Camera::SetPerspective(float aFovAngleY, float aAspectRatio, float aNearZ, float aFarZ)
+void Camera::SetPerspective(float FovAngleY, float AspectRatio, float NearZ, float FarZ)
 {
-	_ENSURE_RENDERER(aNearZ < aFarZ, "Far plane cant be less then Near plane");
-	_ENSURE_RENDERER(aNearZ > 0, "Near plane needs to be above Zero");
-	_ENSURE_RENDERER(aAspectRatio > 0, "Aspect Ratio needs to be above Zero");
-	_ENSURE_RENDERER(aFovAngleY > 0, "FOV needs to be above Zero");
+	_ENSURE_RENDERER(NearZ < FarZ, "Far plane cant be less then Near plane");
+	_ENSURE_RENDERER(NearZ > 0, "Near plane needs to be above Zero");
+	_ENSURE_RENDERER(AspectRatio > 0, "Aspect Ratio needs to be above Zero");
+	_ENSURE_RENDERER(FovAngleY > 0, "FOV needs to be above Zero");
 
-	mFarPlane = aFarZ;
-	mNearPlane = aNearZ;
-	mFov = aFovAngleY;
-	mAspectRatio = aAspectRatio;
+	mFarPlane = FarZ;
+	mNearPlane = NearZ;
+	mFov = FovAngleY;
+	mAspectRatio = AspectRatio;
 	mProjectionMatrix = DirectX::XMMatrixPerspectiveFovLH(mFov, mAspectRatio, mNearPlane, mFarPlane);
 }
 
-void Camera::SetOrthographic(Vector2 aResolution, float aNearZ, float aFarZ)
+void Camera::SetOrthographic(Vector2 Resolution, float NearZ, float FarZ)
 {
-	_ENSURE_RENDERER(aNearZ < aFarZ, "Far plane cant be less then Near plane");
-	_ENSURE_RENDERER(aNearZ > 0, "Near plane needs to be above Zero");
-	_ENSURE_RENDERER(aResolution.x > 0, "Resolution X needs to be above Zero");
-	_ENSURE_RENDERER(aResolution.y > 0, "Resolution Y needs to be above Zero");
+	_ENSURE_RENDERER(NearZ < FarZ, "Far plane cant be less then Near plane");
+	_ENSURE_RENDERER(NearZ > 0, "Near plane needs to be above Zero");
+	_ENSURE_RENDERER(Resolution.x > 0, "Resolution X needs to be above Zero");
+	_ENSURE_RENDERER(Resolution.y > 0, "Resolution Y needs to be above Zero");
 
-	mFarPlane = aFarZ;
-	mNearPlane = aNearZ;
-	mProjectionMatrix = DirectX::XMMatrixOrthographicOffCenterLH(0, aResolution.x, 0, aResolution.y, aNearZ, aFarZ);
+	mFarPlane = FarZ;
+	mNearPlane = NearZ;
+	mProjectionMatrix = DirectX::XMMatrixOrthographicOffCenterLH(0, Resolution.x, 0, Resolution.y, NearZ, FarZ);
 }
 
 Transform& Camera::GetTransform()
@@ -53,10 +53,10 @@ Matrix& Camera::GetProjectionMatrix()
 	return mProjectionMatrix;
 }
 
-void Camera::GetFarNearPlanes(float& OUT aFar, float& OUT aNear)
+void Camera::GetFarNearPlanes(float& OUT Far, float& OUT Near)
 {
-	aFar = mFarPlane;
-	aNear = mNearPlane;
+	Far = mFarPlane;
+	Near = mNearPlane;
 }
 
 Matrix Camera::GetClipSpaceMatrix()

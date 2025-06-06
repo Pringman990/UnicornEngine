@@ -18,9 +18,9 @@ EditorWindowManager::~EditorWindowManager()
 	mRegisteredWindows.clear();
 }
 
-void EditorWindowManager::CreateWindow(const String& aWindowType)
+void EditorWindowManager::CreateWindow(const String& WindowType)
 {
-	auto it = mRegisteredWindows.find(aWindowType);
+	auto it = mRegisteredWindows.find(WindowType);
 	if (it != mRegisteredWindows.end())
 	{
 		auto& windowCallback = it->second;
@@ -41,7 +41,7 @@ void EditorWindowManager::CreateWindow(const String& aWindowType)
 
 		if (window->mWindowDisplayName == "")
 		{
-			window->mWindowDisplayName = aWindowType;
+			window->mWindowDisplayName = WindowType;
 		}
 	}
 }

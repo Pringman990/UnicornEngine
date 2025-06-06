@@ -11,42 +11,42 @@ ReflectionRegistry::~ReflectionRegistry()
 	mNameToType.clear();
 }
 
-void ReflectionRegistry::RegisterType(ReflectionTypeInfo aInfo)
+void ReflectionRegistry::RegisterType(ReflectionTypeInfo Info)
 {
-	_LOG_CORE_INFO("Reflection registry type registered: {}", aInfo.name);
+	_LOG_CORE_INFO("Reflection registry type registered: {}", Info.name);
 
-	auto it = mNameToType.find(aInfo.name);
+	auto it = mNameToType.find(Info.name);
 	if (it != mNameToType.end())
 	{
-		_LOG_CORE_CRITICAL("ReflectionRegistry: Trying to register already registered: {}", aInfo.name);
+		_LOG_CORE_CRITICAL("ReflectionRegistry: Trying to register already registered: {}", Info.name);
 		return;
 	}
 
-	mRegistry[*aInfo.typeIndex] = aInfo;
-	mNameToType[aInfo.name] = aInfo;
+	mRegistry[*Info.typeIndex] = Info;
+	mNameToType[Info.name] = Info;
 }
 
-ReflectionTypeInfo ReflectionRegistry::GetTypeInfo(std::type_index aType)
+ReflectionTypeInfo ReflectionRegistry::GetTypeInfo(std::type_index Type)
 {
-	auto it = mRegistry.find(aType);
+	auto it = mRegistry.find(Type);
 	if (it != mRegistry.end())
-		return mRegistry.at(aType);
+		return mRegistry.at(Type);
 
 	return ReflectionTypeInfo();
 }
 
-ReflectionTypeInfo ReflectionRegistry::GetTypeInfo(const String& aName)
+ReflectionTypeInfo ReflectionRegistry::GetTypeInfo(const String& Name)
 {
-	auto it = mNameToType.find(aName);
+	auto it = mNameToType.find(Name);
 	if (it != mNameToType.end())
 		return it->second;
 
 	return ReflectionTypeInfo();
 }
 
-void ReflectionRegistry::EnqueueDefferedRegistration(DeffRegistartionFn aRegFunction)
+void ReflectionRegistry::EnqueueDefferedRegistration(DeffRegistartionFn RegFunction)
 {
-	GetDefferedQueue().push_back(aRegFunction);
+	GetDefferedQueue().push_back(RegFunction);
 }
 
 void ReflectionRegistry::ProcessDefferedRegistration()

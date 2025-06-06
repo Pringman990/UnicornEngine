@@ -23,7 +23,6 @@ public:
 	~GameWorld();
 
 	void Init();
-	void InitCompute();
 	void Render();
 private:
 	void UpdateCamera();

@@ -7,15 +7,15 @@ class MultiNotifierArgs
 public:
 	using FuncType = Func<void(Args...)>;
 
-	void AddLambda(FuncType aLambda)
+	void AddLambda(FuncType Lambda)
 	{
-		mBoundFunctions.push_back(aLambda);
+		mBoundFunctions.push_back(Lambda);
 	}
 
 	template<typename Owner>
-	void AddRaw(Owner* aOwner, void (Owner::* method)(Args...))
+	void AddRaw(Owner* Owner, void (Owner::* Method)(Args...))
 	{
-		mBoundFunctions.push_back([=](Args... args) {(aOwner->*method)(args...); });
+		mBoundFunctions.push_back([=](Args... args) {(Owner->*Method)(args...); });
 	}
 
 	void RemoveAll()
@@ -43,15 +43,15 @@ class MultiNotifier
 public:
 	using FuncType = Func<void()>;
 
-	void AddLambda(FuncType aLambda)
+	void AddLambda(FuncType Lambda)
 	{
-		mBoundFunctions.push_back(aLambda);
+		mBoundFunctions.push_back(Lambda);
 	}
 
 	template<typename Owner>
-	void AddRaw(Owner* aOwner, void (Owner::* method)())
+	void AddRaw(Owner* Owner, void (Owner::* Method)())
 	{
-		mBoundFunctions.push_back([=]() {(aOwner->*method)(); });
+		mBoundFunctions.push_back([=]() {(Owner->*Method)(); });
 	}
 
 	void RemoveAll()

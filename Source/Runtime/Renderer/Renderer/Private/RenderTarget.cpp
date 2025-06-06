@@ -25,7 +25,7 @@ RenderTarget::~RenderTarget()
 	mSRV = nullptr;
 }
 
-void RenderTarget::Resize(Vector2 aSize)
+void RenderTarget::Resize(Vector2 Size)
 {
 	D3D12_RESOURCE_DESC rtvDesc = mRTV->GetDesc();
 	D3D12_RESOURCE_DESC dsvDesc = {};
@@ -35,9 +35,9 @@ void RenderTarget::Resize(Vector2 aSize)
 	}
 
 	Release();
-	mSRV->Resize(aSize);
+	mSRV->Resize(Size);
 
-	RenderTarget::Create(aSize, this, rtvDesc, dsvDesc);
+	RenderTarget::Create(Size, this, rtvDesc, dsvDesc);
 }
 
 void RenderTarget::Release(bool ReleaseSRV)
@@ -67,9 +67,9 @@ bool RenderTarget::IsDepthTesting()
 	return mIsDepthTesting;
 }
 
-RenderTarget* RenderTarget::Create(const Vector2& aSize, bool EnableDepthTesting)
+RenderTarget* RenderTarget::Create(const Vector2& Size, bool EnableDepthTesting)
 {
-	Texture2D* texture = Texture2D::Create(aSize, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
+	Texture2D* texture = Texture2D::Create(Size, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET);
 	if (!texture)
 	{
 		_LOG_RENDERER_ERROR("Failed to create Texture2D");
@@ -90,9 +90,9 @@ RenderTarget* RenderTarget::Create(const Vector2& aSize, bool EnableDepthTesting
 	return renderTarget;
 }
 
-RenderTarget* RenderTarget::Create(ID3D12Resource* aRTVResource, bool EnableDepthTesting)
+RenderTarget* RenderTarget::Create(ID3D12Resource* RTVResource, bool EnableDepthTesting)
 {
-	Texture2D* texture = Texture2D::Create(aRTVResource);
+	Texture2D* texture = Texture2D::Create(RTVResource);
 	if (!texture)
 	{
 		_LOG_RENDERER_ERROR("Failed to create Texture2D");
@@ -102,7 +102,7 @@ RenderTarget* RenderTarget::Create(ID3D12Resource* aRTVResource, bool EnableDept
 	RenderTarget* renderTarget = new RenderTarget();
 	renderTarget->mIsDepthTesting = EnableDepthTesting;
 	renderTarget->mSRV = texture;
-	renderTarget->mRTV = aRTVResource;
+	renderTarget->mRTV = RTVResource;
 
 	if (!renderTarget->CreateInternal(texture->GetResource().Get(), EnableDepthTesting))
 	{
@@ -148,12 +148,12 @@ Texture2D* RenderTarget::GetTexture()
 	return mSRV;
 }
 
-bool RenderTarget::CreateInternal(ID3D12Resource* aRTVResource, bool EnableDepthTesting)
+bool RenderTarget::CreateInternal(ID3D12Resource* RTVResource, bool EnableDepthTesting)
 {
 	Renderer* renderer = Renderer::Get();
 	ID3D12Device* device = renderer->GetDevice();
 
-	D3D12_RESOURCE_DESC textureDesc = aRTVResource->GetDesc();
+	D3D12_RESOURCE_DESC textureDesc = RTVResource->GetDesc();
 	
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
 	rtvDesc.Format = textureDesc.Format;
@@ -162,7 +162,7 @@ bool RenderTarget::CreateInternal(ID3D12Resource* aRTVResource, bool EnableDepth
 
 	mRTVHandle = renderer->GetRTVHeapManager().Allocate();
 	mGPUHandle = Renderer::Get()->GetRTVHeapManager().GetGPUHandleFromCPUHandle(mRTVHandle);
-	device->CreateRenderTargetView(aRTVResource, &rtvDesc, mRTVHandle);
+	device->CreateRenderTargetView(RTVResource, &rtvDesc, mRTVHandle);
 
 	//Setup viewport
 	mViewport = { 0 };
@@ -232,13 +232,13 @@ bool RenderTarget::CreateInternal(ID3D12Resource* aRTVResource, bool EnableDepth
 }
 
 void RenderTarget::Create(
-	const Vector2& aSize,
-	RenderTarget* aRenderTarget,
-	D3D12_RESOURCE_DESC aRTVDesc,
-	D3D12_RESOURCE_DESC aDepthDesc
+	const Vector2& Size,
+	RenderTarget* RenderTarget,
+	D3D12_RESOURCE_DESC RTVDesc,
+	D3D12_RESOURCE_DESC DepthDesc
 )
 {
-	if (aRenderTarget == nullptr)
+	if (RenderTarget == nullptr)
 	{
 		_LOG_RENDERER_ERROR("RenderTarget was nullptr, please pass a valid rendertarget");
 		return;
@@ -248,33 +248,33 @@ void RenderTarget::Create(
 	ID3D12Device* device = renderer->GetDevice();
 
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
-	rtvDesc.Format = aRTVDesc.Format;
+	rtvDesc.Format = RTVDesc.Format;
 	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 	rtvDesc.Texture2D.MipSlice = 0;
 
-	aRenderTarget->mRTVHandle = renderer->GetRTVHeapManager().Allocate();
-	aRenderTarget->mGPUHandle = Renderer::Get()->GetRTVHeapManager().GetGPUHandleFromCPUHandle(aRenderTarget->mRTVHandle);
-	device->CreateRenderTargetView(aRenderTarget->mSRV->GetResource().Get(), &rtvDesc, aRenderTarget->mRTVHandle);
+	RenderTarget->mRTVHandle = renderer->GetRTVHeapManager().Allocate();
+	RenderTarget->mGPUHandle = Renderer::Get()->GetRTVHeapManager().GetGPUHandleFromCPUHandle(RenderTarget->mRTVHandle);
+	device->CreateRenderTargetView(RenderTarget->mSRV->GetResource().Get(), &rtvDesc, RenderTarget->mRTVHandle);
 
 	//Setup viewport
-	aRenderTarget->mViewport = { 0 };
-	aRenderTarget->mViewport.TopLeftX = 0.0f;
-	aRenderTarget->mViewport.TopLeftY = 0.0f;
-	aRenderTarget->mViewport.Width = aSize.x;
-	aRenderTarget->mViewport.Height = aSize.y;
-	aRenderTarget->mViewport.MinDepth = 0.0f;
-	aRenderTarget->mViewport.MaxDepth = 1.0f;
+	RenderTarget->mViewport = { 0 };
+	RenderTarget->mViewport.TopLeftX = 0.0f;
+	RenderTarget->mViewport.TopLeftY = 0.0f;
+	RenderTarget->mViewport.Width = Size.x;
+	RenderTarget->mViewport.Height = Size.y;
+	RenderTarget->mViewport.MinDepth = 0.0f;
+	RenderTarget->mViewport.MaxDepth = 1.0f;
 
-	aRenderTarget->mScissorRect.left = 0;
-	aRenderTarget->mScissorRect.top = 0;
-	aRenderTarget->mScissorRect.right = static_cast<uint32>(aSize.x);
-	aRenderTarget->mScissorRect.bottom = static_cast<uint32>(aSize.y);
+	RenderTarget->mScissorRect.left = 0;
+	RenderTarget->mScissorRect.top = 0;
+	RenderTarget->mScissorRect.right = static_cast<uint32>(Size.x);
+	RenderTarget->mScissorRect.bottom = static_cast<uint32>(Size.y);
 
-	if (aRenderTarget->mIsDepthTesting)
+	if (RenderTarget->mIsDepthTesting)
 	{
 		DXGI_FORMAT depthFormat = DXGI_FORMAT_D32_FLOAT;
-		aDepthDesc.Width = static_cast<uint32>(aSize.x);
-		aDepthDesc.Height = static_cast<uint32>(aSize.y);
+		DepthDesc.Width = static_cast<uint32>(Size.x);
+		DepthDesc.Height = static_cast<uint32>(Size.y);
 
 		D3D12_CLEAR_VALUE clearValue = {};
 		clearValue.Format = depthFormat;
@@ -285,10 +285,10 @@ void RenderTarget::Create(
 		HRESULT hr = device->CreateCommittedResource(
 			&heapProperties,
 			D3D12_HEAP_FLAG_NONE,
-			&aDepthDesc,
+			&DepthDesc,
 			D3D12_RESOURCE_STATE_DEPTH_WRITE,
 			&clearValue,
-			IID_PPV_ARGS(aRenderTarget->mDepthStencilBuffer.GetAddressOf())
+			IID_PPV_ARGS(RenderTarget->mDepthStencilBuffer.GetAddressOf())
 		);
 		if (FAILED(hr))
 		{
@@ -301,7 +301,7 @@ void RenderTarget::Create(
 		dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 		dsvDesc.Texture2D.MipSlice = 0;
 
-		aRenderTarget->mDSVHandle = renderer->GetDSVHeapManager().Allocate();
-		device->CreateDepthStencilView(aRenderTarget->mDepthStencilBuffer.Get(), &dsvDesc, aRenderTarget->mDSVHandle);
+		RenderTarget->mDSVHandle = renderer->GetDSVHeapManager().Allocate();
+		device->CreateDepthStencilView(RenderTarget->mDepthStencilBuffer.Get(), &dsvDesc, RenderTarget->mDSVHandle);
 	}
 }
