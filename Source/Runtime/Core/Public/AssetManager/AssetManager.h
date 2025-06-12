@@ -2,11 +2,11 @@
 #include <EngineSubsystem.h>
 #include "StandardTypes/StandardTypes.h"
 
-#include "AssetHandle.h"
+#include "ResourceManagment/ResourceHandle.h"
 
 #include "Internal/IAssetLoader.h"
-#include "Internal/IAssetPool.h"
-#include "AssetPool.h"
+#include "ResourceManagment/Internal/IResourcePool.h"
+#include "ResourceManagment/ResourcePool.h"
 #include "AssetLoader.h"
 
 
@@ -21,41 +21,41 @@ public:
 	}
 
 	template<typename T>
-	void RegisterPool(IAssetPool* Pool)
+	void RegisterPool(IResourcePool* Pool)
 	{
 		mPools[typeid(T)] = MakeOwned<T>(Pool);
 	}
 
 	template<typename T>
-	AssetHandle<T> LoadAsset(const String& Path)
+	ResourceHandle<T> LoadAsset(const String& Path)
 	{
 		AssetLoader<T>* loader = GetLoader<T>();
 		if (!loader)
 		{
 			_ENSURE_CORE(loader, "No asset loader for type");
-			return AssetHandle<T>::Invalid();
+			return ResourceHandle<T>::Invalid();
 		}
 
-		T asset = loader->Load(Path);
+		T resource = loader->Load(Path);
 
-		AssetPool<T>* pool = GetPool<T>();
+		ResourcePool<T>* pool = GetPool<T>();
 		if (!pool)
 		{
 			_ENSURE_CORE(pool, "No asset pool for type");
-			return AssetHandle<T>::Invalid();
+			return ResourceHandle<T>::Invalid();
 		}
 
-		return pool->Add(asset);
+		return pool->Add(resource);
 	}
 
 	template<typename T>
-	T* GetAsset(const AssetHandle<T>& Handle)
+	T* GetAsset(const ResourceHandle<T>& Handle)
 	{
-		AssetPool<T>* pool = GetPool<T>();
+		ResourcePool<T>* pool = GetPool<T>();
 		if (!pool)
 		{
 			_ENSURE_CORE(pool, "No asset pool for type");
-			return AssetHandle<T>::Invalid();
+			return ResourceHandle<T>::Invalid();
 		}
 
 		return pool->Get(Handle);
@@ -66,13 +66,13 @@ private:
 	~AssetManager();
 
 	template<typename T>
-	AssetPool<T>* GetPool()
+	ResourcePool<T>* GetPool()
 	{
 		auto it = mPools.find(typeid(T));
 		if (it == mPools.end()) 
 			return nullptr;
 
-		return static_cast<AssetPool<T>*>(mPools[typeid(T)].get());
+		return static_cast<ResourcePool<T>*>(mPools[typeid(T)].get());
 	}
 
 	template<typename T>
@@ -86,6 +86,6 @@ private:
 	}
 private:
 	UnorderedMap<std::type_index, OwnedPtr<IAssetLoader>> mLoaders;
-	UnorderedMap<std::type_index, OwnedPtr<IAssetPool>> mPools;
+	UnorderedMap<std::type_index, OwnedPtr<IResourcePool>> mPools;
 };
 

@@ -24,6 +24,7 @@ project "Renderer"
 		"DDSTextureLoader",
 		"Assimp",
 		"Vulkan",
+		"DXC",
 	})
 
 	linkDependencies("Renderer", 
@@ -34,6 +35,7 @@ project "Renderer"
 		"DDSTextureLoader",
 		"Assimp",
 		"Vulkan",
+		"DXC",
 	})
 
 
@@ -47,6 +49,10 @@ project "Renderer"
 	defines{
 		"GRAPHICS_DEBUG_INFORMATION"
 	}
+
+	filter ("platforms:x64-windows")
+		defines {"VK_USE_PLATFORM_WIN32_KHR"}
+	filter{}
 
 	vpaths { ["Public/*"] = {"Public/**.h", "Public/**.hpp", "Public/**.c", "Public/**.cpp"} }
 	vpaths { ["Private/*"] = {"Private/**.h", "Private/**.hpp", "Private/**.c", "Private/**.cpp"}}
