@@ -189,6 +189,8 @@ bool VkRHIRenderer::CreateInstance()
 
 bool VkRHIRenderer::CreateSurface()
 {
+	VkResult result = VK_SUCCESS;
+
 #ifdef _Win32
 	WindowsApplication* windowsApp = static_cast<WindowsApplication*>(Application::Get()->GetApplication());
 	auto& windowsInfo = windowsApp->GetWindowsWindowInfo();
