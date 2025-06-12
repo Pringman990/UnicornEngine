@@ -39,6 +39,9 @@ using Map = std::map<T, V>;
 template<typename T, typename V>
 using UnorderedMap = std::unordered_map<T, V>;
 
+template<typename T, typename V>
+using MultiMap = std::multimap<T, V>;
+
 template<typename T>
 using Set = std::set<T>;
 
