@@ -2,6 +2,8 @@
 
 #include "FileSystem/NativeFileBackend.h"
 
+const String FileSystem::sRootPath = "../../";
+
 FileSystem::FileSystem()
 {
 
@@ -14,9 +16,12 @@ FileSystem::~FileSystem()
 
 void FileSystem::Init()
 {
-    SharedPtr<NativeFileBackend> native = MakeShared<NativeFileBackend>("Content/");
+    SharedPtr<NativeFileBackend> native = MakeShared<NativeFileBackend>(sRootPath + "Content/");
     Mount("engine", native);
     Mount("game", native);
+
+    SharedPtr<NativeFileBackend> shader = MakeShared<NativeFileBackend>(sRootPath + "Binaries/Shaders/");
+    Mount("shader", shader);
 }
 
 FileSystem::MountHandle FileSystem::Mount(const Protocol& Protocol, SharedPtr<IFileBackend> Backend, int32 Priority)

@@ -5,4 +5,5 @@
 struct WindowsWindowInfo : public IWindowInfo
 {
 	HWND windowHandle = nullptr;
+	HINSTANCE hInstance = nullptr;
 };

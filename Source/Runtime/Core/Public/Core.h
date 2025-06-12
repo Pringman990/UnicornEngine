@@ -9,6 +9,7 @@
 #include <typeindex>
 #include <memory>
 #include <bitset>
+#include <algorithm>
 
 //Application
 #include <Application/Application.h>
