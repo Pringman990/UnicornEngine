@@ -36,48 +36,48 @@ project "RawShaders"
 
 	filter("files:**.hlsl")
 		flags("ExcludeFromBuild")
-		shaderobjectfileoutput(UCE_COMPILED_SHADERS_DIR.."/%{file.basename}"..".cso")
+		shaderobjectfileoutput(UCE_COMPILED_SHADERS_DIR.."/%{file.basename}"..".spv")
 
-	filter("files:**FX.hlsl")
-		removeflags("ExcludeFromBuild")
-		shadertype("Effect")
-
-	filter("files:**PS.hlsl")
-		removeflags("ExcludeFromBuild")
-		shadertype("Pixel")
-
-	filter("files:**VS.hlsl")
-		removeflags("ExcludeFromBuild")
-		shadertype("Vertex")
-
-	filter("files:**GS.hlsl")
-		removeflags("ExcludeFromBuild")
-		shadertype("Geometry")
-	
-	filter("files:**HS.hlsl")
-		removeflags("ExcludeFromBuild")
-		shadertype("Hull")
-	
-	filter("files:**DS.hlsl")
-		removeflags("ExcludeFromBuild")
-		shadertype("Domain")
-
-	filter("files:**CS.hlsl")
-		removeflags("ExcludeFromBuild")
-		shadertype("Compute")
-		
-	filter("files:**MS.hlsl")
-		removeflags("ExcludeFromBuild")
-		shadertype("Mesh")
-	
-	filter("files:**AS.hlsl")
-		removeflags("ExcludeFromBuild")
-		shadertype("Amplification")
-
-	filter("files:**TE.hlsl")
-	removeflags("ExcludeFromBuild")
-	shadertype("Texture")
-
-	filter("files:**RS.hlsl")
-		removeflags("ExcludeFromBuild")
-		shadertype("RootSignature")
+    filter("files:**PS.hlsl")
+        removeflags("ExcludeFromBuild")
+        shadertype("Pixel")
+        buildmessage("Compiling Pixel Shader %{file.basename}")
+        buildcommands {
+            "\"../../Source/ThirdParty/DXC/bin/x64/dxc.exe\"  -T ps_6_0 -spirv -Fo "..UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.spv %{file.relpath}"
+        }
+        buildoutputs {
+            UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.spv"
+        }
+    
+    filter("files:**VS.hlsl")
+        removeflags("ExcludeFromBuild")
+        shadertype("Vertex")
+        buildmessage("Compiling Vertex Shader %{file.basename}")
+        buildcommands {
+            "\"../../Source/ThirdParty/DXC/bin/x64/dxc.exe\"  -T vs_6_0 -spirv -Fo "..UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.spv %{file.relpath}"
+        }
+        buildoutputs {
+            UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.spv"
+        }
+    
+    filter("files:**GS.hlsl")
+        removeflags("ExcludeFromBuild")
+        shadertype("Geometry")
+        buildmessage("Compiling Geometry Shader %{file.basename}")
+        buildcommands {
+            "\"../../Source/ThirdParty/DXC/bin/x64/dxc.exe\" -T gs_6_0 -spirv -Fo "..UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.spv %{file.relpath}"
+        }
+        buildoutputs {
+            UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.spv"
+        }
+    
+    filter("files:**CS.hlsl")
+        removeflags("ExcludeFromBuild")
+        shadertype("Compute")
+        buildmessage("Compiling Compute Shader %{file.basename}")
+        buildcommands {
+            "\"../../Source/ThirdParty/DXC/bin/x64/dxc.exe\"  -T cs_6_0 -spirv -Fo "..UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.spv %{file.relpath}"
+        }
+        buildoutputs {
+            UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.spv"
+        }

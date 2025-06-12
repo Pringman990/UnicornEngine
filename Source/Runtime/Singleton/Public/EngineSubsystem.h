@@ -50,7 +50,7 @@ public:
 		return static_cast<DerivedClass*>(__SingletonRegistryFunctions::Get(typeid(DerivedClass)));
 	}
 
-	static DerivedClass* GetRef()
+	static DerivedClass& GetRef()
 	{
 		DerivedClass* ptr = Get();
 		assert(ptr);
