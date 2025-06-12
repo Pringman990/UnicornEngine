@@ -55,6 +55,7 @@ public:
 class NativeFileBackend : public IFileBackend
 {
 public:
+	NativeFileBackend() = default;
 	NativeFileBackend(const String& Root) : mRoot(Root) {};
 
 	virtual bool Exists(const String& Path) override

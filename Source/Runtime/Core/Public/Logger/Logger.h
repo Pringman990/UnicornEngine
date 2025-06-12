@@ -166,55 +166,55 @@ private:
 #endif // _DEBUG
 
 #ifdef _DEBUG
-#define ENSURE(condition, message)										\
+#define ENSURE(condition, ...)										\
  do {														    \
         if (!(condition)) {                                     \
             LOG_CRITICAL("Assertion failed: {}, File: {}, Line: {}",				\
-						message,								\
+						__VA_ARGS__,								\
                         __FILE__,						\
                         __LINE__ );				\
             __debugbreak(); /* Triggers a breakpoint in VS */   \
         }                                                       \
     } while (0)
 
-#define _ENSURE_CORE(condition, message)								   \
+#define _ENSURE_CORE(condition, ...)								   \
  do {															   \
         if (!(condition)) {                                        \
            _LOG_CORE_CRITICAL("Assertion failed: {}, File: {}, Line: {}",				\
-						message,								\
+						__VA_ARGS__,								\
                         __FILE__,						\
                         __LINE__ );					\
             __debugbreak(); /* Triggers a breakpoint in VS */      \
         }                                                          \
     } while (0)
 
-#define _ENSURE_ENGINE(condition, message)								   \
+#define _ENSURE_ENGINE(condition, ...)								   \
  do {															   \
         if (!(condition)) {                                        \
            _LOG_ENGINE_CRITICAL("Assertion failed: {}, File: {}, Line: {}",				\
-						message,								\
+						__VA_ARGS__,								\
                         __FILE__,						\
                         __LINE__ );				\
             __debugbreak(); /* Triggers a breakpoint in VS */      \
         }                                                          \
     } while (0)
 
-#define _ENSURE_RENDERER(condition, message)								   \
+#define _ENSURE_RENDERER(condition, ...)								   \
  do {															   \
         if (!(condition)) {                                        \
            _LOG_RENDERER_CRITICAL("Assertion failed: {}, File: {}, Line: {}",				\
-						message,								\
+						__VA_ARGS__,								\
                         __FILE__,						\
                         __LINE__ );				\
             __debugbreak(); /* Triggers a breakpoint in VS */      \
         }                                                          \
     } while (0)
 
-#define _ENSURE_EDITOR(condition, message)								   \
+#define _ENSURE_EDITOR(condition, ...)								   \
  do {															   \
         if (!(condition)) {                                        \
            _LOG_EDITOR_CRITICAL("Assertion failed: {}, File: {}, Line: {}",				\
-						message,								\
+						__VA_ARGS__,								\
                         __FILE__,						\
                         __LINE__ );				\
             __debugbreak(); /* Triggers a breakpoint in VS */      \

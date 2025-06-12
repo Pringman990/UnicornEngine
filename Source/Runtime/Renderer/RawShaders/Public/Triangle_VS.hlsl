@@ -1,28 +1,31 @@
 
-cbuffer MVPBuffer : register(b0)
+struct VSOutput
 {
-    matrix MVP;
-    matrix pad0;
-    matrix pad1;
-    matrix pad2;
+    float4 Pos : SV_POSITION;
+    float3 Color : COLOR0;
 };
 
-struct VSInput
+VSOutput main(uint vertexID : SV_VertexID)
 {
-    float4 pos : POSITION;
-    float3 col : COLOR;
-};
+    VSOutput output;
 
-struct PSInput
-{
-    float4 pos : SV_POSITION;
-    float3 col : COLOR;
-};
+    // Procedural triangle positions
+    float2 positions[3] =
+    {
+        float2(0.0f, -0.5f),
+        float2(0.5f, 0.5f),
+        float2(-0.5f, 0.5f)
+    };
 
-PSInput main(VSInput input)
-{
-    PSInput output;
-    output.pos = mul(MVP, input.pos);
-    output.col = input.col;
+    // Vertex colors for each corner
+    float3 colors[3] =
+    {
+        float3(1.0f, 0.0f, 0.0f), // Red
+        float3(0.0f, 1.0f, 0.0f), // Green
+        float3(0.0f, 0.0f, 1.0f) // Blue
+    };
+
+    output.Pos = float4(positions[vertexID], 0.0f, 1.0f);
+    output.Color = colors[vertexID];
     return output;
 }
