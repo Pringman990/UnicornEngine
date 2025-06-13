@@ -690,7 +690,7 @@ void VkRHIRenderer::ReCreateSwapChain()
 }
 
 void VkRHIRenderer::CleanupSwapChain()
-{
+{ 
 	for (auto framebuffer : mSwapChainFramebuffers)
 	{
 		vkDestroyFramebuffer(*mDevice, framebuffer, nullptr);
