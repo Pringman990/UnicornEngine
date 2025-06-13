@@ -688,7 +688,7 @@ void VkRHIRenderer::ReCreateSwapChain()
 	CreateSwapChainImageViews();
 	CreateFrameBuffers();
 }
- 
+
 void VkRHIRenderer::CleanupSwapChain()
 { 
 	for (auto framebuffer : mSwapChainFramebuffers)
