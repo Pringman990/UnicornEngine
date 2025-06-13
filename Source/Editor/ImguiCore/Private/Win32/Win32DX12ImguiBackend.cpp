@@ -93,9 +93,9 @@ void Win32DX12ImguiBackend::RenderFrame()
 
 void Win32DX12ImguiBackend::EndFrame()
 {
-	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), Renderer::Get()->GetMainCommandList());
+	/*ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), Renderer::Get()->GetMainCommandList());
 	ImGui::UpdatePlatformWindows();
-	ImGui::RenderPlatformWindowsDefault();
+	ImGui::RenderPlatformWindowsDefault();*/
 }
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

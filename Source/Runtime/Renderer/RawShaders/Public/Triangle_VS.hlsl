@@ -1,28 +1,22 @@
-
-cbuffer MVPBuffer : register(b0)
-{
-    matrix MVP;
-    matrix pad0;
-    matrix pad1;
-    matrix pad2;
-};
+#include "Common.hlsli"
 
 struct VSInput
 {
-    float4 pos : POSITION;
-    float3 col : COLOR;
+    LOCATION(0)  float2 position : POSITION0;
+    LOCATION(1)  float4 color : COLOR0;
 };
 
-struct PSInput
+struct VSOutput
 {
-    float4 pos : SV_POSITION;
-    float3 col : COLOR;
+    float4 Pos : SV_POSITION;
+    float4 Color : COLOR0;
 };
 
-PSInput main(VSInput input)
+VSOutput main(VSInput input)
 {
-    PSInput output;
-    output.pos = mul(MVP, input.pos);
-    output.col = input.col;
+    VSOutput output;
+
+    output.Pos = float4(input.position, 0.0f, 1.0f);
+    output.Color = input.color;
     return output;
 }
