@@ -14,44 +14,44 @@
 namespace {
 	GameWorld gameworld;
 
-	Vertex verticies[] =
-	{
-		// Front face
-	{ { -1, -1, -1, 1 }, { 1, 0, 0 } }, // Bottom-left-front (red)
-	{ { -1,  1, -1, 1 }, { 1, 0, 0 } }, // Top-left-front
-	{ {  1,  1, -1, 1 }, { 1, 0, 0 } }, // Top-right-front
-	{ {  1, -1, -1, 1 }, { 1, 0, 0 } }, // Bottom-right-front
+	//Vertex verticies[] =
+	//{
+	//	// Front face
+	//{ { -1, -1, -1, 1 }, { 1, 0, 0 } }, // Bottom-left-front (red)
+	//{ { -1,  1, -1, 1 }, { 1, 0, 0 } }, // Top-left-front
+	//{ {  1,  1, -1, 1 }, { 1, 0, 0 } }, // Top-right-front
+	//{ {  1, -1, -1, 1 }, { 1, 0, 0 } }, // Bottom-right-front
 
-	// Back face
-	{ { -1, -1,  1, 1 }, { 0, 1, 0 } }, // Bottom-left-back (green)
-	{ {  1, -1,  1, 1 }, { 0, 1, 0 } }, // Bottom-right-back
-	{ {  1,  1,  1, 1 }, { 0, 1, 0 } }, // Top-right-back
-	{ { -1,  1,  1, 1 }, { 0, 1, 0 } }, // Top-left-back
+	//// Back face
+	//{ { -1, -1,  1, 1 }, { 0, 1, 0 } }, // Bottom-left-back (green)
+	//{ {  1, -1,  1, 1 }, { 0, 1, 0 } }, // Bottom-right-back
+	//{ {  1,  1,  1, 1 }, { 0, 1, 0 } }, // Top-right-back
+	//{ { -1,  1,  1, 1 }, { 0, 1, 0 } }, // Top-left-back
 
-	// Left face
-	{ { -1, -1,  1, 1 }, { 0, 0, 1 } }, // Bottom-left-back (blue)
-	{ { -1,  1,  1, 1 }, { 0, 0, 1 } }, // Top-left-back
-	{ { -1,  1, -1, 1 }, { 0, 0, 1 } }, // Top-left-front
-	{ { -1, -1, -1, 1 }, { 0, 0, 1 } }, // Bottom-left-front
+	//// Left face
+	//{ { -1, -1,  1, 1 }, { 0, 0, 1 } }, // Bottom-left-back (blue)
+	//{ { -1,  1,  1, 1 }, { 0, 0, 1 } }, // Top-left-back
+	//{ { -1,  1, -1, 1 }, { 0, 0, 1 } }, // Top-left-front
+	//{ { -1, -1, -1, 1 }, { 0, 0, 1 } }, // Bottom-left-front
 
-	// Right face
-	{ { 1, -1, -1, 1 }, { 1, 1, 0 } }, // Bottom-right-front (yellow)
-	{ { 1,  1, -1, 1 }, { 1, 1, 0 } }, // Top-right-front
-	{ { 1,  1,  1, 1 }, { 1, 1, 0 } }, // Top-right-back
-	{ { 1, -1,  1, 1 }, { 1, 1, 0 } }, // Bottom-right-back
+	//// Right face
+	//{ { 1, -1, -1, 1 }, { 1, 1, 0 } }, // Bottom-right-front (yellow)
+	//{ { 1,  1, -1, 1 }, { 1, 1, 0 } }, // Top-right-front
+	//{ { 1,  1,  1, 1 }, { 1, 1, 0 } }, // Top-right-back
+	//{ { 1, -1,  1, 1 }, { 1, 1, 0 } }, // Bottom-right-back
 
-	// Top face
-	{ { -1, 1, -1, 1 }, { 1, 0, 1 } }, // Top-left-front (magenta)
-	{ { -1, 1,  1, 1 }, { 1, 0, 1 } }, // Top-left-back
-	{ {  1, 1,  1, 1 }, { 1, 0, 1 } }, // Top-right-back
-	{ {  1, 1, -1, 1 }, { 1, 0, 1 } }, // Top-right-front
+	//// Top face
+	//{ { -1, 1, -1, 1 }, { 1, 0, 1 } }, // Top-left-front (magenta)
+	//{ { -1, 1,  1, 1 }, { 1, 0, 1 } }, // Top-left-back
+	//{ {  1, 1,  1, 1 }, { 1, 0, 1 } }, // Top-right-back
+	//{ {  1, 1, -1, 1 }, { 1, 0, 1 } }, // Top-right-front
 
-	// Bottom face
-	{ { -1, -1, -1, 1 }, { 0, 1, 1 } }, // Bottom-left-front (cyan)
-	{ {  1, -1, -1, 1 }, { 0, 1, 1 } }, // Bottom-right-front
-	{ {  1, -1,  1, 1 }, { 0, 1, 1 } }, // Bottom-right-back
-	{ { -1, -1,  1, 1 }, { 0, 1, 1 } }, // Bottom-left-back
-	};
+	//// Bottom face
+	//{ { -1, -1, -1, 1 }, { 0, 1, 1 } }, // Bottom-left-front (cyan)
+	//{ {  1, -1, -1, 1 }, { 0, 1, 1 } }, // Bottom-right-front
+	//{ {  1, -1,  1, 1 }, { 0, 1, 1 } }, // Bottom-right-back
+	//{ { -1, -1,  1, 1 }, { 0, 1, 1 } }, // Bottom-left-back
+	//};
 
 	uint16_t cubeIndices[] = {
 		// Front face

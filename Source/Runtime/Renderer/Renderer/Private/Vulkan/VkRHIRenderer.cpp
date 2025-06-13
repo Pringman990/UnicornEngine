@@ -14,12 +14,33 @@ VkRHIRenderer::VkRHIRenderer()
 	mSurface(VK_NULL_HANDLE),
 	mSwapChain(VK_NULL_HANDLE),
 	mSwapChainImageFormat(VK_FORMAT_UNDEFINED),
+<<<<<<< feature/vulkan-vertexbuffer
+	mSwapChainExtent({ 0,0 }),
+	mCurrentFrameIndex(0)
+=======
 	mSwapChainExtent({ 0,0 })
+>>>>>>> main
 {
 }
 
 VkRHIRenderer::~VkRHIRenderer()
 {
+<<<<<<< feature/vulkan-vertexbuffer
+	CleanupSwapChain();
+
+	vkDestroyBuffer(*mDevice, mVertexBuffer, nullptr);
+	vkFreeMemory(*mDevice, mVertexBufferMemory, nullptr);
+
+	for (uint32 i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		vkDestroySemaphore(*mDevice, mImageAvailableSemaphore[i], nullptr);
+		vkDestroySemaphore(*mDevice, mRenderFinishedSemaphore[i], nullptr);
+		vkDestroyFence(*mDevice, mInFlightFence[i], nullptr);
+	}
+
+	vkDestroyCommandPool(*mDevice, mCommandPool, nullptr);
+
+=======
 	vkDestroySemaphore(*mDevice, mImageAvailableSemaphore, nullptr);
 	vkDestroySemaphore(*mDevice, mRenderFinishedSemaphore, nullptr);
 	vkDestroyFence(*mDevice, mInFlightFence, nullptr);
@@ -31,10 +52,13 @@ VkRHIRenderer::~VkRHIRenderer()
 		vkDestroyFramebuffer(*mDevice, framebuffer, nullptr);
 	}
 
+>>>>>>> main
 	vkDestroyPipeline(*mDevice, mGraphicsPipeline, nullptr);
 	vkDestroyPipelineLayout(*mDevice, mPipelineLayout, nullptr);
 	vkDestroyRenderPass(*mDevice, mMainPass, nullptr);
 
+<<<<<<< feature/vulkan-vertexbuffer
+=======
 	for (auto imageView : mSwapChainImageViews)
 	{
 		vkDestroyImageView(*mDevice, imageView, nullptr);
@@ -42,6 +66,7 @@ VkRHIRenderer::~VkRHIRenderer()
 
 	vkDestroySwapchainKHR(*mDevice, mSwapChain, nullptr);
 
+>>>>>>> main
 	mDevice.reset(); //We reset here because device must be destroyed before the instance
 
 	vkDestroySurfaceKHR(mInstance, mSurface, nullptr);
@@ -80,7 +105,14 @@ bool VkRHIRenderer::Init()
 	if (!CreateCommandPool())
 		return false;
 
+<<<<<<< feature/vulkan-vertexbuffer
+	if (!CreateVertexBuffer())
+		return false;
+
+	if (!CreateCommandBuffers())
+=======
 	if (!CreateCommandBuffer())
+>>>>>>> main
 		return false;
 
 	if (!CreateSyncObjects())
@@ -91,6 +123,25 @@ bool VkRHIRenderer::Init()
 
 void VkRHIRenderer::PreRender()
 {
+<<<<<<< feature/vulkan-vertexbuffer
+	vkWaitForFences(*mDevice, 1, &mInFlightFence[mCurrentFrameIndex], VK_TRUE, UINT64_MAX);
+
+	uint32_t imageIndex;
+	VkResult result = vkAcquireNextImageKHR(*mDevice, mSwapChain, UINT64_MAX, mImageAvailableSemaphore[mCurrentFrameIndex], VK_NULL_HANDLE, &imageIndex);
+
+	if (result == VK_ERROR_OUT_OF_DATE_KHR)
+	{
+		ReCreateSwapChain();
+		return;
+	}
+
+	vkResetFences(*mDevice, 1, &mInFlightFence[mCurrentFrameIndex]);
+
+
+	vkResetCommandBuffer(mCommandBuffer[mCurrentFrameIndex], 0);
+
+	RecordCommandBuffer(mCommandBuffer[mCurrentFrameIndex], imageIndex);
+=======
 	vkWaitForFences(*mDevice, 1, &mInFlightFence, VK_TRUE, UINT64_MAX);
 	vkResetFences(*mDevice, 1, &mInFlightFence);
 
@@ -100,16 +151,30 @@ void VkRHIRenderer::PreRender()
 	vkResetCommandBuffer(mCommandBuffer, 0);
 
 	RecordCommandBuffer(mCommandBuffer, imageIndex);
+>>>>>>> main
 
 	VkSubmitInfo submitInfo{};
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
+<<<<<<< feature/vulkan-vertexbuffer
+	VkSemaphore waitSemaphores[] = { mImageAvailableSemaphore[mCurrentFrameIndex] };
+=======
 	VkSemaphore waitSemaphores[] = { mImageAvailableSemaphore };
+>>>>>>> main
 	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 	submitInfo.waitSemaphoreCount = 1;
 	submitInfo.pWaitSemaphores = waitSemaphores;
 	submitInfo.pWaitDstStageMask = waitStages;
 	submitInfo.commandBufferCount = 1;
+<<<<<<< feature/vulkan-vertexbuffer
+	submitInfo.pCommandBuffers = &mCommandBuffer[mCurrentFrameIndex];
+
+	VkSemaphore signalSemaphores[] = { mRenderFinishedSemaphore[mCurrentFrameIndex] };
+	submitInfo.signalSemaphoreCount = 1;
+	submitInfo.pSignalSemaphores = signalSemaphores;
+
+	if (vkQueueSubmit(mDevice->GetGraphicsQueue(), 1, &submitInfo, mInFlightFence[mCurrentFrameIndex]) != VK_SUCCESS)
+=======
 	submitInfo.pCommandBuffers = &mCommandBuffer;
 
 	VkSemaphore signalSemaphores[] = { mRenderFinishedSemaphore };
@@ -117,6 +182,7 @@ void VkRHIRenderer::PreRender()
 	submitInfo.pSignalSemaphores = signalSemaphores;
 
 	if (vkQueueSubmit(mDevice->GetGraphicsQueue(), 1, &submitInfo, mInFlightFence) != VK_SUCCESS)
+>>>>>>> main
 	{
 		_ENSURE_RENDERER(false, "Failed to submit draw command buffer!");
 	}
@@ -133,7 +199,18 @@ void VkRHIRenderer::PreRender()
 	presentInfo.pImageIndices = &imageIndex;
 	presentInfo.pResults = nullptr; // Optional
 
+<<<<<<< feature/vulkan-vertexbuffer
+	result = vkQueuePresentKHR(mDevice->GetPresentQueue(), &presentInfo);
+
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+	{
+		ReCreateSwapChain();
+	}
+
+	mCurrentFrameIndex = (mCurrentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
+=======
 	vkQueuePresentKHR(mDevice->GetPresentQueue(), &presentInfo);
+>>>>>>> main
 }
 
 void VkRHIRenderer::Present()
@@ -200,7 +277,11 @@ bool VkRHIRenderer::CreateSurface()
 	createInfo.hwnd = windowsInfo.windowHandle;
 	createInfo.hinstance = windowsInfo.hInstance;
 
+<<<<<<< feature/vulkan-vertexbuffer
+	result = vkCreateWin32SurfaceKHR(mInstance, &createInfo, nullptr, &mSurface);
+=======
 	VkResult result = vkCreateWin32SurfaceKHR(mInstance, &createInfo, nullptr, &mSurface);
+>>>>>>> main
 #else
 	assert(false);
 #endif // _Win32
@@ -346,12 +427,24 @@ bool VkRHIRenderer::CreateGraphicsPipeline()
 
 	VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
+<<<<<<< feature/vulkan-vertexbuffer
+	auto bindingDesc = GetVertexBindingDescription();
+	auto attriDesc = GetAttributeDescriptions();
+
+	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
+	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+	vertexInputInfo.vertexBindingDescriptionCount = 1;
+	vertexInputInfo.pVertexBindingDescriptions = &bindingDesc;
+	vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32>(attriDesc.size());
+	vertexInputInfo.pVertexAttributeDescriptions = &attriDesc[0];
+=======
 	VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 	vertexInputInfo.vertexBindingDescriptionCount = 0;
 	vertexInputInfo.pVertexBindingDescriptions = nullptr; // Optional
 	vertexInputInfo.vertexAttributeDescriptionCount = 0;
 	vertexInputInfo.pVertexAttributeDescriptions = nullptr; // Optiona
+>>>>>>> main
 
 	VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
 	inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -578,15 +671,67 @@ bool VkRHIRenderer::CreateCommandPool()
 	return true;
 }
 
+<<<<<<< feature/vulkan-vertexbuffer
+bool VkRHIRenderer::CreateVertexBuffer()
+{
+	VkBufferCreateInfo bufferInfo{};
+	bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	bufferInfo.size = sizeof(vertices[0]) * vertices.size();
+	bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+	bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+	if (vkCreateBuffer(*mDevice, &bufferInfo, nullptr, &mVertexBuffer) != VK_SUCCESS)
+	{
+		_ENSURE_RENDERER(false, "Failed to create vertex buffer");
+		return false;
+	}
+
+	VkMemoryRequirements memRequirements;
+	vkGetBufferMemoryRequirements(*mDevice, mVertexBuffer, &memRequirements);
+
+	VkMemoryAllocateInfo allocInfo{};
+	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize = memRequirements.size;
+	allocInfo.memoryTypeIndex = FindMemoryType(
+		memRequirements.memoryTypeBits,
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+	);
+
+	if (vkAllocateMemory(*mDevice, &allocInfo, nullptr, &mVertexBufferMemory) != VK_SUCCESS) 
+	{
+		_ENSURE_RENDERER(false, "Failed to allocate vertex buffer");
+		return false;
+	}
+
+	vkBindBufferMemory(*mDevice, mVertexBuffer, mVertexBufferMemory, 0);
+
+	void* data;
+	vkMapMemory(*mDevice, mVertexBufferMemory, 0, bufferInfo.size, 0, &data);
+	memcpy(data, vertices.data(), (size_t)bufferInfo.size);
+	vkUnmapMemory(*mDevice, mVertexBufferMemory);
+
+	return true;
+}
+
+bool VkRHIRenderer::CreateCommandBuffers()
+=======
 bool VkRHIRenderer::CreateCommandBuffer()
+>>>>>>> main
 {
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 	allocInfo.commandPool = mCommandPool;
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+<<<<<<< feature/vulkan-vertexbuffer
+	allocInfo.commandBufferCount = MAX_FRAMES_IN_FLIGHT;
+
+	if (vkAllocateCommandBuffers(*mDevice, &allocInfo, &mCommandBuffer[0]) != VK_SUCCESS)
+=======
 	allocInfo.commandBufferCount = 1;
 
 	if (vkAllocateCommandBuffers(*mDevice, &allocInfo, &mCommandBuffer) != VK_SUCCESS)
+>>>>>>> main
 	{
 		_ENSURE_RENDERER(false, "Failed to create command buffer");
 		return false;
@@ -604,17 +749,58 @@ bool VkRHIRenderer::CreateSyncObjects()
 	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
+<<<<<<< feature/vulkan-vertexbuffer
+	for (uint32 i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		if (vkCreateSemaphore(*mDevice, &semaphoreInfo, nullptr, &mImageAvailableSemaphore[i]) != VK_SUCCESS ||
+			vkCreateSemaphore(*mDevice, &semaphoreInfo, nullptr, &mRenderFinishedSemaphore[i]) != VK_SUCCESS ||
+			vkCreateFence(*mDevice, &fenceInfo, nullptr, &mInFlightFence[i]) != VK_SUCCESS)
+		{
+			_ENSURE_RENDERER(false, "Failed to create sync objects");
+			return false;
+		}
+=======
 	if (vkCreateSemaphore(*mDevice, &semaphoreInfo, nullptr, &mImageAvailableSemaphore) != VK_SUCCESS ||
 		vkCreateSemaphore(*mDevice, &semaphoreInfo, nullptr, &mRenderFinishedSemaphore) != VK_SUCCESS ||
 		vkCreateFence(*mDevice, &fenceInfo, nullptr, &mInFlightFence) != VK_SUCCESS) 
 	{
 		_ENSURE_RENDERER(false, "Failed to create sync objects");
 		return false;
+>>>>>>> main
 	}
 
 	return true;
 }
 
+<<<<<<< feature/vulkan-vertexbuffer
+void VkRHIRenderer::ReCreateSwapChain()
+{
+	vkDeviceWaitIdle(*mDevice);
+
+	CleanupSwapChain();
+
+	CreateSwapChain();
+	CreateSwapChainImageViews();
+	CreateFrameBuffers();
+}
+
+void VkRHIRenderer::CleanupSwapChain()
+{
+	for (auto framebuffer : mSwapChainFramebuffers)
+	{
+		vkDestroyFramebuffer(*mDevice, framebuffer, nullptr);
+	}
+
+	for (auto imageView : mSwapChainImageViews)
+	{
+		vkDestroyImageView(*mDevice, imageView, nullptr);
+	}
+
+	vkDestroySwapchainKHR(*mDevice, mSwapChain, nullptr);
+}
+
+=======
+>>>>>>> main
 void VkRHIRenderer::RecordCommandBuffer(VkCommandBuffer Buffer, uint32 ImageIndex)
 {
 	VkCommandBufferBeginInfo beginInfo{};
@@ -622,7 +808,11 @@ void VkRHIRenderer::RecordCommandBuffer(VkCommandBuffer Buffer, uint32 ImageInde
 	beginInfo.flags = 0; // Optional
 	beginInfo.pInheritanceInfo = nullptr; // Optional
 
+<<<<<<< feature/vulkan-vertexbuffer
+	if (vkBeginCommandBuffer(Buffer, &beginInfo) != VK_SUCCESS)
+=======
 	if (vkBeginCommandBuffer(Buffer, &beginInfo) != VK_SUCCESS) 
+>>>>>>> main
 	{
 		_ENSURE_RENDERER(false, "Failed to begin recording command buffer");
 		return;
@@ -657,7 +847,15 @@ void VkRHIRenderer::RecordCommandBuffer(VkCommandBuffer Buffer, uint32 ImageInde
 	scissor.extent = mSwapChainExtent;
 	vkCmdSetScissor(Buffer, 0, 1, &scissor);
 
+<<<<<<< feature/vulkan-vertexbuffer
+	VkBuffer vertexBuffers[] = { mVertexBuffer };
+	VkDeviceSize offsets[] = { 0 };
+	vkCmdBindVertexBuffers(Buffer, 0, 1, vertexBuffers, offsets);
+
+	vkCmdDraw(Buffer, static_cast<uint32>(vertices.size()), 1, 0, 0);
+=======
 	vkCmdDraw(Buffer, 3, 1, 0, 0);
+>>>>>>> main
 
 	vkCmdEndRenderPass(Buffer);
 
@@ -718,6 +916,54 @@ VkShaderModule VkRHIRenderer::CreateShaderModule(const ByteBuffer& ShaderCode)
 	return shaderModule;
 }
 
+<<<<<<< feature/vulkan-vertexbuffer
+VkVertexInputBindingDescription VkRHIRenderer::GetVertexBindingDescription()
+{
+	VkVertexInputBindingDescription desc{};
+
+	desc.binding = 0;
+	desc.stride = sizeof(Vertex);
+	desc.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+	return desc;
+}
+
+Array<VkVertexInputAttributeDescription, 2> VkRHIRenderer::GetAttributeDescriptions()
+{
+	Array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+	attributeDescriptions[0].binding = 0;
+	attributeDescriptions[0].location = 0;
+	attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+	attributeDescriptions[0].offset = offsetof(Vertex, Vertex::position);
+
+	attributeDescriptions[1].binding = 0;
+	attributeDescriptions[1].location = 1;
+	attributeDescriptions[1].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+	attributeDescriptions[1].offset = offsetof(Vertex, Vertex::color);
+
+	return attributeDescriptions;
+}
+
+uint32 VkRHIRenderer::FindMemoryType(uint32 TypeFilter, VkMemoryPropertyFlags Flags)
+{
+	VkPhysicalDeviceMemoryProperties memProperties;
+	vkGetPhysicalDeviceMemoryProperties(mPhysicalDevice, &memProperties);
+
+	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) 
+	{
+		if ((TypeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & Flags) == Flags)
+		{
+			return i;
+		}
+	}
+
+	_ENSURE_RENDERER(false, "No available memory type");
+
+	return uint32();
+}
+
+=======
+>>>>>>> main
 bool VkRHIRenderer::IsDeviceSuitable(VkPhysicalDevice Device)
 {
 	QueueFamilyIndices indices = FindQueueFamilies(Device);
