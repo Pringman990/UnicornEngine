@@ -1,6 +1,6 @@
 #include "Common.hlsli"
 
-struct VSInput
+VSOutput main(uint vertexID : SV_VertexID)
 {
     LOCATION(0)  float2 position : POSITION0;
     LOCATION(1)  float4 color : COLOR0;
