@@ -1,31 +1,22 @@
+#include "Common.hlsli"
+
+struct VSInput
+{
+    LOCATION(0)  float2 position : POSITION0;
+    LOCATION(1)  float4 color : COLOR0;
+};
 
 struct VSOutput
 {
     float4 Pos : SV_POSITION;
-    float3 Color : COLOR0;
+    float4 Color : COLOR0;
 };
 
-VSOutput main(uint vertexID : SV_VertexID)
+VSOutput main(VSInput input)
 {
     VSOutput output;
 
-    // Procedural triangle positions
-    float2 positions[3] =
-    {
-        float2(0.0f, -0.5f),
-        float2(0.5f, 0.5f),
-        float2(-0.5f, 0.5f)
-    };
-
-    // Vertex colors for each corner
-    float3 colors[3] =
-    {
-        float3(1.0f, 0.0f, 0.0f), // Red
-        float3(0.0f, 1.0f, 0.0f), // Green
-        float3(0.0f, 0.0f, 1.0f) // Blue
-    };
-
-    output.Pos = float4(positions[vertexID], 0.0f, 1.0f);
-    output.Color = colors[vertexID];
+    output.Pos = float4(input.position, 0.0f, 1.0f);
+    output.Color = input.color;
     return output;
 }

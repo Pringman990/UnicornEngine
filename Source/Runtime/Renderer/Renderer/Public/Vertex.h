@@ -3,6 +3,6 @@
 
 struct Vertex
 {
-	Vector4 position;
+	Vector2 position;
 	Color color;
 };
