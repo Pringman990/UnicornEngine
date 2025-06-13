@@ -6,6 +6,8 @@
 #include "Internal/IRHIRenderer.h"
 #include "VkRHIDevice.h"
 
+#define MAX_FRAMES_IN_FLIGHT 2
+
 struct QueueFamilyIndices
 {
 	std::optional<uint32> graphicsFamily;
@@ -53,14 +55,22 @@ private:
 	bool CreateRenderPass();
 	bool CreateFrameBuffers();
 	bool CreateCommandPool();
-	bool CreateCommandBuffer();
+	bool CreateVertexBuffer();
+	bool CreateCommandBuffers();
 	bool CreateSyncObjects();
+
+	void ReCreateSwapChain();
+	void CleanupSwapChain();
 	
 	void RecordCommandBuffer(VkCommandBuffer Buffer, uint32 ImageIndex);
 
 	//TEMP
 	void CreateSwapChainImageViews();
 	VkShaderModule CreateShaderModule(const ByteBuffer& ShaderCode);
+	static VkVertexInputBindingDescription GetVertexBindingDescription();
+	static Array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions();
+
+	uint32 FindMemoryType(uint32 TypeFilter, VkMemoryPropertyFlags Flags);
 
 	bool IsDeviceSuitable(VkPhysicalDevice Device);
 	bool CheckDeviceExtensionSupport(VkPhysicalDevice Device);
@@ -91,9 +101,20 @@ private:
 
 	Vector<VkFramebuffer> mSwapChainFramebuffers;
 	VkCommandPool mCommandPool;
-	VkCommandBuffer mCommandBuffer;
+	VkCommandBuffer mCommandBuffer[MAX_FRAMES_IN_FLIGHT];
 
-	VkSemaphore mImageAvailableSemaphore;
-	VkSemaphore mRenderFinishedSemaphore;
-	VkFence mInFlightFence;
+	VkSemaphore mImageAvailableSemaphore[MAX_FRAMES_IN_FLIGHT];
+	VkSemaphore mRenderFinishedSemaphore[MAX_FRAMES_IN_FLIGHT];
+	VkFence mInFlightFence[MAX_FRAMES_IN_FLIGHT];
+
+	uint32 mCurrentFrameIndex;
+
+	//TEMP
+	const Vector<Vertex> vertices = {
+		{{0.0f, -0.5f}, {1.0f,0.0f,0.0f,1.0f}},
+		{{0.5f, 0.5f}, {0.0f,1.0f,0.0f,1.0f}},
+		{{-0.5f, 0.5f}, {0.0f,0.0f,1.0f,1.0f}}
+	};
+	VkBuffer mVertexBuffer;
+	VkDeviceMemory mVertexBufferMemory;
 };

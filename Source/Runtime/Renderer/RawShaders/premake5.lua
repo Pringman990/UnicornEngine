@@ -34,6 +34,10 @@ project "RawShaders"
 
 	shadermodel("6.0")
 
+    defines{
+        "VULKAN"
+    }
+
 	filter("files:**.hlsl")
 		flags("ExcludeFromBuild")
 		shaderobjectfileoutput(UCE_COMPILED_SHADERS_DIR.."/%{file.basename}"..".spv")
