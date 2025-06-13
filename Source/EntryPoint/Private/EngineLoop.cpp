@@ -24,7 +24,7 @@ EngineLoop::~EngineLoop()
 	ModuleManager::Get()->UnLoadModule("Sandbox");
 
 	//InputMapper::Shutdown();
-	//Renderer::Shutdown();
+	Renderer::Shutdown();
 	Application::Shutdown();
 	
 	mRenderer = nullptr;
@@ -55,29 +55,29 @@ bool EngineLoop::Init()
 	//InputMapper::Create();
 	//InputMapper::Get()->Init();
 
-	//{
-	//	_LOG_CORE_INFO("Creating Renderer");
-	//	_PAUSE_TRACK_MEMORY(true); // We turn off tracking because there is a phantom memory leak
-	//	
-	//	Renderer::Create();
-	//	
-	//	_PAUSE_TRACK_MEMORY(false);
-	//	
-	//	mRenderer = Renderer::Get();
-	//	_ENSURE_CORE(mRenderer, "Engine Loop Failed To Create Renderer");
-	//
-	//	_LOG_CORE_INFO("Renderer Initializing");
-	//	
-	//	TIMER_START_READING("__Engine Loop Renderer Init__");
-	//	if (!mRenderer->Init())
-	//	{
-	//		_ENSURE_CORE(true, "Engine Loop Failed To Init Renderer");
-	//		return false;
-	//	}
-	//	
-	//	float rendererInitTime = TIMER_END_READING("__Engine Loop Renderer Init__");
-	//	_LOG_CORE_INFO("Renderer has finished Initialize, it took: {:0.7f}s", rendererInitTime);
-	//}
+	{
+		_LOG_CORE_INFO("Creating Renderer");
+		_PAUSE_TRACK_MEMORY(true); // We turn off tracking because there is a phantom memory leak
+		
+		Renderer::Create();
+		
+		_PAUSE_TRACK_MEMORY(false);
+		
+		mRenderer = Renderer::Get();
+		_ENSURE_CORE(mRenderer, "Engine Loop Failed To Create Renderer");
+	
+		_LOG_CORE_INFO("Renderer Initializing");
+		
+		TIMER_START_READING("__Engine Loop Renderer Init__");
+		if (!mRenderer->Init())
+		{
+			_ENSURE_CORE(true, "Engine Loop Failed To Init Renderer");
+			return false;
+		}
+		
+		float rendererInitTime = TIMER_END_READING("__Engine Loop Renderer Init__");
+		_LOG_CORE_INFO("Renderer has finished Initialize, it took: {:0.7f}s", rendererInitTime);
+	}
 
 #ifdef _EDITOR
 	{
@@ -134,7 +134,7 @@ void EngineLoop::Update()
 	if (mShouldExit)
 		return;
 
-	//mRenderer->PreRender();
+	mRenderer->PreRender();
 
 	mSandboxRender();
 

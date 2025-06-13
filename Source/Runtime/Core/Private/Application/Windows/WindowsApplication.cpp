@@ -146,6 +146,7 @@ bool WindowsApplication::CreateWindow()
 		return false;
 
 	mWindowInfo.windowHandle = hwnd;
+	mWindowInfo.hInstance = wc.hInstance;
 
 	ShowWindow(hwnd, SW_SHOWDEFAULT);
 
