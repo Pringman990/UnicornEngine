@@ -1,3 +1,4 @@
+#include "CommonAPI.hlsli"
 
 cbuffer CameraConstantBuffer : register(b0)
 {
