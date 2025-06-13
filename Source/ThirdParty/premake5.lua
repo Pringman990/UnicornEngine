@@ -11,6 +11,7 @@ dirs["Imgui"]				= os.realpath(dirs.ThirdParty .. "Imgui/")
 dirs["GoogleTest"]			= os.realpath(dirs.ThirdParty .. "GoogleTest/")
 dirs["Vulkan"]				= os.realpath(dirs.ThirdParty .. "Vulkan/")
 dirs["SDL"]					= os.realpath(dirs.ThirdParty .. "SDL/")
+dirs["DXC"]					= os.realpath(dirs.ThirdParty .. "DXC/")
 
 group "ThirdParty"
 include (dirs.SimpleMath)
@@ -23,4 +24,5 @@ include (dirs.Imgui)
 include (dirs.GoogleTest)
 include (dirs.Vulkan)
 include (dirs.SDL)
+include (dirs.DXC)
 group ""

@@ -2,7 +2,7 @@
 #include "Internal/IAssetLoader.h"
 
 template<typename T>
-class AssetLoader : public IAssetLoader
+class AssetLoader final : public IAssetLoader
 {
 public:
 	AssetLoader() = default;

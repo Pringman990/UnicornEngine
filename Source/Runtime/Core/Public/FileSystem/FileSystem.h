@@ -1,6 +1,8 @@
 #pragma once
 #include "FileSystemCommon.h"
 
+#define ROOTPATH String("../../")
+
 class FileSystem
 {
 	using Protocol = String;
@@ -40,4 +42,5 @@ private:
 
 	static bool ParseVirtualPath(const String& Path, Protocol& outProtocol, String& outRelativePath);
 private:
+	static const String sRootPath;
 };
