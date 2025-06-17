@@ -20,22 +20,16 @@ int32_t GuardedMain()
 		//AssetRegistry::Create();
 		ThreadPool::Create();
 		ThreadPool* threadPool = ThreadPool::Get();
-		EngineLoop engineLoop;
 
 		Timer::Create();
 		Timer* timer = Timer::Get();
 
 		ReflectionRegistry::Create();
-
 		ModuleManager::Create();
-
 		AssetManager::Create();
 
-		if (!engineLoop.Init())
-		{
-			_ENSURE_CORE(false, "Engine Loop Failed To Init");
-			return 0;
-		}
+		EngineLoop engineLoop;
+		_ASSERT_CORE(engineLoop.Init(), "Engine Loop Failed To Init");
 
 		_LOG_CORE_INFO("GuardedMain has Initilized and will now run the main loop");
 		//This is the main loop for the whole engine
@@ -48,7 +42,6 @@ int32_t GuardedMain()
 		}
 
 		_LOG_CORE_INFO("Main loop exited, starting cleanup");
-		_LOG_CORE_INFO("Main cleanup done, Goodbye welcome back!");
 
 		ReflectionRegistry::Shutdown();
 	}
@@ -58,6 +51,8 @@ int32_t GuardedMain()
 	Timer::Shutdown();
 	ThreadPool::Shutdown();
 	FileWatcherSubsystem::Shutdown();
+
+	_LOG_CORE_INFO("Main cleanup done, Goodbye welcome back!");
 	Logger::Shutdown();
 
 
