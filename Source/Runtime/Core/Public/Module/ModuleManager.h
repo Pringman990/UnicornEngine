@@ -22,7 +22,7 @@ private:
 	struct ModuleInfo
 	{
 		IModule* module;
-		HMODULE library;
+		HMODULE library; //TODO: make cross platform compatible
 	};
 
 	UnorderedMap<String, ModuleInfo> mLoadedModules;
