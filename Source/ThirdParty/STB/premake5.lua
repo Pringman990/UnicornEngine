@@ -1,6 +1,6 @@
-print("Including ThirdParty/Imgui")
+print("Including ThirdParty/STB")
 
-project "Imgui"
+project "STB"
 	language "C++"
 	cppdialect "C++20"
 	kind "StaticLib"
@@ -10,15 +10,8 @@ project "Imgui"
 
     objdir(UCE_OBJ_DIR)
     location (UCE_VCXPROJ_DIR)
-	
-	includeDependencies("Imgui", 
-	{
-		dirs.Imgui,
-		dirs.Imgui .. "backends/",
-		dirs.Imgui .. "misc/cpp/",
-		dirs.Imgui .. "misc/single_file/",
-		dirs.Vulkan .. "Include/"
-	});
+
+	includeDependencies("STB", {dirs.STB})
 
 	files {
 		"**.h",
@@ -27,11 +20,5 @@ project "Imgui"
 		"**.c"
 	}
 
-	dependson{}
-	links{
-		"Vulkan"
-	}
-
 	vpaths { ["Public/*"] = {"Public/**.h", "Public/**.hpp", "Public/**.c", "Public/**.cpp"} }
 	vpaths { ["Private/*"] = {"Private/**.h", "Private/**.hpp", "Private/**.c", "Private/**.cpp"}}
-	
