@@ -40,17 +40,20 @@ project "RawShaders"
 
 	filter("files:**.hlsl")
 		flags("ExcludeFromBuild")
-		shaderobjectfileoutput(UCE_COMPILED_SHADERS_DIR.."/%{file.basename}"..".spv")
+		--shaderobjectfileoutput(UCE_COMPILED_SHADERS_DIR.."/%{file.basename}"..".spv")
+		--shaderobjectfileoutput(UCE_COMPILED_SHADERS_DIR.."/%{file.basename}"..".cso")
 
     filter("files:**PS.hlsl")
         removeflags("ExcludeFromBuild")
         shadertype("Pixel")
         buildmessage("Compiling Pixel Shader %{file.basename}")
         buildcommands {
-            "\"../../Source/ThirdParty/DXC/bin/x64/dxc.exe\"  -T ps_6_0 -spirv -Fo "..UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.spv %{file.relpath}"
+            "\"../../Source/ThirdParty/DXC/bin/x64/dxc.exe\" -T ps_6_0 -spirv -Fo "..UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.spv %{file.relpath} -fvk-use-dx-layout",
+            "\"../../Source/ThirdParty/DXC/bin/x64/dxc.exe\" -T ps_6_0 -Fo "..UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.cso %{file.relpath}"
         }
         buildoutputs {
-            UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.spv"
+            UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.spv",
+            UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.cso"
         }
     
     filter("files:**VS.hlsl")
@@ -58,10 +61,12 @@ project "RawShaders"
         shadertype("Vertex")
         buildmessage("Compiling Vertex Shader %{file.basename}")
         buildcommands {
-            "\"../../Source/ThirdParty/DXC/bin/x64/dxc.exe\"  -T vs_6_0 -spirv -Fo "..UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.spv %{file.relpath}"
+            "\"../../Source/ThirdParty/DXC/bin/x64/dxc.exe\"  -T vs_6_0 -spirv -Fo "..UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.spv %{file.relpath} -fvk-use-dx-layout",
+            "\"../../Source/ThirdParty/DXC/bin/x64/dxc.exe\"  -T vs_6_0 -Fo "..UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.cso %{file.relpath}"
         }
         buildoutputs {
-            UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.spv"
+            UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.spv",
+            UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.cso"
         }
     
     filter("files:**GS.hlsl")
@@ -69,10 +74,12 @@ project "RawShaders"
         shadertype("Geometry")
         buildmessage("Compiling Geometry Shader %{file.basename}")
         buildcommands {
-            "\"../../Source/ThirdParty/DXC/bin/x64/dxc.exe\" -T gs_6_0 -spirv -Fo "..UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.spv %{file.relpath}"
+            "\"../../Source/ThirdParty/DXC/bin/x64/dxc.exe\" -T gs_6_0 -spirv -Fo "..UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.spv %{file.relpath} -fvk-use-dx-layout",
+            "\"../../Source/ThirdParty/DXC/bin/x64/dxc.exe\" -T gs_6_0 -Fo "..UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.cso %{file.relpath}"
         }
         buildoutputs {
-            UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.spv"
+            UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.spv",
+            UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.cso"
         }
     
     filter("files:**CS.hlsl")
@@ -80,8 +87,10 @@ project "RawShaders"
         shadertype("Compute")
         buildmessage("Compiling Compute Shader %{file.basename}")
         buildcommands {
-            "\"../../Source/ThirdParty/DXC/bin/x64/dxc.exe\"  -T cs_6_0 -spirv -Fo "..UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.spv %{file.relpath}"
+            "\"../../Source/ThirdParty/DXC/bin/x64/dxc.exe\"  -T cs_6_0 -spirv -Fo "..UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.spv %{file.relpath} -fvk-use-dx-layout",
+            "\"../../Source/ThirdParty/DXC/bin/x64/dxc.exe\"  -T cs_6_0 -Fo "..UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.cso %{file.relpath}"
         }
         buildoutputs {
-            UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.spv"
+            UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.spv",
+            UCE_COMPILED_SHADERS_DIR.."/%{file.basename}.cso"
         }

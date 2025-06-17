@@ -5,7 +5,7 @@
 #include <utility> //std::move
 
 template<typename T>
-class ResourcePool : public IResourcePool
+class ResourcePool final : public IResourcePool
 {
 public:
 	ResourcePool() = default;

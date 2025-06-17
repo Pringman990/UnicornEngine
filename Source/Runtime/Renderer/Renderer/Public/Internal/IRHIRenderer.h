@@ -1,6 +1,7 @@
 #pragma once
 #include <Core.h>
 #include "IRHIDevice.h"
+#include "ITextureFactory.h"
 
 class IRHIRenderer
 {
@@ -27,4 +28,5 @@ public:
 
 
 	virtual IRHIDevice* GetDevice() const = 0;
+	virtual ITextureFactory* GetTextureFactory() const = 0;
 };

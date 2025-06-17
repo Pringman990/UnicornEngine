@@ -39,17 +39,10 @@ bool EngineLoop::Init()
 
 	Application::Create();
 	mGenericApplication = Application::Get()->_CreateApplication();
-	if (!mGenericApplication)
-	{
-		_ENSURE_CORE(true, "Engine Loop Failed To Create Application");
-		return false;
-	}
+	_ASSERT_CORE(mGenericApplication, "Engine Loop Failed To Create Application");
 
-	if (!mGenericApplication->Init())
-	{
-		_ENSURE_CORE(true, "Engine Loop Failed To Init Application");
-		return false;
-	}
+	_ASSERT_CORE(mGenericApplication->Init(), "Engine Loop Failed To Init Application");
+	
 	mGenericApplication->OnApplicationRequestExist.AddRaw(this, &EngineLoop::RequestExit);
 
 	//InputMapper::Create();
@@ -64,16 +57,12 @@ bool EngineLoop::Init()
 		_PAUSE_TRACK_MEMORY(false);
 		
 		mRenderer = Renderer::Get();
-		_ENSURE_CORE(mRenderer, "Engine Loop Failed To Create Renderer");
+		_ASSERT_CORE(mRenderer, "Engine Loop Failed To Create Renderer");
 	
 		_LOG_CORE_INFO("Renderer Initializing");
 		
 		TIMER_START_READING("__Engine Loop Renderer Init__");
-		if (!mRenderer->Init())
-		{
-			_ENSURE_CORE(true, "Engine Loop Failed To Init Renderer");
-			return false;
-		}
+		_ASSERT_CORE(mRenderer->Init(), "Engine Loop Failed To Init Renderer");
 		
 		float rendererInitTime = TIMER_END_READING("__Engine Loop Renderer Init__");
 		_LOG_CORE_INFO("Renderer has finished Initialize, it took: {:0.7f}s", rendererInitTime);
@@ -85,11 +74,7 @@ bool EngineLoop::Init()
 		TIMER_START_READING("__Engine Loop Editor Init__");
 
 		mEditor = new Editor();
-		if (!mEditor->Init())
-		{
-			_ENSURE_CORE(true, "Engine Loop Failed To Init Editor");
-			return false;
-		}
+		_ASSERT_CORE(mEditor->Init(), "Engine Loop Failed To Init Editor");
 
 		float editorInitTime = TIMER_END_READING("__Engine Loop Editor Init__");
 		_LOG_CORE_INFO("Editor has finished Initialize, it took: {:0.7f}s", editorInitTime);
@@ -99,24 +84,16 @@ bool EngineLoop::Init()
 	{
 		_PAUSE_TRACK_MEMORY(true);
 
-		if (!ModuleManager::Get()->LoadModule("Sandbox"))
-		{
-			return false;
-		}
+		_ASSERT_CORE(ModuleManager::Get()->LoadModule("Sandbox"), "Failed to load Sandbox module");
 
 		HMODULE sanboxModule = ModuleManager::Get()->GetHModule("Sandbox");
 
 		SandboxInit initGameWorld = (SandboxInit)GetProcAddress(sanboxModule, "InitGameWorld");
-		if (!initGameWorld) {
-			_LOG_CORE_INFO("Could not init gameworld");
-		}
+		_ASSERT_CORE(initGameWorld, "Could not init gameworld");
 		initGameWorld();
 
 		mSandboxRender = (SandboxRender)GetProcAddress(sanboxModule, "RenderGameWorld");
-		if (!mSandboxRender) {
-			_LOG_CORE_INFO("Could not load render gameworld");
-			return false;
-		}
+		_ASSERT_CORE(mSandboxRender, "Could not load render gameworld");
 
 		_PAUSE_TRACK_MEMORY(false);
 	}

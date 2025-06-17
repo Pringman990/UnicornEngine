@@ -25,6 +25,7 @@ project "Renderer"
 		"Assimp",
 		"Vulkan",
 		"DXC",
+		"STB",
 	})
 
 	linkDependencies("Renderer", 
@@ -36,6 +37,7 @@ project "Renderer"
 		"Assimp",
 		"Vulkan",
 		"DXC",
+		"STB",
 	})
 
 
@@ -47,7 +49,8 @@ project "Renderer"
 	}
 
 	defines{
-		"GRAPHICS_DEBUG_INFORMATION"
+		"GRAPHICS_DEBUG_INFORMATION",
+		"STB_IMAGE_IMPLEMENTATION"
 	}
 
 	filter ("platforms:x64-windows")

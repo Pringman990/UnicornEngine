@@ -2,6 +2,8 @@
 
 #include "Vulkan/VkRHIRenderer.h"
 
+#include "Texture2DLoader.h"
+
 Renderer::Renderer()
 	:
 	mDrawCalls(0),
@@ -17,10 +19,11 @@ Renderer::~Renderer()
 
 }
 
-
-
 bool Renderer::Init()
 {
+	AssetManager::Get()->RegisterLoader<Texture2D>(new Texture2DLoader());
+	AssetManager::Get()->RegisterPool<Texture2D>(new ResourcePool<Texture2D>());
+
 	if (!CreateRHI())
 	{
 		_LOG_RENDERER_CRITICAL("No supported rendering API for current OS");

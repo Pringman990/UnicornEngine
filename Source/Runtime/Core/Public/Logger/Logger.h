@@ -33,110 +33,40 @@ private:
 
 #ifdef _DEBUG
 
-//User Logs
-#define LOG_INFO(...) \
+#define _LOGGER_STOP_MEMORY_TRACKING(LOGGER) \
     _PAUSE_TRACK_MEMORY(true);\
-    ::Logger::Get()->GetClient()->info(__VA_ARGS__);\
+    LOGGER; \
     _PAUSE_TRACK_MEMORY(false)
 
-#define LOG_WARNING(...)\
-    _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::Get()->GetClient()->warn(__VA_ARGS__); \
-    _PAUSE_TRACK_MEMORY(false)
-
-#define LOG_ERROR(...)\
-    _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::Get()->GetClient()->error(__VA_ARGS__); \
-    _PAUSE_TRACK_MEMORY(false)
-
-#define LOG_CRITICAL(...) \
-    _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::Get()->GetClient()->critical(__VA_ARGS__); \
-    _PAUSE_TRACK_MEMORY(false)
+//User Logs
+#define LOG_INFO(...)       _LOGGER_STOP_MEMORY_TRACKING(::Logger::Get()->GetClient()->info(__VA_ARGS__))
+#define LOG_WARNING(...)    _LOGGER_STOP_MEMORY_TRACKING(::Logger::Get()->GetClient()->warn(__VA_ARGS__))
+#define LOG_ERROR(...)      _LOGGER_STOP_MEMORY_TRACKING(::Logger::Get()->GetClient()->error(__VA_ARGS__))
+#define LOG_CRITICAL(...)   _LOGGER_STOP_MEMORY_TRACKING(::Logger::Get()->GetClient()->critical(__VA_ARGS__))
 
 //Core Logs
-#define _LOG_CORE_INFO(...) \
-    _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::Get()->GetCore()->info(__VA_ARGS__); \
-    _PAUSE_TRACK_MEMORY(false)
-
-#define _LOG_CORE_WARNING(...) \
-    _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::Get()->GetCore()->warn(__VA_ARGS__); \
-    _PAUSE_TRACK_MEMORY(false)
-
-#define _LOG_CORE_ERROR(...) \
-    _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::Get()->GetCore()->error(__VA_ARGS__); \
-    _PAUSE_TRACK_MEMORY(false)
-
-#define _LOG_CORE_CRITICAL(...) \
-    _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::Get()->GetCore()->critical(__VA_ARGS__); \
-    _PAUSE_TRACK_MEMORY(false)
+#define _LOG_CORE_INFO(...)     _LOGGER_STOP_MEMORY_TRACKING(::Logger::Get()->GetCore()->info(__VA_ARGS__))
+#define _LOG_CORE_WARNING(...)  _LOGGER_STOP_MEMORY_TRACKING(::Logger::Get()->GetCore()->warn(__VA_ARGS__))
+#define _LOG_CORE_ERROR(...)    _LOGGER_STOP_MEMORY_TRACKING(::Logger::Get()->GetCore()->error(__VA_ARGS__))
+#define _LOG_CORE_CRITICAL(...) _LOGGER_STOP_MEMORY_TRACKING(::Logger::Get()->GetCore()->critical(__VA_ARGS__))
 
 //Engine Logs
-#define _LOG_ENGINE_INFO(...) \
-    _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::Get()->GetEngine()->info(__VA_ARGS__); \
-    _PAUSE_TRACK_MEMORY(false)
-
-#define _LOG_ENGINE_WARNING(...) \
-    _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::Get()->GetEngine()->warn(__VA_ARGS__); \
-    _PAUSE_TRACK_MEMORY(false)
-
-#define _LOG_ENGINE_ERROR(...) \
-    _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::Get()->GetEngine()->error(__VA_ARGS__); \
-    _PAUSE_TRACK_MEMORY(false)
-
-#define _LOG_ENGINE_CRITICAL(...) \
-    _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::Get()->GetEngine()->critical(__VA_ARGS__); \
-    _PAUSE_TRACK_MEMORY(false)
+#define _LOG_ENGINE_INFO(...)       _LOGGER_STOP_MEMORY_TRACKING(::Logger::Get()->GetEngine()->info(__VA_ARGS__))
+#define _LOG_ENGINE_WARNING(...)    _LOGGER_STOP_MEMORY_TRACKING(::Logger::Get()->GetEngine()->warn(__VA_ARGS__))
+#define _LOG_ENGINE_ERROR(...)      _LOGGER_STOP_MEMORY_TRACKING(::Logger::Get()->GetEngine()->error(__VA_ARGS__))
+#define _LOG_ENGINE_CRITICAL(...)   _LOGGER_STOP_MEMORY_TRACKING(::Logger::Get()->GetEngine()->critical(__VA_ARGS__))
 
 //Renderer Logs
-#define _LOG_RENDERER_INFO(...) \
-    _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::Get()->GetRenderer()->info(__VA_ARGS__); \
-    _PAUSE_TRACK_MEMORY(false)
-
-#define _LOG_RENDERER_WARNING(...) \
-    _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::Get()->GetRenderer()->warn(__VA_ARGS__); \
-    _PAUSE_TRACK_MEMORY(false)
-
-#define _LOG_RENDERER_ERROR(...) \
-    _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::Get()->GetRenderer()->error(__VA_ARGS__); \
-    _PAUSE_TRACK_MEMORY(false)
-
-#define _LOG_RENDERER_CRITICAL(...) \
-    _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::Get()->GetRenderer()->critical(__VA_ARGS__); \
-    _PAUSE_TRACK_MEMORY(false)
+#define _LOG_RENDERER_INFO(...)     _LOGGER_STOP_MEMORY_TRACKING(::Logger::Get()->GetRenderer()->info(__VA_ARGS__))
+#define _LOG_RENDERER_WARNING(...)  _LOGGER_STOP_MEMORY_TRACKING(::Logger::Get()->GetRenderer()->warn(__VA_ARGS__))
+#define _LOG_RENDERER_ERROR(...)    _LOGGER_STOP_MEMORY_TRACKING(::Logger::Get()->GetRenderer()->error(__VA_ARGS__))
+#define _LOG_RENDERER_CRITICAL(...) _LOGGER_STOP_MEMORY_TRACKING(::Logger::Get()->GetRenderer()->critical(__VA_ARGS__))
 
 //Editor Logs
-#define _LOG_EDITOR_INFO(...)\
-    _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::Get()->GetEditor()->info(__VA_ARGS__); \
-    _PAUSE_TRACK_MEMORY(false)
-
-#define _LOG_EDITOR_WARNING(...) \
-    _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::Get()->GetEditor()->warn(__VA_ARGS__); \
-    _PAUSE_TRACK_MEMORY(false)
-
-#define _LOG_EDITOR_ERROR(...) \
-    _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::Get()->GetEditor()->error(__VA_ARGS__); \
-    _PAUSE_TRACK_MEMORY(false)
-
-#define _LOG_EDITOR_CRITICAL(...) \
-    _PAUSE_TRACK_MEMORY(true); \
-    ::Logger::Get()->GetEditor()->critical(__VA_ARGS__); \
-    _PAUSE_TRACK_MEMORY(false)
+#define _LOG_EDITOR_INFO(...)       _LOGGER_STOP_MEMORY_TRACKING(::Logger::Get()->GetEditor()->info(__VA_ARGS__))
+#define _LOG_EDITOR_WARNING(...)    _LOGGER_STOP_MEMORY_TRACKING(::Logger::Get()->GetEditor()->warn(__VA_ARGS__))
+#define _LOG_EDITOR_ERROR(...)      _LOGGER_STOP_MEMORY_TRACKING(::Logger::Get()->GetEditor()->error(__VA_ARGS__))
+#define _LOG_EDITOR_CRITICAL(...)   _LOGGER_STOP_MEMORY_TRACKING(::Logger::Get()->GetEditor()->critical(__VA_ARGS__))
 
 #else
 #define LOG_INFO(...) (void)(0)
@@ -165,69 +95,81 @@ private:
 #define _LOG_EDITOR_CRITICAL(...) (void)(0)
 #endif // _DEBUG
 
-#ifdef _DEBUG
-#define ENSURE(condition, ...)										\
- do {														    \
-        if (!(condition)) {                                     \
-            LOG_CRITICAL("Assertion failed: {}, File: {}, Line: {}",				\
-						__VA_ARGS__,								\
-                        __FILE__,						\
-                        __LINE__ );				\
-            __debugbreak(); /* Triggers a breakpoint in VS */   \
-        }                                                       \
-    } while (0)
-
-#define _ENSURE_CORE(condition, ...)								   \
- do {															   \
-        if (!(condition)) {                                        \
-           _LOG_CORE_CRITICAL("Assertion failed: {}, File: {}, Line: {}",				\
-						__VA_ARGS__,								\
-                        __FILE__,						\
-                        __LINE__ );					\
-            __debugbreak(); /* Triggers a breakpoint in VS */      \
-        }                                                          \
-    } while (0)
-
-#define _ENSURE_ENGINE(condition, ...)								   \
- do {															   \
-        if (!(condition)) {                                        \
-           _LOG_ENGINE_CRITICAL("Assertion failed: {}, File: {}, Line: {}",				\
-						__VA_ARGS__,								\
-                        __FILE__,						\
-                        __LINE__ );				\
-            __debugbreak(); /* Triggers a breakpoint in VS */      \
-        }                                                          \
-    } while (0)
-
-#define _ENSURE_RENDERER(condition, ...)								   \
- do {															   \
-        if (!(condition)) {                                        \
-           _LOG_RENDERER_CRITICAL("Assertion failed: {}, File: {}, Line: {}",				\
-						__VA_ARGS__,								\
-                        __FILE__,						\
-                        __LINE__ );				\
-            __debugbreak(); /* Triggers a breakpoint in VS */      \
-        }                                                          \
-    } while (0)
-
-#define _ENSURE_EDITOR(condition, ...)								   \
- do {															   \
-        if (!(condition)) {                                        \
-           _LOG_EDITOR_CRITICAL("Assertion failed: {}, File: {}, Line: {}",				\
-						__VA_ARGS__,								\
-                        __FILE__,						\
-                        __LINE__ );				\
-            __debugbreak(); /* Triggers a breakpoint in VS */      \
-        }                                                          \
-    } while (0)
+#if defined(_MSC_VER)
+#define DEBUG_BREAK() __debugbreak()
+#elif defined(__GNUC__) || defined(__clang__)
+#include <signal.h>
+#define DEBUG_BREAK() raise(SIGTRAP)
 #else
-#define ENSURE(cond, msg) ((void)0)
-#define _ENSURE_CORE(cond, msg) ((void)0)
-#define _ENSURE_ENGINE(cond, msg) ((void)0)
-#define _ENSURE_RENDERER(cond, msg) ((void)0)
-#define _ENSURE_EDITOR(cond, msg) ((void)0)
+#define DEBUG_BREAK() ((void)0)
 #endif
 
+#ifdef _DEBUG
+#define __ENSURE_IMPLEMENTATION(condition, LOGGER, ...)										\
+ do {														    \
+        if (!(condition)) {                                     \
+            LOGGER("Throw: {}, File: {}, Line: {}",				\
+						__VA_ARGS__,								\
+                        __FILE__,						\
+                        __LINE__ );				\
+            DEBUG_BREAK();   \
+        }                                                       \
+    } while (0)
+#else
+#define __ENSURE_IMPLEMENTATION(condition, LOGGER, ...)										\
+ do {														    \
+        if (!(condition)) {                                     \
+            LOGGER("Throw: {}, File: {}, Line: {}",				\
+						__VA_ARGS__,								\
+                        __FILE__,						\
+                        __LINE__ );				\
+        }                                                       \
+    } while (0)
+#endif
+
+#define ENSURE(condition, ...) __ENSURE_IMPLEMENTATION(condition, LOG_CRITICAL, __VA_ARGS__)
+#define _ENSURE_CORE(condition, ...) __ENSURE_IMPLEMENTATION(condition, _LOG_CORE_CRITICAL, __VA_ARGS__)
+#define _ENSURE_ENGINE(condition, ...) __ENSURE_IMPLEMENTATION(condition, _LOG_ENGINE_CRITICAL, __VA_ARGS__)
+#define _ENSURE_RENDERER(condition, ...) __ENSURE_IMPLEMENTATION(condition, _LOG_RENDERER_CRITICAL, __VA_ARGS__)
+#define _ENSURE_EDITOR(condition, ...)	__ENSURE_IMPLEMENTATION(condition, _LOG_EDITOR_CRITICAL, __VA_ARGS__)
+
+#define THROW(...) ENSURE(false, __VA_ARGS__)
+#define _THROW_CORE(...) _ENSURE_CORE(false, __VA_ARGS__)
+#define _THROW_ENGINE(...) _ENSURE_ENGINE(false, __VA_ARGS__)
+#define _THROW_RENDERER(...) _ENSURE_RENDERER(false, __VA_ARGS__)
+#define _THROW_EDITOR(...) _ENSURE_EDITOR(false, __VA_ARGS__)
+
+#ifdef _DEBUG
+#define __ASSERT_IMPLEMENTATION(condition, LOGGER, ...)										\
+ do {														    \
+        if (!(condition)) {                                     \
+            LOGGER("Assertion: {}, File: {}, Line: {}",				\
+						__VA_ARGS__,								\
+                        __FILE__,						\
+                        __LINE__ );				\
+           assert(0);   \
+        }                                                       \
+    } while (0)
+#else
+#define __ASSERT_IMPLEMENTATION(condition, LOGGER, ...)										\
+ do {														    \
+        if (!(condition)) {                                     \
+            LOGGER("Assertion: {}, File: {}, Line: {}",				\
+						__VA_ARGS__,								\
+                        __FILE__,						\
+                        __LINE__ );				\
+           std::abort();   \
+        }                                                       \
+    } while (0)
+#endif
+
+#define ASSERT(condition, ...) __ASSERT_IMPLEMENTATION(condition, LOG_CRITICAL, __VA_ARGS__)
+#define _ASSERT_CORE(condition, ...) __ASSERT_IMPLEMENTATION(condition, _LOG_CORE_CRITICAL, __VA_ARGS__)
+#define _ASSERT_ENGINE(condition, ...) __ASSERT_IMPLEMENTATION(condition, _LOG_ENGINE_CRITICAL, __VA_ARGS__)
+#define _ASSERT_RENDERER(condition, ...) __ASSERT_IMPLEMENTATION(condition, _LOG_RENDERER_CRITICAL, __VA_ARGS__)
+#define _ASSERT_EDITOR(condition, ...)	__ASSERT_IMPLEMENTATION(condition, _LOG_EDITOR_CRITICAL, __VA_ARGS__)
+
+#ifdef _Win32
 #include <comdef.h>
 #include <Utility/Utility.h>
 namespace fmt {
@@ -242,3 +184,4 @@ namespace fmt {
         }
     };
 }
+#endif // Win32

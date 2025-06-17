@@ -5,8 +5,18 @@
 
 #include "Internal/IRHIRenderer.h"
 #include "VkRHIDevice.h"
+#include "VkTextureFactory.h"
+
+#include "Camera.h"
 
 #define MAX_FRAMES_IN_FLIGHT 2
+#define VULKAN_ALIGN alignas(16)
+//TEMP
+struct UniformBufferObject
+{
+	VULKAN_ALIGN Matrix model;
+	VULKAN_ALIGN Matrix worldToClip;
+};
 
 struct QueueFamilyIndices
 {
@@ -46,16 +56,22 @@ public:
 
 	VkPhysicalDevice& GetPhysicalDevice() { return mPhysicalDevice; };
 	IRHIDevice* GetDevice() const override { return mDevice.get(); };
+	ITextureFactory* GetTextureFactory() const override { return mTextureFactory.get(); };
 private:
 	bool CreateInstance();
 	bool CreateSurface();
 	bool CreatePhysicalDevice();
 	bool CreateSwapChain();
+	bool CreateDescriptorSetLayout();
 	bool CreateGraphicsPipeline();
 	bool CreateRenderPass();
 	bool CreateFrameBuffers();
 	bool CreateCommandPool();
-	bool CreateVertexBuffer();
+	bool CreateVertexBuffer(); //Temp
+	bool CreateIndexBuffer(); //Temp
+	bool CreateUniformBuffers(); 
+	bool CreateDescriptorPool(); 
+	bool CreateDescriptorSets(); 
 	bool CreateCommandBuffers();
 	bool CreateSyncObjects();
 
@@ -69,6 +85,10 @@ private:
 	VkShaderModule CreateShaderModule(const ByteBuffer& ShaderCode);
 	static VkVertexInputBindingDescription GetVertexBindingDescription();
 	static Array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions();
+	void CreateBuffer(VkDeviceSize Size, VkBufferUsageFlags Usage, VkMemoryPropertyFlags Properties, VkBuffer& Buffer, VkDeviceMemory& BufferMemory);
+	void CopyBuffer(VkBuffer SrcBuffer, VkBuffer DstBuffer, VkDeviceSize Size);
+
+	void UpdateUniformBuffer();
 
 	uint32 FindMemoryType(uint32 TypeFilter, VkMemoryPropertyFlags Flags);
 
@@ -82,6 +102,7 @@ private:
 	VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& Capabilites);
 private:
 	OwnedPtr<VkRHIDevice> mDevice;
+	OwnedPtr<VkTextureFactory> mTextureFactory;
 
 	VkInstance mInstance;
 	VkPhysicalDevice mPhysicalDevice;
@@ -111,10 +132,29 @@ private:
 
 	//TEMP
 	const Vector<Vertex> vertices = {
-		{{0.0f, -0.5f}, {1.0f,0.0f,0.0f,1.0f}},
-		{{0.5f, 0.5f}, {0.0f,1.0f,0.0f,1.0f}},
-		{{-0.5f, 0.5f}, {0.0f,0.0f,1.0f,1.0f}}
+		{{-0.5f, -0.5f}, {1.0f,0.0f,0.0f,1.0f}},
+		{{0.5f, -0.5f}, {0.0f,1.0f,0.0f,1.0f}},
+		{{0.5f, 0.5f}, {0.0f,0.0f,1.0f,1.0f}},
+		{{-0.5f, 0.5f}, {1.0f,1.0f,1.0f,1.0f}}
 	};
 	VkBuffer mVertexBuffer;
 	VkDeviceMemory mVertexBufferMemory;
+	
+	const Vector<uint16> mindices = {
+		0, 1, 2, 2, 3, 0
+	};
+	VkBuffer mIndexBuffer;
+	VkDeviceMemory mIndexBufferMemory;
+
+	VkDescriptorSetLayout mDescriptorSetLayout;
+
+	VkBuffer uniformBuffers[MAX_FRAMES_IN_FLIGHT];
+	VkDeviceMemory uniformBuffersMemory[MAX_FRAMES_IN_FLIGHT];
+	void* uniformBuffersMapped[MAX_FRAMES_IN_FLIGHT];
+	
+	VkDescriptorPool descriptorPool;
+	Vector<VkDescriptorSet> descriptorSets;
+
+	Camera mCamera;
+	Matrix modelMatrix;
 };

@@ -18,6 +18,8 @@ public:
 	uint32 GetDrawCalls() { return mDrawCalls; };
 	const GraphicsCardInfo& GetGraphicsCardInfo() const { return mGraphicsCardInfo; };
 
+	IRHIRenderer* GetRHI() { return mRHIRenderer.get(); };
+
 private:
 	Renderer();
 	~Renderer();

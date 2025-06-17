@@ -9,6 +9,7 @@
 #include "ResourceManagment/ResourcePool.h"
 #include "AssetLoader.h"
 
+#include "FileSystem/FileSystem.h"
 
 class AssetManager : public EngineSubsystem<AssetManager>
 {
@@ -17,18 +18,24 @@ public:
 	template<typename T>
 	void RegisterLoader(IAssetLoader* Loader)
 	{
-		mLoaders[typeid(T)] = MakeOwned<T>(Loader);
+		mLoaders[typeid(T)] = OwnedPtr<IAssetLoader>(Loader);
 	}
 
 	template<typename T>
 	void RegisterPool(IResourcePool* Pool)
 	{
-		mPools[typeid(T)] = MakeOwned<T>(Pool);
+		mPools[typeid(T)] = OwnedPtr<IResourcePool>(Pool);
 	}
 
 	template<typename T>
-	ResourceHandle<T> LoadAsset(const String& Path)
+	ResourceHandle<T> LoadAsset(const String& VirtualPath)
 	{
+		if (!FileSystem::Exists(VirtualPath))
+		{
+			_LOG_CORE_ERROR("No asset at path: {}", VirtualPath);
+			return ResourceHandle<T>::Invalid();
+		}
+
 		AssetLoader<T>* loader = GetLoader<T>();
 		if (!loader)
 		{
@@ -36,7 +43,12 @@ public:
 			return ResourceHandle<T>::Invalid();
 		}
 
-		T resource = loader->Load(Path);
+		Optional<T> resource = loader->Load(VirtualPath);
+		if (!resource)
+		{
+			_LOG_CORE_ERROR("Failed to create asset");
+			return ResourceHandle<T>::Invalid();
+		}
 
 		ResourcePool<T>* pool = GetPool<T>();
 		if (!pool)

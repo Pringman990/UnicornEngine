@@ -8,6 +8,7 @@
 #include <set>
 #include <functional>
 #include <queue>
+#include <optional>
 
 using uint8	 = uint8_t;
 using uint16 = uint16_t;
@@ -53,6 +54,9 @@ using Func = std::function<T>;
 
 template<typename T>
 using SharedPtr = std::shared_ptr<T>;
+
+template<typename T>
+using Optional = std::optional<T>;
 
 template<typename T, typename... Args>
 SharedPtr<T> MakeShared(Args&&... args)

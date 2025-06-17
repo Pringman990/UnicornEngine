@@ -29,6 +29,8 @@ void Camera::SetPerspective(float FovAngleY, float AspectRatio, float NearZ, flo
 	mFov = FovAngleY;
 	mAspectRatio = AspectRatio;
 	mProjectionMatrix = DirectX::XMMatrixPerspectiveFovLH(mFov, mAspectRatio, mNearPlane, mFarPlane);
+
+	mProjectionMatrix(1, 1) *= -1; //Vulkan expects flipped Y axis
 }
 
 void Camera::SetOrthographic(Vector2 Resolution, float NearZ, float FarZ)
@@ -41,6 +43,8 @@ void Camera::SetOrthographic(Vector2 Resolution, float NearZ, float FarZ)
 	mFarPlane = FarZ;
 	mNearPlane = NearZ;
 	mProjectionMatrix = DirectX::XMMatrixOrthographicOffCenterLH(0, Resolution.x, 0, Resolution.y, NearZ, FarZ);
+
+	mProjectionMatrix(1, 1) *= -1; //Vulkan expects flipped Y axis
 }
 
 Transform& Camera::GetTransform()

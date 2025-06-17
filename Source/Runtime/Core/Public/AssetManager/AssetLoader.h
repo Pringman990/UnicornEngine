@@ -2,14 +2,14 @@
 #include "Internal/IAssetLoader.h"
 
 template<typename T>
-class AssetLoader final : public IAssetLoader
+class AssetLoader : public IAssetLoader
 {
 public:
 	AssetLoader() = default;
 	virtual ~AssetLoader() = default;
 
-	virtual T Load(const String& Path) = 0;
-	virtual bool Save(const String& Path, SharedPtr<T> Data) = 0;
+	virtual Optional<T> Load(const String& VirtualPath) = 0;
+	virtual bool Save(const String& VirtualPath, SharedPtr<T> Data) = 0;
 
 private:
 
