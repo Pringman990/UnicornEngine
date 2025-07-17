@@ -1,10 +1,12 @@
 #pragma once
 #include <Core.h>
 
+#include "Editor.h"
+
 class EditorWindow
 {
 public:
-	EditorWindow() {};
+	EditorWindow(Editor* EditorPtr) : mEditor(EditorPtr) {};
 	virtual ~EditorWindow() {};
 
 	virtual bool Init() = 0;
@@ -24,4 +26,6 @@ protected:
 	ImGuiWindowFlags mWindowCreationFlags = 0;
 
 	bool mIsWindowOpen = true;
+
+	Editor* mEditor;
 };

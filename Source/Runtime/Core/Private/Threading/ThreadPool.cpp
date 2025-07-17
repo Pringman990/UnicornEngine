@@ -8,19 +8,27 @@ ThreadPool::ThreadPool()
 	uint32 maxThreads = std::thread::hardware_concurrency();
 	for (uint32 i = 0; i < maxThreads; i++)
 	{
-		mWorkers.emplace_back([this]() {
-			while (true) {
-				Func<void()> task;
+		mWorkers.emplace_back([this]()
+			{
+				while (true)
 				{
-					std::unique_lock<std::mutex> lock(this->mQueueMutex);
-					this->mCondition.wait(lock, [this]() { return this->mShouldStopAll || !this->mTasks.empty(); });
+					Func<void()> task;
+					{
+						std::unique_lock<std::mutex> lock(this->mQueueMutex);
 
-					if (this->mShouldStopAll && this->mTasks.empty()) return;  // Exit if stopping
-					task = std::move(this->mTasks.front());
-					this->mTasks.pop();
+						this->mCondition.wait(lock, [this]()
+							{
+								return this->mShouldStopAll || !this->mTasks.empty();
+							});
+
+						if (this->mShouldStopAll && this->mTasks.empty())
+							return;  // Exit if stopping
+
+						task = std::move(this->mTasks.front());
+						this->mTasks.pop();
+					}
+					task();
 				}
-				task();
-			}
 			});
 	}
 }
