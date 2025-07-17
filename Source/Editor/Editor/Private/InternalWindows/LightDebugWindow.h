@@ -5,7 +5,7 @@
 class LightDebugWindow : public EditorWindow
 {
 public:
-	LightDebugWindow();
+	LightDebugWindow(Editor* EditorPtr);
 	~LightDebugWindow() override;
 
 	virtual bool Init() override;

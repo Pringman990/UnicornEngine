@@ -8,7 +8,7 @@
 class SceneWindow : public EditorWindow
 {
 public:
-	SceneWindow();
+	SceneWindow(Editor* EditorPtr);
 	~SceneWindow() override;
 
 	virtual bool Init() override;
@@ -17,6 +17,9 @@ public:
 private:
 	//RenderTarget* mSceneView;
 	EditorCamera mEditorCamera;
+
+	ImTextureID imguiTex;
+	class Sampler* sampler;
 };
 
 //REGISTER_EDITORWINDOW(SceneWindow)

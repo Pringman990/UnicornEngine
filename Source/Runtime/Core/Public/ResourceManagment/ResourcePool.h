@@ -9,9 +9,9 @@ class ResourcePool final : public IResourcePool
 {
 public:
 	ResourcePool() = default;
-	~ResourcePool() = default;
+	~ResourcePool() override {};
 
-	ResourceHandle<T> Add(T&& Resource)
+	const ResourceHandle<T> Allocate()
 	{
 		uint32 index = 0;
 		if (!mFreeIndices.empty())
@@ -19,14 +19,14 @@ public:
 			index = mFreeIndices.front();
 			mFreeIndices.pop();
 
-			mEntries[index].resource = std::move(Resource);
+			mEntries[index].resource = {};
 			mEntries[index].generation++;
 			mEntries[index].alive = true;
 		}
 		else
 		{
 			index = static_cast<uint32>(mEntries.size());
-			mEntries.push_back({std::move(Resource), 1, true});
+			mEntries.push_back({ {}, 1, true });
 		}
 
 		return ResourceHandle<T>{index, mEntries[index].generation};
@@ -50,7 +50,25 @@ public:
 		return &mEntries[Handle.index].resource;
 	}
 
-	void Remove(const ResourceHandle<T>& Handle)
+	T* Get(const ScopedHandle& Handle)
+	{
+		if (Handle.index >= mEntries.size())
+		{
+			_LOG_CORE_ERROR("Tried to get resource with index larger then the count of all entries");
+			return nullptr;
+		}
+
+		const Entry& entry = mEntries[Handle.index];
+		if (!entry.alive || entry.generation != Handle.generation)
+		{
+			_LOG_CORE_WARNING("Tried to get resource that was either not alive ({}) or is of wrong generation (Handle: {}, entry: {})", entry.alive, Handle.generation, entry.generation);
+			return nullptr;
+		}
+
+		return &mEntries[Handle.index].resource;
+	}
+
+	void Remove(ResourceHandle<T>& Handle, std::function<void(T*)> OnRemove = nullptr)
 	{
 		if (Handle.index >= mEntries.size())
 		{
@@ -61,9 +79,15 @@ public:
 		const Entry& entry = mEntries[Handle.index];
 		if (entry.alive && entry.generation == Handle.generation)
 		{
+			if(OnRemove)
+				OnRemove(&entry.resource);
+			
 			entry.alive = false;
 			entry.generation++;
+			entry.resource = {};
 			mFreeIndices.push(Handle.index);
+			
+			Handle.Invalidate();
 		}
 	}
 

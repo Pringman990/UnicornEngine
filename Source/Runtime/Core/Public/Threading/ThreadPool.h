@@ -9,40 +9,79 @@ class ThreadPool : public EngineSubsystem<ThreadPool>
 {
 public:
 	template <typename TaskFunc, typename CallbackFunc>
-	void Enqueue(TaskFunc&& taskFunc, CallbackFunc&& callbackFunc) {
-		auto task = MakeShared<std::packaged_task<typename std::invoke_result<TaskFunc>::type()>>(
-			std::forward<TaskFunc>(taskFunc)
-		);
+	void Enqueue(TaskFunc&& taskFunc, CallbackFunc&& callbackFunc)
+	{
+        using ReturnType = typename std::invoke_result<TaskFunc>::type;
 
-		// Capture the callback and wrap it
-		auto wrappedCallback = [task, callbackFunc, this]() {
-			auto result = task->get_future().get();
-			// Add the callback to the main thread's callback queue
-			{
-				std::unique_lock<std::mutex> lock(mCallbackMutex);
-				mCallbackQueue.push([callbackFunc, result]() { callbackFunc(result); });
-			}
-			mCondition.notify_one();  // Notify main thread to process the callback
-			};
+        auto task = MakeShared<std::packaged_task<ReturnType()>>(
+            std::forward<TaskFunc>(taskFunc)
+        );
 
-		{
-			std::unique_lock<std::mutex> lock(mQueueMutex);
-			if (mShouldStopAll) {
-				throw std::runtime_error("enqueue on stopped ThreadPool");
-			}
-			mTasks.push([task, wrappedCallback]() {
-				(*task)();  // Execute the task
-				wrappedCallback();  // Add callback to the main thread's queue
-				});
-		}
+        // Special handling for void-returning taskFunc
+        if constexpr (std::is_void_v<ReturnType>)
+        {
+            auto wrappedCallback = [task, callbackFunc, this]() mutable
+                {
+                    task->get_future().get(); // Wait for task to finish, no result
+                    {
+                        std::unique_lock<std::mutex> lock(mCallbackMutex);
+                        mCallbackQueue.push(
+                            [callbackFunc]() { callbackFunc(); } // Call without argument
+                        );
+                    }
+                    mCondition.notify_one();
+                };
 
-		mCondition.notify_one();
+            {
+                std::unique_lock<std::mutex> lock(mQueueMutex);
+                if (mShouldStopAll)
+                    _THROW_CORE("enqueue on stopped ThreadPool");
+
+                mTasks.push([task, wrappedCallback]() mutable
+                    {
+                        (*task)();        // Run task
+                        wrappedCallback(); // Queue callback
+                    });
+            }
+        }
+        else // Non-void ReturnType
+        {
+            auto wrappedCallback = [task, callbackFunc, this]() mutable
+                {
+                    auto result = task->get_future().get(); // Wait & get result
+                    {
+                        std::unique_lock<std::mutex> lock(mCallbackMutex);
+                        mCallbackQueue.push(
+                            [callbackFunc, result = std::move(result)]() mutable
+                            {
+                                callbackFunc(std::move(result)); // Call with result
+                            }
+                        );
+                    }
+                    mCondition.notify_one();
+                };
+
+            {
+                std::unique_lock<std::mutex> lock(mQueueMutex);
+                if (mShouldStopAll)
+                    _THROW_CORE("enqueue on stopped ThreadPool");
+
+                mTasks.push([task, wrappedCallback]() mutable
+                    {
+                        (*task)();
+                        wrappedCallback();
+                    });
+            }
+        }
+
+        mCondition.notify_one();
 	}
 
 	void ProcessCallbacks()
 	{
 		std::unique_lock<std::mutex> lock(mCallbackMutex);
-		while (!mCallbackQueue.empty()) {
+		while (!mCallbackQueue.empty()) 
+		{
 			auto callback = std::move(mCallbackQueue.front());
 			mCallbackQueue.pop();
 			callback();

@@ -91,7 +91,7 @@ void Win32DX12ImguiBackend::RenderFrame()
 	ImGui::Render();
 }
 
-void Win32DX12ImguiBackend::EndFrame()
+void Win32DX12ImguiBackend::EndFrame(CommandBuffer* Buffer)
 {
 	/*ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), Renderer::Get()->GetMainCommandList());
 	ImGui::UpdatePlatformWindows();
@@ -103,6 +103,10 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 void Win32DX12ImguiBackend::ProccessMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam);
+}
+
+void Win32DX12ImguiBackend::AddTextureToImgui(Texture2D* Texture, Sampler* Sampler)
+{
 }
 
 void Win32DX12ImguiBackend::ResizeBackBuffer(Vector2 aNewSize)

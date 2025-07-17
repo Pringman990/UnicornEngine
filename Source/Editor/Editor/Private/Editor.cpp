@@ -5,6 +5,9 @@
 #include "EditorWindowsIncludes.generated.h"
 
 #include "ImguiBackendFactory.h"
+#include <CommandBuffer.h>
+#include <Texture2D.h>
+#include <Sampler.h>
 
 Editor::Editor()
 	:
@@ -26,6 +29,8 @@ bool Editor::Init()
 	EditorWindowManager::Create();
 	_PAUSE_TRACK_MEMORY(false);
 
+	mTextureSampler = Sampler::Create();
+
 	mImguiBackend = ImguiBackendFactory::CreateBackend();
 	_ENSURE_EDITOR(mImguiBackend, "ImguiBackend was null");
 
@@ -42,6 +47,24 @@ bool Editor::Init()
 
 void Editor::BeginFrame()
 {
+	Vector<int32> texturesIndexToRemove;
+	for (uint32 i = 0; i < mTextureUploadQueue.size(); i++)
+	{
+		Texture2D* texture = mTextureUploadQueue[i];
+		if (texture->GetState() != AssetBase<Texture2D>::AssetState::GPU_Uploaded)
+			continue;
+
+		mImguiBackend->AddTextureToImgui(texture, mTextureSampler);
+		texturesIndexToRemove.push_back(i);
+	}
+
+	for (int32 i = (int32)texturesIndexToRemove.size() - 1; i >= 0; --i)
+	{
+		size_t index = texturesIndexToRemove[i];
+		if (index < mTextureUploadQueue.size()) // sanity check
+			mTextureUploadQueue.erase(mTextureUploadQueue.begin() + index);
+	}
+
 	mImguiBackend->BeginFrame();
 }
 
@@ -52,19 +75,36 @@ void Editor::Render()
 	mImguiBackend->RenderFrame();
 }
 
-void Editor::EndFrame()
+void Editor::EndFrame(CommandBuffer* Buffer)
 {
-	mImguiBackend->EndFrame();
+	mPreviousFrameDrawCalls = 0;
+
+	mImguiBackend->EndFrame(Buffer);
+	ImDrawData* drawData = ImGui::GetDrawData();
+	int imguiDrawCalls = 0;
+
+	for (int i = 0; i < drawData->CmdListsCount; i++)
+	{
+		const ImDrawList* cmd_list = drawData->CmdLists[i];
+		Renderer::Get()->AddToEditorDrawCalls(cmd_list->CmdBuffer.Size);
+		mPreviousFrameDrawCalls += Renderer::Get()->GetEditorDrawCalls();
+	}	
+}
+
+void Editor::AddTextureToImgui(Texture2D* Texture)
+{
+	//mImguiBackend->AddTextureToImgui(Texture, mTextureSampler);
+	mTextureUploadQueue.push_back(Texture);
 }
 
 void Editor::RegisterEditorWindows()
 {
-	EditorWindowManager::Get()->RegisterWindowType("SceneWindow", []() {return new SceneWindow(); });
+	EditorWindowManager::Get()->RegisterWindowType("SceneWindow", [this]() {return new SceneWindow(this); });
 	EditorWindowManager::Get()->CreateWindow("SceneWindow");
 
-	EditorWindowManager::Get()->RegisterWindowType("GraphicsDebugWindow", []() {return new GraphicsDebugWindow(); });
+	EditorWindowManager::Get()->RegisterWindowType("GraphicsDebugWindow", [this]() {return new GraphicsDebugWindow(this); });
 	EditorWindowManager::Get()->CreateWindow("GraphicsDebugWindow");
 
-	EditorWindowManager::Get()->RegisterWindowType("DebugInformationWindow", []() {return new DebugInformationWindow(); });
+	EditorWindowManager::Get()->RegisterWindowType("DebugInformationWindow", [this]() {return new DebugInformationWindow(this); });
 	EditorWindowManager::Get()->CreateWindow("DebugInformationWindow");
 }
