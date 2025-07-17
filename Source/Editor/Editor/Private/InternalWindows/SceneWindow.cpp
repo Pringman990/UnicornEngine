@@ -1,12 +1,17 @@
 #include "pch.h"
 #include "SceneWindow.h"
 
-//#include <Renderer.h>
+#include <Renderer.h>
 #include <Timer/Timer.h>
 //#include <Camera.h>
 
-SceneWindow::SceneWindow()
-	//:
+#include <imgui_impl_vulkan.h>
+#include <Sampler.h>
+#include <GPUBarrier.h>
+
+SceneWindow::SceneWindow(Editor* EditorPtr)
+	:
+	EditorWindow(EditorPtr)
 	//mSceneView(nullptr)
 {
 	mWindowDisplayName = "Scene";
@@ -21,6 +26,7 @@ SceneWindow::SceneWindow()
 SceneWindow::~SceneWindow()
 {
 	//mSceneView->Destroy();
+	delete sampler;
 }
 
 bool SceneWindow::Init()
@@ -28,13 +34,15 @@ bool SceneWindow::Init()
 	//RenderTargetResourceManager* manager = AssetRegistry::Get()->GetManager<RenderTargetResourceManager>();
 	//mSceneView = manager->CreateRenderTarget(Vector2(128,128));
 	
+	sampler = Sampler::Create();
+	//imguiTex = (ImTextureID)ImGui_ImplVulkan_AddTexture(*sampler, Renderer::Get()->GetOffscreenTexture(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
 	return true;
 }
 
 void SceneWindow::Render()
 {
 	mEditorCamera.Update(Timer::Get()->GetDeltaTime());
-
 //	mSceneView->Clear();
 
 	static ImVec2 lastWindowSize = ImVec2();
@@ -52,5 +60,5 @@ void SceneWindow::Render()
 //	mSceneView->Bind();
 
 	//ImGui::SetCursorPos(ImVec2(0, 0));
-	//ImGui::Image((ImTextureID)(intptr_t)mSceneView->GetTexture()->GetUnderlyingSRV(), currentWindowSize);
+	//ImGui::Image(imguiTex, currentWindowSize);
 }

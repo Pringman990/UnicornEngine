@@ -5,6 +5,10 @@
 #include <Editor.h>
 #endif // EDITOR
 
+#include <RenderScope.h>
+#include <RenderPassBuilder.h>
+#include <CommandBuffer.h>
+
 EngineLoop::EngineLoop()
 	:
 	mGenericApplication(nullptr),
@@ -14,7 +18,7 @@ EngineLoop::EngineLoop()
 {
 }
 
-EngineLoop::~EngineLoop() 
+EngineLoop::~EngineLoop()
 {
 #ifdef _EDITOR
 	delete mEditor;
@@ -26,7 +30,7 @@ EngineLoop::~EngineLoop()
 	//InputMapper::Shutdown();
 	Renderer::Shutdown();
 	Application::Shutdown();
-	
+
 	mRenderer = nullptr;
 	mGenericApplication = nullptr;
 	mFileWatcher = nullptr;
@@ -42,7 +46,7 @@ bool EngineLoop::Init()
 	_ASSERT_CORE(mGenericApplication, "Engine Loop Failed To Create Application");
 
 	_ASSERT_CORE(mGenericApplication->Init(), "Engine Loop Failed To Init Application");
-	
+
 	mGenericApplication->OnApplicationRequestExist.AddRaw(this, &EngineLoop::RequestExit);
 
 	//InputMapper::Create();
@@ -51,19 +55,19 @@ bool EngineLoop::Init()
 	{
 		_LOG_CORE_INFO("Creating Renderer");
 		_PAUSE_TRACK_MEMORY(true); // We turn off tracking because there is a phantom memory leak
-		
+
 		Renderer::Create();
-		
+
 		_PAUSE_TRACK_MEMORY(false);
-		
+
 		mRenderer = Renderer::Get();
 		_ASSERT_CORE(mRenderer, "Engine Loop Failed To Create Renderer");
-	
+
 		_LOG_CORE_INFO("Renderer Initializing");
-		
+
 		TIMER_START_READING("__Engine Loop Renderer Init__");
 		_ASSERT_CORE(mRenderer->Init(), "Engine Loop Failed To Init Renderer");
-		
+
 		float rendererInitTime = TIMER_END_READING("__Engine Loop Renderer Init__");
 		_LOG_CORE_INFO("Renderer has finished Initialize, it took: {:0.7f}s", rendererInitTime);
 	}
@@ -111,21 +115,23 @@ void EngineLoop::Update()
 	if (mShouldExit)
 		return;
 
-	mRenderer->PreRender();
-
+	mRenderer->BeginFrame();
+	
 	mSandboxRender();
 
-	//mRenderer->RenderToBackbuffer();
+	{
 #ifdef _EDITOR
-	mEditor->BeginFrame();
-	mEditor->Render();
+		RenderScope scope(mRenderer->GetCurrentSwapChainTexture());
+		mEditor->BeginFrame();
+		mEditor->Render();
+		mEditor->EndFrame(mRenderer->GetCurrentFrameSyncCommandBuffer());
 #endif // _EDITOR
 
 #ifdef _EDITOR
-	mEditor->EndFrame();
 #endif // _EDITOR
+	}
 
-	//mRenderer->Present();
+	mRenderer->EndFrame();
 	//InputMapper::Get()->Update();
 }
 

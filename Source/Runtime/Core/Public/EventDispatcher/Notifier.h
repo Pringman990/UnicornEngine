@@ -38,6 +38,50 @@ private:
 	Vector<FuncType> mBoundFunctions;
 };
 
+template<typename... Args>
+class MultiNotifierBoolRetArgs
+{
+public:
+	using FuncType = Func<bool(Args...)>;
+
+	void AddLambda(FuncType Lambda)
+	{
+		mBoundFunctions.push_back(Lambda);
+	}
+
+	template<typename T>
+	void AddRaw(T* Owner, bool (T::* Method)(Args...))
+	{
+		mBoundFunctions.push_back([=](Args... args) 
+			{
+				return (Owner->*Method)(args...); 
+			});
+	}
+
+	void RemoveAll()
+	{
+		mBoundFunctions.clear();
+	}
+
+	bool Notify(Args... args) const
+	{
+		bool handled = false;
+		for (const auto& func : mBoundFunctions)
+		{
+			//Returns true if any of the listeners return true
+			if (func && func(args...))
+			{
+				handled = true;
+			}
+		}
+
+		return handled;
+	}
+
+private:
+	Vector<FuncType> mBoundFunctions;
+};
+
 class MultiNotifier
 {
 public:

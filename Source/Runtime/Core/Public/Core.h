@@ -53,3 +53,6 @@
 #include <Reflection/ReflectionRegistry.h>
 
 #include <AssetManager/AssetManager.h>
+
+#include <ResourceManagment/ResourceHandle.h>
+#include <ResourceManagment/ResourcePool.h>

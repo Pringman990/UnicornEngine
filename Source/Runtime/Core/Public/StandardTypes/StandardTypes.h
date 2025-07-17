@@ -72,3 +72,6 @@ OwnedPtr<T> MakeOwned(Args&&... args)
 {
 	return std::make_unique<T>(std::forward<Args>(args)...);
 }
+
+template<typename>
+inline constexpr bool dependent_false_v = false;

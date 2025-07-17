@@ -1,7 +1,9 @@
 #include "pch.h"
 #include "LightDebugWindow.h"
 
-LightDebugWindow::LightDebugWindow()
+LightDebugWindow::LightDebugWindow(Editor* EditorPtr)
+	:
+	EditorWindow(EditorPtr)
 {
 	mWindowDisplayName = "Lights Debug";
 }
