@@ -1,7 +1,9 @@
 #include "pch.h"
 #include "ContentWindow.h"
 
-ContentWindow::ContentWindow()
+ContentWindow::ContentWindow(Editor* EditorPtr)
+	:
+	EditorWindow(EditorPtr)
 {
 }
 

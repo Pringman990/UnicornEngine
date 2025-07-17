@@ -30,6 +30,8 @@ public:
 	static ByteBuffer ReadAll(const String& VirtualPath);
 	static void WriteAll(const String& VirtualPath, const ByteBuffer& Data);
 
+	static String GetAbsolutPath(const String& VirtualPath);
+
 private:
 	FileSystem();
 	~FileSystem();

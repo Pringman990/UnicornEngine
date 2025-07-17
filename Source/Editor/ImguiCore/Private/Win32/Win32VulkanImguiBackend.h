@@ -10,8 +10,12 @@ public:
 	virtual bool Init() override;
 	virtual void BeginFrame() override;
 	virtual void RenderFrame() override;
-	virtual void EndFrame() override;
+	virtual void EndFrame(CommandBuffer* Buffer) override;
+
+	void AddTextureToImgui(Texture2D* Texture, Sampler* Sampler) override;
 
 private:
+	bool ProccessMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	void ResizeBackBuffer(Vector2 NewSize);
+private:
 };

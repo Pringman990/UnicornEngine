@@ -5,7 +5,7 @@
 class ContentWindow : public EditorWindow
 {
 public:
-	ContentWindow();
+	ContentWindow(Editor* EditorPtr);
 	~ContentWindow() override;
 
 	virtual bool Init() override;

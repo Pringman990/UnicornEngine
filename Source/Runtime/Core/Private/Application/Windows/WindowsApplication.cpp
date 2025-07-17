@@ -57,6 +57,11 @@ void WindowsApplication::Update()
 
 LRESULT WindowsApplication::ProccessWindowsMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	if (OnWndProc.Notify(hWnd, message, wParam, lParam))
+	{
+		return 0;
+	}
+
 	switch (message)
 	{
 	case WM_DESTROY:
@@ -93,10 +98,8 @@ LRESULT WindowsApplication::ProccessWindowsMessages(HWND hWnd, UINT message, WPA
 	//	}
 	//	break;
 	//}
-	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
-	return 0;
+	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
 LRESULT WindowsApplication::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
