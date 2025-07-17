@@ -5,7 +5,7 @@
 class DebugInformationWindow : public EditorWindow
 {
 public:
-	DebugInformationWindow();
+	DebugInformationWindow(Editor* EditorPtr);
 	~DebugInformationWindow();
 
 	virtual bool Init() override;

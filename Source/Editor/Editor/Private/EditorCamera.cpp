@@ -20,7 +20,7 @@ void EditorCamera::Update(float /*DeltaTime*/)
 {
 	if (!ImGui::IsKeyDown(ImGuiKey_MouseRight))
 	{
-		InputMapper::Get()->ReleaseMouse();
+		//InputMapper::Get()->ReleaseMouse();
 		return;
 	}
 
