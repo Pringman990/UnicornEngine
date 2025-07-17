@@ -113,6 +113,27 @@ void FileSystem::WriteAll(const String& VirtualPath, const ByteBuffer& Data)
     }
 }
 
+String FileSystem::GetAbsolutPath(const String& VirtualPath)
+{
+    String proto, relativePath;
+    if (!ParseVirtualPath(VirtualPath, proto, relativePath))
+    {
+        _LOG_CORE_ERROR("Virtual path did not exist: {}", VirtualPath);
+        return String();
+    }
+
+    for (auto& mount : GetMounts())
+    {
+        if (mount.protocol == proto)
+        {
+            return sRootPath + relativePath;
+        }
+    }
+
+    _LOG_CORE_ERROR("Virtual path mount did not exist: {}", VirtualPath);
+    return String();
+}
+
 bool FileSystem::ParseVirtualPath(const String& Path, Protocol& outProtocol, String& outRelativePath)
 {
     size_t pos = Path.find("://");

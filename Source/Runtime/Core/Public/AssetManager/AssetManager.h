@@ -10,78 +10,177 @@
 #include "AssetLoader.h"
 
 #include "FileSystem/FileSystem.h"
+#include "Threading/ThreadPool.h"
+
+#include "AssetManager/AssetBase.h"
 
 class AssetManager : public EngineSubsystem<AssetManager>
 {
 	friend class EngineSubsystem<AssetManager>;
 public:
-	template<typename T>
-	void RegisterLoader(IAssetLoader* Loader)
+	template<typename _Asset, typename _LoaderType>
+	void RegisterLoader()
 	{
-		mLoaders[typeid(T)] = OwnedPtr<IAssetLoader>(Loader);
+		auto it = mLoaders.find(typeid(_Asset));
+		if (it != mLoaders.end())
+			_ASSERT_RENDERER(false, "Loader for asset type: {}, already exists!", typeid(_Asset).name());
+
+		mLoaders[typeid(_Asset)] = OwnedPtr<IAssetLoader>(new _LoaderType());
+	}
+
+	template<typename _Asset>
+	void RegisterPool()
+	{
+		auto it = mPools.find(typeid(_Asset));
+		if (it != mPools.end())
+			_ASSERT_RENDERER(false, "Pool for asset type: {}, already exists!", typeid(_Asset).name());
+
+		mPools[typeid(_Asset)] = OwnedPtr<IResourcePool>(new ResourcePool<_Asset>());
 	}
 
 	template<typename T>
-	void RegisterPool(IResourcePool* Pool)
+	void UnRegisterPool()
 	{
-		mPools[typeid(T)] = OwnedPtr<IResourcePool>(Pool);
+		auto it = mPools.find(typeid(T));
+		if (it == mPools.end())
+			return;
+
+		mPools.erase(it);
 	}
 
 	template<typename T>
-	ResourceHandle<T> LoadAsset(const String& VirtualPath)
+	AssetHandle<T> LoadAsset(const String& VirtualPath, bool Threaded = true)
 	{
 		if (!FileSystem::Exists(VirtualPath))
 		{
-			_LOG_CORE_ERROR("No asset at path: {}", VirtualPath);
-			return ResourceHandle<T>::Invalid();
+			_LOG_CORE_WARNING("No asset at path: {}", VirtualPath);
+			return AssetHandle<T>::Invalid();
 		}
+
+		//TODO: if the asset already is loaded just give that back dont load again
+		ResourcePool<T>* pool = GetPool<T>();
+		if (!pool)
+		{
+			_THROW_CORE("No asset pool for type");
+			return AssetHandle<T>::Invalid();
+		}
+
+		AssetHandle<T> handle = pool->Allocate();
+		T* asset = AssetManager::Get()->GetAsset(handle);
 
 		AssetLoader<T>* loader = GetLoader<T>();
 		if (!loader)
 		{
-			_ENSURE_CORE(loader, "No asset loader for type");
-			return ResourceHandle<T>::Invalid();
+			_THROW_CORE("No asset loader for type");
+			return AssetHandle<T>::Invalid();
 		}
 
-		Optional<T> resource = loader->Load(VirtualPath);
-		if (!resource)
+		if (Threaded)
 		{
-			_LOG_CORE_ERROR("Failed to create asset");
-			return ResourceHandle<T>::Invalid();
-		}
+			ThreadPool::Get()->Enqueue([=]()
+				{
+					AssetLoadResult<T> result = loader->Load(VirtualPath, asset);
 
-		ResourcePool<T>* pool = GetPool<T>();
-		if (!pool)
+					asset->mMetadata = result.metadata;
+
+					if constexpr (!std::is_same_v<decltype(result.resourceData), std::monostate>)
+					{
+						if constexpr (requires {asset->mResourceData; })
+						{
+							asset->mResourceData = result.resourceData;
+						}
+						else
+						{
+							static_assert(
+								dependent_false_v<T>,
+								"[Asset Error] Type T has ResourceData struct but is missing member mResourceData"
+								);
+						}
+					}
+
+					if constexpr (!std::is_same_v<decltype(result.stagingData), std::monostate>)
+					{
+						if constexpr (requires {asset->mStagingData; })
+						{
+							asset->mStagingData = result.stagingData;
+						}
+						else
+						{
+							static_assert(
+								dependent_false_v<T>,
+								"[Asset Error] Type T has StagingData struct but is missing member mStagingData"
+								);
+						}
+					}
+
+					asset->mState = AssetBase<T>::AssetState::Loaded;
+
+				}, []() {});
+		}
+		else
 		{
-			_ENSURE_CORE(pool, "No asset pool for type");
-			return ResourceHandle<T>::Invalid();
+			AssetLoadResult<T> result = loader->Load(VirtualPath, asset);
+
+			asset->mMetadata = result.metadata;
+
+			if constexpr (!std::is_same_v<decltype(result.resourceData), std::monostate>)
+			{
+				if constexpr (requires {asset->mResourceData; })
+				{
+					asset->mResourceData = result.resourceData;
+				}
+				else
+				{
+					static_assert(
+						dependent_false_v<T>,
+						"[Asset Error] Type T has ResourceData struct but is missing member mResourceData"
+						);
+				}
+			}
+
+			if constexpr (!std::is_same_v<decltype(result.stagingData), std::monostate>)
+			{
+				if constexpr (requires {asset->mStagingData; })
+				{
+					asset->mStagingData = result.stagingData;
+				}
+				else
+				{
+					static_assert(
+						dependent_false_v<T>,
+						"[Asset Error] Type T has StagingData struct but is missing member mStagingData"
+						);
+				}
+			}
+
+			asset->mState = AssetBase<T>::AssetState::Loaded;
 		}
 
-		return pool->Add(resource);
+		return handle;
 	}
 
 	template<typename T>
-	T* GetAsset(const ResourceHandle<T>& Handle)
+	T* GetAsset(const AssetHandle<T>& Handle)
 	{
 		ResourcePool<T>* pool = GetPool<T>();
 		if (!pool)
 		{
 			_ENSURE_CORE(pool, "No asset pool for type");
-			return ResourceHandle<T>::Invalid();
+			return nullptr;
 		}
 
 		return pool->Get(Handle);
 	}
 
 private:
-	AssetManager();
-	~AssetManager();
+	AssetManager() {};
+	~AssetManager() {};
 
 	template<typename T>
 	ResourcePool<T>* GetPool()
 	{
 		auto it = mPools.find(typeid(T));
-		if (it == mPools.end()) 
+		if (it == mPools.end())
 			return nullptr;
 
 		return static_cast<ResourcePool<T>*>(mPools[typeid(T)].get());

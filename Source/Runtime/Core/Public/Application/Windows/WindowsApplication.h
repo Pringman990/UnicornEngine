@@ -20,6 +20,8 @@ public:
 	IWindowInfo& GetWindowInfo() override;
 	WindowsWindowInfo& GetWindowsWindowInfo();
 
+	MultiNotifierBoolRetArgs<HWND, UINT, WPARAM, LPARAM> OnWndProc;
+
 private:
 	WindowsWindowInfo mWindowInfo;
 };
