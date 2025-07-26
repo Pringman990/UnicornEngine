@@ -16,6 +16,7 @@ public:
 	virtual void EndFrame(CommandBuffer* Buffer) = 0;
 
 	virtual void AddTextureToImgui(Texture2D* Texture, Sampler* Sample) = 0;
+	virtual ImTextureID AddTextureToImgui(GPUTexture* Texture, Sampler* Sample) = 0;
 
 private:
 

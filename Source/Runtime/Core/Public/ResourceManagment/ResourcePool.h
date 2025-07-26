@@ -7,9 +7,23 @@
 template<typename T>
 class ResourcePool final : public IResourcePool
 {
+private:
+	struct Entry
+	{
+		T resource;
+		uint32 generation;
+		bool alive = false;
+	};
+
 public:
 	ResourcePool() = default;
-	~ResourcePool() override {};
+	~ResourcePool() override 
+	{
+		for (auto& entry : mEntries)
+		{
+			T::Free(entry.resource);
+		}
+	};
 
 	const ResourceHandle<T> Allocate()
 	{
@@ -68,7 +82,7 @@ public:
 		return &mEntries[Handle.index].resource;
 	}
 
-	void Remove(ResourceHandle<T>& Handle, std::function<void(T*)> OnRemove = nullptr)
+	void Remove(ResourceHandle<T>& Handle, Func<void(T*)> OnRemove = nullptr)
 	{
 		if (Handle.index >= mEntries.size())
 		{
@@ -76,7 +90,7 @@ public:
 			return;
 		}
 
-		const Entry& entry = mEntries[Handle.index];
+		Entry& entry = mEntries[Handle.index];
 		if (entry.alive && entry.generation == Handle.generation)
 		{
 			if(OnRemove)
@@ -92,13 +106,6 @@ public:
 	}
 
 private:
-	struct Entry
-	{
-		T resource;
-		uint32 generation;
-		bool alive = false;
-	};
-
 	Vector<Entry> mEntries;
 	Queue<uint32> mFreeIndices;
 };

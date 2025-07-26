@@ -55,11 +55,14 @@ struct FrameSync
 		delete renderFinished;
 		renderFinished = nullptr;
 
+		commandPool->FreeCommandBuffer(commandBuffer);
+
+		delete commandBuffer;
+		commandBuffer = nullptr;
+
 		delete commandPool;
 		commandPool = nullptr;
 		
-		delete commandBuffer;
-		commandBuffer = nullptr;
 	}
 };
 
@@ -114,7 +117,7 @@ public:
 	CommandPool* GetCurrentFrameSyncCommandPool() const { return mFrameSyncs[mCurrentFrameIndex].commandPool; };
 	void PushToCurrentFrameSyncGPUBuffer(SharedPtr<GenericGPUBuffer> Buffer) { mFrameSyncs[mCurrentFrameIndex].perFrameBuffers.push_back(Buffer); };
 
-	const GPUResourceHandle<TextureRenderTarget> GetOffscreenTexture() const { return mOffscreenQuadTexture; };
+	GPUResourceHandle<GPUTexture> GetOffscreenTexture() const { return mOffscreenQuadTexture; };
 
 	GPUResourceManager& GetGPUResourceManager() { return mGPUResourceManager; };
 
@@ -145,8 +148,10 @@ private:
 	GPUResourceManager mGPUResourceManager;
 
 	//TEMP
-	class Pipeline* mPipeline;
+	class Pipeline* mComputePipeline;
 	class VertexShader* mVertexShader;
 	class FragmentShader* mFragmentShader;
-	GPUResourceHandle<TextureRenderTarget> mOffscreenQuadTexture;
+	class ComputeShader* mComputeShader;
+	GPUResourceHandle<GPUTexture> mComputeTexture;
+	GPUResourceHandle<GPUTexture> mOffscreenQuadTexture;
 };

@@ -17,6 +17,7 @@ public:
 	void ProccessMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 	void AddTextureToImgui(Texture2D* Texture, Sampler* Sampler) override;
+	ImTextureID AddTextureToImgui(GPUTexture* Texture, Sampler* Sample) override;
 
 private:
 	void ResizeBackBuffer(Vector2 NewSize);

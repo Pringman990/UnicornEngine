@@ -107,6 +107,12 @@ void Win32DX12ImguiBackend::ProccessMessages(HWND hWnd, UINT message, WPARAM wPa
 
 void Win32DX12ImguiBackend::AddTextureToImgui(Texture2D* Texture, Sampler* Sampler)
 {
+
+}
+
+ImTextureID Win32DX12ImguiBackend::AddTextureToImgui(GPUTexture* Texture, Sampler* Sample)
+{
+	return 0;
 }
 
 void Win32DX12ImguiBackend::ResizeBackBuffer(Vector2 aNewSize)

@@ -34,8 +34,13 @@ bool SceneWindow::Init()
 	//RenderTargetResourceManager* manager = AssetRegistry::Get()->GetManager<RenderTargetResourceManager>();
 	//mSceneView = manager->CreateRenderTarget(Vector2(128,128));
 	
-	sampler = Sampler::Create();
+	//sampler = Sampler::Create();
 	//imguiTex = (ImTextureID)ImGui_ImplVulkan_AddTexture(*sampler, Renderer::Get()->GetOffscreenTexture(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+	Renderer* renderer = Renderer::Get();
+	GPUTexture* offscreenTexture = renderer->GetGPUResourceManager().GetResource(renderer->GetOffscreenTexture());
+
+	//mEditor->AddTextureToImgui();
 
 	return true;
 }

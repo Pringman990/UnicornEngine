@@ -73,6 +73,32 @@ public:
 		return pool->Get(Handle);
 	}
 
+	template<typename T>
+	void FreeResource(GPUResourceHandle<T>& Handle, LogicalDevice* Device)
+	{
+		ResourcePool<T>* pool = GetPool<T>();
+		if (!pool)
+		{
+			_ENSURE_CORE(pool, "No resource pool for type");
+			return;
+		}
+
+		pool->Remove(Handle, [Device](T* resource) { T::Free(resource, Device->GetRaw());});
+	}
+
+	template<typename T>
+	void FreeResource(GPUResourceHandle<T>& Handle, LogicalDevice* Device, Func<void(T*, VkDevice)> RemoveFunc)
+	{
+		ResourcePool<T>* pool = GetPool<T>();
+		if (!pool)
+		{
+			_ENSURE_CORE(pool, "No resource pool for type");
+			return;
+		}
+
+		pool->Remove(Handle, [Device, RemoveFunc](T* resource) { RemoveFunc(resource, Device->GetRaw());});
+	}
+
 	void UploadTask(ResourceUploadTask&& Task)
 	{
 		std::lock_guard lock(mMutex);

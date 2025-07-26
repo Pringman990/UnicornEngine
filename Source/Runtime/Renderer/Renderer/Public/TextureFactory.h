@@ -11,7 +11,7 @@ class TextureFactory : public IGPUResourceFactory
 public:
 
 	static void CreateTexture2D(GPUTexture* Texture, const Texture2D::StagingData& StagingData, VkFormat Format = VK_FORMAT_R8G8B8A8_UNORM);
-	static GPUResourceHandle<TextureRenderTarget> CreateTextureRenderTarget(VkExtent2D Extent, VkFormat Format, const String& DebugName = "NO_NAME");
+	static GPUResourceHandle<GPUTexture> CreateTextureRenderTarget(VkExtent2D Extent, VkFormat Format);
 	static const GPUResourceHandle<GPUTexture> CreateTextureRenderTargetSC(LogicalDevice& Device, VkImage Image, VkFormat Format, VkExtent2D Extent);
 
 	static void CopyRawDataToTexture(const byte* Data, VkExtent3D Extent, CommandBuffer* Cmd, VkImage Image, GenericGPUBuffer& Buffer);
