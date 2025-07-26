@@ -21,6 +21,8 @@ public:
 	template<typename _Asset, typename _LoaderType>
 	void RegisterLoader()
 	{
+		static_assert(std::is_base_of_v<AssetBase<_Asset>, _Asset>, "T must derive from AssetBase");
+
 		auto it = mLoaders.find(typeid(_Asset));
 		if (it != mLoaders.end())
 			_ASSERT_RENDERER(false, "Loader for asset type: {}, already exists!", typeid(_Asset).name());
@@ -49,7 +51,7 @@ public:
 	}
 
 	template<typename T>
-	AssetHandle<T> LoadAsset(const String& VirtualPath, bool Threaded = true)
+	AssetHandle<T> LoadAsset(const String& VirtualPath, bool Threaded = false)
 	{
 		if (!FileSystem::Exists(VirtualPath))
 		{

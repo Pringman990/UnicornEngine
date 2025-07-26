@@ -136,6 +136,11 @@ void Win32VulkanImguiBackend::AddTextureToImgui(Texture2D* Texture, Sampler* Sam
 	Texture->SetImGuiHandle(handle);
 }
 
+ImTextureID Win32VulkanImguiBackend::AddTextureToImgui(GPUTexture* Texture, Sampler* Sample)
+{
+	return (ImTextureID)ImGui_ImplVulkan_AddTexture(*Sample, Texture->imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+}
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 bool Win32VulkanImguiBackend::ProccessMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)

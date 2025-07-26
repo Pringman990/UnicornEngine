@@ -58,6 +58,22 @@ void Editor::BeginFrame()
 		texturesIndexToRemove.push_back(i);
 	}
 
+	//for (auto& handle : mGPUTextureUploadQueue)
+	//{
+	//	auto it = mGPUTextures.find(handle);
+	//	if (it != mGPUTextures.end())
+	//	{
+	//		continue;
+	//	}
+
+	//	GPUTexture* texture = Renderer::Get()->GetGPUResourceManager().GetResource(handle);
+	//	ImTextureID id = mImguiBackend->AddTextureToImgui(texture, mTextureSampler);
+
+	//	mGPUTextures.insert({handle, id });
+	//}
+
+	//mGPUTextureUploadQueue.clear();
+
 	for (int32 i = (int32)texturesIndexToRemove.size() - 1; i >= 0; --i)
 	{
 		size_t index = texturesIndexToRemove[i];
@@ -95,6 +111,11 @@ void Editor::AddTextureToImgui(Texture2D* Texture)
 {
 	//mImguiBackend->AddTextureToImgui(Texture, mTextureSampler);
 	mTextureUploadQueue.push_back(Texture);
+}
+
+void Editor::AddTextureToImgui(GPUResourceHandle<GPUTexture> Handle)
+{
+	mGPUTextureUploadQueue.push_back(Handle);
 }
 
 void Editor::RegisterEditorWindows()

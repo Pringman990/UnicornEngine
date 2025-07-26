@@ -10,7 +10,21 @@ PipelineBuilder::~PipelineBuilder()
 
 PipelineBuilder& PipelineBuilder::SetShaders(const Vector<VkPipelineShaderStageCreateInfo>& ShaderStage)
 {
+	_ENSURE_RENDERER(mType == PipelineType::Graphics, "Can't set graphics shader on other shader pipeline");
+
+	mType = PipelineType::Graphics;
+
 	mBuildInfo.shaderStages = ShaderStage;
+	return *this;
+}
+
+PipelineBuilder& PipelineBuilder::SetCompute(const VkPipelineShaderStageCreateInfo& ShaderStage)
+{
+	_ENSURE_RENDERER(mType == PipelineType::Undefined, "Can't set compute shader more the once, or use on graphics shader pipeline");
+
+	mType = PipelineType::Compute;
+
+	mBuildInfo.shaderStages.push_back(ShaderStage);
 	return *this;
 }
 
@@ -172,6 +186,31 @@ Pipeline* PipelineBuilder::Build()
 {
 	VkDevice device = Renderer::Get()->GetDevice()->GetRaw();
 
+	Pipeline* pipeline = nullptr;
+
+	switch (mType)
+	{
+	case PipelineBuilder::Undefined:
+		_THROW_RENDERER("Trying to build undefined pipeline");
+		break;
+	case PipelineBuilder::Graphics:
+		pipeline = BuildGraphicsPipeline(device);
+		break;
+	case PipelineBuilder::Compute:
+		pipeline = BuildComputePipeline(device);
+		break;
+	default:
+		_ASSERT_RENDERER(false, "Trying to build non implemented pipeline type");
+		break;
+	}
+
+	_ENSURE_RENDERER(pipeline, "Pipeline is null after creation");
+
+	return pipeline;
+}
+
+Pipeline* PipelineBuilder::BuildGraphicsPipeline(VkDevice Device)
+{
 	VkPipelineLayoutCreateInfo layoutInfo{};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 	layoutInfo.setLayoutCount = static_cast<uint32>(mBuildInfo.descriptorSetLayouts.size());
@@ -180,7 +219,7 @@ Pipeline* PipelineBuilder::Build()
 	layoutInfo.pPushConstantRanges = mBuildInfo.pushConstants.data();
 
 	VkPipelineLayout layout;
-	if (vkCreatePipelineLayout(device, &layoutInfo, nullptr, &layout) != VK_SUCCESS)
+	if (vkCreatePipelineLayout(Device, &layoutInfo, nullptr, &layout) != VK_SUCCESS)
 	{
 		_THROW_RENDERER("Failed to create pipeline layout");
 		return nullptr;
@@ -197,7 +236,7 @@ Pipeline* PipelineBuilder::Build()
 	pipelineInfo.pNext = &mBuildInfo.renderingInfo;
 	pipelineInfo.stageCount = static_cast<uint32>(mBuildInfo.shaderStages.size());
 	pipelineInfo.pStages = mBuildInfo.shaderStages.data();
-	
+
 	pipelineInfo.pVertexInputState = mBuildInfo.useVertexLayout ? &mBuildInfo.vertexLayout.vertexInput : VK_NULL_HANDLE;
 	pipelineInfo.pInputAssemblyState = &mBuildInfo.inputAssembly;
 	pipelineInfo.pRasterizationState = &mBuildInfo.rasterizer;
@@ -207,13 +246,13 @@ Pipeline* PipelineBuilder::Build()
 	pipelineInfo.pMultisampleState = &mBuildInfo.multisampleState;
 	pipelineInfo.pViewportState = mBuildInfo.useFixedViewport ? &mBuildInfo.viewportState : VK_NULL_HANDLE;
 	pipelineInfo.layout = layout;
-	
+
 	//We don't use renderpasses from vulkan but instead we use dynamic rendering for simplicity
 	pipelineInfo.renderPass = VK_NULL_HANDLE;
 	pipelineInfo.subpass = 0;
 
 	VkPipeline vkpipeline;
-	if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &vkpipeline) != VK_SUCCESS)
+	if (vkCreateGraphicsPipelines(Device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &vkpipeline) != VK_SUCCESS)
 	{
 		_THROW_RENDERER("Failed to create pipeline");
 		return nullptr;
@@ -221,7 +260,45 @@ Pipeline* PipelineBuilder::Build()
 
 	mBuildInfo = {};
 
-	Pipeline* pipeline = new Pipeline(vkpipeline, layout);
+	return new Pipeline(vkpipeline, layout);
+}
 
-	return pipeline;
+Pipeline* PipelineBuilder::BuildComputePipeline(VkDevice Device)
+{
+	VkPipelineLayoutCreateInfo layoutInfo{};
+	layoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	layoutInfo.setLayoutCount = static_cast<uint32>(mBuildInfo.descriptorSetLayouts.size());
+	layoutInfo.pSetLayouts = mBuildInfo.descriptorSetLayouts.data();
+	layoutInfo.pushConstantRangeCount = static_cast<uint32>(mBuildInfo.pushConstants.size());
+	layoutInfo.pPushConstantRanges = mBuildInfo.pushConstants.data();
+
+	VkPipelineLayout layout;
+	if (vkCreatePipelineLayout(Device, &layoutInfo, nullptr, &layout) != VK_SUCCESS)
+	{
+		_THROW_RENDERER("Failed to create pipeline layout");
+		return nullptr;
+	}
+
+	if (mBuildInfo.shaderStages.size() != 1 ||
+		mBuildInfo.shaderStages[0].stage != VK_SHADER_STAGE_COMPUTE_BIT)
+	{
+		_THROW_RENDERER("Compute pipeline must have exactly one compute shader stage");
+		return nullptr;
+	}
+
+	VkComputePipelineCreateInfo pipelineInfo{};
+	pipelineInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+	pipelineInfo.stage = mBuildInfo.shaderStages[0];
+	pipelineInfo.layout = layout;
+
+	VkPipeline vkpipeline;
+	if (vkCreateComputePipelines(Device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &vkpipeline) != VK_SUCCESS)
+	{
+		_THROW_RENDERER("Failed to create pipeline");
+		return nullptr;
+	}
+
+	mBuildInfo = {};
+	
+	return new Pipeline(vkpipeline, layout);
 }

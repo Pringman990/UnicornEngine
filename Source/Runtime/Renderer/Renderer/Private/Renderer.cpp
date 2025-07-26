@@ -7,6 +7,7 @@
 #include <FileSystem/NativeFileBackend.h>
 
 #include "Texture2DLoader.h"
+#include "MeshLoader.h"
 #include "TextureFactory.h"
 
 #include "RenderScope.h"
@@ -16,6 +17,8 @@
 #include "PipelineBuilder.h"
 #include "VertexShader.h"
 #include "FragmentShader.h"
+#include "ComputeShader.h"
+#include "Mesh.h"
 
 Renderer::Renderer()
 	:
@@ -33,6 +36,7 @@ Renderer::~Renderer()
 {
 	AssetManager::Get()->UnRegisterPool<Texture2D>();
 	AssetManager::Get()->UnRegisterPool<TextureRenderTarget>();
+	AssetManager::Get()->UnRegisterPool<Mesh>();
 
 	vkDeviceWaitIdle(*mDevice);
 
@@ -68,8 +72,10 @@ bool Renderer::Init()
 {
 	AssetManager::Get()->RegisterPool<Texture2D>();
 	AssetManager::Get()->RegisterPool<TextureRenderTarget>();
+	AssetManager::Get()->RegisterPool<Mesh>();
 
 	AssetManager::Get()->RegisterLoader<Texture2D, Texture2DLoader>();
+	AssetManager::Get()->RegisterLoader<Mesh, MeshLoader>();
 
 	mGPUResourceManager.RegisterPool<GPUTexture>();
 
@@ -93,9 +99,10 @@ bool Renderer::Init()
 		mFrameSyncs.emplace_back(std::move(sync));
 	}
 
-	//TEMP
-	mVertexShader = VertexShader::Create("Triangle_VS.spv");
-	mFragmentShader = FragmentShader::Create("Triangle_FS.spv");
+	////TEMP
+	//mVertexShader = VertexShader::Create("Triangle_VS.spv");
+	//mFragmentShader = FragmentShader::Create("Triangle_FS.spv");
+	mComputeShader = ComputeShader::Create("Basic_CS.spv");
 
 	VkViewport viewport{};
 	viewport.x = 0.0f;
@@ -109,28 +116,31 @@ bool Renderer::Init()
 	scissor.offset = { 0, 0 };
 	scissor.extent = mSwapChain->GetExtent();
 
-	std::vector<VkDynamicState> dynamicStates =
-	{
-		VK_DYNAMIC_STATE_VIEWPORT,
-		VK_DYNAMIC_STATE_SCISSOR
-	};
+	//std::vector<VkDynamicState> dynamicStates =
+	//{
+	//	VK_DYNAMIC_STATE_VIEWPORT,
+	//	VK_DYNAMIC_STATE_SCISSOR
+	//};
 
 	VkFormat colorAttachmentFormats[] = { VK_FORMAT_B8G8R8A8_SRGB };
 
-	PipelineBuilder builder;
-	mPipeline = builder
-		.SetShaders({ mVertexShader->GetStageCreateInfo(), mFragmentShader->GetStageCreateInfo() })
-		.SetDefaultBlendStates(1)
-		.SetInputAssembly(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST)
-		.SetViewportState({ viewport }, { scissor })
-		.SetRasterizer(VK_CULL_MODE_NONE)
-		//.SetDynamicStates(dynamicStates)
-		.SetDefaultMultisampling()
-		.SetRenderingInfo(colorAttachmentFormats, 1, VK_FORMAT_UNDEFINED, VK_FORMAT_UNDEFINED)
-		.SetVertexLayout(VertexLayoutType::None)
-		.Build();
+	//PipelineBuilder builder;
+	//mComputePipeline = builder
+	//	//.SetCompute(mComputeShader->GetStageCreateInfo())
+	//	.SetDefaultBlendStates(1)
+	//	.SetInputAssembly(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST)
+	//	.SetViewportState({ viewport }, { scissor })
+	//	.SetRasterizer(VK_CULL_MODE_NONE)
+	//	//.SetDynamicStates(dynamicStates)
+	//	.SetDefaultMultisampling()
+	//	.SetRenderingInfo(colorAttachmentFormats, 1, VK_FORMAT_UNDEFINED, VK_FORMAT_UNDEFINED)
+	//	.SetVertexLayout(VertexLayoutType::None)
+	//	.Build();
 
-	mOffscreenQuadTexture = TextureFactory::CreateTextureRenderTarget(mSwapChain->GetExtent(), VK_FORMAT_B8G8R8A8_SRGB, "Offscreen Full Quad");
+	//mOffscreenQuadTexture = TextureFactory::CreateTextureRenderTarget(mSwapChain->GetExtent(), VK_FORMAT_B8G8R8A8_SRGB);
+	//mComputeTexture = TextureFactory::CreateTextureRenderTarget(mSwapChain->GetExtent(), VK_FORMAT_B8G8R8A8_SRGB);
+	
+	AssetManager::Get()->LoadAsset<Mesh>("engine://Models/sm_cube.fbx");
 
 	return true;
 }
@@ -179,8 +189,6 @@ void Renderer::BeginFrame()
 
 void Renderer::EndFrame()
 {
-	
-
 	FrameSync& frameSync = mFrameSyncs[mCurrentFrameIndex];
 
 	mGPUResourceManager.ExecuteUploads(frameSync.commandBuffer);

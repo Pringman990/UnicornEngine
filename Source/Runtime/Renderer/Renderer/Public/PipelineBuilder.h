@@ -11,6 +11,7 @@ public:
 	~PipelineBuilder();
 
 	PipelineBuilder& SetShaders(const Vector<VkPipelineShaderStageCreateInfo>& ShaderStage);
+	PipelineBuilder& SetCompute(const VkPipelineShaderStageCreateInfo& ShaderStage);
 	PipelineBuilder& SetVertexLayout(VertexLayoutType Type);
 	PipelineBuilder& SetInputAssembly(VkPrimitiveTopology Topology);
 	PipelineBuilder& SetRasterizer(VkCullModeFlags CullMode, VkPolygonMode PolygonMode = VK_POLYGON_MODE_FILL, float LineWidth = 1.0f);
@@ -28,6 +29,16 @@ public:
 	Pipeline* Build();
 
 private:
+	Pipeline* BuildGraphicsPipeline(VkDevice Device);
+	Pipeline* BuildComputePipeline(VkDevice Device);
+private:
+	enum PipelineType
+	{
+		Undefined,
+		Graphics,
+		Compute
+	}mType = PipelineType::Undefined;
+
 	struct PipelineBuildInfo
 	{
 		Vector<VkPipelineShaderStageCreateInfo> shaderStages;//

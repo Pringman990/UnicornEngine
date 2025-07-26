@@ -34,14 +34,14 @@ void TextureFactory::CreateTexture2D(GPUTexture* Texture, const Texture2D::Stagi
 	//texture->mHandle = resourcehandle;
 }
 
-GPUResourceHandle<TextureRenderTarget> TextureFactory::CreateTextureRenderTarget(VkExtent2D Extent, VkFormat Format, const String& DebugName)
+GPUResourceHandle<GPUTexture> TextureFactory::CreateTextureRenderTarget(VkExtent2D Extent, VkFormat Format)
 {
 	//TextureCreateData textureData = CreateTexture(Extent, Format, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
 
 	//VkExtent3D extent = { (uint32)StagingData.extent.x, (uint32)StagingData.extent.y, 1 };
 	//CreateTexture(Texture, extent, Format, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
 
-    TextureRenderTarget* texture = new TextureRenderTarget();
+    //TextureRenderTarget* texture = new TextureRenderTarget();
 	//texture->mFormat = Format;
 	//texture->mExtent = Extent;
 	//texture->mOwnsImage = true;
@@ -56,7 +56,14 @@ GPUResourceHandle<TextureRenderTarget> TextureFactory::CreateTextureRenderTarget
 
 	//texture->mHandle = resourcehandle;
 
-    return GPUResourceHandle<TextureRenderTarget>::Invalid();
+	const GPUResourceHandle<GPUTexture> handle = Renderer::Get()->GetGPUResourceManager().AllocateResource<GPUTexture>();
+
+	GPUTexture* texture = Renderer::Get()->GetGPUResourceManager().GetResource(handle);
+
+	VkExtent3D extent = { Extent.width, Extent.height, 1 };
+	CreateTexture(texture, extent, Format, VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
+
+    return handle;
 }
 
 const GPUResourceHandle<GPUTexture> TextureFactory::CreateTextureRenderTargetSC(
