@@ -51,7 +51,7 @@ void Editor::BeginFrame()
 	for (uint32 i = 0; i < mTextureUploadQueue.size(); i++)
 	{
 		Texture2D* texture = mTextureUploadQueue[i];
-		if (texture->GetState() != AssetBase<Texture2D>::AssetState::GPU_Uploaded)
+		if (!texture->GetResourceData().gpuHandle)
 			continue;
 
 		mImguiBackend->AddTextureToImgui(texture, mTextureSampler);

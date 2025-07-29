@@ -11,7 +11,6 @@ public:
 	{
 		String name = "NO_NAME";
 		Vector2 extent;
-		bool ownsImage = true;
 	};
 
 	struct ResourceData

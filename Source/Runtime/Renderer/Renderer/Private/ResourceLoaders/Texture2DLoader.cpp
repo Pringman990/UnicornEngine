@@ -1,4 +1,4 @@
-#include "Texture2DLoader.h"
+#include "ResourceLoaders/Texture2DLoader.h"
 #include <stb_image.h>
 
 #include "TextureFactory.h"
@@ -15,7 +15,6 @@ Texture2DLoader::~Texture2DLoader()
 
 AssetLoadResult<Texture2D> Texture2DLoader::Load(const String& VirtualPath, Texture2D* Asset)
 {
-
 	ByteBuffer buffer = FileSystem::ReadAll(VirtualPath);
 
 	int32 width, height, channel;
@@ -38,22 +37,23 @@ AssetLoadResult<Texture2D> Texture2DLoader::Load(const String& VirtualPath, Text
 	
 	ByteBuffer textureData(imageSize);
 	memcpy_s(textureData.data(), imageSize, rawImage, imageSize);
-	result.stagingData.textureData = textureData;
-	result.stagingData.extent = Vector2(width, height);
 
 	stbi_image_free(rawImage);
 	
 	auto resourceData = result.resourceData;
-	Texture2D::StagingData stagingData = result.stagingData;
 	int32 imageSizeCopy = imageSize;
 
+	TextureFactory::TextureCreateInfo textureCreateInfo{};
+	textureCreateInfo.pixelData = textureData;
+	textureCreateInfo.extent = Vector3(width, height, 1);
+
 	Renderer::Get()->GetGPUResourceManager().UploadTask(
-		[resourceData, stagingData, imageSizeCopy, Asset](CommandBuffer* Cmd)
+		[resourceData, textureCreateInfo, imageSizeCopy, Asset](CommandBuffer* Cmd)
 		{
 			auto& resourceManager = Renderer::Get()->GetGPUResourceManager();
 			GPUTexture* texture = resourceManager.GetResource<GPUTexture>(resourceData.gpuHandle);
 			
-			TextureFactory::CreateTexture2D(texture, stagingData);
+			TextureFactory::CreateTexture2D(texture, textureCreateInfo);
 
 			GPUBarrier::TransitionToTransferDst(*Cmd, texture);
 
@@ -63,12 +63,10 @@ AssetLoadResult<Texture2D> Texture2DLoader::Load(const String& VirtualPath, Text
 				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
 			);
 
-			VkExtent3D extent = { (uint32)stagingData.extent.x, (uint32)stagingData.extent.y, 1 };
-			TextureFactory::CopyRawDataToTexture(stagingData.textureData.data(), extent, Cmd, texture->image, *stagingBuffer);
+			VkExtent3D extent = { (uint32)textureCreateInfo.extent.x, (uint32)textureCreateInfo.extent.y, 1 };
+			TextureFactory::CopyRawDataToTexture(textureCreateInfo.pixelData.data(), extent, Cmd, texture->image, *stagingBuffer);
 		
 			GPUBarrier::TransitionToShaderRead(*Cmd, texture);
-
-			Asset->SetState(AssetBase<Texture2D>::AssetState::GPU_Uploaded);
 		});
 
 	return result;

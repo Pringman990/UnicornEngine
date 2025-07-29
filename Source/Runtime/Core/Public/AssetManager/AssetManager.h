@@ -49,7 +49,7 @@ public:
 	}
 
 	template<typename T>
-	AssetHandle<T> LoadAsset(const String& VirtualPath, bool Threaded = true)
+	AssetHandle<T> LoadAsset(const String& VirtualPath)
 	{
 		if (!FileSystem::Exists(VirtualPath))
 		{
@@ -75,86 +75,27 @@ public:
 			return AssetHandle<T>::Invalid();
 		}
 
-		if (Threaded)
+
+		AssetLoadResult<T> result = loader->Load(VirtualPath, asset);
+
+		asset->mMetadata = result.metadata;
+
+		if constexpr (!std::is_same_v<decltype(result.resourceData), std::monostate>)
 		{
-			ThreadPool::Get()->Enqueue([=]()
-				{
-					AssetLoadResult<T> result = loader->Load(VirtualPath, asset);
-
-					asset->mMetadata = result.metadata;
-
-					if constexpr (!std::is_same_v<decltype(result.resourceData), std::monostate>)
-					{
-						if constexpr (requires {asset->mResourceData; })
-						{
-							asset->mResourceData = result.resourceData;
-						}
-						else
-						{
-							static_assert(
-								dependent_false_v<T>,
-								"[Asset Error] Type T has ResourceData struct but is missing member mResourceData"
-								);
-						}
-					}
-
-					if constexpr (!std::is_same_v<decltype(result.stagingData), std::monostate>)
-					{
-						if constexpr (requires {asset->mStagingData; })
-						{
-							asset->mStagingData = result.stagingData;
-						}
-						else
-						{
-							static_assert(
-								dependent_false_v<T>,
-								"[Asset Error] Type T has StagingData struct but is missing member mStagingData"
-								);
-						}
-					}
-
-					asset->mState = AssetBase<T>::AssetState::Loaded;
-
-				}, []() {});
-		}
-		else
-		{
-			AssetLoadResult<T> result = loader->Load(VirtualPath, asset);
-
-			asset->mMetadata = result.metadata;
-
-			if constexpr (!std::is_same_v<decltype(result.resourceData), std::monostate>)
+			if constexpr (requires {asset->mResourceData; })
 			{
-				if constexpr (requires {asset->mResourceData; })
-				{
-					asset->mResourceData = result.resourceData;
-				}
-				else
-				{
-					static_assert(
-						dependent_false_v<T>,
-						"[Asset Error] Type T has ResourceData struct but is missing member mResourceData"
-						);
-				}
+				asset->mResourceData = result.resourceData;
 			}
-
-			if constexpr (!std::is_same_v<decltype(result.stagingData), std::monostate>)
+			else
 			{
-				if constexpr (requires {asset->mStagingData; })
-				{
-					asset->mStagingData = result.stagingData;
-				}
-				else
-				{
-					static_assert(
-						dependent_false_v<T>,
-						"[Asset Error] Type T has StagingData struct but is missing member mStagingData"
-						);
-				}
+				static_assert(
+					dependent_false_v<T>,
+					"[Asset Error] Type T has ResourceData struct but is missing member mResourceData"
+					);
 			}
-
-			asset->mState = AssetBase<T>::AssetState::Loaded;
 		}
+
+		asset->mState = AssetBase<T>::AssetState::Loaded;
 
 		return handle;
 	}

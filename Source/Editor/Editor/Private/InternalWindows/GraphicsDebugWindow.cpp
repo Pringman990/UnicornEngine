@@ -21,7 +21,7 @@ GraphicsDebugWindow::~GraphicsDebugWindow()
 bool GraphicsDebugWindow::Init()
 {
    // mGraphicsCardInfo = Renderer::Get()->GetGraphicsCardInfo();
-    ResourceHandle<Texture2D> textureHandle = AssetManager::Get()->LoadAsset<Texture2D>("engine://Test.png", false);
+    ResourceHandle<Texture2D> textureHandle = AssetManager::Get()->LoadAsset<Texture2D>("engine://Test.png");
     texture = AssetManager::Get()->GetAsset(textureHandle);
 
     //GPUTexture* gpuTexture = Renderer::Get()->GetGPUResourceManager().GetResource(texture->GetResourceData().gpuHandle);

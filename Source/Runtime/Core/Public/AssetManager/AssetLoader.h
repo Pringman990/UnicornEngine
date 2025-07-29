@@ -13,11 +13,6 @@ struct AssetLoadResult
 		requires { typename T::ResourceData; },
 	typename T::ResourceData,
 		std::monostate > resourceData;
-
-	std::conditional_t <
-		requires { typename T::StagingData; },
-	typename T::StagingData,
-		std::monostate > stagingData;
 };
 
 template<typename T>
