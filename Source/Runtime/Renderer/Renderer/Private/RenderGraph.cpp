@@ -28,7 +28,7 @@ void RenderGraph::AddPass(
 
 void RenderGraph::Build()
 {
-	for (uint32 i = 0; i < mPasses.size(); i++)
+	/*for (uint32 i = 0; i < mPasses.size(); i++)
 	{
 		auto& passA = mPasses[i];
 
@@ -66,10 +66,10 @@ void RenderGraph::Build()
 			{
 				passB.dependencies.push_back(&passA);
 			}
-		}
-	}
+		}*/
+	//}
 
-	Set<const Pass*> visited;
+	/*Set<const Pass*> visited;
 
 	Func<void(const Pass*)> Visit = [&](const Pass* pass)
 		{
@@ -89,7 +89,7 @@ void RenderGraph::Build()
 	for (const auto& pass : mPasses)
 	{
 		Visit(&pass);
-	}
+	}*/
 }
 
 CommandPool* RenderGraph::Execute()

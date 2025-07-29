@@ -5,11 +5,18 @@
 #include <utility> //std::move
 
 template<typename T>
-class ResourcePool final : public IResourcePool
+class ResourcePool : public IResourcePool
 {
 public:
+	struct Entry
+	{
+		T resource;
+		uint32 generation;
+		bool alive = false;
+	};
+
 	ResourcePool() = default;
-	~ResourcePool() override {};
+	virtual ~ResourcePool() override {};
 
 	const ResourceHandle<T> Allocate()
 	{
@@ -50,25 +57,8 @@ public:
 		return &mEntries[Handle.index].resource;
 	}
 
-	T* Get(const ScopedHandle& Handle)
-	{
-		if (Handle.index >= mEntries.size())
-		{
-			_LOG_CORE_ERROR("Tried to get resource with index larger then the count of all entries");
-			return nullptr;
-		}
-
-		const Entry& entry = mEntries[Handle.index];
-		if (!entry.alive || entry.generation != Handle.generation)
-		{
-			_LOG_CORE_WARNING("Tried to get resource that was either not alive ({}) or is of wrong generation (Handle: {}, entry: {})", entry.alive, Handle.generation, entry.generation);
-			return nullptr;
-		}
-
-		return &mEntries[Handle.index].resource;
-	}
-
-	void Remove(ResourceHandle<T>& Handle, std::function<void(T*)> OnRemove = nullptr)
+	template<typename Fn, typename... Args>
+	void Remove(ResourceHandle<T>& Handle, Fn OnRemove, Args&&... args)
 	{
 		if (Handle.index >= mEntries.size())
 		{
@@ -79,25 +69,43 @@ public:
 		const Entry& entry = mEntries[Handle.index];
 		if (entry.alive && entry.generation == Handle.generation)
 		{
-			if(OnRemove)
-				OnRemove(&entry.resource);
-			
+			if (OnRemove)
+				OnRemove(&entry.resource, std::forward<Args>(args)...);
+
 			entry.alive = false;
 			entry.generation++;
 			entry.resource = {};
 			mFreeIndices.push(Handle.index);
-			
+
 			Handle.Invalidate();
 		}
 	}
 
-private:
-	struct Entry
+	/// <summary>
+	/// Deletes all resources in this pool
+	/// </summary>
+	/// <typeparam name="...Args"></typeparam>
+	/// <param name="Handle"></param>
+	/// <param name="OnRemove"></param>
+	/// <param name="...args"></param>
+	template<typename Fn, typename... Args>
+	void Clear(Fn OnRemove, Args&&... args)
 	{
-		T resource;
-		uint32 generation;
-		bool alive = false;
-	};
+		for (auto& entry : mEntries)
+		{
+			if (entry.alive)
+			{
+				if (OnRemove)
+					OnRemove(&entry.resource, std::forward<Args>(args)...);
+			}
+		}
+
+		mEntries.clear();
+	}
+
+	const Vector<ResourcePool<T>::Entry>& GetEntries() { return mEntries; };
+
+private:
 
 	Vector<Entry> mEntries;
 	Queue<uint32> mFreeIndices;

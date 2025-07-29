@@ -6,7 +6,7 @@
 
 #include <FileSystem/NativeFileBackend.h>
 
-#include "Texture2DLoader.h"
+#include "ResourceLoaders/Texture2DLoader.h"
 #include "TextureFactory.h"
 
 #include "RenderScope.h"
@@ -16,6 +16,7 @@
 #include "PipelineBuilder.h"
 #include "VertexShader.h"
 #include "FragmentShader.h"
+#include "GPUTexture.h"
 
 Renderer::Renderer()
 	:
@@ -31,8 +32,7 @@ Renderer::Renderer()
 
 Renderer::~Renderer()
 {
-	AssetManager::Get()->UnRegisterPool<Texture2D>();
-	AssetManager::Get()->UnRegisterPool<TextureRenderTarget>();
+	UnRegisterAllGPUAssets();
 
 	vkDeviceWaitIdle(*mDevice);
 
@@ -44,6 +44,8 @@ Renderer::~Renderer()
 
 	delete mSwapChain;
 	mSwapChain = nullptr;
+
+	UnRegisterAllGPUResourcePools();
 
 	delete mDevice;
 	mDevice = nullptr;
@@ -66,12 +68,8 @@ Renderer::~Renderer()
 
 bool Renderer::Init()
 {
-	AssetManager::Get()->RegisterPool<Texture2D>();
-	AssetManager::Get()->RegisterPool<TextureRenderTarget>();
-
-	AssetManager::Get()->RegisterLoader<Texture2D, Texture2DLoader>();
-
-	mGPUResourceManager.RegisterPool<GPUTexture>();
+	RegisterAllGPUResourcePools();
+	RegisterAllGPUAssets();
 
 	if (!CreateInstance())
 		return false;
@@ -93,44 +91,44 @@ bool Renderer::Init()
 		mFrameSyncs.emplace_back(std::move(sync));
 	}
 
-	//TEMP
-	mVertexShader = VertexShader::Create("Triangle_VS.spv");
-	mFragmentShader = FragmentShader::Create("Triangle_FS.spv");
+	////TEMP
+	//mVertexShader = VertexShader::Create("Triangle_VS.spv");
+	//mFragmentShader = FragmentShader::Create("Triangle_FS.spv");
 
-	VkViewport viewport{};
-	viewport.x = 0.0f;
-	viewport.y = 0.0f;
-	viewport.width = (float)mSwapChain->GetExtent().width;
-	viewport.height = (float)mSwapChain->GetExtent().height;
-	viewport.minDepth = 0.0f;
-	viewport.maxDepth = 1.0f;
+	//VkViewport viewport{};
+	//viewport.x = 0.0f;
+	//viewport.y = 0.0f;
+	//viewport.width = (float)mSwapChain->GetExtent().width;
+	//viewport.height = (float)mSwapChain->GetExtent().height;
+	//viewport.minDepth = 0.0f;
+	//viewport.maxDepth = 1.0f;
 
-	VkRect2D scissor{};
-	scissor.offset = { 0, 0 };
-	scissor.extent = mSwapChain->GetExtent();
+	//VkRect2D scissor{};
+	//scissor.offset = { 0, 0 };
+	//scissor.extent = mSwapChain->GetExtent();
 
-	std::vector<VkDynamicState> dynamicStates =
-	{
-		VK_DYNAMIC_STATE_VIEWPORT,
-		VK_DYNAMIC_STATE_SCISSOR
-	};
+	//std::vector<VkDynamicState> dynamicStates =
+	//{
+	//	VK_DYNAMIC_STATE_VIEWPORT,
+	//	VK_DYNAMIC_STATE_SCISSOR
+	//};
 
-	VkFormat colorAttachmentFormats[] = { VK_FORMAT_B8G8R8A8_SRGB };
+	//VkFormat colorAttachmentFormats[] = { VK_FORMAT_B8G8R8A8_SRGB };
 
-	PipelineBuilder builder;
-	mPipeline = builder
-		.SetShaders({ mVertexShader->GetStageCreateInfo(), mFragmentShader->GetStageCreateInfo() })
-		.SetDefaultBlendStates(1)
-		.SetInputAssembly(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST)
-		.SetViewportState({ viewport }, { scissor })
-		.SetRasterizer(VK_CULL_MODE_NONE)
-		//.SetDynamicStates(dynamicStates)
-		.SetDefaultMultisampling()
-		.SetRenderingInfo(colorAttachmentFormats, 1, VK_FORMAT_UNDEFINED, VK_FORMAT_UNDEFINED)
-		.SetVertexLayout(VertexLayoutType::None)
-		.Build();
+	//PipelineBuilder builder;
+	//mPipeline = builder
+	//	.SetShaders({ mVertexShader->GetStageCreateInfo(), mFragmentShader->GetStageCreateInfo() })
+	//	.SetDefaultBlendStates(1)
+	//	.SetInputAssembly(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST)
+	//	.SetViewportState({ viewport }, { scissor })
+	//	.SetRasterizer(VK_CULL_MODE_NONE)
+	//	//.SetDynamicStates(dynamicStates)
+	//	.SetDefaultMultisampling()
+	//	.SetRenderingInfo(colorAttachmentFormats, 1, VK_FORMAT_UNDEFINED, VK_FORMAT_UNDEFINED)
+	//	.SetVertexLayout(VertexLayoutType::None)
+	//	.Build();
 
-	mOffscreenQuadTexture = TextureFactory::CreateTextureRenderTarget(mSwapChain->GetExtent(), VK_FORMAT_B8G8R8A8_SRGB, "Offscreen Full Quad");
+	//mOffscreenQuadTexture = TextureFactory::CreateTextureRenderTarget(mSwapChain->GetExtent(), VK_FORMAT_B8G8R8A8_SRGB, "Offscreen Full Quad");
 
 	return true;
 }
@@ -179,8 +177,6 @@ void Renderer::BeginFrame()
 
 void Renderer::EndFrame()
 {
-	
-
 	FrameSync& frameSync = mFrameSyncs[mCurrentFrameIndex];
 
 	mGPUResourceManager.ExecuteUploads(frameSync.commandBuffer);
@@ -347,6 +343,30 @@ bool Renderer::CheckValidationLayerSupport()
 	}
 
 	return true;
+}
+
+void Renderer::RegisterAllGPUResourcePools()
+{
+	mGPUResourceManager.RegisterPool<GPUTexture>();
+}
+
+void Renderer::UnRegisterAllGPUResourcePools()
+{
+	mGPUResourceManager.UnRegisterPool<GPUTexture>(&GPUTexture::DestroyGPUTexture, mDevice);
+}
+
+void Renderer::RegisterAllGPUAssets()
+{
+	AssetManager::Get()->RegisterPool<Texture2D>();
+	AssetManager::Get()->RegisterLoader<Texture2D, Texture2DLoader>();
+
+	AssetManager::Get()->RegisterPool<TextureRenderTarget>();
+}
+
+void Renderer::UnRegisterAllGPUAssets()
+{
+	AssetManager::Get()->UnRegisterPool<Texture2D>();
+	AssetManager::Get()->UnRegisterPool<TextureRenderTarget>();
 }
 
 const std::vector<const char*>& Renderer::GetValidationLayers()

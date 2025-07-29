@@ -19,16 +19,9 @@ public:
 		GPUResourceHandle<GPUTexture> gpuHandle;
 	};
 
-	struct StagingData
-	{
-		ByteBuffer textureData;
-		Vector2 extent;
-	};
 public:
 	Texture2D();
 	~Texture2D();
-
-	void FreeStagingData();
 
 	virtual const String& GetName() const override { return mMetadata.name; }
 	
@@ -41,7 +34,6 @@ public:
 private:
 	Metadata mMetadata;
 	ResourceData mResourceData;
-	StagingData mStagingData;
 
 	uint64 mImGuiHandle;
 };

@@ -9,8 +9,8 @@ public:
 	struct Pass
 	{
 		String name;
-		Vector<ScopedHandle> reads;
-		Vector<ScopedHandle> writes;
+		//Vector<ScopedHandle> reads;
+		//Vector<ScopedHandle> writes;
 		Func<void(CommandBuffer*)> execute;
 
 		Vector<Pass*> dependencies;

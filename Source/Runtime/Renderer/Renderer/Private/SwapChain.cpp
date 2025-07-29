@@ -39,7 +39,14 @@ void SwapChain::ReCreate(PhysicalDevice* PhysicalDevice, LogicalDevice* Logical,
 
 void SwapChain::Destroy() 
 {
-	vkDestroySwapchainKHR(*Renderer::Get()->GetDevice(), mSwapChain, nullptr);
+	LogicalDevice* device = Renderer::Get()->GetDevice();
+
+	for (uint32 i = 0; i < mRenderTargets.size(); i++)
+	{
+		Renderer::Get()->GetGPUResourceManager().FreeResource<GPUTexture>(mRenderTargets[i], &GPUTexture::DestroyGPUTextureImageViewOnly, device);
+	}
+
+	vkDestroySwapchainKHR(*device, mSwapChain, nullptr);
 	mSwapChain = VK_NULL_HANDLE;
 
 	mRenderTargets.clear();

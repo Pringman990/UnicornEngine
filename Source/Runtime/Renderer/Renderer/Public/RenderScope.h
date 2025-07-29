@@ -2,6 +2,7 @@
 #include <Core.h>
 
 #include "CommandBuffer.h"
+#include "RenderContext.h"
 
 struct RenderScopeInfo
 {

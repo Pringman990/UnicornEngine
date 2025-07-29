@@ -121,6 +121,10 @@ public:
 private:
 	bool CreateInstance();
 	bool CheckValidationLayerSupport();
+	void RegisterAllGPUResourcePools();
+	void UnRegisterAllGPUResourcePools();
+	void RegisterAllGPUAssets();
+	void UnRegisterAllGPUAssets();
 
 	const std::vector<const char*>& GetValidationLayers();
 private:
