@@ -2,9 +2,9 @@
 
 #include "GPUBarrier.h"
 
-void TextureFactory::CreateTexture2D(GPUTexture* Texture, const Texture2D::StagingData& StagingData, VkFormat Format)
+void TextureFactory::CreateTexture2D(GPUTexture* Texture, const TextureCreateInfo& CreateInfo, VkFormat Format)
 {
-	VkExtent3D extent = {(uint32)StagingData.extent.x, (uint32)StagingData.extent.y, 1};
+	VkExtent3D extent = {(uint32)CreateInfo.extent.x, (uint32)CreateInfo.extent.y, 1};
 	CreateTexture(Texture, extent, Format, VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
 
 	////TODO: Fix when multi threading
@@ -41,7 +41,7 @@ GPUResourceHandle<TextureRenderTarget> TextureFactory::CreateTextureRenderTarget
 	//VkExtent3D extent = { (uint32)StagingData.extent.x, (uint32)StagingData.extent.y, 1 };
 	//CreateTexture(Texture, extent, Format, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
 
-    TextureRenderTarget* texture = new TextureRenderTarget();
+    //TextureRenderTarget* texture = new TextureRenderTarget();
 	//texture->mFormat = Format;
 	//texture->mExtent = Extent;
 	//texture->mOwnsImage = true;

@@ -9,7 +9,3 @@ Texture2D::Texture2D()
 Texture2D::~Texture2D()
 {
 }
-
-void Texture2D::FreeStagingData()
-{
-}

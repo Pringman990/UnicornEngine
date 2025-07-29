@@ -9,8 +9,14 @@
 class TextureFactory : public IGPUResourceFactory
 {
 public:
+	struct TextureCreateInfo
+	{
+		ByteBuffer pixelData;
+		Vector3 extent;
+	};
+public:
 
-	static void CreateTexture2D(GPUTexture* Texture, const Texture2D::StagingData& StagingData, VkFormat Format = VK_FORMAT_R8G8B8A8_UNORM);
+	static void CreateTexture2D(GPUTexture* Texture, const TextureCreateInfo& CreateInfo, VkFormat Format = VK_FORMAT_R8G8B8A8_UNORM);
 	static GPUResourceHandle<TextureRenderTarget> CreateTextureRenderTarget(VkExtent2D Extent, VkFormat Format, const String& DebugName = "NO_NAME");
 	static const GPUResourceHandle<GPUTexture> CreateTextureRenderTargetSC(LogicalDevice& Device, VkImage Image, VkFormat Format, VkExtent2D Extent);
 
