@@ -6,7 +6,6 @@
 
 #include <ResourceManagment/ResourcePool.h>
 
-#include "Texture2D.h"
 #include "GraphicsCardInfo.h"
 
 #include "LogicalDevice.h"
@@ -22,15 +21,16 @@
 
 #include "GPUResourceManager.h"
 #include "GenericGPUBuffer.h"
+#include "DescriptorPool.h"
+#include "DescriptorSet.h"
 
 #define VULKAN_ALIGN alignas(16)
 #define VK_ENABLE_VALIDATION_LAYER_INFO_LOGGING false
 
 //TEMP
-struct UniformBufferObject
+struct ObjectFrameDataUBO
 {
 	VULKAN_ALIGN Matrix model;
-	VULKAN_ALIGN Matrix worldToClip;
 };
 
 struct FrameSync
@@ -41,6 +41,10 @@ struct FrameSync
 	CommandPool* commandPool;
 	CommandBuffer* commandBuffer;
 	uint32 imageIndex;
+
+	GenericGPUBuffer* cameraUBOBuffer;
+	GenericGPUBuffer* objectFrameDataUBOBuffer;
+	DescriptorSet* descSet;
 
 	Vector<SharedPtr<GenericGPUBuffer>> perFrameBuffers;
 
@@ -114,17 +118,20 @@ public:
 	CommandPool* GetCurrentFrameSyncCommandPool() const { return mFrameSyncs[mCurrentFrameIndex].commandPool; };
 	void PushToCurrentFrameSyncGPUBuffer(SharedPtr<GenericGPUBuffer> Buffer) { mFrameSyncs[mCurrentFrameIndex].perFrameBuffers.push_back(Buffer); };
 
-	const GPUResourceHandle<TextureRenderTarget> GetOffscreenTexture() const { return mOffscreenQuadTexture; };
+	//const GPUResourceHandle<TextureRenderTarget> GetOffscreenTexture() const { return mOffscreenQuadTexture; };
 
 	GPUResourceManager& GetGPUResourceManager() { return mGPUResourceManager; };
+
+	void SetActiveCamera(Camera* ActiveCamera) { mActiveCamera = ActiveCamera; };
+
+	//Temp
+	void RenderMesh(const GPUResourceHandle<struct GPUMesh>& MeshHandle, Transform& MeshTransform);
 
 private:
 	bool CreateInstance();
 	bool CheckValidationLayerSupport();
 	void RegisterAllGPUResourcePools();
 	void UnRegisterAllGPUResourcePools();
-	void RegisterAllGPUAssets();
-	void UnRegisterAllGPUAssets();
 
 	const std::vector<const char*>& GetValidationLayers();
 private:
@@ -152,5 +159,16 @@ private:
 	class Pipeline* mPipeline;
 	class VertexShader* mVertexShader;
 	class FragmentShader* mFragmentShader;
-	GPUResourceHandle<TextureRenderTarget> mOffscreenQuadTexture;
+
+	class Pipeline* mVoxelPipeline;
+	class ComputeShader* mVoxelCS;
+	GPUResourceHandle<GPUTexture> mOffscreenQuadTexture;
+	struct GPUMesh* mMesh;
+	VkRect2D scissor;
+	VkViewport viewport;
+
+	DescriptorPool* mDescPool;
+	VkDescriptorSetLayout mSetLayout;
+
+	Transform mModelTransform;
 };
