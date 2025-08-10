@@ -9,6 +9,10 @@ struct Vertex2D
 
 struct Vertex3D
 {
-	Vector2 position;
+	Vector4 position;
 	Color color;
+	Vector2 uv;
+	Vector3 normal;
+	Vector3 bitangent;
+	Vector3 tangent;
 };

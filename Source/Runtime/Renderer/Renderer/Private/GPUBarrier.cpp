@@ -157,3 +157,22 @@ void GPUBarrier::TransitionToDepthAttachment(VkCommandBuffer Cmd, GPUTexture* Te
 
     Texture->currentImageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
 }
+
+void GPUBarrier::TransitionToGeneral(VkCommandBuffer Cmd, GPUTexture* Texture)
+{
+    ImageBarrier(
+        Cmd,
+        Texture->image,
+        Texture->currentImageLayout,
+        VK_IMAGE_LAYOUT_GENERAL,
+        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,    // source stage depends on previous usage
+        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,    // destination stage, usually the shader stage that will use it
+        VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_SHADER_READ_BIT, // access masks for read/write in shader
+        VK_ACCESS_SHADER_WRITE_BIT | VK_ACCESS_SHADER_READ_BIT,
+        VK_IMAGE_ASPECT_COLOR_BIT,
+        1,
+        1
+    );
+
+    Texture->currentImageLayout = VK_IMAGE_LAYOUT_GENERAL;
+}
