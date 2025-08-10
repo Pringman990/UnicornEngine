@@ -11,9 +11,7 @@ public:
 
 	static IndexBuffer Create(const Vector<uint32>& Indicies, CommandPool* Pool);
 
-	void Free(LogicalDevice* Device);
-public:
-	operator VkBuffer() const noexcept { return mBuffer; }
+	void Free();
 
 private:
 	static void CreateBuffer(VkDeviceSize Size, VkBufferUsageFlags Usage, VkMemoryPropertyFlags Properties, VkBuffer& Buffer, VkDeviceMemory& BufferMemory);

@@ -9,11 +9,7 @@
 #include <Logger/Logger.h>
 
 #include <RendererCore.h>
-
-#include <Input/InputMapper.h>
-
-#include "GPUMesh.h"
-#include "Factories/MeshFactory.h"
+#include <d3dcompiler.h>
 
 namespace {
 	GameWorld gameworld;
@@ -96,26 +92,20 @@ void GameWorld::Init()
 {
 	LOG_INFO("GameWorld init...");
 
-	float aspect = (16.f / 9.f);
-	mCamera.SetPerspective(90, aspect, 0.01f, 1000.f);
-	mCamera.GetTransform().SetPosition({ 0,0,-5 });
-	Renderer::Get()->SetActiveCamera(&mCamera);
+	//float aspect = (16.f / 9.f);
+	//mCamera.SetPerspective(90, aspect, 0.01f, 1000.f);
+	//mCamera.GetTransform().SetPosition({ 0,0,-5 });
+	//Renderer::Get()->SetMainCamera(&mCamera);
 
-	ByteBuffer meshData = FileSystem::Get()->ReadAll("engine://Models/sm_cube.fbx");
-	mMeshHandle = MeshFactory::CreateMesh(meshData, "Cube");
+
 	
 }
 
 void GameWorld::Render()
 {
 	//auto cmdList = Renderer::Get()->GetMainCommandList();
-	Vector3 rot = mTransform.GetEularRotation();
-	rot.y += Timer::Get()->GetDeltaTime();
-	mTransform.SetRotation(rot);
 
-	Renderer::Get()->RenderMesh(mMeshHandle, mTransform);
 
-	UpdateCamera();
 }
 
 void GameWorld::UpdateCamera()
@@ -170,7 +160,7 @@ void GameWorld::UpdateCamera()
 	Vector2 dPos = InputMapper::Get()->GetMouseDelta();
 	if (dPos.x != 0 || dPos.y != 0)
 	{
-		float realRotationSpeed = 500 * Timer::Get()->GetDeltaTime();
+		float realRotationSpeed = 1 * Timer::Get()->GetDeltaTime();
 
 		targetRotation.y += realRotationSpeed * dPos.x;
 		targetRotation.x += realRotationSpeed * dPos.y;

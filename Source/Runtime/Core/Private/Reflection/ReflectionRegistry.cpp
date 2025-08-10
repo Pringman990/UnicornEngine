@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Reflection/ReflectionRegistry.h"
 
 ReflectionRegistry::ReflectionRegistry()
@@ -6,32 +7,70 @@ ReflectionRegistry::ReflectionRegistry()
 
 ReflectionRegistry::~ReflectionRegistry()
 {
+	mRegistry.clear();
+	mNameToType.clear();
 }
 
-void ReflectionRegistry::RegisterType(const ReflectionRegistry::TypeInfo& Info)
+void ReflectionRegistry::RegisterType(ReflectionTypeInfo Info)
 {
-	auto it = mData.find(Info.type);
-	if (it != mData.end())
+	_LOG_CORE_INFO("Reflection registry type registered: {}", Info.name);
+
+	auto it = mNameToType.find(Info.name);
+	if (it != mNameToType.end())
 	{
-		_LOG_CORE_CRITICAL("Trying to register already registered reflected type: {}", Info.name);
+		_LOG_CORE_CRITICAL("ReflectionRegistry: Trying to register already registered: {}", Info.name);
 		return;
 	}
 
-	mData[Info.type] = Info;
+	mRegistry[*Info.typeIndex] = Info;
+	mNameToType[Info.name] = Info;
 }
 
-const ReflectionRegistry::TypeInfo& ReflectionRegistry::GetInfo(TypeIdHash Hash)
+ReflectionTypeInfo ReflectionRegistry::GetTypeInfo(std::type_index Type)
 {
-	return mData[Hash];
+	auto it = mRegistry.find(Type);
+	if (it != mRegistry.end())
+		return mRegistry.at(Type);
+
+	return ReflectionTypeInfo();
 }
 
-Vector<ReflectionRegistry::TypeInfo> ReflectionRegistry::GetAllInfos()
+ReflectionTypeInfo ReflectionRegistry::GetTypeInfo(const String& Name)
 {
-	Vector<ReflectionRegistry::TypeInfo> infos;
-	for (const auto& [hash, info] : mData)
+	auto it = mNameToType.find(Name);
+	if (it != mNameToType.end())
+		return it->second;
+
+	return ReflectionTypeInfo();
+}
+
+void ReflectionRegistry::EnqueueDefferedRegistration(DeffRegistartionFn RegFunction)
+{
+	GetDefferedQueue().push_back(RegFunction);
+}
+
+void ReflectionRegistry::ProcessDefferedRegistration()
+{
+#ifdef _DEBUG_PRINT_REFLECTION_REGISTRY
+		_LOG_CORE_INFO("================================================");
+#endif // _DEBUG_PRINT_REFLECTION_REGISTRY
+
+
+	_LOG_CORE_INFO("Processing deffered reflection registry...");
+	for (auto& fn : GetDefferedQueue())
 	{
-		infos.push_back(info);
+		fn();
 	}
+	GetDefferedQueue().clear();
+	_LOG_CORE_INFO("Processing deffered reflection registry complete");
 
-	return infos;
+#ifdef _DEBUG_PRINT_REFLECTION_REGISTRY
+	_LOG_CORE_INFO("================================================");
+#endif // _DEBUG_PRINT_REFLECTION_REGISTRY
+}
+
+Vector<ReflectionRegistry::DeffRegistartionFn>& ReflectionRegistry::GetDefferedQueue()
+{
+	static Vector<DeffRegistartionFn> queue;
+	return queue;
 }

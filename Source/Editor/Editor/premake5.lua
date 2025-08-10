@@ -31,6 +31,7 @@ project "Editor"
 		"ImguiCore",
 		"Renderer",
 		"Core",
+		"Engine"
 	})
 
 	linkDependencies("Editor", 
@@ -38,6 +39,7 @@ project "Editor"
 		"ImguiCore",
 		"Renderer",
 		"Core",
+		"Engine"
 	})
 
 	pchheader "pch.h"

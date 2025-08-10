@@ -1,14 +1,6 @@
 #pragma once
 #include <Core.h>
 
-struct alignas(16) CameraUBO
-{
-	Matrix viewMatrix;
-	Matrix projMatrix;
-	Vector3 cameraPosition;
-	uint32 pad;
-};
-
 class Camera
 {
 public:
@@ -24,9 +16,7 @@ public:
 	void SetOrthographic(Vector2 Resolution, float NearZ, float FarZ);
 
 	Transform& GetTransform();
-	Vector3 GetPosition();
 	Matrix& GetProjectionMatrix();
-	Matrix GetViewMatrix();
 
 	void GetFarNearPlanes(float& OUT Far, float& OUT Near);
 	Matrix GetClipSpaceMatrix();

@@ -16,7 +16,7 @@ VertexShader* VertexShader::Create(const String& Name, const String& EntryPoint)
     VertexShader* shader = new VertexShader();
     shader->mEntryPoint = EntryPoint;
 
-    ByteBuffer buffer = FileSystem::Get()->ReadAll("shader://" + Name);
+    ByteBuffer buffer = FileSystem::ReadAll("shader://" + Name);
 
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
