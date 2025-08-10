@@ -3,7 +3,7 @@
 
 #define ROOTPATH String("../../")
 
-class FileSystem : public EngineSubsystem<FileSystem>
+class FileSystem
 {
 	using Protocol = String;
 
@@ -21,24 +21,28 @@ public:
 		IFileBackend* backend; // For identity match
 	};
 
+	static void Init();
+
+	static MountHandle Mount(const Protocol& Protocol, SharedPtr<IFileBackend> Backend, int32 Priority = 0);
+	static void UnMount(const MountHandle& Handle);
+	static bool Exists(const String& VirtualPath);
+	static SharedPtr<IFileStream> Open(const String& VirtualPath, FileMode Mode);
+	static ByteBuffer ReadAll(const String& VirtualPath);
+	static void WriteAll(const String& VirtualPath, const ByteBuffer& Data);
+
+	static String GetAbsolutPath(const String& VirtualPath);
+
+private:
 	FileSystem();
 	~FileSystem();
 
-	void Init();
+	static Vector<MountPoint>& GetMounts()
+	{
+		static Vector<MountPoint> mounts;
+		return mounts;
+	}
 
-	MountHandle Mount(const Protocol& Protocol, SharedPtr<IFileBackend> Backend, int32 Priority = 0);
-	void UnMount(const MountHandle& Handle);
-	bool Exists(const String& VirtualPath);
-	SharedPtr<IFileStream> Open(const String& VirtualPath, FileMode Mode);
-	ByteBuffer ReadAll(const String& VirtualPath);
-	void WriteAll(const String& VirtualPath, const ByteBuffer& Data);
-
-	String GetAbsolutPath(const String& VirtualPath);
-
+	static bool ParseVirtualPath(const String& Path, Protocol& outProtocol, String& outRelativePath);
 private:
-
-	bool ParseVirtualPath(const String& Path, Protocol& outProtocol, String& outRelativePath);
-private:
-	String mRootPath;
-	Vector<MountPoint> mMounts;
+	static const String sRootPath;
 };

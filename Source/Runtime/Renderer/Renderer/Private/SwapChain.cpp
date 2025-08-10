@@ -3,7 +3,7 @@
 #include "PhysicalDevice.h"
 #include "LogicalDevice.h"
 
-#include "Factories/TextureFactory.h"
+#include "TextureFactory.h"
 
 SwapChain::SwapChain()
 	:

@@ -6,12 +6,8 @@
 #endif // EDITOR
 
 #include <RenderScope.h>
+#include <RenderPassBuilder.h>
 #include <CommandBuffer.h>
-
-#include <Input/InputMapper.h>
-
-#include <ESystemManager.h>
-#include <EComponentRegistry.h>
 
 EngineLoop::EngineLoop()
 	:
@@ -29,12 +25,9 @@ EngineLoop::~EngineLoop()
 	mEditor = nullptr;
 #endif // _EDITOR
 
-	ESystemManager::Get()->UnRegisterSystems();
 	ModuleManager::Get()->UnLoadModule("Sandbox");
 
-	InputMapper::Shutdown();
-	ESystemManager::Shutdown();
-	EComponentRegistry::Shutdown();
+	//InputMapper::Shutdown();
 	Renderer::Shutdown();
 	Application::Shutdown();
 
@@ -56,8 +49,8 @@ bool EngineLoop::Init()
 
 	mGenericApplication->OnApplicationRequestExist.AddRaw(this, &EngineLoop::RequestExit);
 
-	InputMapper::Create();
-	InputMapper::Get()->Init();
+	//InputMapper::Create();
+	//InputMapper::Get()->Init();
 
 	{
 		_LOG_CORE_INFO("Creating Renderer");
@@ -78,9 +71,6 @@ bool EngineLoop::Init()
 		float rendererInitTime = TIMER_END_READING("__Engine Loop Renderer Init__");
 		_LOG_CORE_INFO("Renderer has finished Initialize, it took: {:0.7f}s", rendererInitTime);
 	}
-
-	ESystemManager::Create();
-	EComponentRegistry::Create();
 
 #ifdef _EDITOR
 	{
@@ -112,14 +102,7 @@ bool EngineLoop::Init()
 		_PAUSE_TRACK_MEMORY(false);
 	}
 
-	auto infos = ReflectionRegistry::Get()->GetAllInfos();
-	for (auto& info : infos)
-	{
-		REFLECTION_LOG_TYPE_INFO(info)
-	}
-
-	mWorld = new EWorld();
-	ESystemManager::Get()->RunLoad(*mWorld);
+	ReflectionRegistry::ProcessDefferedRegistration();
 
 	float initTime = TIMER_END_READING("__Engine Loop Init__");
 	_LOG_CORE_INFO("Engine Loop has finished Initialize, it took: {:0.7f}s", initTime);
@@ -132,12 +115,10 @@ void EngineLoop::Update()
 	if (mShouldExit)
 		return;
 
-	InputMapper::Get()->Update();
-
 	mRenderer->BeginFrame();
 	
-	ESystemManager::Get()->RunUpdate(*mWorld);
 	mSandboxRender();
+
 	{
 #ifdef _EDITOR
 		RenderScope scope(mRenderer->GetCurrentSwapChainTexture());
@@ -151,6 +132,7 @@ void EngineLoop::Update()
 	}
 
 	mRenderer->EndFrame();
+	//InputMapper::Get()->Update();
 }
 
 void EngineLoop::RequestExit()

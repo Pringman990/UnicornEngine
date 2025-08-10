@@ -1,9 +1,13 @@
 #pragma once
-#include "StandardTypes/StandardTypes.h"
-#include "EngineSubsystem.h"
-#include "TypeIdHash.h"
+#include <EngineSubsystem.h>
 
-#include <span>
+#include <vector>
+#include <memory>
+#include <typeindex>
+#include <string>
+#include <functional>
+#include "StandardTypes/StandardTypes.h"
+
 
 #define _DEBUG_PRINT_REFLECTION_REGISTRY 1
 
@@ -11,147 +15,93 @@
 #define REFLECTION_LOG_TYPE_INFO(INFO) \
         _LOG_CORE_INFO("======================="); \
         _LOG_CORE_INFO("Name: {}", INFO.name); \
-        _LOG_CORE_INFO("Type: {}", INFO.type); \
         _LOG_CORE_INFO("Size: {}", INFO.size); \
-		for(auto member : INFO.members) \
-		{ \
-			_LOG_CORE_INFO("----------------"); \
-			_LOG_CORE_INFO("Member Name: {}", member.name); \
-			_LOG_CORE_INFO("Type: {}", member.type); \
-			_LOG_CORE_INFO("Offset: {}", member.offset); \
-			_LOG_CORE_INFO("Size: {}", member.size); \
-		} \
-        _LOG_CORE_INFO("======================="); 
+        _LOG_CORE_INFO("Alignment: {}", INFO.alignment); \
+        _LOG_CORE_INFO("IsTrivial: {}", INFO.isTrivial);\
+        _LOG_CORE_INFO("----------------"); 
+
+#define REFLECTION_LOG_MEMBER_INFO(TYPE, MEMBER) \
+        _LOG_CORE_INFO("Member Name: {}", #MEMBER); \
+        _LOG_CORE_INFO("Offset: {}", offsetof(TYPE, MEMBER)); \
+        _LOG_CORE_INFO("Size: {}", sizeof(TYPE::MEMBER));\
+        _LOG_CORE_INFO("----------------"); 
 #else
 #define REFLECTION_LOG_TYPE_INFO(INFO)
+#define REFLECTION_LOG_MEMBER_INFO(TYPE, MEMBER)
 #endif
 
-using ConstructFunc = void(*)(void* Dst);
-using CopyFunc = void(*)(void* Dst, const void* Src);
-using MoveFunc = void(*)(void* Dst, void* Src);
-using DestroyFunc = void(*)(void* Obj);
+struct ReflectionMemberInfo
+{
+	String name = "_INVALID";
+	size_t offset = 0;
+	size_t size = 0;
+	std::type_index typeIndex;
+};
+
+struct ReflectionTypeInfo
+{
+	String name = "_INVALID";
+	size_t size = 0;
+	size_t alignment = 0;
+	bool isTrivial = false;
+
+	Vector<ReflectionMemberInfo> members;
+	SharedPtr<std::type_index> typeIndex;
+
+	Func<void(void*, void*)> constructor;
+	Func<void(void*)> destructor;
+
+	Func<void(void* dst, void* src)> move;
+	Func<void(void* dst, void* src)> copy;
+};
 
 class ReflectionRegistry : public EngineSubsystem<ReflectionRegistry>
 {
 public:
-	struct MemberInfo
-	{
-		std::string_view name;
-		TypeIdHash type;
-		size_t offset;
-		size_t size;
+	using DeffRegistartionFn = void(*)();
 
-		static constexpr MemberInfo MakeInfo(std::string_view Name, TypeIdHash Type, size_t Offset, size_t Size)
-		{
-			return {
-				Name,
-				Type,
-				Offset,
-				Size
-			};
-		}
-	};
+	void RegisterType(ReflectionTypeInfo Info);
 
-	struct TypeInfo
-	{
-		std::string_view name{};
-		TypeIdHash type{};
-		size_t size{};
-		std::span<const MemberInfo> members{};
+	ReflectionTypeInfo GetTypeInfo(std::type_index Type);
+	ReflectionTypeInfo GetTypeInfo(const String& Name);
 
-		ConstructFunc constructFunc = nullptr;
-		CopyFunc copyFunc = nullptr;
-		MoveFunc moveFunc = nullptr;
-		DestroyFunc destroyFunc = nullptr;
-
-		constexpr TypeInfo() noexcept = default;
-
-		constexpr TypeInfo(
-			std::string_view n, 
-			TypeIdHash t, 
-			size_t s,
-			std::span<const MemberInfo> m,
-			ConstructFunc construct,
-			CopyFunc copy,
-			MoveFunc move,
-			DestroyFunc destroy
-		)
-			: 
-			name(n), 
-			type(t), 
-			size(s), 
-			members(m),
-			constructFunc(construct),
-			copyFunc(copy),
-			moveFunc(move),
-			destroyFunc(destroy) {}
-
-		template<typename T, typename R>
-		static constexpr TypeInfo MakeInfo(std::string_view Name)
-		{
-			return {
-				Name,
-				GetTypeId<T>(),
-				sizeof(T),
-				std::span{R::members},
-
-				//Default Contructor
-				[](void* Dst)
-				{
-					new (Dst) T();
-				},
-
-				//Copy Contructor
-				[](void* Dst, const void* Src)
-				{
-					new (Dst) T(*reinterpret_cast<const T*>(Src));
-				},
-
-				//Move Contructor
-				[](void* Dst, void* Src)
-				{
-					new (Dst) T(std::move(*reinterpret_cast<T*>(Src)));
-				},
-
-				//Destructor
-				[](void* Obj)
-				{
-					reinterpret_cast<T*>(Obj)->~T();
-				}
-			};
-		}
-	};
-
-public:
+	static void EnqueueDefferedRegistration(DeffRegistartionFn RegFunction);
+	static void ProcessDefferedRegistration();
+private:
+	friend class EngineSubsystem<ReflectionRegistry>;
 	ReflectionRegistry();
 	~ReflectionRegistry();
 
-	void RegisterType(const ReflectionRegistry::TypeInfo& Info);
-
-	const ReflectionRegistry::TypeInfo& GetInfo(TypeIdHash Hash);
-
-	template<typename T>
-	const ReflectionRegistry::TypeInfo GetInfo()
-	{
-		auto it = mData.find(GetTypeId<T>());
-		if (it == mData.end())
-		{
-			_LOG_CORE_WARNING("Trying to get a non registered TypeInfo: {}", typeid(T).name());
-			return {};
-		}
-
-		return it->second;
-	}
-
-	Vector<ReflectionRegistry::TypeInfo> GetAllInfos();
-
+	static Vector<DeffRegistartionFn>& GetDefferedQueue();
 private:
-	UnorderedMap<TypeIdHash, TypeInfo> mData;
+	UnorderedMap<std::type_index, ReflectionTypeInfo> mRegistry;
+	UnorderedMap<String, ReflectionTypeInfo> mNameToType;
+
 };
 
-#define REFLECT_MEMBERS(REFLECT, TYPE, ...) \
-	static constexpr auto members = std::to_array<ReflectionRegistry::MemberInfo>({__VA_ARGS__ }); \
-	static constexpr ReflectionRegistry::TypeInfo typeInfo = ReflectionRegistry::TypeInfo::MakeInfo<TYPE, REFLECT>(#TYPE)
+#define REFLECTION_CREATE_TYPE_INFO(TYPE, MEMBERS) \
+	ReflectionTypeInfo info; \
+	info.name = #TYPE; \
+	info.size = sizeof(TYPE); \
+	info.alignment = alignof(TYPE); \
+	info.typeIndex = MakeShared<std::type_index>(typeid(TYPE)); \
+	info.isTrivial = std::is_trivially_copyable_v<TYPE>; \
+	info.constructor = [](void* mem, void* data) { new (mem) TYPE(std::move(*reinterpret_cast<TYPE*>(data))); }; \
+	info.destructor = [](void* mem) { reinterpret_cast<TYPE*>(mem)->~TYPE(); }; \
+	info.move = [](void* dst, void* src) { \
+		if constexpr (std::is_trivially_copyable_v<TYPE>) { \
+			std::memcpy(dst, src, sizeof(TYPE)); \
+		} \
+		else { \
+			new (dst) TYPE(std::move(*reinterpret_cast<TYPE*>(src))); \
+		} \
+	}; \
+	info.copy = [](void* dst, void* src) { new (dst) TYPE(*reinterpret_cast<TYPE*>(src)); }; \
+	REFLECTION_LOG_TYPE_INFO(info) \
+	MEMBERS \
+	ReflectionRegistry::Get()->RegisterType(info); 
 
-#define REFLECT_MEMBER(OWNER, MEMBER) \
-	ReflectionRegistry::MemberInfo::MakeInfo(#MEMBER, GetTypeId<decltype(OWNER::MEMBER)>(), offsetof(OWNER, MEMBER), sizeof(decltype(OWNER::MEMBER)))
+
+#define REFLECTION_CREATE_MEMBER_INFO(TYPE, MEMBER) \
+    info.members.push_back({#MEMBER, offsetof(TYPE, MEMBER), sizeof(TYPE::MEMBER), typeid(decltype(TYPE::MEMBER))});\
+	REFLECTION_LOG_MEMBER_INFO(TYPE, MEMBER)

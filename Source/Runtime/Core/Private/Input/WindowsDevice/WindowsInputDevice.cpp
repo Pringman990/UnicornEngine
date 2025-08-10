@@ -52,7 +52,7 @@ void WindowsInputDevice::Init()
 		return;
 	}
 
-	application->OnWndProc.AddRaw(this, &WindowsInputDevice::ProccessMessages);
+	//application->OnWndProc.AddRaw(this, &WindowsInputDevice::ProccessMessages);
 }
 
 void WindowsInputDevice::Update()
@@ -61,7 +61,7 @@ void WindowsInputDevice::Update()
 	mTentativeMouseDelta = { 0, 0 };
 }
 
-bool WindowsInputDevice::ProccessMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+void WindowsInputDevice::ProccessMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	wParam;
 	hWnd;
@@ -73,7 +73,7 @@ bool WindowsInputDevice::ProccessMessages(HWND hWnd, UINT message, WPARAM wParam
 
 		LPBYTE lpb = new BYTE[dwSize];
 		if (lpb == nullptr)
-			return false;
+			return;
 
 		if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb, &dwSize, sizeof(RAWINPUTHEADER)) != dwSize)
 		{
@@ -127,8 +127,6 @@ bool WindowsInputDevice::ProccessMessages(HWND hWnd, UINT message, WPARAM wParam
 
 		delete[] lpb;
 	}
-
-	return false;
 }
 
 void WindowsInputDevice::GetKeys(UnorderedMap<String, uint32>& StringKeyMap)

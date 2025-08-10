@@ -3,14 +3,13 @@
 MeshPixelInput main(MeshVertexInput input)
 {
     MeshPixelInput result;
-    
-    float4 vertexPos = input.position;
-    float4 worldPos = mul(modelToWorld, vertexPos);
-    float4 viewPos = mul(viewMatrix, worldPos);
-    float4 clipPos = mul(projMatrix, viewPos);
+
+    float4 vertexObjectPos = input.position;
+    float4 vertexWorldPos = mul(modelToWorld, vertexObjectPos);
+    float4 vertexClipPos = mul(worldToClipMatrix, vertexWorldPos);
 	
-    result.position = clipPos;
-    result.worldPosition = worldPos;
+    result.position = vertexClipPos;
+    result.worldPosition = vertexWorldPos;
     result.uv = input.uv;
     return result;
 }

@@ -11,14 +11,6 @@ PipelineBuilder::~PipelineBuilder()
 PipelineBuilder& PipelineBuilder::SetShaders(const Vector<VkPipelineShaderStageCreateInfo>& ShaderStage)
 {
 	mBuildInfo.shaderStages = ShaderStage;
-	mBuildInfo.shaderStage = PipelineBuildInfo::ShaderStage::Rasterizer;
-	return *this;
-}
-
-PipelineBuilder& PipelineBuilder::SetComputeShader(const VkPipelineShaderStageCreateInfo& ShaderStage)
-{
-	mBuildInfo.shaderStages.push_back(ShaderStage);
-	mBuildInfo.shaderStage = PipelineBuildInfo::ShaderStage::Compute;
 	return *this;
 }
 
@@ -83,7 +75,7 @@ PipelineBuilder& PipelineBuilder::SetDefaultBlendStates(uint32 ColorAttachmentCo
 	for (uint32 i = 0; i < ColorAttachmentCount; i++)
 	{
 		VkPipelineColorBlendAttachmentState createInfo{};
-		createInfo.colorWriteMask = VK_COLOR_COMPONENT_R_BIT |
+		createInfo.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | 
 			VK_COLOR_COMPONENT_G_BIT |
 			VK_COLOR_COMPONENT_B_BIT |
 			VK_COLOR_COMPONENT_A_BIT;
@@ -176,13 +168,6 @@ PipelineBuilder& PipelineBuilder::SetRenderingInfo(const VkFormat* colorFormats,
 	return *this;
 }
 
-PipelineBuilder& PipelineBuilder::SetDescriptorSetLayouts(const Vector<VkDescriptorSetLayout>& Layouts)
-{
-	mBuildInfo.descriptorSetLayouts = Layouts;
-
-	return *this;
-}
-
 Pipeline* PipelineBuilder::Build()
 {
 	VkDevice device = Renderer::Get()->GetDevice()->GetRaw();
@@ -207,59 +192,28 @@ Pipeline* PipelineBuilder::Build()
 	colorBlending.attachmentCount = static_cast<uint32>(mBuildInfo.colorBlendAttachments.size());
 	colorBlending.pAttachments = mBuildInfo.colorBlendAttachments.data();
 
-	VkPipeline vkpipeline = VK_NULL_HANDLE;
-	switch (mBuildInfo.shaderStage)
-	{
-	case PipelineBuildInfo::ShaderStage::Rasterizer:
-	{
-		VkGraphicsPipelineCreateInfo pipelineInfo{};
-		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		pipelineInfo.pNext = &mBuildInfo.renderingInfo;
-		pipelineInfo.stageCount = static_cast<uint32>(mBuildInfo.shaderStages.size());
-		pipelineInfo.pStages = mBuildInfo.shaderStages.data();
-
-		pipelineInfo.pVertexInputState = mBuildInfo.useVertexLayout ? &mBuildInfo.vertexLayout.vertexInput : VK_NULL_HANDLE;
-		pipelineInfo.pInputAssemblyState = &mBuildInfo.inputAssembly;
-		pipelineInfo.pRasterizationState = &mBuildInfo.rasterizer;
-		pipelineInfo.pColorBlendState = &colorBlending;
-		pipelineInfo.pDepthStencilState = mBuildInfo.useDepthStencil ? &mBuildInfo.depthStencil : VK_NULL_HANDLE;
-		pipelineInfo.pDynamicState = mBuildInfo.dynamicState.dynamicStateCount > 0 ? &mBuildInfo.dynamicState : VK_NULL_HANDLE;
-		pipelineInfo.pMultisampleState = &mBuildInfo.multisampleState;
-		pipelineInfo.pViewportState = mBuildInfo.useFixedViewport ? &mBuildInfo.viewportState : VK_NULL_HANDLE;
-		pipelineInfo.layout = layout;
-
-		//We don't use renderpasses from vulkan but instead we use dynamic rendering for simplicity
-		pipelineInfo.renderPass = VK_NULL_HANDLE;
-		pipelineInfo.subpass = 0;
-
-		if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &vkpipeline) != VK_SUCCESS)
-		{
-			_THROW_RENDERER("Failed to create pipeline");
-			return nullptr;
-		}
-		break;
-	}
-	case PipelineBuildInfo::ShaderStage::Compute:
-	{
-		VkComputePipelineCreateInfo pipelineInfo{};
-		pipelineInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
-		pipelineInfo.stage = mBuildInfo.shaderStages[0];
-		pipelineInfo.layout = layout;
-		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
-		pipelineInfo.basePipelineIndex = -1;
-
-		if (vkCreateComputePipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &vkpipeline) != VK_SUCCESS)
-		{
-			_THROW_RENDERER("Failed to create pipeline");
-			return nullptr;
-		}
-		break;
-	}
-	default:
-		break;
-	}
+	VkGraphicsPipelineCreateInfo pipelineInfo{};
+	pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	pipelineInfo.pNext = &mBuildInfo.renderingInfo;
+	pipelineInfo.stageCount = static_cast<uint32>(mBuildInfo.shaderStages.size());
+	pipelineInfo.pStages = mBuildInfo.shaderStages.data();
 	
-	if (vkpipeline == VK_NULL_HANDLE)
+	pipelineInfo.pVertexInputState = mBuildInfo.useVertexLayout ? &mBuildInfo.vertexLayout.vertexInput : VK_NULL_HANDLE;
+	pipelineInfo.pInputAssemblyState = &mBuildInfo.inputAssembly;
+	pipelineInfo.pRasterizationState = &mBuildInfo.rasterizer;
+	pipelineInfo.pColorBlendState = &colorBlending;
+	pipelineInfo.pDepthStencilState = mBuildInfo.useDepthStencil ? &mBuildInfo.depthStencil : VK_NULL_HANDLE;
+	pipelineInfo.pDynamicState = mBuildInfo.dynamicState.dynamicStateCount > 0 ? &mBuildInfo.dynamicState : VK_NULL_HANDLE;
+	pipelineInfo.pMultisampleState = &mBuildInfo.multisampleState;
+	pipelineInfo.pViewportState = mBuildInfo.useFixedViewport ? &mBuildInfo.viewportState : VK_NULL_HANDLE;
+	pipelineInfo.layout = layout;
+	
+	//We don't use renderpasses from vulkan but instead we use dynamic rendering for simplicity
+	pipelineInfo.renderPass = VK_NULL_HANDLE;
+	pipelineInfo.subpass = 0;
+
+	VkPipeline vkpipeline;
+	if (vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &vkpipeline) != VK_SUCCESS)
 	{
 		_THROW_RENDERER("Failed to create pipeline");
 		return nullptr;

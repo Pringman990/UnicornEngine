@@ -11,7 +11,6 @@ public:
 	~PipelineBuilder();
 
 	PipelineBuilder& SetShaders(const Vector<VkPipelineShaderStageCreateInfo>& ShaderStage);
-	PipelineBuilder& SetComputeShader(const VkPipelineShaderStageCreateInfo& ShaderStage);
 	PipelineBuilder& SetVertexLayout(VertexLayoutType Type);
 	PipelineBuilder& SetInputAssembly(VkPrimitiveTopology Topology);
 	PipelineBuilder& SetRasterizer(VkCullModeFlags CullMode, VkPolygonMode PolygonMode = VK_POLYGON_MODE_FILL, float LineWidth = 1.0f);
@@ -21,7 +20,6 @@ public:
 	PipelineBuilder& SetDynamicStates(const Vector<VkDynamicState>& States);
 	PipelineBuilder& SetViewportState(const VkViewport& Viewport, const VkRect2D& Scissor);
 	PipelineBuilder& SetRenderingInfo(const VkFormat* colorFormats, uint32 colorCount, VkFormat depthFormat, VkFormat stencilFormat);
-	PipelineBuilder& SetDescriptorSetLayouts(const Vector<VkDescriptorSetLayout>& Layouts);
 
 	//Good for split screen
 	PipelineBuilder& SetViewportState(const Vector<VkViewport>& Viewports, const Vector<VkRect2D>& Scissors);
@@ -54,12 +52,6 @@ private:
 
 		VkPipelineDepthStencilStateCreateInfo depthStencil{};//
 		bool useDepthStencil = false;
-
-		enum class ShaderStage
-		{
-			Rasterizer,
-			Compute
-		}shaderStage;
 
 	} mBuildInfo;
 };

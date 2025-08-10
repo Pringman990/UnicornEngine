@@ -2,8 +2,7 @@
 
 cbuffer CameraConstantBuffer : register(b0)
 {
-    float4x4 viewMatrix;
-    float4x4 projMatrix;
+    float4x4 worldToClipMatrix;
     float3 cameraPosition;
     uint pad;
 }
@@ -11,16 +10,27 @@ cbuffer CameraConstantBuffer : register(b0)
 cbuffer ObjectConstantBuffer : register(b1)
 {
     float4x4 modelToWorld;
+    float3 objectMinBounds;
+    float pad2;
+    float3 objectMaxBounds;
+    float pad1;
+}
+
+cbuffer MaterialConstantBuffer : register(b2)
+{
+    float4 colors[256];
+}
+
+cbuffer LightConstantBuffer : register(b3)
+{
+    float4 directionalLightDirection;
+    float4 directionalLightColorAndIntensity;
 }
 
 struct MeshVertexInput
 {
-    [[vk::location(0)]] float4 position : POSITION;
-    [[vk::location(1)]] float4 color : TEXCOORD0;
-    [[vk::location(2)]] float2 uv : TEXCOORD1;
-    [[vk::location(3)]] float3 normal : TEXCOORD2;
-    [[vk::location(4)]] float3 bitangent : TEXCOORD3;
-    [[vk::location(5)]]  float3 tangent : TEXCOORD4;
+    float4 position : POSITION;
+    float2 uv : TEXCOORD0; 
 };
 
 struct MeshPixelInput
@@ -28,9 +38,6 @@ struct MeshPixelInput
     float4 position : SV_POSITION;
     float4 worldPosition : TEXCOORD0;
     float2 uv : TEXCOORD1;
-    float3 normal : TEXCOORD2;
-    float3 bitangent : TEXCOORD3;
-    float3 tangent : TEXCOORD4;
 };
 
 struct LineVertexInput
