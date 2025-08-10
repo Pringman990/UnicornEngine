@@ -24,7 +24,7 @@ public:
 
 private:
 	void ProccessVirtualKeyboardKeys(USHORT VirtualKey, bool IsDown);
-	void ProccessMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+	bool ProccessMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 private:
 	Vector2 mMouseDelta;
 	Vector2 mTentativeMouseDelta;

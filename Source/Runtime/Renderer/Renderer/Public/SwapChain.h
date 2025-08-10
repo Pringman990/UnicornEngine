@@ -1,7 +1,6 @@
 #pragma once
 #include <Core.h>
 
-#include "TextureRenderTarget.h"
 #include "GPUTexture.h"
 
 class PhysicalDevice;

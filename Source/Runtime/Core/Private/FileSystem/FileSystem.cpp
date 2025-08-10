@@ -2,9 +2,9 @@
 
 #include "FileSystem/NativeFileBackend.h"
 
-const String FileSystem::sRootPath = "../../";
-
 FileSystem::FileSystem()
+    :
+    mRootPath("../../")
 {
 
 }
@@ -16,11 +16,11 @@ FileSystem::~FileSystem()
 
 void FileSystem::Init()
 {
-    SharedPtr<NativeFileBackend> native = MakeShared<NativeFileBackend>(sRootPath + "Content/");
+    SharedPtr<NativeFileBackend> native = MakeShared<NativeFileBackend>(mRootPath + "Content/");
     Mount("engine", native);
     Mount("game", native);
 
-    SharedPtr<NativeFileBackend> shader = MakeShared<NativeFileBackend>(sRootPath + "Binaries/Shaders/");
+    SharedPtr<NativeFileBackend> shader = MakeShared<NativeFileBackend>(mRootPath + "Binaries/Shaders/");
     Mount("shader", shader);
 }
 
@@ -28,7 +28,7 @@ FileSystem::MountHandle FileSystem::Mount(const Protocol& Protocol, SharedPtr<IF
 {
     MountPoint mp{ Protocol, std::move(Backend), Priority };
 
-    auto& mounts = GetMounts();
+    auto& mounts = mMounts;
     mounts.push_back(std::move(mp));
 
     std::sort(mounts.begin(), mounts.end(), [](const MountPoint& a, const MountPoint& b)
@@ -41,7 +41,7 @@ FileSystem::MountHandle FileSystem::Mount(const Protocol& Protocol, SharedPtr<IF
 
 void FileSystem::UnMount(const MountHandle& Handle)
 {
-    auto& mounts = GetMounts();
+    auto& mounts = mMounts;
     mounts.erase(std::remove_if(mounts.begin(), mounts.end(), [&](const MountPoint& mp) 
         {
             return mp.protocol == Handle.protocol && mp.backend.get() == Handle.backend;
@@ -57,7 +57,7 @@ bool FileSystem::Exists(const String& VirtualPath)
     if (!ParseVirtualPath(VirtualPath, proto, relativePath))
         return false;
     
-    for (auto& mount : GetMounts()) 
+    for (auto& mount : mMounts)
     {
         if (mount.protocol == proto && mount.backend->Exists(relativePath))
             return true;
@@ -73,7 +73,7 @@ SharedPtr<IFileStream> FileSystem::Open(const String& VirtualPath, FileMode Mode
     if (!ParseVirtualPath(VirtualPath, proto, relativePath))
         return nullptr;
     
-    for (auto& mount : GetMounts())
+    for (auto& mount : mMounts)
     {
         if (mount.protocol == proto && mount.backend->Exists(relativePath))
             return mount.backend->Open(relativePath, Mode);
@@ -88,7 +88,7 @@ ByteBuffer FileSystem::ReadAll(const String& VirtualPath)
     if (!ParseVirtualPath(VirtualPath, proto, relativePath)) 
         return {};
     
-    for (auto& mount : GetMounts()) 
+    for (auto& mount : mMounts)
     {
         if (mount.protocol == proto && mount.backend->Exists(relativePath))
             return mount.backend->ReadAll(relativePath);
@@ -103,7 +103,7 @@ void FileSystem::WriteAll(const String& VirtualPath, const ByteBuffer& Data)
     if (!ParseVirtualPath(VirtualPath, proto, relativePath))
         return;
    
-    for (auto& mount : GetMounts()) 
+    for (auto& mount : mMounts)
     {
         if (mount.protocol == proto) 
         {
@@ -122,11 +122,11 @@ String FileSystem::GetAbsolutPath(const String& VirtualPath)
         return String();
     }
 
-    for (auto& mount : GetMounts())
+    for (auto& mount : mMounts)
     {
         if (mount.protocol == proto)
         {
-            return sRootPath + relativePath;
+            return mRootPath + relativePath;
         }
     }
 

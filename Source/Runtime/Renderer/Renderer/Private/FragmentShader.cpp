@@ -16,7 +16,7 @@ FragmentShader* FragmentShader::Create(const String& Name, const String& EntryPo
     FragmentShader* shader = new FragmentShader();
     shader->mEntryPoint = EntryPoint;
 
-    ByteBuffer buffer = FileSystem::ReadAll("shader://" + Name);
+    ByteBuffer buffer = FileSystem::Get()->ReadAll("shader://" + Name);
 
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;

@@ -87,6 +87,30 @@ VertexLayout VertexLayout::Get3DLayout()
 			.binding = 0,
 			.format = VK_FORMAT_R32G32B32A32_SFLOAT,
 			.offset = offsetof(Vertex3D, color)
+		},
+		{
+			.location = 2,
+			.binding = 0,
+			.format = VK_FORMAT_R32G32_SFLOAT,
+			.offset = offsetof(Vertex3D, uv)
+		},
+		{
+			.location = 3,
+			.binding = 0,
+			.format = VK_FORMAT_R32G32B32_SFLOAT,
+			.offset = offsetof(Vertex3D, normal)
+		},
+		{
+			.location = 4,
+			.binding = 0,
+			.format = VK_FORMAT_R32G32B32_SFLOAT,
+			.offset = offsetof(Vertex3D, bitangent)
+		},
+		{
+			.location = 5,
+			.binding = 0,
+			.format = VK_FORMAT_R32G32B32_SFLOAT,
+			.offset = offsetof(Vertex3D, tangent)
 		}
 	};
 
