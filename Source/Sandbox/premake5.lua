@@ -23,23 +23,27 @@ project "Sandbox"
 		dirs.Sandbox,
 		"Renderer",
 		"Singleton",
-		"Engine",
-		"Core"
+		"Core",
+		"ECS",
 	})
 
 	linkDependencies("Sandbox", 
 	{
 		"Renderer",
 		"Singleton",
-		"Engine",
-		"Core"
+		"Core",
+		"ECS",
 	})
 
 	files {
 		"**.h",
 		"**.hpp",
 		"**.cpp",
-		"**.c"
+		"**.c",
+		dirs.Inter_Generated .. "Sandbox/" .. "**.h",
+		dirs.Inter_Generated .. "Sandbox/" .. "**.hpp",
+		dirs.Inter_Generated .. "Sandbox/" .. "**.cpp",
+		dirs.Inter_Generated .. "Sandbox/" .. "**.c"
 	}
 
 	defines{

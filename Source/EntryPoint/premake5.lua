@@ -16,10 +16,10 @@ project "EntryPoint"
 		"**.hpp",
 		"**.cpp",
 		"**.c",
-		dirs.Inter_Generated .. "**.h",
-		dirs.Inter_Generated .. "**.hpp",
-		dirs.Inter_Generated .. "**.cpp",
-		dirs.Inter_Generated .. "**.c"
+		--dirs.Inter_Generated .. "**.h",
+		--dirs.Inter_Generated .. "**.hpp",
+		--dirs.Inter_Generated .. "**.cpp",
+		--dirs.Inter_Generated .. "**.c"
 	}
 
 	vpaths { ["Public/*"] = {"Public/**.h", "Public/**.hpp", "Public/**.c", "Public/**.cpp"} }
@@ -34,14 +34,14 @@ project "EntryPoint"
 		dirs.EntryPoint .. "Public",
 		"Core",
 		"Renderer",
-		"Engine",
+		"ECS",
 	})
 
 	linkDependencies("EntryPoint", 
 	{
 		"Core",
 		"Renderer",
-		"Engine",
+		"ECS",
 	})
 
 	dependson {
