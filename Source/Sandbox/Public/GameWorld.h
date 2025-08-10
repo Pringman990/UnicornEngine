@@ -28,8 +28,6 @@ private:
 	void UpdateCamera();
 private:
 	Camera mCamera;
-	GPUResourceHandle<struct GPUMesh> mMeshHandle;
-	Transform mTransform;
 };
 
 extern "C" SANDBOX_API void InitGameWorld();

@@ -38,10 +38,12 @@ VertexBuffer VertexBuffer::Create(const Vector<Vertex3D>& Verticies, CommandPool
     return buffer;
 }
 
-void VertexBuffer::Free(LogicalDevice* Device)
+void VertexBuffer::Free()
 {
-	vkDestroyBuffer(*Device, mBuffer, nullptr);
-	vkFreeMemory(*Device, mMemory, nullptr);
+	VkDevice device = *Renderer::Get()->GetDevice();
+
+	vkDestroyBuffer(device, mBuffer, nullptr);
+	vkFreeMemory(device, mMemory, nullptr);
 }
 
 void VertexBuffer::CreateBuffer(VkDeviceSize Size, VkBufferUsageFlags Usage, VkMemoryPropertyFlags Properties, VkBuffer& Buffer, VkDeviceMemory& BufferMemory)

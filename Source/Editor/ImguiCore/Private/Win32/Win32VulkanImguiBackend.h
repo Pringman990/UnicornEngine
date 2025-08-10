@@ -12,7 +12,7 @@ public:
 	virtual void RenderFrame() override;
 	virtual void EndFrame(CommandBuffer* Buffer) override;
 
-	//void AddTextureToImgui(Texture2D* Texture, Sampler* Sampler) override;
+	void AddTextureToImgui(Texture2D* Texture, Sampler* Sampler) override;
 
 private:
 	bool ProccessMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);

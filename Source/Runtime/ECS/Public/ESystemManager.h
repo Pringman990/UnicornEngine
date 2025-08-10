@@ -10,8 +10,10 @@ public:
 
 	void RunLoad(EWorld& World);
 	void RunUpdate(EWorld& World);
+	void RunRender(EWorld& World);
 
-	void RegisterSystem(Func<void(EWorld&)> SystemFunction, const String& Name, EPipeline Pipeline)
+	template<typename... Components>
+	void RegisterSystem(Func<void(EWorld&, EEntity, Components&...)> SystemFunction, const String& Name, EPipeline Pipeline)
 	{
 		if (mRegisteredSystemsName.contains(Name))
 		{
@@ -23,15 +25,10 @@ public:
 		system.name = Name;
 		system.function = SystemFunction;
 		system.pipeline = Pipeline;
+		//system.signature = internal::EComponentRegistry::Get().CalulateSignature<Components...>();
 
 		mRegisteredSystemsName.insert({ Name, system });
 		mRegisteredSystemsPipeline[Pipeline].push_back(system);
-	}
-
-	void UnRegisterSystems()
-	{
-		mRegisteredSystemsName.clear();
-		mRegisteredSystemsPipeline.clear();
 	}
 
 private:

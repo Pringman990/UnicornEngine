@@ -4,6 +4,8 @@
 #include <imgui_impl_vulkan.h>
 #include <Sampler.h>
 #include <GPUBarrier.h>
+#include <Texture2D.h>
+#include <AssetManager/AssetManager.h>
 
 GraphicsDebugWindow::GraphicsDebugWindow(Editor* EditorPtr) 
     :
@@ -19,8 +21,8 @@ GraphicsDebugWindow::~GraphicsDebugWindow()
 bool GraphicsDebugWindow::Init()
 {
    // mGraphicsCardInfo = Renderer::Get()->GetGraphicsCardInfo();
-   // ResourceHandle<Texture2D> textureHandle = AssetManager::Get()->LoadAsset<Texture2D>("engine://Test.png");
-    //texture = AssetManager::Get()->GetAsset(textureHandle);
+    ResourceHandle<Texture2D> textureHandle = AssetManager::Get()->LoadAsset<Texture2D>("engine://Test.png");
+    texture = AssetManager::Get()->GetAsset(textureHandle);
 
     //GPUTexture* gpuTexture = Renderer::Get()->GetGPUResourceManager().GetResource(texture->GetResourceData().gpuHandle);
 
@@ -34,8 +36,8 @@ bool GraphicsDebugWindow::Init()
 
 void GraphicsDebugWindow::Render()
 {
-    //ImGui::Text("Texture Load Test:");
-    //ImGui::Image(texture->GetImGuiHandle(), ImVec2(texture->GetMetadata().extent.x, texture->GetMetadata().extent.y));
+    ImGui::Text("Texture Load Test:");
+    ImGui::Image(texture->GetImGuiHandle(), ImVec2(texture->GetMetadata().extent.x, texture->GetMetadata().extent.y));
 
     //mGraphicsCardInfo = Renderer::Get()->GetGraphicsCardInfo();
     //ImGui::Text(mGraphicsCardInfo.name.c_str());

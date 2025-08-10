@@ -5,26 +5,20 @@
 class EComponentAllocator
 {
 public:
-	EComponentAllocator() 
-		:
-		mGrowthRate(0),
-		mComponentCount(0),
-		mType({}) 
-	{
-	};
+	EComponentAllocator() {};
 
-	EComponentAllocator(const ReflectionRegistry::TypeInfo& Type, size_t InitalReserve, size_t GrowthRate)
+	EComponentAllocator(ReflectionTypeInfo TypeInfo, size_t InitalReserve, size_t GrowthRate)
 		: 
-		mGrowthRate(GrowthRate * mType.size),
+		mGrowthRate(GrowthRate * TypeInfo.size), 
 		mComponentCount(0),
-		mType(Type)
+		mTypeInfo(TypeInfo)
 	{
-		mBuffer.reserve(InitalReserve * mType.size);
+		mBuffer.reserve(InitalReserve * mTypeInfo.size);
 	}
 
 	~EComponentAllocator() {};
 
-	//const ReflectionTypeInfo& GetTypeInfo() const { return mTypeInfo; };
+	const ReflectionTypeInfo& GetTypeInfo() const { return mTypeInfo; };
 
 	/// <summary>
 	/// Allocates a space for a component
@@ -34,12 +28,12 @@ public:
 	/// </returns>
 	void* Allocate()
 	{
-		if ((mComponentCount + 1) * mType.size > mBuffer.size())
+		if ((mComponentCount + 1) * mTypeInfo.size > mBuffer.size())
 		{
 			mBuffer.reserve(mBuffer.size() + mGrowthRate);
 		}
 
-		void* ptr = static_cast<void*>(mBuffer.data() + (mComponentCount * mType.size));
+		void* ptr = static_cast<void*>(mBuffer.data() + (mComponentCount * mTypeInfo.size));
 		mComponentCount++;
 		return ptr;
 	}
@@ -50,50 +44,50 @@ public:
 		std::vector<char> temp;
 
 		//Allocate enough chars for one component
-		temp.resize(mType.size);
+		temp.resize(mTypeInfo.size);
 
 		//Copy A to temporary memory
-		mType.moveFunc(temp.data(), &mBuffer[IndexA * mType.size]);
+		mTypeInfo.move(temp.data(), &mBuffer[IndexA * mTypeInfo.size]);
 
 		//Move B into where A was
-		mType.moveFunc(&mBuffer[IndexA * mType.size], &mBuffer[IndexB * mType.size]);
+		mTypeInfo.move(&mBuffer[IndexA * mTypeInfo.size], &mBuffer[IndexB * mTypeInfo.size]);
 
 		//Move A back to where B was/to the back of the array
-		mType.moveFunc(Back(), temp.data());
+		mTypeInfo.move(Back(), temp.data());
 	}
 
 	void Pop()
 	{
-		mBuffer.resize(mBuffer.size() - mType.size);
+		mBuffer.resize(mBuffer.size() - mTypeInfo.size);
 		mComponentCount--;
 	}
 
 	void* Get(size_t Index)
 	{
-		return &mBuffer[Index * mType.size];
+		return &mBuffer[Index * mTypeInfo.size];
 	}
 
 	template<typename T>
 	T& Get(size_t Index)
 	{
-		return *reinterpret_cast<T*>(&mBuffer[Index * mType.size]);
+		return *reinterpret_cast<T*>(&mBuffer[Index * mTypeInfo.size]);
 	}
 
 	template<typename T>
 	const T& Get(size_t Index) const
 	{
-		return *reinterpret_cast<const T*>(&mBuffer[Index * mType.size]);
+		return *reinterpret_cast<const T*>(&mBuffer[Index * mTypeInfo.size]);
 	}
 
 	void* Back()
 	{
-		return &mBuffer[mComponentCount * mType.size];
+		return &mBuffer[mComponentCount * mTypeInfo.size];
 	}
 
 	template<typename T>
 	T& Back()
 	{
-		return *reinterpret_cast<T*>(&mBuffer[mComponentCount * mType.size]);
+		return *reinterpret_cast<T*>(&mBuffer[mComponentCount * mTypeInfo.size]);
 	}
 
 public:
@@ -122,17 +116,17 @@ public:
 
 	Iterator begin()
 	{
-		return Iterator{mBuffer.data(), mType.size };
+		return Iterator{mBuffer.data(), mTypeInfo.size };
 	}
 
 	Iterator end()
 	{
-		return Iterator{ mBuffer.data() + mComponentCount * mType.size, mType.size };
+		return Iterator{ mBuffer.data() + mComponentCount * mTypeInfo.size, mTypeInfo.size };
 	}
 
 private:
 	Vector<char> mBuffer;
-	ReflectionRegistry::TypeInfo mType;
+	ReflectionTypeInfo mTypeInfo;
 
 	size_t mGrowthRate;
 	size_t mComponentCount;

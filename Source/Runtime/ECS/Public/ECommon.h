@@ -7,26 +7,33 @@ class EWorld;
 
 using EEntity = uint32;
 
-#define E_MAX_CHUNK_SIZE 64
-#define E_MAX_COMPONENTS_PER_ENTITY 256
+constexpr size_t MAX_COMPONENTS = 256;
+using ESignature = std::bitset<MAX_COMPONENTS>;
 
-using ESignature = std::bitset<E_MAX_COMPONENTS_PER_ENTITY>;
+using EComponentID = size_t;
 
-using ESystemFunction = Func<void(EWorld&)>;
+using EComponentSignature = ESignature;
+using EComponentType = std::type_index;
+
+template<typename... EComponents>
+using ESystemFunctionT = Func<void(EWorld&, EEntity, EComponents&...)>;
+
+using ESystemFunction = Func<void(EWorld&, EEntity)>;
 
 enum EPipeline
 {
-	ESystemLoad,
-	ESystemPostLoad,
-	ESystemPreUpdate,
-	ESystemUpdate,
-	ESystemPostUpdate,
-	ESystemCount
+	ELoad,
+	EPostLoad,
+	EPreUpdate,
+	EUpdate,
+	EPostUpdate,
+	ERender,
+	ECount
 };
 
 struct ESystem final
 {
-	EPipeline pipeline = ESystemUpdate;
+	EPipeline pipeline = EUpdate;
 	String name = "";
 	ESignature signature = 0;
 	ESystemFunction function;
@@ -37,15 +44,93 @@ using ENameSystemMap = UnorderedMap<String, ESystem>;
 
 struct Archetype
 {
-	Archetype(ESignature Signature) : signature(Signature) {};
+	Archetype(EComponentSignature Signature) : signature(Signature) {};
 
-	const ESignature signature;
-	UnorderedMap<TypeIdHash, EComponentAllocator> components;
+	const EComponentSignature signature;
+	UnorderedMap<EComponentID, EComponentAllocator> components;
 	Vector<EEntity> entities;
+
 };
 
 struct EntityLocation
 {
 	Archetype* archetype;
-	uint32 allocatorIndex;
+	uint32 indexInArray;
 };
+
+namespace internal
+{
+	class EComponentRegistry final
+	{
+	public:
+		template<typename T>
+		static void RegisterComponent()
+		{
+			static EComponentID nextID = 1;
+
+			ReflectionTypeInfo info = ReflectionRegistry::Get()->GetTypeInfo(typeid(T));
+
+			auto it = sNameToID.find(info.name);
+			if (it != sNameToID.end())
+			{
+				_LOG_CORE_WARNING("Trying to register already registered component: {}", info.name);
+				return;
+			}
+
+			sNameToID[info.name] = nextID;
+			sIDToName[nextID] = info.name;
+			nextID++;
+
+			_LOG_CORE_INFO("Registered Component to EComponentRegistry: {}", info.name);
+		}
+
+		template<typename T>
+		static EComponentID GetID()
+		{
+			ReflectionTypeInfo info = ReflectionRegistry::Get()->GetTypeInfo(typeid(T));
+
+			auto it = sNameToID.find(info.name);
+			if (it == sNameToID.end())
+			{
+				_LOG_CORE_WARNING("Trying to get id of non-registered component: {}", info.name);
+				return 0;
+			}
+			return it->second;
+		}
+
+		template<typename ...EComponents>
+		static EComponentSignature CalulateSignature()
+		{
+			EComponentSignature sig;
+			(sig.set(GetID<EComponents>()), ...);
+			return sig;
+		}
+
+		template<typename EComponent>
+		static EComponentSignature CalulateSignature(EComponentSignature Signature)
+		{
+			(Signature.set(GetID<EComponent>()));
+			return Signature;
+		}
+
+		static Vector<EComponentID> GetIdsFromSignature(EComponentSignature& Signature)
+		{
+			Vector<EComponentID> ids;
+			for (uint32 i = 0; i < Signature.count(); i++)
+			{
+				ids.push_back(Signature[i]);
+			}
+
+			return ids;
+		}
+
+		static const String& GetName(EComponentID Id)
+		{
+			return sIDToName[Id];
+		}
+
+	private:
+		inline static UnorderedMap<String, EComponentID> sNameToID;
+		inline static UnorderedMap<EComponentID, String> sIDToName;
+	};
+}

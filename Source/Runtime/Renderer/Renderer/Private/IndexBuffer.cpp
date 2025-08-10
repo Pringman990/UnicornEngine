@@ -28,7 +28,7 @@ IndexBuffer IndexBuffer::Create(const Vector<uint32>& Indicies, CommandPool* Poo
 	vkUnmapMemory(device, stagingBufferMemory);
 
 	IndexBuffer buffer;
-	CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, buffer.mBuffer, buffer.mMemory);
+	CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, buffer.mBuffer, buffer.mMemory);
 
 	CopyBuffer(Pool, stagingBuffer, buffer.mBuffer, bufferSize);
 
@@ -38,10 +38,12 @@ IndexBuffer IndexBuffer::Create(const Vector<uint32>& Indicies, CommandPool* Poo
 	return buffer;
 }
 
-void IndexBuffer::Free(LogicalDevice* Device)
+void IndexBuffer::Free()
 {
-	vkDestroyBuffer(*Device, mBuffer, nullptr);
-	vkFreeMemory(*Device, mMemory, nullptr);
+	VkDevice device = *Renderer::Get()->GetDevice();
+
+	vkDestroyBuffer(device, mBuffer, nullptr);
+	vkFreeMemory(device, mMemory, nullptr);
 }
 
 void IndexBuffer::CreateBuffer(VkDeviceSize Size, VkBufferUsageFlags Usage, VkMemoryPropertyFlags Properties, VkBuffer& Buffer, VkDeviceMemory& BufferMemory)

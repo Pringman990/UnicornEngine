@@ -13,6 +13,6 @@
 InputDevice* InputDevice::Create(InputMapper* Mapper)
 {
 	//TODO: add sdl
-	return new InputDeviceAPI(Mapper);
-	//return nullptr;
+	//return new InputDeviceAPI(aMapper);
+	return nullptr;
 }

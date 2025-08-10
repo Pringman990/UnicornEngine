@@ -40,6 +40,7 @@
 
 #include <Module/ModuleManager.h>
 
+#include <Threading/ThreadPool.h>
 
 #include <Timer/Timer.h>
 
@@ -47,7 +48,11 @@
 #include <FileSystem/FileWatcherSubsystem.h>
 #include <FileSystem/FileWatcherBackendFactory.h>
 
-#include <ResourceManagment/ResourceHandle.h>
-#include <ResourceManagment/ResourcePool.h>
+#include <Input/InputMapper.h>
 
 #include <Reflection/ReflectionRegistry.h>
+
+#include <AssetManager/AssetManager.h>
+
+#include <ResourceManagment/ResourceHandle.h>
+#include <ResourceManagment/ResourcePool.h>

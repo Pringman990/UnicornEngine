@@ -52,19 +52,9 @@ Transform& Camera::GetTransform()
 	return mTransform;
 }
 
-Vector3 Camera::GetPosition()
-{
-	return mTransform.GetPosition();
-}
-
 Matrix& Camera::GetProjectionMatrix()
 {
 	return mProjectionMatrix;
-}
-
-Matrix Camera::GetViewMatrix()
-{
-	return mTransform.GetMatrix().Invert();
 }
 
 void Camera::GetFarNearPlanes(float& OUT Far, float& OUT Near)

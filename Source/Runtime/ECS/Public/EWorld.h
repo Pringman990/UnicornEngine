@@ -1,8 +1,6 @@
 #pragma once
 #include <Core.h>
 #include "ECommon.h"
-#include "EComponentRegistry.h"
-#include "EComponentAllocator.h"
 
 class EWorld final
 {
@@ -12,7 +10,7 @@ public:
 	~EWorld();
 
 	template<typename T>
-	T* AddComponent(EEntity Entity, T&& Component);
+	T* AddComponent(EEntity Entity, const T& Component);
 
 	template<typename T>
 	T* AddComponent(EEntity Entity);
@@ -21,16 +19,16 @@ private:
 	void ChangeArchetype(EEntity Entity, Archetype* From, Archetype* To);
 private:
 	UnorderedMap<EEntity, EntityLocation> mEntityToLocation;
-	UnorderedMap<ESignature, Archetype*> mSigToArchetype;
+	UnorderedMap<EComponentSignature, Archetype*> mSigToArchetype;
 	Vector<Archetype> mArchetypes;
 };
 
 template<typename T>
-inline T* EWorld::AddComponent(EEntity Entity, T&& Component)
+inline T* EWorld::AddComponent(EEntity Entity, const T& Component)
 {
 	Archetype* oldArchetype = mEntityToLocation[Entity].archetype;
 	//Get entity component signature
-	ESignature newSignature = EComponentRegistry::Get()->CalulateSignature<T>(oldArchetype->signature);
+	EComponentSignature newSignature = internal::EComponentRegistry::CalulateSignature<T>(oldArchetype->signature);
 	
 	Archetype* newArchetype = nullptr;
 
@@ -49,25 +47,25 @@ inline T* EWorld::AddComponent(EEntity Entity, T&& Component)
 		//else create new archetype and move entity and its components
 		Archetype archetype(newSignature);
 
-		Vector<uint32> componentIds = EComponentRegistry::Get()->GetIdsFromSignature(newSignature);
+		Vector<EComponentID> componentIds = internal::EComponentRegistry::GetIdsFromSignature(newSignature);
 		for (uint32 i = 0; i < componentIds.size(); i++)
 		{
-			uint32 id = componentIds[i];
+			EComponentID id = componentIds[i];
 
-			const ReflectionRegistry::TypeInfo& typeInfo = reflectionRegistry->GetInfo(EComponentRegistry::Get()->GetType(id));
+			ReflectionTypeInfo typeInfo = reflectionRegistry->GetTypeInfo(internal::EComponentRegistry::GetName(id));
 			EComponentAllocator allocator(typeInfo, 16, 16);
-			archetype.components[id] = std::move(allocator);
+			archetype.components[id] = allocator;
 		}
 
 
-		mArchetypes.push_back(std::move(archetype));
+		mArchetypes.push_back(archetype);
 		newArchetype = mArchetypes.back();
 		ChangeArchetype(Entity, oldArchetype, newArchetype);
 	}
 
-	void* allocatedSpace = newArchetype->components[EComponentRegistry::Get()->GetID<T>()].Allocate();
-	const ReflectionRegistry::TypeInfo& typeInfo = reflectionRegistry->GetInfo<T>();
-	typeInfo.moveFunc(allocatedSpace, &Component);
+	void* allocatedSpace = newArchetype->components[internal::EComponentRegistry::GetID<T>()].Allocate();
+	ReflectionTypeInfo typeInfo = reflectionRegistry->GetTypeInfo(typeid(T));
+	typeInfo.constructor(allocatedSpace, &Component);
 
 	return reinterpret_cast<T*>(allocatedSpace);
 }
@@ -75,46 +73,6 @@ inline T* EWorld::AddComponent(EEntity Entity, T&& Component)
 template<typename T>
 inline T* EWorld::AddComponent(EEntity Entity)
 {
-	Archetype* oldArchetype = mEntityToLocation[Entity].archetype;
-	//Get entity component signature
-	ESignature newSignature = EComponentRegistry::Get()->CalulateSignature<T>(oldArchetype->signature);
 
-	Archetype* newArchetype = nullptr;
-
-	ReflectionRegistry* reflectionRegistry = ReflectionRegistry::Get();
-
-	//Check if archetype with new signature exist	
-	auto it = mSigToArchetype.find(newSignature);
-	if (it != mSigToArchetype.end())
-	{
-		//if exist move entity and component to it
-		newArchetype = it->second;
-		ChangeArchetype(Entity, oldArchetype, newArchetype);
-	}
-	else
-	{
-		//else create new archetype and move entity and its components
-		Archetype archetype(newSignature);
-
-		Vector<uint32> componentIds = EComponentRegistry::Get()->GetIdsFromSignature(newSignature);
-		for (uint32 i = 0; i < componentIds.size(); i++)
-		{
-			uint32 id = componentIds[i];
-
-			const ReflectionRegistry::TypeInfo& typeInfo = reflectionRegistry->GetInfo(EComponentRegistry::Get()->GetType(id));
-			EComponentAllocator allocator(typeInfo, 16, 16);
-			archetype.components[id] = std::move(allocator);
-		}
-
-
-		mArchetypes.push_back(std::move(archetype));
-		newArchetype = mArchetypes.back();
-		ChangeArchetype(Entity, oldArchetype, newArchetype);
-	}
-
-	void* allocatedSpace = newArchetype->components[EComponentRegistry::Get()->GetID<T>()].Allocate();
-	const ReflectionRegistry::TypeInfo& typeInfo = reflectionRegistry->GetInfo<T>();
-	typeInfo.constructFunc(allocatedSpace);
-
-	return reinterpret_cast<T*>(allocatedSpace);
+	return nullptr;
 }

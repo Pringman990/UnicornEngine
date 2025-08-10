@@ -7,8 +7,7 @@
 #include <FileSystem/NativeFileBackend.h>
 
 #include "ResourceLoaders/Texture2DLoader.h"
-#include "Factories/TextureFactory.h"
-#include "Factories/MeshFactory.h"
+#include "TextureFactory.h"
 
 #include "RenderScope.h"
 #include "GPUBarrier.h"
@@ -17,13 +16,7 @@
 #include "PipelineBuilder.h"
 #include "VertexShader.h"
 #include "FragmentShader.h"
-#include "ComputeShader.h"
 #include "GPUTexture.h"
-#include "GPUMesh.h"
-
-#include "DescriptorLayoutBuilder.h"
-#include "DescriptorPoolBuilder.h"
-#include "DescriptorWriter.h"
 
 Renderer::Renderer()
 	:
@@ -39,6 +32,8 @@ Renderer::Renderer()
 
 Renderer::~Renderer()
 {
+	UnRegisterAllGPUAssets();
+
 	vkDeviceWaitIdle(*mDevice);
 
 	for (uint32 i = 0; i < mFrameSyncs.size(); i++)
@@ -74,6 +69,7 @@ Renderer::~Renderer()
 bool Renderer::Init()
 {
 	RegisterAllGPUResourcePools();
+	RegisterAllGPUAssets();
 
 	if (!CreateInstance())
 		return false;
@@ -82,20 +78,8 @@ bool Renderer::Init()
 	mPhysicalDevice = PhysicalDevice::Create(mInstance, mSurface);
 	mDevice = mPhysicalDevice->CreateLogicalDevice();
 	mSwapChain = SwapChain::Create(mPhysicalDevice, mDevice, mSurface);
-	uint32 swapChainImageCount = mSwapChain->GetImageCount();
 
-	mSetLayout =
-		DescriptorLayoutBuilder()
-		.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
-		.AddBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
-		.Build(mDevice);
-
-	mDescPool =
-		DescriptorPoolBuilder()
-		.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 2)
-		.Build(mDevice, swapChainImageCount);
-
-	mFrameSyncs.reserve(swapChainImageCount);
+	mFrameSyncs.reserve(mSwapChain->GetImageCount());
 	for (uint32 i = 0; i < mSwapChain->GetImageCount(); i++)
 	{
 		FrameSync sync;
@@ -104,63 +88,47 @@ bool Renderer::Init()
 		sync.imageAvailable = Semaphore::Create(mDevice);
 		sync.renderFinished = Semaphore::Create(mDevice);
 		sync.inFlightFence = GPUFence::Create(mDevice, true);
-
-		sync.cameraUBOBuffer = GenericGPUBuffer::Create(sizeof(CameraUBO), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-		sync.objectFrameDataUBOBuffer = GenericGPUBuffer::Create(sizeof(ObjectFrameDataUBO), VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-		sync.descSet =
-			DescriptorWriter(mSetLayout, mDescPool)
-			.WriteBuffer(0, { .buffer = sync.cameraUBOBuffer->GetRaw(), .offset = 0, .range = sizeof(CameraUBO)})
-			.WriteBuffer(1, { .buffer = sync.objectFrameDataUBOBuffer->GetRaw(), .offset = 0, .range = sizeof(ObjectFrameDataUBO)})
-			.Build(mDevice);
-
 		mFrameSyncs.emplace_back(std::move(sync));
 	}
 
+	////TEMP
+	//mVertexShader = VertexShader::Create("Triangle_VS.spv");
+	//mFragmentShader = FragmentShader::Create("Triangle_FS.spv");
 
-	ByteBuffer meshData = FileSystem::Get()->ReadAll("engine://Models/sm_cube.fbx");
-	GPUResourceHandle<GPUMesh> meshHandle = MeshFactory::CreateMesh(meshData, "Cube");
-	mMesh = mGPUResourceManager.GetResource(meshHandle);
+	//VkViewport viewport{};
+	//viewport.x = 0.0f;
+	//viewport.y = 0.0f;
+	//viewport.width = (float)mSwapChain->GetExtent().width;
+	//viewport.height = (float)mSwapChain->GetExtent().height;
+	//viewport.minDepth = 0.0f;
+	//viewport.maxDepth = 1.0f;
 
-	mVertexShader = VertexShader::Create("Mesh_VS.spv");
-	mFragmentShader = FragmentShader::Create("Single_Color_Mesh_FS.spv");
+	//VkRect2D scissor{};
+	//scissor.offset = { 0, 0 };
+	//scissor.extent = mSwapChain->GetExtent();
 
-	Vector<VkPipelineShaderStageCreateInfo> shaders{ mVertexShader->GetStageCreateInfo(), mFragmentShader->GetStageCreateInfo() };
+	//std::vector<VkDynamicState> dynamicStates =
+	//{
+	//	VK_DYNAMIC_STATE_VIEWPORT,
+	//	VK_DYNAMIC_STATE_SCISSOR
+	//};
 
-	viewport = {};
-	viewport.x = 0.0f;
-	viewport.y = 0.0f;
-	viewport.width = (float)mSwapChain->GetExtent().width;
-	viewport.height = (float)mSwapChain->GetExtent().height;
-	viewport.minDepth = 0.0f;
-	viewport.maxDepth = 1.0f;
+	//VkFormat colorAttachmentFormats[] = { VK_FORMAT_B8G8R8A8_SRGB };
 
-	scissor = {};
-	scissor.offset = { 0, 0 };
-	scissor.extent = mSwapChain->GetExtent();
+	//PipelineBuilder builder;
+	//mPipeline = builder
+	//	.SetShaders({ mVertexShader->GetStageCreateInfo(), mFragmentShader->GetStageCreateInfo() })
+	//	.SetDefaultBlendStates(1)
+	//	.SetInputAssembly(VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST)
+	//	.SetViewportState({ viewport }, { scissor })
+	//	.SetRasterizer(VK_CULL_MODE_NONE)
+	//	//.SetDynamicStates(dynamicStates)
+	//	.SetDefaultMultisampling()
+	//	.SetRenderingInfo(colorAttachmentFormats, 1, VK_FORMAT_UNDEFINED, VK_FORMAT_UNDEFINED)
+	//	.SetVertexLayout(VertexLayoutType::None)
+	//	.Build();
 
-	std::vector<VkDynamicState> dynamicStates =
-	{
-		VK_DYNAMIC_STATE_VIEWPORT,
-		VK_DYNAMIC_STATE_SCISSOR
-	};
-
-	VkFormat colorAttachmentFormats[] = { VK_FORMAT_B8G8R8A8_SRGB };
-
-	mPipeline =
-		PipelineBuilder()
-		.SetShaders(shaders)
-		.SetInputAssembly(VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST)
-		.SetDefaultMultisampling()
-		.SetDefaultBlendStates(1)
-		.SetViewportState({ viewport }, { scissor })
-		.SetRenderingInfo(colorAttachmentFormats, 1, VK_FORMAT_UNDEFINED, VK_FORMAT_UNDEFINED)
-		.SetVertexLayout(VertexLayoutType::Vertex3D)
-		.SetRasterizer(VK_CULL_MODE_NONE)
-		.SetDescriptorSetLayouts({ mSetLayout })
-		//.SetDynamicStates(dynamicStates)
-		.Build();
-
+	//mOffscreenQuadTexture = TextureFactory::CreateTextureRenderTarget(mSwapChain->GetExtent(), VK_FORMAT_B8G8R8A8_SRGB, "Offscreen Full Quad");
 
 	return true;
 }
@@ -189,11 +157,21 @@ void Renderer::BeginFrame()
 	GPUTexture* swapChainTexture = mGPUResourceManager.GetResource(mSwapChain->GetRenderTarget(frameSync.imageIndex));
 	GPUBarrier::TransitionFromSwapchain(frameSync.commandBuffer->GetRaw(), swapChainTexture);
 
-	CameraUBO cameraUBO{};
-	cameraUBO.viewMatrix = mActiveCamera->GetViewMatrix();
-	cameraUBO.projMatrix = mActiveCamera->GetProjectionMatrix();
-	cameraUBO.cameraPosition = mActiveCamera->GetPosition();
-	frameSync.cameraUBOBuffer->Map(&cameraUBO, sizeof(CameraUBO));
+	//GPUBarrier::TransitionFromSwapchain(frameSync.commandBuffer->GetRaw(), mSwapChain->GetRenderTarget(frameSync.imageIndex)->GetImage(), mSwapChain->GetRenderTarget(frameSync.imageIndex)->GetCurrentImageLayoutRef());
+
+	//GPUBarrier::TransitionToShaderWrite(frameSync.commandBuffer->GetRaw(), mOffscreenQuadTexture->GetImage(), mOffscreenQuadTexture->GetCurrentImageLayoutRef());
+	//
+	////TODO: Add process of rendergraph
+	//
+	//{
+	//	RenderScope scope(frameSync.commandBuffer, RenderScopeInfo(mOffscreenQuadTexture->GetImageView(), mOffscreenQuadTexture->GetExtent(), Color(1.0f, 0.8f, 0.2f, 1.0f)));
+	//	vkCmdBindPipeline(*frameSync.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, *mPipeline);
+	//	vkCmdDraw(*frameSync.commandBuffer, 3, 1, 0, 0);
+	//}
+	//GPUBarrier::TransitionToShaderRead(frameSync.commandBuffer->GetRaw(), mOffscreenQuadTexture->GetImage(), mOffscreenQuadTexture->GetCurrentImageLayoutRef());
+
+	////////////////////
+	//GPUBarrier::TransitionToSwapchain(frameSync.commandBuffer->GetRaw(), mSwapChain->GetRenderTarget(frameSync.imageIndex)->GetImage(), mSwapChain->GetRenderTarget(frameSync.imageIndex)->GetCurrentImageLayoutRef());
 
 }
 
@@ -271,34 +249,6 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL ValidationLayerMessageCallback(
 		break;
 	}
 	return VK_FALSE;
-}
-
-void Renderer::RenderMesh(const GPUResourceHandle<GPUMesh>& MeshHandle, Transform& MeshTransform)
-{
-	FrameSync& frameSync = mFrameSyncs[mCurrentFrameIndex];
-	{
-		RenderScope scope(frameSync.commandBuffer, RenderScopeInfo(mSwapChain->GetRenderTarget(frameSync.imageIndex)));
-
-		ObjectFrameDataUBO objectUBO{};
-		objectUBO.model = MeshTransform.GetMatrix();
-		frameSync.objectFrameDataUBOBuffer->Map(&objectUBO, sizeof(ObjectFrameDataUBO));
-
-		vkCmdBindDescriptorSets(*frameSync.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, mPipeline->GetLayout(), 0, 1, frameSync.descSet->GetAdressOf(), 0, VK_NULL_HANDLE);
-
-		vkCmdBindPipeline(*frameSync.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, *mPipeline);
-
-		GPUMesh* mesh = mGPUResourceManager.GetResource(MeshHandle);
-		vkCmdBindIndexBuffer(*frameSync.commandBuffer, mesh->indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-
-		VkDeviceSize offsets[] = { 0 };
-		vkCmdBindVertexBuffers(*frameSync.commandBuffer, 0, 1, mesh->vertexBuffer.GetAdressOf(), offsets);
-
-
-		for (auto& submesh : mesh->subMeshes)
-		{
-			vkCmdDrawIndexed(*frameSync.commandBuffer, submesh.indexCount, 1, submesh.indexOffset, 0, 0);
-		}
-	}
 }
 
 bool Renderer::CreateInstance()
@@ -398,13 +348,25 @@ bool Renderer::CheckValidationLayerSupport()
 void Renderer::RegisterAllGPUResourcePools()
 {
 	mGPUResourceManager.RegisterPool<GPUTexture>();
-	mGPUResourceManager.RegisterPool<GPUMesh>();
 }
 
 void Renderer::UnRegisterAllGPUResourcePools()
 {
-	mGPUResourceManager.UnRegisterPool<GPUMesh>(&GPUMesh::Destroy, mDevice);
 	mGPUResourceManager.UnRegisterPool<GPUTexture>(&GPUTexture::DestroyGPUTexture, mDevice);
+}
+
+void Renderer::RegisterAllGPUAssets()
+{
+	AssetManager::Get()->RegisterPool<Texture2D>();
+	AssetManager::Get()->RegisterLoader<Texture2D, Texture2DLoader>();
+
+	AssetManager::Get()->RegisterPool<TextureRenderTarget>();
+}
+
+void Renderer::UnRegisterAllGPUAssets()
+{
+	AssetManager::Get()->UnRegisterPool<Texture2D>();
+	AssetManager::Get()->UnRegisterPool<TextureRenderTarget>();
 }
 
 const std::vector<const char*>& Renderer::GetValidationLayers()

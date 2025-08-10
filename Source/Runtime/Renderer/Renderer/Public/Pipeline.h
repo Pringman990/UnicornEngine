@@ -9,8 +9,6 @@ public:
 
 	//void Bind();
 
-	VkPipelineLayout GetLayout() { return mLayout; }
-
 public:
 	operator VkPipeline() const noexcept { return mPipeline; }
 
