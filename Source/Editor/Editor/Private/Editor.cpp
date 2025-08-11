@@ -6,7 +6,6 @@
 
 #include "ImguiBackendFactory.h"
 #include <CommandBuffer.h>
-#include <Texture2D.h>
 #include <Sampler.h>
 
 Editor::Editor()
@@ -47,23 +46,23 @@ bool Editor::Init()
 
 void Editor::BeginFrame()
 {
-	Vector<int32> texturesIndexToRemove;
-	for (uint32 i = 0; i < mTextureUploadQueue.size(); i++)
-	{
-		Texture2D* texture = mTextureUploadQueue[i];
-		if (!texture->GetResourceData().gpuHandle)
-			continue;
+	//Vector<int32> texturesIndexToRemove;
+	//for (uint32 i = 0; i < mTextureUploadQueue.size(); i++)
+	//{
+	//	Texture2D* texture = mTextureUploadQueue[i];
+	//	if (!texture->GetResourceData().gpuHandle)
+	//		continue;
 
-		mImguiBackend->AddTextureToImgui(texture, mTextureSampler);
-		texturesIndexToRemove.push_back(i);
-	}
+	//	mImguiBackend->AddTextureToImgui(texture, mTextureSampler);
+	//	texturesIndexToRemove.push_back(i);
+	//}
 
-	for (int32 i = (int32)texturesIndexToRemove.size() - 1; i >= 0; --i)
-	{
-		size_t index = texturesIndexToRemove[i];
-		if (index < mTextureUploadQueue.size()) // sanity check
-			mTextureUploadQueue.erase(mTextureUploadQueue.begin() + index);
-	}
+	//for (int32 i = (int32)texturesIndexToRemove.size() - 1; i >= 0; --i)
+	//{
+	//	size_t index = texturesIndexToRemove[i];
+	//	if (index < mTextureUploadQueue.size()) // sanity check
+	//		mTextureUploadQueue.erase(mTextureUploadQueue.begin() + index);
+	//}
 
 	mImguiBackend->BeginFrame();
 }

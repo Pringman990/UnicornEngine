@@ -37,6 +37,9 @@ public:
 	//For depth
 	static void TransitionToDepthAttachment(VkCommandBuffer Cmd, GPUTexture* Texture);
 
+	//For Compute shader image writing
+	static void TransitionToGeneral(VkCommandBuffer Cmd, GPUTexture* Texture);
+
 private:
 	GPUBarrier() = delete;
 	~GPUBarrier() = delete;

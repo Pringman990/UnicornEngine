@@ -128,14 +128,14 @@ void Win32VulkanImguiBackend::EndFrame(CommandBuffer* Buffer)
 	ImGui::RenderPlatformWindowsDefault();
 }
 
-void Win32VulkanImguiBackend::AddTextureToImgui(Texture2D* Texture, Sampler* Sampler)
-{
-	GPUTexture* gpuTexture = Renderer::Get()->GetGPUResourceManager().GetResource(Texture->GetResourceData().gpuHandle);
-	uint64 handle = (ImTextureID)ImGui_ImplVulkan_AddTexture(*Sampler, gpuTexture->imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-	Texture->SetImGuiHandle(handle);
-}
-
+//void Win32VulkanImguiBackend::AddTextureToImgui(Texture2D* Texture, Sampler* Sampler)
+//{
+//	GPUTexture* gpuTexture = Renderer::Get()->GetGPUResourceManager().GetResource(Texture->GetResourceData().gpuHandle);
+//	uint64 handle = (ImTextureID)ImGui_ImplVulkan_AddTexture(*Sampler, gpuTexture->imageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+//
+//	Texture->SetImGuiHandle(handle);
+//}
+//
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 bool Win32VulkanImguiBackend::ProccessMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)

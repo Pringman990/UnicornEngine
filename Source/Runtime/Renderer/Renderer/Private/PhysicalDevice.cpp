@@ -215,7 +215,7 @@ GPUQueueFamilyInfo PhysicalDevice::FindQueueFamilies(VkPhysicalDevice PhysicalDe
 			indices.presentFamily = i;
 		}
 
-		if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
+		if ((queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) && (queueFamilies[i].queueFlags& VK_QUEUE_COMPUTE_BIT))
 		{
 			indices.graphicsFamily = i;
 		}

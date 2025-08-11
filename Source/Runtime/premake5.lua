@@ -5,7 +5,6 @@ dirs["Singleton"]					= os.realpath(dirs.Runtime .. "Singleton/Public")
 dirs["Core"]						= os.realpath(dirs.Runtime .. "Core/Public")
 dirs["Renderer"]					= os.realpath(dirs.Runtime .. "Renderer/")
 dirs["ECS"]							= os.realpath(dirs.Runtime .. "ECS/Public")
-dirs["Engine"]						= os.realpath(dirs.Runtime .. "Engine/Public")
 
 group "Runtime/Singleton"
 include (normalizePath(dirs.Singleton))
@@ -21,8 +20,4 @@ group ""
 
 group "Runtime/ECS"
 include (normalizePath(dirs.ECS))
-group ""
-
-group "Runtime/Engine"
-include (normalizePath(dirs.Engine))
 group ""

@@ -39,4 +39,7 @@ private:
 	SandboxRender mSandboxRender;
 
 	bool mShouldExit;
+
+	//Temp
+	class EWorld* mWorld;
 };
