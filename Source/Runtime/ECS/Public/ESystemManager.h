@@ -1,11 +1,14 @@
 #pragma once
 #include <Core.h>
-#include <EngineSubsystem.h>
+#include <Subsystem/EngineSubsystem.h>
 #include "EWorld.h"
 
-class ESystemManager : public EngineSubsystem<ESystemManager>
+/*
+* Engine subsystem
+*/
+class ESystemManager
 {
-	friend class EngineSubsystem<ESystemManager>;
+	friend struct subsystem::SubsystemDescriptor;
 public:
 
 	void RunLoad(EWorld& World);
@@ -15,7 +18,7 @@ public:
 	{
 		if (mRegisteredSystemsName.contains(Name))
 		{
-			_LOG_CORE_ERROR("System already exist: {}", Name);
+			LOG_ERROR("System already exist: {}", Name);
 			return;
 		}
 
@@ -36,7 +39,7 @@ public:
 
 private:
 	ESystemManager();
-	~ESystemManager() override;
+	~ESystemManager();
 private:
 	ENameSystemMap mRegisteredSystemsName;
 	EPipelineSystemMap mRegisteredSystemsPipeline;

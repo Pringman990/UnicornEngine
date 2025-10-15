@@ -2,10 +2,7 @@
 #include <Core.h>
 
 class IImguiBackend;
-class CommandBuffer;
-
-class Texture2D;
-class Sampler;
+class EditorWindowManager;
 
 class Editor
 {
@@ -16,9 +13,7 @@ public:
 	bool Init();
 	void BeginFrame();
 	void Render();
-	void EndFrame(CommandBuffer* Buffer);
-
-	void AddTextureToImgui(Texture2D* Texture);
+	void EndFrame();
 
 	uint32 GetPreviousFrameDrawCalls() const { return mPreviousFrameDrawCalls; };
 
@@ -26,10 +21,6 @@ private:
 	void RegisterEditorWindows();
 private:
 	IImguiBackend* mImguiBackend;
-
-	Sampler* mTextureSampler;
-
-	Vector<Texture2D*> mTextureUploadQueue;
-
+	EditorWindowManager* mWindowManager;
 	uint32 mPreviousFrameDrawCalls = 0;
 };

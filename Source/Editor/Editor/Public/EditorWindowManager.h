@@ -1,12 +1,14 @@
 #pragma once
-#include <Core.h>
-#include <EngineSubsystem.h>
+#include <EngineMinimal.h>
 
 class EditorWindow;
 
-class EditorWindowManager : public EngineSubsystem<EditorWindowManager>
+/*
+* Engine subsystem
+*/
+class EditorWindowManager
 {
-	friend class EngineSubsystem<EditorWindowManager>;
+	friend struct subsystem::SubsystemDescriptor;
 public:
 	using WindowCreator = Func<EditorWindow* ()>;
 
@@ -20,7 +22,7 @@ public:
 	void RenderActiveWindows();
 
 	EditorWindowManager();
-	~EditorWindowManager() override;
+	~EditorWindowManager();
 private:
 private:
 	UnorderedMap<String, WindowCreator> mRegisteredWindows;

@@ -1,18 +1,8 @@
 #pragma once
-#include <SimpleMath.h>
+#include <EngineMinimal.h>
 
-struct Vertex2D
-{
-	Vector2 position;
-	Color color;
-};
-
-struct Vertex3D
+struct Vertex
 {
 	Vector4 position;
 	Color color;
-	Vector2 uv;
-	Vector3 normal;
-	Vector3 bitangent;
-	Vector3 tangent;
 };

@@ -1,5 +1,6 @@
 #pragma once
 #include <Core.h>
+#include <bitset>
 #include "EComponentAllocator.h"
 
 class EWorld;
@@ -40,7 +41,7 @@ struct Archetype
 	Archetype(ESignature Signature) : signature(Signature) {};
 
 	const ESignature signature;
-	UnorderedMap<TypeIdHash, EComponentAllocator> components;
+	UnorderedMap<size_t, EComponentAllocator> components;
 	Vector<EEntity> entities;
 };
 

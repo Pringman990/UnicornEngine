@@ -16,10 +16,6 @@ project "EntryPoint"
 		"**.hpp",
 		"**.cpp",
 		"**.c",
-		--dirs.Inter_Generated .. "**.h",
-		--dirs.Inter_Generated .. "**.hpp",
-		--dirs.Inter_Generated .. "**.cpp",
-		--dirs.Inter_Generated .. "**.c"
 	}
 
 	vpaths { ["Public/*"] = {"Public/**.h", "Public/**.hpp", "Public/**.c", "Public/**.cpp"} }
@@ -32,14 +28,14 @@ project "EntryPoint"
 	includeDependencies("EntryPoint", 
 	{
 		dirs.EntryPoint .. "Public",
-		"Core",
+		"Engine",
 		"Renderer",
 		"ECS",
 	})
 
 	linkDependencies("EntryPoint", 
 	{
-		"Core",
+		"Engine",
 		"Renderer",
 		"ECS",
 	})
@@ -70,7 +66,7 @@ project "EntryPoint"
 			"Editor"
 		} 
 
-		 filter {"configurations:MemoryDebug"}
+	filter {"configurations:MemoryDebug"}
       -- Additional post-build command to copy debug-specific DLLs
       postbuildcommands {
          "echo Copying debug DLLs from " .. UCE_DLL_DIR .. "/debug to " .. UCE_EXECUTABLE_DIR,

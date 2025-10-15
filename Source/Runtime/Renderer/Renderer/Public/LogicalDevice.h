@@ -1,30 +1,38 @@
 #pragma once
-#include <Core.h>
+#include <EngineMinimal.h>
+#include <RendererMinimal.h>
 
-#include <Vulkan/vulkan.h>
-#include "GPUQueue.h"
-
-class Renderer;
+struct ID3D11Device;
+struct ID3D11DeviceContext;
 
 class LogicalDevice
 {
 public:
+	inline ID3D11DeviceContext* GetImmediateContext() const { return mImmediateContext.Get(); }
+
+	inline ID3D11Device* GetRaw() const { return mDevice.Get(); };
+
+public:
+	ID3D11Device* operator->() const noexcept
+	{
+		return mDevice.Get();
+	}
+
+private:
+	friend class Renderer;
+
+	/*
+	* Only one single LogicalDevice can exist in DX11 at any time
+	* But this is not a common singleton, we only hide the creation
+	*/
 	LogicalDevice();
 	~LogicalDevice();
 
-	static LogicalDevice* Create(Renderer& RendererRef, VkPhysicalDevice PhysicalDevice, GPUQueueFamilyInfo QueueFamilyInfo);
-
-	VkDevice* GetAdressOf() noexcept { return &mDevice; };
-	VkDevice GetRaw() const noexcept { return mDevice; };
-
-	const GPUQueue& GetGraphicsQueue() const { return mGraphicsQueue; };
-	const GPUQueue& GetPresentQueue() const { return mPresentQueue; };
-
-public:
-	operator VkDevice() const noexcept { return mDevice; }
+	/*
+	* We hide the init and only allow the renderer to access it
+	*/
+	bool Init();
 private:
-	VkDevice mDevice;
-
-	GPUQueue mGraphicsQueue;
-	GPUQueue mPresentQueue;
+	ComPtr<ID3D11Device> mDevice;
+	ComPtr<ID3D11DeviceContext> mImmediateContext;
 };

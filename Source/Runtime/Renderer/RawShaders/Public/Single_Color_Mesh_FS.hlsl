@@ -1,9 +1,22 @@
 #include "Common.hlsli"
 
-ColorOutput main(MeshPixelInput input)
+cbuffer ConstantTest : register(b1)
+{
+    float time;
+    float3 _padding1;
+};
+
+struct VSOutput
+{
+    float4 position : SV_POSITION;
+    float4 worldPosition : TEXCOORD0;
+    float4 color : COLOR;
+};
+
+ColorOutput main(VSOutput input)
 {
     ColorOutput result;
-    result.color =float4(1.0f, 0.0f, 0.0f, 1.0f);
-    //result.depth = input.position.z / input.position.w;
+    //result.color = input.color;
+    result.color = float4(1,0,0,1);
     return result;
 }

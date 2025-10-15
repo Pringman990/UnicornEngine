@@ -1,9 +1,14 @@
 #pragma once
-#include <Core.h>
+#include <EngineMinimal.h>
+#include <RendererMinimal.h>
+#include <Application/Generic/WindowHandle.h>
 
-#include "GPUTexture.h"
+struct IDXGISwapChain1;
+struct DXGI_SWAP_CHAIN_DESC1;
+struct IDXGIAdapter3;
 
-class PhysicalDevice;
+struct GPUTexture;
+
 class LogicalDevice;
 
 class SwapChain
@@ -12,35 +17,29 @@ public:
 	SwapChain();
 	~SwapChain();
 
-	static SwapChain* Create(PhysicalDevice* PhysicalDevice, LogicalDevice* Logical, Surface* Surface);
-	void ReCreate(PhysicalDevice* PhysicalDevice, LogicalDevice* Logical, Surface* Surface);
+	static OwnedPtr<SwapChain> Create(LogicalDevice& Device, WindowHandle Hwnd, DXGI_SWAP_CHAIN_DESC1 Desc);
 
-	const GPUResourceHandle<GPUTexture> GetRenderTarget(uint32 ImageIndex) const { return mRenderTargets[ImageIndex]; };
-	uint32 GetMinSupportedImageCount() const { return mMinImageCountSupported; };
-	uint32 GetImageCount() const { return mImageCount; };
-	const VkFormat& GetImageFormat() const { return mImageFormat; };
-	const VkExtent2D& GetExtent() const { return mExtent; };
+	void UpdateCardInfo();
 
-	VkSwapchainKHR* GetAdressOf() noexcept { return &mSwapChain; };
-	VkSwapchainKHR GetRaw() const { return mSwapChain; };
+	IDXGISwapChain1* GetRaw() { return mSwapChain.Get(); }
+	GPUResourceHandle<GPUTexture> GetBackBuffer() { return mBackBuffer; };
+	GPUResourceHandle<GPUTexture> GetBackBufferDSV() { return mBackBufferDSV; };
+
 public:
-	operator VkSwapchainKHR() const noexcept { return mSwapChain; }
+	IDXGISwapChain1* operator->() const noexcept
+	{
+		return mSwapChain.Get();
+	}
 
 private:
-	void Destroy();
+	bool CreateTextures(class Renderer* Renderer);
 
-	static void Create(SwapChain* SwapChainPtr, PhysicalDevice* PhysicalDevice, LogicalDevice* Logical, Surface* Surface);
-
-	static VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const Vector<VkSurfaceFormatKHR>& AvailableFormats);
-	static VkPresentModeKHR ChooseSwapPresentFormat(const Vector<VkPresentModeKHR>& AvailablePresentModes);
-	static VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& Capabilites);
 private:
-	VkSwapchainKHR mSwapChain;
+	ComPtr<IDXGISwapChain1> mSwapChain;
+#ifdef _DEBUG
+	ComPtr<IDXGIAdapter3> mAdapter3;
+#endif
 
-	Vector<GPUResourceHandle<GPUTexture>> mRenderTargets;
-
-	uint32 mMinImageCountSupported;
-	uint32 mImageCount;
-	VkFormat mImageFormat;
-	VkExtent2D mExtent;
+	GPUResourceHandle<GPUTexture> mBackBuffer;
+	GPUResourceHandle<GPUTexture> mBackBufferDSV;
 };

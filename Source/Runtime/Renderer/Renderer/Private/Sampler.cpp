@@ -1,52 +1,41 @@
 #include "Sampler.h"
+#include "LogicalDevice.h"
+
+#include <d3d11.h>
+
+OwnedPtr<Sampler> Sampler::Create(LogicalDevice& Device, D3D11_SAMPLER_DESC Desc)
+{
+	D3D11_SAMPLER_DESC samplerDesc;
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.MipLODBias = 0.0f;
+	samplerDesc.MaxAnisotropy = 1;
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samplerDesc.BorderColor[0] = 0;
+	samplerDesc.BorderColor[1] = 0;
+	samplerDesc.BorderColor[2] = 0;
+	samplerDesc.BorderColor[3] = 0;
+	samplerDesc.MinLOD = 0;
+	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	OwnedPtr<Sampler> sampler = MakeOwned<Sampler>();
+
+	HRESULT result = Device->CreateSamplerState(&Desc, &sampler->mSamplerState);
+	if (FAILED(result))
+	{
+		sampler.reset();
+		return nullptr;
+	}
+
+    return std::move(sampler);
+}
 
 Sampler::Sampler()
-    :
-    mSampler(VK_NULL_HANDLE)
 {
 }
 
 Sampler::~Sampler()
 {
-    vkDestroySampler(*Renderer::Get()->GetDevice(), mSampler, nullptr);
-}
-
-Sampler* Sampler::Create(
-    VkFilter MagFilter, 
-    VkFilter MinFilter,
-    VkSamplerAddressMode AddressModeU,
-    VkSamplerAddressMode AddressModeV, 
-    VkSamplerAddressMode AddressModeW, 
-    bool AnisotropyEnable,
-    float MaxAnisotropy
-)
-{
-    Sampler* sampler = new Sampler();
-
-    VkSamplerCreateInfo samplerInfo{};
-    samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-    samplerInfo.magFilter = MagFilter;
-    samplerInfo.minFilter = MinFilter;
-    samplerInfo.addressModeU = AddressModeU;
-    samplerInfo.addressModeV = AddressModeV;
-    samplerInfo.addressModeW = AddressModeW;
-    samplerInfo.anisotropyEnable = AnisotropyEnable ? VK_TRUE : VK_FALSE;
-    samplerInfo.maxAnisotropy = AnisotropyEnable ? MaxAnisotropy : 1.0f;
-    samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-    samplerInfo.unnormalizedCoordinates = VK_FALSE;
-    samplerInfo.compareEnable = VK_FALSE;
-    samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-    samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-    samplerInfo.mipLodBias = 0.0f;
-    samplerInfo.minLod = 0.0f;
-    samplerInfo.maxLod = 0.0f;
-
-    if (vkCreateSampler(*Renderer::Get()->GetDevice(), &samplerInfo, nullptr, &sampler->mSampler))
-    {
-        _THROW_RENDERER("Failed to create sampler");
-        delete sampler;
-        return nullptr;
-    }
-    
-    return sampler;
 }

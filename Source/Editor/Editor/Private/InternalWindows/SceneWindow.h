@@ -19,6 +19,7 @@ private:
 	EditorCamera mEditorCamera;
 
 	ImTextureID imguiTex;
+	bool mIsTextureValid = false;
 	class Sampler* sampler;
 };
 

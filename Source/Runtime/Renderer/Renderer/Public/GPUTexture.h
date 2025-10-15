@@ -1,27 +1,19 @@
 #pragma once
-#include <Core.h>
+#include <EngineMinimal.h>
+#include "RendererMinimal.h"
 
-#include "LogicalDevice.h"
+struct ID3D11Texture2D;
+struct ID3D11RenderTargetView;
+struct ID3D11ShaderResourceView;
 
 struct GPUTexture
 {
-	VkImage image;
-	VkDeviceMemory memory;
-	VkImageView imageView;
-	
-	VkFormat format;
-	VkExtent3D extent;
-	VkImageLayout currentImageLayout;
-
-	static void DestroyGPUTexture(GPUTexture* Texture, LogicalDevice* Device)
-	{
-		vkDestroyImage(*Device, Texture->image, nullptr);
-		vkDestroyImageView(*Device, Texture->imageView, nullptr);
-		vkFreeMemory(*Device, Texture->memory, nullptr);
-	}
-
-	static void DestroyGPUTextureImageViewOnly(GPUTexture* Texture, LogicalDevice* Device)
-	{
-		vkDestroyImageView(*Device, Texture->imageView, nullptr);
-	}
+    ComPtr<ID3D11Texture2D> texture;
+    ComPtr<ID3D11RenderTargetView> rtv;
+    ComPtr<ID3D11ShaderResourceView> srv;
+    ComPtr<ID3D11DepthStencilView> dsv;
+    Vector2i extent;
+    RenderFormat format;
+    TextureUsage usage;
+    D3D11_VIEWPORT viewport;
 };

@@ -2,13 +2,18 @@
 #include <stdint.h>
 #include <memory>
 #include <vector>
+#include <array>
 #include <string>
 #include <map>
 #include <unordered_map>
+#include <unordered_set>
 #include <set>
 #include <functional>
 #include <queue>
 #include <optional>
+#include <span>
+#include <typeindex>
+#include <mutex>
 
 using uint8	 = uint8_t;
 using uint16 = uint16_t;
@@ -47,7 +52,13 @@ template<typename T>
 using Set = std::set<T>;
 
 template<typename T>
+using UnorderedSet = std::unordered_set<T>;
+
+template<typename T>
 using Queue = std::queue<T>;
+
+template<typename T>
+using Deque = std::deque<T>;
 
 template<typename T>
 using Func = std::function<T>;
@@ -75,3 +86,8 @@ OwnedPtr<T> MakeOwned(Args&&... args)
 
 template<typename>
 inline constexpr bool dependent_false_v = false;
+
+using ConstructFunc = void(*)(void* Dst);
+using CopyFunc = void(*)(void* Dst, const void* Src);
+using MoveFunc = void(*)(void* Dst, void* Src);
+using DestroyFunc = void(*)(void* Obj);

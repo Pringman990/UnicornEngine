@@ -1,32 +1,26 @@
 #include <stdint.h>
-#include <EngineSubsystem.h>
 #include "EngineLoop.h"
-#include <Core.h>
+
+#include <EngineMinimal.h>
 
 int32_t GuardedMain()
 {
+	Logger::Init();
+
 	_TRACK_MEMORY(true, true);
 	{
-		FileSystem::Create();
-		FileSystem::Get()->Init();
+		SubsystemManager::Init();
+		
+		SubsystemManager::Get<FileSystem>()->Init();
 
-		Logger::Create();
-		Logger::Get()->Init();
+		SubsystemManager::Get<FileWatcherSubsystem>()->Init(std::filesystem::current_path().parent_path().parent_path().string(), FileWatcherBackendFactory::Create());
 
-		ReflectionRegistry::Create();
-
-		FileWatcherSubsystem::Create();
-		FileWatcherSubsystem::Get()->Init(std::filesystem::current_path().parent_path().parent_path().string(), FileWatcherBackendFactory::Create());
-
-		Timer::Create();
-		Timer* timer = Timer::Get();
-
-		ModuleManager::Create();
+		Timer* timer = SubsystemManager::Get<Timer>();
 
 		EngineLoop engineLoop;
-		_ASSERT_CORE(engineLoop.Init(), "Engine Loop Failed To Init");
+		ASSERT(engineLoop.Init(), "Engine Loop Failed To Init");
 
-		_LOG_CORE_INFO("GuardedMain has Initilized and will now run the main loop");
+		LOG_INFO("GuardedMain has Initilized and will now run the main loop");
 		//This is the main loop for the whole engine
 		while (engineLoop.EngineLoopClose())
 		{
@@ -34,22 +28,15 @@ int32_t GuardedMain()
 			engineLoop.Update();
 		}
 
-		_LOG_CORE_INFO("Main loop exited, starting cleanup");
+		LOG_INFO("Main loop exited, starting cleanup");
 	}
+
+	LOG_INFO("Main cleanup done, Goodbye welcome back!");
 	
-	ModuleManager::Shutdown();
-	Timer::Shutdown();
-	FileWatcherSubsystem::Shutdown();
-
-	ReflectionRegistry::Shutdown();
-
-	_LOG_CORE_INFO("Main cleanup done, Goodbye welcome back!");
-	Logger::Shutdown();
-
-	FileSystem::Shutdown();
-
-	__SingletonRegistryFunctions::EnsureAllShutdown();
+	SubsystemManager::DestroyAll();
+	__Subsystem::EnsureAllShutdown();
 	_STOP_TRACK_MEMORY();
+	Logger::Cleanup();
 
 	return 0;
 }

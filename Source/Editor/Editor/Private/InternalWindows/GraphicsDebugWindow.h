@@ -1,8 +1,6 @@
 #pragma once
-#include <Core.h>
+#include <EngineMinimal.h>
 #include "EditorWindow.h"
-
-#include <Renderer.h>
 
 class GraphicsDebugWindow : public EditorWindow
 {
@@ -14,7 +12,7 @@ public:
 	virtual void Render() override;
 
 private:
-	GraphicsCardInfo mGraphicsCardInfo;
+	//GraphicsCardInfo mGraphicsCardInfo;
 	ImTextureID imguiTex;
 	class Sampler* sampler;
 	class Texture2D* texture;

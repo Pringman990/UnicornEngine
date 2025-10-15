@@ -19,12 +19,12 @@ project "ECS"
 	includeDependencies("ECS", 
 	{
 		dirs.ECS,
-		"Core"
+		"Engine"
 	})
 
 	linkDependencies("ECS", 
 	{
-		"Core",
+		"Engine",
 	})
 
 	files {
@@ -36,19 +36,3 @@ project "ECS"
 
 	vpaths { ["Public/*"] = {"Public/**.h", "Public/**.hpp", "Public/**.c", "Public/**.cpp"} }
 	vpaths { ["Private/*"] = {"Private/**.h", "Private/**.hpp", "Private/**.c", "Private/**.cpp"}}
-
-	pchheader "pch.h"
-	pchsource "Private/pch.cpp"
-	forceincludes { "pch.h" }
-
-	if not os.isfile("Private/pch.h") then
-        io.writefile("Private/pch.h", 
-        "#pragma once\n" .. 
-        "#pragma message(\"pch ECS!\")\n\n"
-        )
-    end
-   
-    if not os.isfile("Private/pch.cpp") then
-        io.writefile("Private/pch.cpp", 
-        "#include \"pch.h\"")
-    end
