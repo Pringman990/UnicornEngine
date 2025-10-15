@@ -2,7 +2,6 @@
 #include "Win32DX12ImguiBackend.h"
 
 #include <Application/Windows/WindowsApplication.h>
-#include <Renderer.h>
 
 Win32DX12ImguiBackend::Win32DX12ImguiBackend()
 {
@@ -91,7 +90,7 @@ void Win32DX12ImguiBackend::RenderFrame()
 	ImGui::Render();
 }
 
-void Win32DX12ImguiBackend::EndFrame(CommandBuffer* Buffer)
+void Win32DX12ImguiBackend::EndFrame()
 {
 	/*ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), Renderer::Get()->GetMainCommandList());
 	ImGui::UpdatePlatformWindows();

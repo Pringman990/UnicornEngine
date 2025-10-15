@@ -1,9 +1,11 @@
 #pragma once
-#include <Core.h>
-#include <Sandbox/MoveCubeComponent.gen.h>
+#include <ComponentMinimal.h>
+#include "MoveCubeComponent.meta.h"
 
 struct MoveCubeComponent
 {
 	float speed;
-	GPUResourceHandle<struct GPUMesh> meshHandle;
+	float slow;
+	int fast;
+	//GPUResourceHandle<struct GPUMesh> meshHandle;
 };

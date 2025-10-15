@@ -1,15 +1,19 @@
 #pragma once
+#include <EngineMinimal.h>
+#include "RendererMinimal.h"
 
+/*
+* Mainly used for Index and Vertex buffers
+*/
 struct GPUBuffer
 {
-	VkBuffer buffer;
-	VkDeviceMemory memory;
-	VkDeviceSize size;
+	ComPtr<ID3D11Buffer> buffer;
+};
 
-	void Destory(LogicalDevice* Device)
-	{
-		vkDestroyBuffer(*Device, buffer, nullptr);
-		vkFreeMemory(*Device, memory, nullptr);
-		size = {};
-	}
+struct GPUConstantBuffer
+{
+	ComPtr<ID3D11Buffer> buffer;
+	Vector<byte> cpuData;
+	uint32 size = 0;
+	BufferUsage usage;
 };

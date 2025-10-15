@@ -1,69 +1,46 @@
 #include "LogicalDevice.h"
 
-#include "Renderer.h"
+#include <d3d11.h>
 
 LogicalDevice::LogicalDevice()
-	:
-	mDevice(VK_NULL_HANDLE),
-	mGraphicsQueue({}),
-	mPresentQueue({})
 {
 }
 
 LogicalDevice::~LogicalDevice()
 {
-	vkDestroyDevice(mDevice, nullptr);
-	mDevice = VK_NULL_HANDLE;
+	mDevice.Reset();
+	mImmediateContext.Reset();
 }
 
-LogicalDevice* LogicalDevice::Create(Renderer& RendererRef, VkPhysicalDevice PhysicalDevice, GPUQueueFamilyInfo QueueFamilyInfo)
+bool LogicalDevice::Init()
 {
-	LogicalDevice* device = new LogicalDevice();
-
-	Vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-	Set<uint32> uniqueQueueFamilies = { QueueFamilyInfo.graphicsFamily.value(), QueueFamilyInfo.presentFamily.value()};
+	D3D_FEATURE_LEVEL featureLevel = { D3D_FEATURE_LEVEL_11_1 };
 	
-	float queuePriority = 1.0f;
-	for (uint32 queueFamily : uniqueQueueFamilies)
+	UINT creationFlags = 0;
+#ifdef _DEBUG
+#define REPORT_DX_WARNINGS
+	creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif // _DEBUG
+
+	HRESULT hr = D3D11CreateDevice(
+		nullptr,
+		D3D_DRIVER_TYPE_HARDWARE,
+		nullptr,
+		creationFlags,
+		nullptr,
+		0,
+		D3D11_SDK_VERSION,
+		&mDevice,
+		&featureLevel,
+		&mImmediateContext
+	);
+
+	if (FAILED(hr))
 	{
-		VkDeviceQueueCreateInfo queueCreateInfo {};
-		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-		queueCreateInfo.queueFamilyIndex = queueFamily;
-		queueCreateInfo.queueCount = 1;
-		queueCreateInfo.pQueuePriorities = &queuePriority;
-		queueCreateInfos.push_back(queueCreateInfo);
+		THROW("Failed to setup Device: {}", hr);
+		return false;
 	}
 
-	VkPhysicalDeviceFeatures deviceFeatures{};
-	
-	const Vector<const char*> requiredExtensions
-	{
-		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-		VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME
-	};
-
-	VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures{};
-	dynamicRenderingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
-	dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
-
-	VkDeviceCreateInfo createInfo{};
-	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-	createInfo.pQueueCreateInfos = queueCreateInfos.data();
-	createInfo.queueCreateInfoCount = static_cast<uint32>(queueCreateInfos.size());
-	createInfo.pEnabledFeatures = &deviceFeatures;
-	createInfo.enabledExtensionCount = static_cast<uint32>(requiredExtensions.size());
-	createInfo.ppEnabledExtensionNames = requiredExtensions.data();
-	createInfo.enabledLayerCount = 0;
-	createInfo.pNext = &dynamicRenderingFeatures;
-
-	VkResult result = vkCreateDevice(PhysicalDevice, &createInfo, nullptr, &device->mDevice);
-	if (result != VK_SUCCESS)
-	{
-		_THROW_RENDERER("Failed to create Vulkan logical device: {}", string_VkResult(result));
-	}
-
-	vkGetDeviceQueue(device->mDevice, QueueFamilyInfo.graphicsFamily.value(), 0, &device->mGraphicsQueue.queue);
-	vkGetDeviceQueue(device->mDevice, QueueFamilyInfo.presentFamily.value(), 0, &device->mPresentQueue.queue);
-
-	return device;
+	return true;
 }
+

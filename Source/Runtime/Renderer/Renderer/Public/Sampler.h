@@ -1,5 +1,11 @@
 #pragma once
-#include <Core.h>
+#include <EngineMinimal.h>
+#include <RendererMinimal.h>
+
+struct ID3D11SamplerState;
+struct D3D11_SAMPLER_DESC;
+
+class LogicalDevice;
 
 class Sampler
 {
@@ -7,21 +13,18 @@ public:
 	Sampler();
 	~Sampler();
 
-    static Sampler* Create(
-        VkFilter MagFilter = VK_FILTER_LINEAR,
-        VkFilter MinFilter = VK_FILTER_LINEAR,
-        VkSamplerAddressMode AddressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-        VkSamplerAddressMode AddressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-        VkSamplerAddressMode AddressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-        bool AnisotropyEnable = false,
-        float MaxAnisotropy = 1.0f
-    );
-
-    VkSampler GetRaw() const { return mSampler; };
+	static OwnedPtr<Sampler> Create(LogicalDevice& Device, D3D11_SAMPLER_DESC Desc);
 
 public:
-    operator VkSampler() const noexcept { return mSampler; }
-private:
-	VkSampler mSampler;
+	ID3D11SamplerState* operator->() const noexcept
+	{
+		return mSamplerState.Get();
+	}
 
+
+private:
+
+
+private:
+	ComPtr<ID3D11SamplerState> mSamplerState;
 };

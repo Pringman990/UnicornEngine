@@ -3,6 +3,8 @@
 
 #include "EditorWindow.h"
 
+REGISTER_ENGINE_SUBSYSTEM(EditorWindowManager)
+
 EditorWindowManager::EditorWindowManager()
 {
 }
@@ -28,13 +30,13 @@ void EditorWindowManager::CreateWindow(const String& WindowType)
 		
 		if (!AddUniqueToVector(mActiveWindows, window))
 		{
-			_LOG_EDITOR_WARNING("Window already exist as active");
+			LOG_WARNING("Window already exist as active");
 			return;
 		}
 
 		if (!window->Init())
 		{
-			_LOG_EDITOR_WARNING("Window failed to init");
+			LOG_WARNING("Window failed to init");
 			EraseItemFromVector(mActiveWindows, window);
 			return;
 		}

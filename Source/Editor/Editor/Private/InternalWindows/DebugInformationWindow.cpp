@@ -2,7 +2,6 @@
 #include "DebugInformationWindow.h"
 
 #include <Timer/Timer.h>
-#include <Renderer.h>
 
 DebugInformationWindow::DebugInformationWindow(Editor* EditorPtr)
 	:
@@ -29,7 +28,7 @@ void DebugInformationWindow::Render()
 	//    Renderer::Get()->SetVsync(vsync);
 	//}
 
-	String fps = "FPS: ";
+	/*String fps = "FPS: ";
 	fps = std::to_string(Timer::Get()->GetFps());
 	ImGui::Text(fps.c_str());
 
@@ -39,7 +38,7 @@ void DebugInformationWindow::Render()
 
 	String gameDrawcalls = "Game DrawCalls: ";
 	gameDrawcalls = std::to_string(Renderer::Get()->GetGameDrawCalls());
-	ImGui::Text(gameDrawcalls.c_str());
+	ImGui::Text(gameDrawcalls.c_str());*/
 
 	//String totalDrawcalls = "Total DrawCalls: ";
 	//totalDrawcalls = std::to_string(Renderer::Get()->GetTotalDrawCalls());

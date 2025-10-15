@@ -5,8 +5,6 @@
 #include "EditorWindowsIncludes.generated.h"
 
 #include "ImguiBackendFactory.h"
-#include <CommandBuffer.h>
-#include <Sampler.h>
 
 Editor::Editor()
 	:
@@ -16,7 +14,7 @@ Editor::Editor()
 
 Editor::~Editor()
 {
-	EditorWindowManager::Shutdown();
+	//EditorWindowManager::Shutdown();
 
 	delete mImguiBackend;
 	mImguiBackend = nullptr;
@@ -24,20 +22,19 @@ Editor::~Editor()
 
 bool Editor::Init()
 {
-	_PAUSE_TRACK_MEMORY(true); // We turn off tracking because there is a phantom memory leak
-	EditorWindowManager::Create();
-	_PAUSE_TRACK_MEMORY(false);
-
-	mTextureSampler = Sampler::Create();
+	//mTextureSampler = Sampler::Create();
 
 	mImguiBackend = ImguiBackendFactory::CreateBackend();
-	_ENSURE_EDITOR(mImguiBackend, "ImguiBackend was null");
+	ENSURE(mImguiBackend, "ImguiBackend was null");
 
 	if (!mImguiBackend->Init())
 	{
-		_LOG_EDITOR_CRITICAL("Imgui backend failed to init");
+		LOG_CRITICAL("Imgui backend failed to init");
 		return false;
 	}
+
+	mWindowManager = SubsystemManager::Get<EditorWindowManager>();
+	ENSURE(mWindowManager, "Editor Window Manager was null");
 
 	RegisterEditorWindows();
 
@@ -69,17 +66,17 @@ void Editor::BeginFrame()
 
 void Editor::Render()
 {
-	EditorWindowManager::Get()->RenderActiveWindows();
+	mWindowManager->RenderActiveWindows();
 
 	mImguiBackend->RenderFrame();
 }
 
-void Editor::EndFrame(CommandBuffer* Buffer)
+void Editor::EndFrame()
 {
 	mPreviousFrameDrawCalls = 0;
 
-	mImguiBackend->EndFrame(Buffer);
-	ImDrawData* drawData = ImGui::GetDrawData();
+	mImguiBackend->EndFrame();
+	/*ImDrawData* drawData = ImGui::GetDrawData();
 	int imguiDrawCalls = 0;
 
 	for (int i = 0; i < drawData->CmdListsCount; i++)
@@ -87,23 +84,23 @@ void Editor::EndFrame(CommandBuffer* Buffer)
 		const ImDrawList* cmd_list = drawData->CmdLists[i];
 		Renderer::Get()->AddToEditorDrawCalls(cmd_list->CmdBuffer.Size);
 		mPreviousFrameDrawCalls += Renderer::Get()->GetEditorDrawCalls();
-	}	
-}
-
-void Editor::AddTextureToImgui(Texture2D* Texture)
-{
-	//mImguiBackend->AddTextureToImgui(Texture, mTextureSampler);
-	mTextureUploadQueue.push_back(Texture);
+	}*/	
 }
 
 void Editor::RegisterEditorWindows()
 {
-	EditorWindowManager::Get()->RegisterWindowType("SceneWindow", [this]() {return new SceneWindow(this); });
-	EditorWindowManager::Get()->CreateWindow("SceneWindow");
+	mWindowManager->RegisterWindowType("SceneWindow", [this]() {return new SceneWindow(this); });
+	mWindowManager->CreateWindow("SceneWindow");
 
-	EditorWindowManager::Get()->RegisterWindowType("GraphicsDebugWindow", [this]() {return new GraphicsDebugWindow(this); });
-	EditorWindowManager::Get()->CreateWindow("GraphicsDebugWindow");
+	mWindowManager->RegisterWindowType("GraphicsDebugWindow", [this]() {return new GraphicsDebugWindow(this); });
+	mWindowManager->CreateWindow("GraphicsDebugWindow");
 
-	EditorWindowManager::Get()->RegisterWindowType("DebugInformationWindow", [this]() {return new DebugInformationWindow(this); });
-	EditorWindowManager::Get()->CreateWindow("DebugInformationWindow");
+	mWindowManager->RegisterWindowType("DebugInformationWindow", [this]() {return new DebugInformationWindow(this); });
+	mWindowManager->CreateWindow("DebugInformationWindow");
+
+	mWindowManager->RegisterWindowType("ECSDebugWindow", [this]() {return new ECSDebugWindow(this); });
+	mWindowManager->CreateWindow("ECSDebugWindow");
+
+	mWindowManager->RegisterWindowType("ModuleWindow", [this]() {return new ModuleWindow(this); });
+	mWindowManager->CreateWindow("ModuleWindow");
 }

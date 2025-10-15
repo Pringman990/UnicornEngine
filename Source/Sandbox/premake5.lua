@@ -22,16 +22,14 @@ project "Sandbox"
 	{
 		dirs.Sandbox,
 		"Renderer",
-		"Singleton",
-		"Core",
+		"Engine",
 		"ECS",
 	})
 
 	linkDependencies("Sandbox", 
 	{
 		"Renderer",
-		"Singleton",
-		"Core",
+		"Engine",
 		"ECS",
 	})
 
@@ -40,18 +38,17 @@ project "Sandbox"
 		"**.hpp",
 		"**.cpp",
 		"**.c",
-		dirs.Inter_Generated .. "Sandbox/" .. "**.h",
-		dirs.Inter_Generated .. "Sandbox/" .. "**.hpp",
-		dirs.Inter_Generated .. "Sandbox/" .. "**.cpp",
-		dirs.Inter_Generated .. "Sandbox/" .. "**.c"
 	}
 
 	defines{
 		"SANDBOX_EXPORTS"
 	}
 
-	vpaths { ["Public/*"] = {"Public/**.h", "Public/**.hpp", "Public/**.c", "Public/**.cpp"} }
-	vpaths { ["Private/*"] = {"Private/**.h", "Private/**.hpp", "Private/**.c", "Private/**.cpp"}}
+vpaths {
+    ["Public/*"]  = { "Public/**.h", "Public/**.hpp", "Public/**.c", "Public/**.cpp" },
+    ["Private/*"] = { "Private/**.h", "Private/**.hpp", "Private/**.c", "Private/**.cpp" },
+    [".meta/*"]  = { "Public/**.meta.h", "Public/**.meta.cpp", "Private/**.meta.h", "Private/**.meta.cpp" }
+}
 
 group ""
 

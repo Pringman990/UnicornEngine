@@ -1,55 +1,47 @@
 #pragma once
 #include <Core.h>
-#include <EngineSubsystem.h>
+#include <Subsystem/EngineSubsystem.h>
 #include <Reflection/ReflectionRegistry.h>
 #include "ECommon.h"
+#include "Logger/Logger.h"
 
-class EComponentRegistry final : public EngineSubsystem<EComponentRegistry>
+/*
+* Engine subsystem
+*/
+class EComponentRegistry final 
 {
+	friend struct subsystem::SubsystemDescriptor;
 public:
-	EComponentRegistry() = default;
-	~EComponentRegistry() = default;
-
-	template<typename T>
-	void RegisterComponent()
+	EComponentRegistry()
 	{
-		const ReflectionRegistry::TypeInfo info = ReflectionRegistry::Get()->GetInfo<T>();
+		//ReflectionRegistry::Get()->OnTypeRegistered.AddRaw(this, &EComponentRegistry::OnComponentRegistered);
+	};
 
-		auto it = mTypeToID.find(info.type);
-		if (it != mTypeToID.end())
-		{
-			_LOG_CORE_WARNING("Trying to register already registered component: {}", info.name);
-			return;
-		}
-
-		mTypeToID[info.type] = mNextID;
-		mIDToType[mNextID] = info.type;
-		mNextID++;
-
-		_LOG_CORE_INFO("Registered Component to EComponentRegistry: {}", info.name);
-	}
+	~EComponentRegistry() = default;
 
 	template<typename T>
 	uint32 GetID()
 	{
-		const ReflectionRegistry::TypeInfo info = ReflectionRegistry::Get()->GetInfo<T>();
+		const Reflect::ReflectTypeInfo* info = ReflectionRegistry::TryGetInfo<T>();
+		if (!info)
+			return UINT32_MAX;
 
-		auto it = mTypeToID.find(info.type);
-		if (it == mTypeToID.end())
+		auto it = mUUIDToID.find(info->schema.uuid);
+		if (it == mUUIDToID.end())
 		{
-			_LOG_CORE_WARNING("Trying to get id of non-registered component: {}", info.name);
-			return 0;
+			LOG_WARNING("Trying to get id of non-registered component: {}", info->schema.name);
+			return UINT32_MAX;
 		}
 		return it->second;
 	}
 
-	TypeIdHash GetType(uint32 ID)
+	UniqueID128 GetType(uint32 ID)
 	{
-		auto it = mIDToType.find(ID);
-		if (it == mIDToType.end())
+		auto it = mIDToUUID.find(ID);
+		if (it == mIDToUUID.end())
 		{
-			_LOG_CORE_WARNING("Trying to get type of non-registered component ID: {}", ID);
-			return 0;
+			LOG_WARNING("Trying to get type of non-registered component ID: {}", ID);
+			return {};
 		}
 		return it->second;
 	}
@@ -80,13 +72,59 @@ public:
 		return ids;
 	}
 
-	const String GetName(TypeIdHash Type)
+	ESignature CalulateSignatureFromIds(const Vector<uint32>& IDs)
 	{
-		return String(ReflectionRegistry::Get()->GetInfo(Type).name);
+		ESignature sig;
+
+		for (uint32 i = 0; i < IDs.size(); i++)
+		{
+			sig.set(IDs[i]);
+		}
+
+		return sig;
 	}
 
+	template<typename EComponent>
+	ESignature RemoveAndGetNew(ESignature Signature)
+	{
+		Vector<uint32> ids = GetIdsFromSignature(Signature);
+		uint32 idToRemove = GetID<EComponent>();
+
+		ids.erase(std::remove(ids.begin(), ids.end(), idToRemove), ids.end());
+
+		return CalulateSignatureFromIds(ids);
+	}
+
+	const String GetName(UniqueID128 Uuid)
+	{
+		const Reflect::ReflectTypeInfo* info = SubsystemManager::Get<ReflectionRegistry>()->TryGetInfo(Uuid);
+		if (!info)
+			return "";
+
+		return String(info->schema.name);
+	}
+
+	const Vector<UniqueID128>& GetAllComponentsTypes() const { return mRegisteredComponents; }
+
 private:
-	UnorderedMap<TypeIdHash, uint32> mTypeToID;
-	UnorderedMap<uint32, TypeIdHash> mIDToType;
+	//void OnComponentRegistered(const ReflectionRegistry::TypeInfo* Info)
+	//{
+	//	if (Info->flag != "Component")
+	//		return;
+
+	//	LOG_INFO("Registered Component: {}", Info->name);
+
+	//	if (mUUIDToID.count(Info->uuid) == 0)
+	//	{
+	//		uint32 id = mNextID++;
+	//		mUUIDToID[Info->uuid] = id;
+	//		mIDToUUID[id] = Info->uuid;
+	//		mRegisteredComponents.push_back(Info->uuid);
+	//	}
+	//}
+private:
+	UnorderedMap<UniqueID128, uint32> mUUIDToID;
+	UnorderedMap<uint32, UniqueID128> mIDToUUID;
+	Vector<UniqueID128> mRegisteredComponents;
 	uint32 mNextID = 0;
 };

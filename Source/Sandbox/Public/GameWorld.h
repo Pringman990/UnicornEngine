@@ -28,7 +28,7 @@ private:
 	void UpdateCamera();
 private:
 	Camera mCamera;
-	GPUResourceHandle<struct GPUMesh> mMeshHandle;
+	//GPUResourceHandle<struct GPUMesh> mMeshHandle;
 	Transform mTransform;
 };
 

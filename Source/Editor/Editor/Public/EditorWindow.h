@@ -2,7 +2,7 @@
 #include <Core.h>
 
 #include "Editor.h"
-
+#include <imgui.h>
 class EditorWindow
 {
 public:

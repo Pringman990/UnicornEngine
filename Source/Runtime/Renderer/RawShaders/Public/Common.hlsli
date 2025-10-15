@@ -15,12 +15,12 @@ cbuffer ObjectConstantBuffer : register(b1)
 
 struct MeshVertexInput
 {
-    [[vk::location(0)]] float4 position : POSITION;
-    [[vk::location(1)]] float4 color : TEXCOORD0;
-    [[vk::location(2)]] float2 uv : TEXCOORD1;
-    [[vk::location(3)]] float3 normal : TEXCOORD2;
-    [[vk::location(4)]] float3 bitangent : TEXCOORD3;
-    [[vk::location(5)]]  float3 tangent : TEXCOORD4;
+    float4 position : POSITION;
+    float4 color : TEXCOORD0;
+    float2 uv : TEXCOORD1;
+    float3 normal : TEXCOORD2;
+    float3 bitangent : TEXCOORD3;
+     float3 tangent : TEXCOORD4;
 };
 
 struct MeshPixelInput

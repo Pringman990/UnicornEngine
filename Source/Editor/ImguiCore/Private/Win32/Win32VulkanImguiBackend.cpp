@@ -3,8 +3,6 @@
 
 #include <Application/Windows/WindowsApplication.h>
 
-#include <Renderer.h>
-
 Win32VulkanImguiBackend::Win32VulkanImguiBackend()
 {
 }
@@ -15,7 +13,7 @@ Win32VulkanImguiBackend::~Win32VulkanImguiBackend()
 
 bool Win32VulkanImguiBackend::Init()
 {
-	_PAUSE_TRACK_MEMORY(true);
+	/*_PAUSE_TRACK_MEMORY(true);
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
@@ -32,7 +30,7 @@ bool Win32VulkanImguiBackend::Init()
 			*out_surface = (ImU64)surface->GetRaw();
 
 			return 0;
-		};
+		};*/
 
 	//ImGui::LoadIniSettingsFromDisk("imgui.ini");
 
@@ -65,43 +63,43 @@ bool Win32VulkanImguiBackend::Init()
 	////io.Fonts->AddFontFromFileTTF((contentPath + "\\fa-solid-900.ttf").c_str(), 11.0f, &icons_config, icons_ranges);
 	////io.Fonts->Build();
 
-	_PAUSE_TRACK_MEMORY(false);
+	//_PAUSE_TRACK_MEMORY(false);
 
-	WindowsApplication* windowsApp = static_cast<WindowsApplication*>(Application::Get()->GetApplication());
-	if (!ImGui_ImplWin32_Init(windowsApp->GetWindowsWindowInfo().windowHandle))
-		return false;
+	//WindowsApplication* windowsApp = static_cast<WindowsApplication*>(Application::Get()->GetApplication());
+	//if (!ImGui_ImplWin32_Init(windowsApp->GetWindowsWindowInfo().windowHandle))
+	//	return false;
 
-	windowsApp->OnWndProc.AddRaw(this, &Win32VulkanImguiBackend::ProccessMessages);
+	//windowsApp->OnWndProc.AddRaw(this, &Win32VulkanImguiBackend::ProccessMessages);
 
-	Renderer* renderer = Renderer::Get();
+	//Renderer* renderer = Renderer::Get();
 
-	VkPipelineRenderingCreateInfoKHR prci{};
-	prci.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR;
-	prci.colorAttachmentCount = 1;
-	prci.pColorAttachmentFormats = &renderer->GetSwapChain()->GetImageFormat();
-	prci.depthAttachmentFormat = VK_FORMAT_UNDEFINED;
-	prci.stencilAttachmentFormat = VK_FORMAT_UNDEFINED;
-	prci.viewMask = 0;
+	//VkPipelineRenderingCreateInfoKHR prci{};
+	//prci.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR;
+	//prci.colorAttachmentCount = 1;
+	//prci.pColorAttachmentFormats = &renderer->GetSwapChain()->GetImageFormat();
+	//prci.depthAttachmentFormat = VK_FORMAT_UNDEFINED;
+	//prci.stencilAttachmentFormat = VK_FORMAT_UNDEFINED;
+	//prci.viewMask = 0;
 
-	//TODO: Add info
-	ImGui_ImplVulkan_InitInfo initInfo{};
-	initInfo.ApiVersion = VK_API_VERSION_1_3;
-	initInfo.Instance = renderer->GetInstance();
-	initInfo.PhysicalDevice = *renderer->GetPhysicalDevice();
-	initInfo.Device = *renderer->GetDevice();
-	initInfo.Queue = renderer->GetDevice()->GetGraphicsQueue().queue;
-	initInfo.QueueFamily = renderer->GetDevice()->GetGraphicsQueue().index;
-	initInfo.DescriptorPool = VK_NULL_HANDLE;
-	initInfo.DescriptorPoolSize = 1000; //Change to internal descriptor pool later
-	initInfo.ImageCount = renderer->GetSwapChain()->GetImageCount();
-	initInfo.MinImageCount = renderer->GetSwapChain()->GetMinSupportedImageCount();
-	//initInfo.MinAllocationSize = 1024 * 1024; //This can be changed with custom vulkan memory allocator
-	//initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-	initInfo.PipelineRenderingCreateInfo = prci;
-	initInfo.UseDynamicRendering = true;
+	////TODO: Add info
+	//ImGui_ImplVulkan_InitInfo initInfo{};
+	//initInfo.ApiVersion = VK_API_VERSION_1_3;
+	//initInfo.Instance = renderer->GetInstance();
+	//initInfo.PhysicalDevice = *renderer->GetPhysicalDevice();
+	//initInfo.Device = *renderer->GetDevice();
+	//initInfo.Queue = renderer->GetDevice()->GetGraphicsQueue().queue;
+	//initInfo.QueueFamily = renderer->GetDevice()->GetGraphicsQueue().index;
+	//initInfo.DescriptorPool = VK_NULL_HANDLE;
+	//initInfo.DescriptorPoolSize = 1000; //Change to internal descriptor pool later
+	//initInfo.ImageCount = renderer->GetSwapChain()->GetImageCount();
+	//initInfo.MinImageCount = renderer->GetSwapChain()->GetMinSupportedImageCount();
+	////initInfo.MinAllocationSize = 1024 * 1024; //This can be changed with custom vulkan memory allocator
+	////initInfo.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+	//initInfo.PipelineRenderingCreateInfo = prci;
+	//initInfo.UseDynamicRendering = true;
 
-	if (!ImGui_ImplVulkan_Init(&initInfo))
-		return false;
+	//if (!ImGui_ImplVulkan_Init(&initInfo))
+	//	return false;
 
 	//renderer->OnBackbufferResize.AddRaw(this, &Win32DX12ImguiBackend::ResizeBackBuffer);
 	return true;
@@ -120,12 +118,12 @@ void Win32VulkanImguiBackend::RenderFrame()
 	ImGui::ShowDemoWindow();
 }
 
-void Win32VulkanImguiBackend::EndFrame(CommandBuffer* Buffer)
+void Win32VulkanImguiBackend::EndFrame()
 {
-	ImGui::Render();
-	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *Buffer);
-	ImGui::UpdatePlatformWindows();
-	ImGui::RenderPlatformWindowsDefault();
+	//ImGui::Render();
+	//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *Buffer);
+	//ImGui::UpdatePlatformWindows();
+	//ImGui::RenderPlatformWindowsDefault();
 }
 
 //void Win32VulkanImguiBackend::AddTextureToImgui(Texture2D* Texture, Sampler* Sampler)

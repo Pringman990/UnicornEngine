@@ -1,22 +1,22 @@
 #include "EngineLoop.h"
-#include <Renderer.h>
+
+#include <EngineMinimal.h>
 
 #ifdef _EDITOR
 #include <Editor.h>
 #endif // EDITOR
 
-#include <RenderScope.h>
-#include <CommandBuffer.h>
-
 #include <Input/InputMapper.h>
 
 #include <ESystemManager.h>
 #include <EComponentRegistry.h>
+#include <EWorld.h>
+
+#include <Module/ModuleManager.h>
 
 EngineLoop::EngineLoop()
 	:
 	mGenericApplication(nullptr),
-	mRenderer(nullptr),
 	mFileWatcher(nullptr),
 	mShouldExit(false)
 {
@@ -29,16 +29,9 @@ EngineLoop::~EngineLoop()
 	mEditor = nullptr;
 #endif // _EDITOR
 
-	ESystemManager::Get()->UnRegisterSystems();
-	ModuleManager::Get()->UnLoadModule("Sandbox");
+	SubsystemManager::Get<ESystemManager>()->UnRegisterSystems();
+	SubsystemManager::Get<ModuleManager>()->UnLoadModule("Sandbox");
 
-	InputMapper::Shutdown();
-	ESystemManager::Shutdown();
-	EComponentRegistry::Shutdown();
-	Renderer::Shutdown();
-	Application::Shutdown();
-
-	mRenderer = nullptr;
 	mGenericApplication = nullptr;
 	mFileWatcher = nullptr;
 }
@@ -46,83 +39,69 @@ EngineLoop::~EngineLoop()
 bool EngineLoop::Init()
 {
 	TIMER_START_READING("__Engine Loop Init__");
-	_LOG_CORE_INFO("Engine Loop Starting Init");
+	LOG_INFO("Engine Loop Starting Init");
 
-	Application::Create();
-	mGenericApplication = Application::Get()->_CreateApplication();
-	_ASSERT_CORE(mGenericApplication, "Engine Loop Failed To Create Application");
+	Application* app = SubsystemManager::Get<Application>();
+	mGenericApplication = app->_CreateApplication();
+	ASSERT(mGenericApplication, "Engine Loop Failed To Create Application");
 
-	_ASSERT_CORE(mGenericApplication->Init(), "Engine Loop Failed To Init Application");
+	ASSERT(mGenericApplication->Init(), "Engine Loop Failed To Init Application");
 
 	mGenericApplication->OnApplicationRequestExist.AddRaw(this, &EngineLoop::RequestExit);
 
-	InputMapper::Create();
-	InputMapper::Get()->Init();
+	SubsystemManager::Get<InputMapper>()->Init();
 
 	{
-		_LOG_CORE_INFO("Creating Renderer");
-		_PAUSE_TRACK_MEMORY(true); // We turn off tracking because there is a phantom memory leak
+		LOG_INFO("Render Loop Initializing");
 
-		Renderer::Create();
+		TIMER_START_READING("__Engine Loop Render Loop Init__");
+		ASSERT(mRenderLoop.Init(), "Engine Loop Failed To Init Render Loop");
 
-		_PAUSE_TRACK_MEMORY(false);
-
-		mRenderer = Renderer::Get();
-		_ASSERT_CORE(mRenderer, "Engine Loop Failed To Create Renderer");
-
-		_LOG_CORE_INFO("Renderer Initializing");
-
-		TIMER_START_READING("__Engine Loop Renderer Init__");
-		_ASSERT_CORE(mRenderer->Init(), "Engine Loop Failed To Init Renderer");
-
-		float rendererInitTime = TIMER_END_READING("__Engine Loop Renderer Init__");
-		_LOG_CORE_INFO("Renderer has finished Initialize, it took: {:0.7f}s", rendererInitTime);
+		float rendererInitTime = TIMER_END_READING("__Engine Loop Render Loop Init__");
+		LOG_INFO("Render Loop has finished Initialize, it took: {:0.7f}s", rendererInitTime);
 	}
-
-	ESystemManager::Create();
-	EComponentRegistry::Create();
 
 #ifdef _EDITOR
 	{
-		_LOG_CORE_INFO("Editor Initializing");
+		LOG_INFO("Editor Initializing");
 		TIMER_START_READING("__Engine Loop Editor Init__");
 
 		mEditor = new Editor();
-		_ASSERT_CORE(mEditor->Init(), "Engine Loop Failed To Init Editor");
+		ASSERT(mEditor->Init(), "Engine Loop Failed To Init Editor");
 
 		float editorInitTime = TIMER_END_READING("__Engine Loop Editor Init__");
-		_LOG_CORE_INFO("Editor has finished Initialize, it took: {:0.7f}s", editorInitTime);
+		LOG_INFO("Editor has finished Initialize, it took: {:0.7f}s", editorInitTime);
 	}
 #endif // _EDITOR
 
 	{
 		_PAUSE_TRACK_MEMORY(true);
+		ModuleManager* moduleManager = SubsystemManager::Get<ModuleManager>();
+		ASSERT(moduleManager->LoadModule("Sandbox"), "Failed to load Sandbox module");
 
-		_ASSERT_CORE(ModuleManager::Get()->LoadModule("Sandbox"), "Failed to load Sandbox module");
-
-		HMODULE sanboxModule = ModuleManager::Get()->GetHModule("Sandbox");
+		HMODULE sanboxModule = moduleManager->GetHModule("Sandbox");
 
 		SandboxInit initGameWorld = (SandboxInit)GetProcAddress(sanboxModule, "InitGameWorld");
-		_ASSERT_CORE(initGameWorld, "Could not init gameworld");
+		ASSERT(initGameWorld, "Could not init gameworld");
 		initGameWorld();
 
 		mSandboxRender = (SandboxRender)GetProcAddress(sanboxModule, "RenderGameWorld");
-		_ASSERT_CORE(mSandboxRender, "Could not load render gameworld");
+		ASSERT(mSandboxRender, "Could not load render gameworld");
 
 		_PAUSE_TRACK_MEMORY(false);
 	}
 
-	auto infos = ReflectionRegistry::Get()->GetAllInfos();
+	auto infos = SubsystemManager::Get<ReflectionRegistry>()->GetAllInfos();
 	for (auto& info : infos)
 	{
 		REFLECTION_LOG_TYPE_INFO(info)
 	}
 
 	mWorld = new EWorld();
-	ESystemManager::Get()->RunLoad(*mWorld);
+	SubsystemManager::Get<ESystemManager>()->RunLoad(*mWorld);
 
 	float initTime = TIMER_END_READING("__Engine Loop Init__");
-	_LOG_CORE_INFO("Engine Loop has finished Initialize, it took: {:0.7f}s", initTime);
+	LOG_INFO("Engine Loop has finished Initialize, it took: {:0.7f}s", initTime);
 	return true;
 }
 
@@ -132,30 +111,32 @@ void EngineLoop::Update()
 	if (mShouldExit)
 		return;
 
-	InputMapper::Get()->Update();
+	SubsystemManager::Get<InputMapper>()->Update();
 
-	mRenderer->BeginFrame();
+	mRenderLoop.BeginFrame();
 	
-	ESystemManager::Get()->RunUpdate(*mWorld);
-	mSandboxRender();
+	SubsystemManager::Get<ESystemManager>()->RunUpdate(*mWorld);
+	//mSandboxRender();
+
+	//mRenderer->SwitchToSwapChain();
 	{
 #ifdef _EDITOR
-		RenderScope scope(mRenderer->GetCurrentSwapChainTexture());
+		//RenderScope scope(mRenderer->GetCurrentSwapChainTexture());
 		mEditor->BeginFrame();
 		mEditor->Render();
-		mEditor->EndFrame(mRenderer->GetCurrentFrameSyncCommandBuffer());
+		mEditor->EndFrame();
 #endif // _EDITOR
 
 #ifdef _EDITOR
 #endif // _EDITOR
 	}
 
-	mRenderer->EndFrame();
+	mRenderLoop.EndFrame();
 }
 
 void EngineLoop::RequestExit()
 {
-	_LOG_CORE_INFO("Engine Loop exit has been requested");
+	LOG_INFO("Engine Loop exit has been requested");
 	mShouldExit = true;
 }
 

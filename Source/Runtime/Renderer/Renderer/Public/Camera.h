@@ -1,5 +1,5 @@
 #pragma once
-#include <Core.h>
+#include <EngineMinimal.h>
 
 struct alignas(16) CameraUBO
 {

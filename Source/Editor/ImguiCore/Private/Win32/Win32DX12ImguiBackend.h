@@ -12,7 +12,7 @@ public:
 	virtual bool Init() override;
 	virtual void BeginFrame() override;
 	virtual void RenderFrame() override;
-	virtual void EndFrame(CommandBuffer* Buffer) override;
+	virtual void EndFrame() override;
 
 	void ProccessMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 

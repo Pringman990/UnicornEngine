@@ -20,7 +20,7 @@ project "Renderer"
 	{
 		dirs.Renderer,
 		"RawShaders",
-		"Core",
+		"Engine",
 		"DDSTextureLoader",
 		"Assimp",
 		"Vulkan",
@@ -32,7 +32,7 @@ project "Renderer"
 	{
 		"RawShaders",
 		"DXGI",
-		"Core",
+		"Engine",
 		"DDSTextureLoader",
 		"Assimp",
 		"Vulkan",
@@ -59,19 +59,3 @@ project "Renderer"
 
 	vpaths { ["Public/*"] = {"Public/**.h", "Public/**.hpp", "Public/**.c", "Public/**.cpp"} }
 	vpaths { ["Private/*"] = {"Private/**.h", "Private/**.hpp", "Private/**.c", "Private/**.cpp"}}
-
-	pchheader "pch.h"
-	pchsource "Private/pch.cpp"
-	forceincludes { "pch.h" }
-
-		if not os.isfile("Private/pch.h") then
-        io.writefile("Private/pch.h", 
-        "#pragma once\n" .. 
-        "#pragma message(\"pch Renderer!\")\n\n"
-        )
-    end
-   
-    if not os.isfile("Private/pch.cpp") then
-        io.writefile("Private/pch.cpp", 
-        "#include \"pch.h\"")
-    end

@@ -1,5 +1,7 @@
 #include "ESystemManager.h"
 
+REGISTER_ENGINE_SUBSYSTEM(ESystemManager)
+
 ESystemManager::ESystemManager()
 {
 }

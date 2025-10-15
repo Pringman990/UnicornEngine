@@ -12,7 +12,7 @@ solution "Unicorn Engine"
         "Debug",
         "Debug_Editor",
         "Retail",
-		"Tests"
+		"Tests",
     }
 
 	platforms{ 

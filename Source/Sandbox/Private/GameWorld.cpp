@@ -8,12 +8,9 @@
 
 #include <Logger/Logger.h>
 
-#include <RendererCore.h>
-
 #include <Input/InputMapper.h>
 
-#include "GPUMesh.h"
-#include "Factories/MeshFactory.h"
+#include "MoveCubeComponent.h"
 
 namespace {
 	GameWorld gameworld;
@@ -96,31 +93,32 @@ void GameWorld::Init()
 {
 	LOG_INFO("GameWorld init...");
 
-	float aspect = (16.f / 9.f);
-	mCamera.SetPerspective(90, aspect, 0.01f, 1000.f);
-	mCamera.GetTransform().SetPosition({ 0,0,-5 });
-	Renderer::Get()->SetActiveCamera(&mCamera);
-
-	ByteBuffer meshData = FileSystem::Get()->ReadAll("engine://Models/sm_cube.fbx");
-	mMeshHandle = MeshFactory::CreateMesh(meshData, "Cube");
+	//float aspect = (16.f / 9.f);
+	//mCamera.SetPerspective(90, aspect, 0.01f, 1000.f);
+	//mCamera.GetTransform().SetPosition({ 0,0,-5 });
+	//Renderer::Get()->SetActiveCamera(&mCamera);
+	//
+	//ByteBuffer meshData = FileSystem::Get()->ReadAll("engine://Models/sm_cube.fbx");
+	//mMeshHandle = MeshFactory::CreateMesh(meshData, "Cube");
 	
+	//LOG_INFO("YEEESSS: {}", ReflectionRegistry::GetInfo<MoveCubeComponent>().name);
 }
 
 void GameWorld::Render()
 {
 	//auto cmdList = Renderer::Get()->GetMainCommandList();
-	Vector3 rot = mTransform.GetEularRotation();
-	rot.y += Timer::Get()->GetDeltaTime();
-	mTransform.SetRotation(rot);
-
-	Renderer::Get()->RenderMesh(mMeshHandle, mTransform);
-
-	UpdateCamera();
+	//Vector3 rot = mTransform.GetEularRotation();
+	//rot.y += Timer::Get()->GetDeltaTime();
+	//mTransform.SetRotation(rot);
+	//
+	//Renderer::Get()->RenderMesh(mMeshHandle, mTransform);
+	//
+	//UpdateCamera();
 }
 
 void GameWorld::UpdateCamera()
 {
-	if (!GetAsyncKeyState(VK_RBUTTON))
+	/*if (!GetAsyncKeyState(VK_RBUTTON))
 	{
 		InputMapper::Get()->ReleaseMouse();
 		return;
@@ -187,7 +185,7 @@ void GameWorld::UpdateCamera()
 	transform.SetRotation(smoothedRotation);
 
 	transform.SetPosition(position);
-	InputMapper::Get()->CaptureMouse();
+	InputMapper::Get()->CaptureMouse();*/
 }
 
 void InitGameWorld()

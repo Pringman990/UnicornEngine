@@ -5,8 +5,9 @@
 #include <Windows.h>
 #endif
 
+#include <RenderLoop.h>
+
 class GenericApplication;
-class Renderer;
 class WindowsFileWatcher;
 
 #ifdef _EDITOR
@@ -29,7 +30,7 @@ public:
 	bool EngineLoopClose() const;
 private:
 	GenericApplication* mGenericApplication;
-	Renderer* mRenderer;
+	RenderLoop mRenderLoop;
 	WindowsFileWatcher* mFileWatcher;
 
 #ifdef _EDITOR

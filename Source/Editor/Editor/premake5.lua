@@ -30,30 +30,16 @@ project "Editor"
 		dirs.Editor,
 		"ImguiCore",
 		"Renderer",
-		"Core",
+		"Engine",
+		"ECS",
 	})
 
 	linkDependencies("Editor", 
 	{
 		"ImguiCore",
 		"Renderer",
-		"Core",
+		"Engine",
+		"ECS",
 	})
-
-	pchheader "pch.h"
-	pchsource "Private/pch.cpp"
-	forceincludes { "pch.h" }
-
-	if not os.isfile("Private/pch.h") then
-        io.writefile("Private/pch.h", 
-        "#pragma once\n" .. 
-        "#pragma message(\"pch Editor!\")\n\n"
-        )
-    end
-   
-    if not os.isfile("Private/pch.cpp") then
-        io.writefile("Private/pch.cpp", 
-        "#include \"pch.h\"")
-    end
 
 filter {}

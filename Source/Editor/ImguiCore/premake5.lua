@@ -30,30 +30,14 @@ project "ImguiCore"
 		dirs.ImguiCore,
 		"Imgui",
 		"Renderer",
-		"Core"
+		"Engine"
 	})
 
 	linkDependencies("ImguiCore", 
 	{
 		"Imgui",
 		"Renderer",
-		"Core"
+		"Engine"
 	})
-
-	pchheader "pch.h"
-	pchsource "Private/pch.cpp"
-	forceincludes { "pch.h" }
-
-	if not os.isfile("Private/pch.h") then
-        io.writefile("Private/pch.h", 
-        "#pragma once\n" .. 
-        "#pragma message(\"pch ImguiCore!\")\n\n"
-        )
-    end
-   
-    if not os.isfile("Private/pch.cpp") then
-        io.writefile("Private/pch.cpp", 
-        "#include \"pch.h\"")
-    end
 
 filter {}

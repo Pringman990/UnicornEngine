@@ -1,24 +1,19 @@
 #pragma once
-#include <Core.h>
+#include <EngineMinimal.h>
+#include "RendererMinimal.h"
 
-#include "IndexBuffer.h"
-#include "VertexBuffer.h"
+#include "GPUBuffer.h"
 
 struct GPUMesh
 {
-	struct GPUSubMesh
+	struct Submesh
 	{
-		uint32 indexOffset;
-		uint32 indexCount;
+		uint32 startIndex = 0;
+		uint32 indexCount = 0;
+		//GPUResourceHandle<Material> materialHandle;
 	};
+	Vector<Submesh> submeshes;
 
-	Vector<GPUSubMesh> subMeshes;
-	IndexBuffer indexBuffer;
-	VertexBuffer vertexBuffer;
-
-	static void Destroy(GPUMesh* Mesh, LogicalDevice* Device)
-	{
-		Mesh->indexBuffer.Free(Device);
-		Mesh->vertexBuffer.Free(Device);
-	}
+	DirectResourceHandle<GPUBuffer> vertexBuffer;
+	DirectResourceHandle<GPUBuffer> indexBuffer;
 };
