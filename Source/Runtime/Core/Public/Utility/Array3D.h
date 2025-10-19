@@ -1,6 +1,11 @@
 #pragma once
 #include <algorithm>
 
+/**
+* Helper class to handle 3 dimensional arrays.
+* @note 
+* Stores a flat C array.
+*/
 template<typename Type>
 class Array3D
 {
@@ -26,9 +31,12 @@ public:
 		return mData[X + Y * mSizeX + Z * (mSizeX * mSizeY)];
 	};
 
-	/// <summary>
-	/// IMPORTANT: Resize will delete all currently stored data and create a new array
-	/// </summary>
+	/**
+	* Resizes the array in all three axis.
+	*
+	* @warning 
+	* Resize will delete all currently stored data and create a new array.
+	*/
 	void Resize(uint32 SizeX, uint32 SizeY, uint32 SizeZ)
 	{
 		if (mData)

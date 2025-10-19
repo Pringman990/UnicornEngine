@@ -17,10 +17,8 @@ VSOutput main(VSInput input)
 {
     VSOutput result;
     
-    float4x4 modelWorld = float4x4(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1);
-    
     float4 vertexPos = input.position;
-    float4 worldPos = mul(modelWorld, vertexPos);
+    float4 worldPos = mul(modelToWorld, vertexPos);
     float4 viewPos = mul(viewMatrix, worldPos);
     float4 clipPos = mul(projMatrix, viewPos);
 	

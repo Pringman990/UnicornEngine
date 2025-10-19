@@ -4,13 +4,13 @@
 #include <SimpleMath.h>
 #include "StandardTypes/StandardTypes.h"
 
-/// <summary>
- /// Adds element to the back of the vector
- /// </summary>
- /// <returns>
- /// TRUE if value was not already in the vector.
- /// FALSE if value already exists
- /// </returns>
+ /**
+ * Adds element to the back of the vector.
+ * 
+ * @return If value was not already in the vector.
+ * 
+ * @ingroup global
+ */
 template<typename T>
 inline bool AddUniqueToVector(Vector<T>& Vector, T& Item)
 {
@@ -23,13 +23,13 @@ inline bool AddUniqueToVector(Vector<T>& Vector, T& Item)
     return false;
 }
 
-/// <summary>
- /// Removes item from a vector
- /// </summary>
- /// <returns>
- /// TRUE if item was found and removed
- /// FALSE if item was not found in the vector
- /// </returns>
+/**
+* Removes item from a vector.
+*
+* @return If item was found and removed.
+*
+* @ingroup global
+*/
 template<typename T>
 inline bool EraseItemFromVector(Vector<T>& Vector, T& Item)
 {
@@ -42,6 +42,11 @@ inline bool EraseItemFromVector(Vector<T>& Vector, T& Item)
     return false;
 }
 
+/**
+* Converts a std::wstring to std::string.
+*
+* @ingroup global
+*/
 inline String WStringToString(const std::wstring& WideString)
 {
     size_t size_needed = 0;
@@ -62,6 +67,11 @@ inline String WStringToString(const std::wstring& WideString)
     return basicString;
 }
 
+/**
+* Converts a std::string to std::wstring.
+*
+* @ingroup global
+*/
 inline std::wstring StringToWString(const String& String)
 {
     size_t size_needed = 0;
@@ -81,6 +91,11 @@ inline std::wstring StringToWString(const String& String)
     return wideString;
 }
 
+/**
+* Gives a random int32 between min and max.
+*
+* @ingroup global
+*/
 inline int32 RandomInt(int32 Min, int32 Max)
 {
     static std::random_device rd;  // Seed
@@ -89,28 +104,17 @@ inline int32 RandomInt(int32 Min, int32 Max)
     return dist(rng);
 }
 
+/**
+* Gives a random float between min and max.
+*
+* @ingroup global
+*/
 inline float RandomFloat(float Min, float Max)
 {
     static std::random_device rd;  // Seed
     static std::mt19937 rng(rd()); // Random number generator
     std::uniform_real_distribution<float> dist(Min, Max);
     return dist(rng);
-}
-
-inline Color OffsetColor(Color VectorToModify, float RModifier, float GModifier, float BModifier)
-{
-    Color resultVector;
-
-    resultVector.x = VectorToModify.x * RandomFloat(1 - RModifier, 1 + RModifier);
-    resultVector.y = VectorToModify.y * RandomFloat(1 - GModifier, 1 + GModifier);
-    resultVector.z = VectorToModify.z * RandomFloat(1 - BModifier, 1 + BModifier);
-    resultVector.w = VectorToModify.w;
-    return resultVector;
-}
-
-inline Color OffsetColor(Color VectorToModify, float Modifier)
-{
-    return OffsetColor(VectorToModify, Modifier, Modifier, Modifier);
 }
 
 template <typename T>

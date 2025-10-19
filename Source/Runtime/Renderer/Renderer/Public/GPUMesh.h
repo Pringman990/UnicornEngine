@@ -3,6 +3,7 @@
 #include "RendererMinimal.h"
 
 #include "GPUBuffer.h"
+#include "Material.h"
 
 struct GPUMesh
 {
@@ -10,7 +11,7 @@ struct GPUMesh
 	{
 		uint32 startIndex = 0;
 		uint32 indexCount = 0;
-		//GPUResourceHandle<Material> materialHandle;
+		AssetHandle<Material> materialHandle;
 	};
 	Vector<Submesh> submeshes;
 

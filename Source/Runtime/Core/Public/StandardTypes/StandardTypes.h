@@ -14,6 +14,7 @@
 #include <span>
 #include <typeindex>
 #include <mutex>
+#include <variant>
 
 using uint8	 = uint8_t;
 using uint16 = uint16_t;

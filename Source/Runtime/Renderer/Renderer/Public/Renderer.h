@@ -12,6 +12,32 @@ class ShaderManager;
 class InputLayoutManager;
 class RenderBufferManager;
 class MeshManager;
+class MaterialManager;
+
+class CommandList;
+
+struct GPUConstantBuffer;
+struct GPUMesh;
+struct Material;
+
+enum class ConstantBufferBindSlots : uint32
+{
+	Frame = 0,
+	Object = 1
+};
+
+struct FrameConstantsData
+{
+	Matrix view;
+	Matrix proj;
+	Vector3 position;
+	float deltatime;
+};
+
+struct ObjectConstantBufferData
+{
+	Matrix modelToWorld;
+};
 
 /*
 * Engine Subsystem
@@ -23,16 +49,25 @@ class Renderer
 public:
 	bool Init();
 
-	const LogicalDevice& GetLogicalDevice() const { return mDevice; };
-	SwapChain* GetSwapChain() const { return mSwapChain.get(); };
-	TextureManager* GetTextureManager() const { return mTextureManager.get(); };
-	ShaderManager* GetShaderManager() const { return mShaderManager.get(); };
-	InputLayoutManager* GetInputManager() const { return mInputManager.get(); };
-	RenderBufferManager* GetBufferManager() const { return mRenderBufferManager.get(); };
-	MeshManager* GetMeshManager() const { return mMeshManager.get(); };
+	void SubmitMesh(GPUResourceHandle<GPUMesh> Mesh, const Transform& ObjectTransfrom);
+	void SubmitMesh(GPUResourceHandle<GPUMesh> Mesh, const Transform& ObjectTransfrom, Vector<AssetHandle<Material>> OverrideMaterials);
 
-	const GraphicsCardInformation& GetCardInfo() const { return mGraphicsCardInfo; };
+	inline const LogicalDevice& GetLogicalDevice() const { return mDevice; };
+	inline SwapChain* GetSwapChain() const { return mSwapChain.get(); };
+	inline TextureManager* GetTextureManager() const { return mTextureManager.get(); };
+	inline ShaderManager* GetShaderManager() const { return mShaderManager.get(); };
+	inline InputLayoutManager* GetInputManager() const { return mInputManager.get(); };
+	inline RenderBufferManager* GetBufferManager() const { return mRenderBufferManager.get(); };
+	inline MeshManager* GetMeshManager() const { return mMeshManager.get(); };
+	inline MaterialManager* GetMaterialManager() const { return mMaterialManager.get(); };
+
+	inline const GraphicsCardInformation& GetCardInfo() const { return mGraphicsCardInfo; };
 	void SetCardInfo(const GraphicsCardInformation& Info) { mGraphicsCardInfo = Info; };
+
+	inline DirectResourceHandle<GPUConstantBuffer> GetFrameConstantsBuffer() const { return mFrameConstantsBuffer; }
+	inline DirectResourceHandle<GPUConstantBuffer> GetObjectConstantBuffer() const { return mObjectConstantBuffer; }
+
+	inline CommandList* GetFrameSetupCommandList() const { return mFrameSetupCommandList; };
 
 private:
 	Renderer();
@@ -49,4 +84,10 @@ private:
 	OwnedPtr<InputLayoutManager> mInputManager;
 	OwnedPtr<RenderBufferManager> mRenderBufferManager;
 	OwnedPtr<MeshManager> mMeshManager;
+	OwnedPtr<MaterialManager> mMaterialManager;
+
+	DirectResourceHandle<GPUConstantBuffer> mFrameConstantsBuffer;
+	DirectResourceHandle<GPUConstantBuffer> mObjectConstantBuffer;
+
+	CommandList* mFrameSetupCommandList;
 };

@@ -10,59 +10,23 @@
 #include "Camera.h"
 #include "Input/InputMapper.h"
 
-GPUResourceHandle<Shader> GHandle;
-DirectResourceHandle<GPUBuffer> GVertexBuffer;
-DirectResourceHandle<GPUBuffer> GIndexBuffer;
-DirectResourceHandle<GPUConstantBuffer> GConstantBuffer;
-DirectResourceHandle<GPUConstantBuffer> GCameraConstantBuffer;
-GPUResourceHandle<GPUMesh> GCube;
+#include "CommandList.h"
 
 Camera GCamera;
+GPUResourceHandle<GPUMesh> GCube;
+Transform GTransform;
 
 void UpdateCamera();
-
-struct ConstantTest
-{
-	float time = 0;
-	Vector3 _pad;
-} GTestConstant;
-
-struct CameraConstant
-{
-	Matrix view;
-	Matrix proj;
-	Vector3 position;
-	uint32 _pad;
-};
 
 bool RenderLoop::Init()
 {
 	mRenderer = SubsystemManager::Get<Renderer>();
 	mRenderer->Init();
-	GHandle = mRenderer->GetShaderManager()->CreateShader("shaders://Mesh_VS.hlsl", "shaders://Single_Color_Mesh_FS.hlsl");
-	
-	GConstantBuffer = mRenderer->GetBufferManager()->CreateConstantBuffer(sizeof(ConstantTest), nullptr);
-	GCameraConstantBuffer = mRenderer->GetBufferManager()->CreateConstantBuffer(sizeof(CameraConstant), nullptr);
-
-	Vector<Vertex> verticies = 
-	{
-		{{ -0.5f, -0.8f, 0, 1 }, { 1, 0, 0, 1}},
-		{{ 0.0f, 0.8f, 0, 1   }, { 0, 1, 0, 1}},
-		{{ 0.8f, -0.1f, 0, 1  }, { 0, 0, 1, 1}}
-	};
-
-	Vector<uint32> indices =
-	{
-		0, 1, 2
-	};
-
-	GIndexBuffer = mRenderer->GetBufferManager()->CreateIndex(indices);
-	GVertexBuffer = mRenderer->GetBufferManager()->CreateVertex(verticies);
-
-	GCube = BasicPrimitiveFactory::CreateCube();
 
 	GCamera.SetPerspective(90.f, (16.f/9.f), 0.001f, 1000.f);
 	GCamera.GetTransform().SetPosition({0,0,-3});
+
+	GCube = BasicPrimitiveFactory::CreateCube();
 
 	return true;
 }
@@ -70,48 +34,41 @@ bool RenderLoop::Init()
 void RenderLoop::BeginFrame()
 {
 	UpdateCamera();
+	
+	mRenderer->GetSwapChain()->UpdateCardInfo();
+	
+	CommandList* context = mRenderer->GetFrameSetupCommandList();
+	
+	FrameConstantsData fConstant;
+	fConstant.position = GCamera.GetPosition();
+	fConstant.proj = GCamera.GetProjectionMatrix();
+	fConstant.view = GCamera.GetViewMatrix();
+	fConstant.deltatime = GET_TIMER()->GetDeltaTime();
 
-	auto context = mRenderer->GetLogicalDevice().GetImmediateContext();
+	context->UpdateConstantBuffer(mRenderer->GetFrameConstantsBuffer(), &fConstant);
+	context->BindConstantBuffer(mRenderer->GetFrameConstantsBuffer(), (uint32)ConstantBufferBindSlots::Frame, ShaderStage::FS | ShaderStage::VS);
+
+	context->ClearRenderTarget(mRenderer->GetSwapChain()->GetBackBuffer(), Color(0.2f, 0.2f, 0.2f, 1.f));
+	context->ClearDepthStencil(mRenderer->GetSwapChain()->GetBackBufferDSV());
+	context->SetRenderTargets({ mRenderer->GetSwapChain()->GetBackBuffer() }, mRenderer->GetSwapChain()->GetBackBufferDSV());
+
+	context->SetViewport(mRenderer->GetSwapChain()->GetBackBuffer());
+
+	mRenderer->SubmitMesh(GCube, GTransform);
+}
+
+void RenderLoop::Execute()
+{
+	auto immediateContext = mRenderer->GetLogicalDevice().GetImmediateContext();
+
+	CommandList* context = mRenderer->GetFrameSetupCommandList();
+	auto list = context->Finish();
+	mRenderer->GetLogicalDevice().GetImmediateContext()->ExecuteCommandList(list, TRUE);
+	context->Reset();
 	
 	auto backbuffer = mRenderer->GetTextureManager()->GetInternalTexture(mRenderer->GetSwapChain()->GetBackBuffer());
 	auto backbufferDSV = mRenderer->GetTextureManager()->GetInternalTexture(mRenderer->GetSwapChain()->GetBackBufferDSV());
-	context->ClearRenderTargetView(backbuffer->rtv.Get(), Color(0.05f, 0.05f, 0.05f, 1));
-	context->ClearDepthStencilView(backbufferDSV->dsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	context->OMSetRenderTargets(1, backbuffer->rtv.GetAddressOf(), backbufferDSV->dsv.Get());
-
-	mRenderer->GetSwapChain()->UpdateCardInfo();
-
-	GTestConstant.time += GET_TIMER()->GetDeltaTime();
-
-	mRenderer->GetBufferManager()->UpdateConstantBuffer(GConstantBuffer, &GTestConstant);
-	mRenderer->GetBufferManager()->BindConstantBuffer(GConstantBuffer, 1, ShaderStage::FS | ShaderStage::VS);
-
-	CameraConstant cConstant;
-	cConstant.position = GCamera.GetPosition();
-	cConstant.proj = GCamera.GetProjectionMatrix();
-	cConstant.view = GCamera.GetViewMatrix();
-
-	mRenderer->GetBufferManager()->UpdateConstantBuffer(GCameraConstantBuffer, &cConstant);
-	mRenderer->GetBufferManager()->BindConstantBuffer(GCameraConstantBuffer, 0, ShaderStage::FS | ShaderStage::VS);
-
-	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	
-	Shader* shader = mRenderer->GetShaderManager()->GetInternalShader(GHandle);
-	context->IASetInputLayout(shader->layout->layout.Get());
-	context->VSSetShader(shader->vs.Get(), nullptr, 0);
-	context->PSSetShader(shader->ps.Get(), nullptr, 0);
-
-	GPUMesh* cubeMesh = mRenderer->GetMeshManager()->GetInternalMesh(GCube);
-	
-	uint32 stride = sizeof(Vertex);
-	uint32 offset = 0;
-	context->IASetVertexBuffers(0, 1, cubeMesh->vertexBuffer.ptr->buffer.GetAddressOf(), &stride, &offset);
-	context->IASetIndexBuffer(cubeMesh->indexBuffer.ptr->buffer.Get(), ToDXFormat(RenderFormat::R32_UINT), 0);
-	
-	for (auto& subMesh : cubeMesh->submeshes)
-	{
-		context->DrawIndexed(subMesh.indexCount, subMesh.startIndex, 0);
-	}
+	immediateContext->OMSetRenderTargets(1, backbuffer->rtv.GetAddressOf(), backbufferDSV->dsv.Get());
 }
 
 void RenderLoop::EndFrame()

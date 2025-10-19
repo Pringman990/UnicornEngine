@@ -60,7 +60,7 @@ DirectResourceHandle<GPUBuffer> RenderBufferManager::CreateIndex(const Vector<ui
 	return handle;
 }
 
-DirectResourceHandle<GPUConstantBuffer> RenderBufferManager::CreateConstantBuffer(uint32 Size, void* InitialData)
+DirectResourceHandle<GPUConstantBuffer> RenderBufferManager::CreateConstantBuffer(uint32 Size, void* InitialData, BufferUsage Usage)
 {
 
 	if (Size <= 0)
@@ -76,13 +76,12 @@ DirectResourceHandle<GPUConstantBuffer> RenderBufferManager::CreateConstantBuffe
 		LOG_WARNING("Constant buffer padded from {} to {} bytes (must be multiple of 16). Verify shader layout!", Size, alignedSize);
 	}
 
-	BufferUsage usage = BufferUsage::Default;
 	D3D11_BUFFER_DESC desc = {};
-	desc.Usage = ToD11BufferUsage(usage);
+	desc.Usage = ToD11BufferUsage(Usage);
 	desc.ByteWidth = alignedSize;
 	desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 
-	if (usage == BufferUsage::Dynamic)
+	if (Usage == BufferUsage::Dynamic)
 	{
 		desc.Usage = D3D11_USAGE_DYNAMIC;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -106,7 +105,7 @@ DirectResourceHandle<GPUConstantBuffer> RenderBufferManager::CreateConstantBuffe
 
 	DirectResourceHandle<GPUConstantBuffer> handle = mConstantBufferPool.Allocate();
 	handle.ptr->size = alignedSize;
-	handle.ptr->usage = usage;
+	handle.ptr->usage = Usage;
 	handle.ptr->buffer = std::move(buffer);
 	handle.ptr->cpuData.reserve(alignedSize);
 

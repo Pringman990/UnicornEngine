@@ -4,6 +4,30 @@
 #include <d3d11.h>
 #endif
 
+enum class PrimitiveTopology : uint32
+{
+	Undefined = 0,
+	LineList = 1,
+	TriangleList = 2,
+};
+
+inline D3D_PRIMITIVE_TOPOLOGY ToD11Topology(PrimitiveTopology flags)
+{
+	switch (flags)
+	{
+		break;
+	case PrimitiveTopology::LineList:
+		return D3D_PRIMITIVE_TOPOLOGY_LINELIST;
+		break;
+	case PrimitiveTopology::TriangleList:
+		return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		break;
+	default:
+		return D3D_PRIMITIVE_TOPOLOGY_UNDEFINED;
+		break;
+	}
+}
+
 enum class ShaderStage : uint32
 {
 	Undefined = 0,
@@ -76,7 +100,7 @@ inline bool HasFlag(TextureUsage value, TextureUsage flag)
 	return (static_cast<uint32_t>(value) & static_cast<uint32_t>(flag)) != 0;
 }
 
-#ifdef _WIN32
+
 // Map high-level flags to DX11 D3D11_USAGE
 inline D3D11_USAGE ToD11Usage(TextureUsage flags)
 {
@@ -137,7 +161,6 @@ inline UINT ToD11BindFlags(TextureBindFlags flags)
 
 	return bind;
 }
-#endif
 
 enum class RenderFormat
 {
@@ -270,9 +293,6 @@ enum class RenderFormat
 	FORCE_UINT
 };
 
-
-// DX11 mapping
-#ifdef _WIN32
 inline DXGI_FORMAT ToDXFormat(RenderFormat fmt)
 {
 	switch (fmt)
@@ -581,4 +601,3 @@ inline RenderFormat FromDXFormat(DXGI_FORMAT fmt)
 	default: return RenderFormat::UNKNOWN;
 	}
 }
-#endif

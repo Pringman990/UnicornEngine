@@ -1,6 +1,39 @@
 #include "LogicalDevice.h"
 
+#include "Renderer.h"
+#include "CommandList.h"
+
 #include <d3d11.h>
+
+CommandList* LogicalDevice::RequestCommandList(Renderer* InRenderer)
+{
+	if (!mFreeCommandLists.empty())
+	{
+		CommandList* list = mFreeCommandLists.back();
+		mFreeCommandLists.pop_back();
+
+		return list;
+	}
+
+	ComPtr<ID3D11DeviceContext> defferedContext;
+	HRESULT hr = mDevice->CreateDeferredContext(0, defferedContext.GetAddressOf());
+
+	if (FAILED(hr))
+	{
+		THROW("Failed to create deffered context: {}", hr);
+		return nullptr;
+	}
+
+	OwnedPtr<CommandList> list = MakeOwned<CommandList>(defferedContext, InRenderer);
+	mCommandLists.push_back(std::move(list));
+
+	return mCommandLists.back().get();
+}
+
+void LogicalDevice::RecycleCommandList(CommandList* List)
+{
+	mFreeCommandLists.push_back(List);
+}
 
 LogicalDevice::LogicalDevice()
 {

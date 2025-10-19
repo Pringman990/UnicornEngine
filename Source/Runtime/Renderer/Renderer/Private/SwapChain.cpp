@@ -134,9 +134,6 @@ bool SwapChain::CreateTextures(Renderer* Renderer)
 	mBackBufferDSV = Renderer->GetTextureManager()->CreateTexture2D(Vector2i(textureDesc.Width, textureDesc.Height), RenderFormat::D32_FLOAT, TextureBindFlags::DepthStencil);
 	ENSURE(mBackBuffer, "Failed to create backbuffer");
 	ENSURE(mBackBufferDSV, "Failed to create backbuffer depth stencil view");
-	
-	GPUTexture* backbuffer = Renderer->GetTextureManager()->GetInternalTexture(mBackBuffer);
-	Renderer->GetLogicalDevice().GetImmediateContext()->RSSetViewports(1, &backbuffer->viewport);
 
 	return true;
 }
