@@ -13,7 +13,7 @@ MeshManager::~MeshManager()
 {
 }
 
-GPUResourceHandle<GPUMesh> MeshManager::CreateFromRaw(const Vector<Vertex>& Verticies, const Vector<uint32>& Indicies)
+GPUResourceHandle<GPUMesh> MeshManager::CreateFromRaw(const Vector<Vertex>& Verticies, const Vector<uint32>& Indicies, AssetHandle<Material> Material)
 {
 	GPUResourceHandle<GPUMesh> handle = mMeshes.Allocate();
 	GPUMesh* mesh = mMeshes.Get(handle);
@@ -23,6 +23,7 @@ GPUResourceHandle<GPUMesh> MeshManager::CreateFromRaw(const Vector<Vertex>& Vert
 	GPUMesh::Submesh submesh;
 	submesh.startIndex = 0;
 	submesh.indexCount = static_cast<uint32>(Indicies.size());
+	submesh.materialHandle = Material;
 	mesh->submeshes.push_back(submesh);
 
 	return handle;

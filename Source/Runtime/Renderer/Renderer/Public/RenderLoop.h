@@ -9,6 +9,7 @@ public:
 
 	bool Init();
 	void BeginFrame();
+	void Execute();
 	void EndFrame();
 private:
 	//Not owning

@@ -5,6 +5,9 @@
 
 #include <utility> //std::move
 
+/**
+* Resource pool where direct pointer access is not allowed.
+*/
 template<typename T>
 class ResourcePool : public IResourcePool
 {
@@ -103,13 +106,12 @@ public:
 		}
 	}
 
-	/// <summary>
-	/// Deletes all resources in this pool
-	/// </summary>
-	/// <typeparam name="...Args"></typeparam>
-	/// <param name="Handle"></param>
-	/// <param name="OnRemove"></param>
-	/// <param name="...args"></param>
+	/**
+	* Deletes all resources in this pool.
+	* 
+	* @tparam OnRemove Remove function for specialized deletion of resource.
+	* @tparam Args If the OnRemove function needs to take in arguments.
+	*/ 
 	template<typename Fn, typename... Args>
 	void Clear(Fn OnRemove, Args&&... args)
 	{

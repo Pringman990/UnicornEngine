@@ -2,6 +2,7 @@
 [Bb]inaries/Logs/
 [Bb]inaries/Win64/
 [Ii]ntermediate/
+[Dd]ocs/
 
 *.vs
 *.sln

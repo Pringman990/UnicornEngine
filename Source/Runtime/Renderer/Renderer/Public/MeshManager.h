@@ -15,7 +15,7 @@ public:
 
 	GPUResourceHandle<GPUMesh> LoadMesh(const String& VirtualPath);
 
-	GPUResourceHandle<GPUMesh> CreateFromRaw(const Vector<Vertex>& Verticies, const Vector<uint32>& Indicies);
+	GPUResourceHandle<GPUMesh> CreateFromRaw(const Vector<Vertex>& Verticies, const Vector<uint32>& Indicies, AssetHandle<Material> Material);
 
 	inline GPUMesh* GetInternalMesh(GPUResourceHandle<GPUMesh> Handle)
 	{

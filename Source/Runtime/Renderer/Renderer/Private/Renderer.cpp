@@ -5,12 +5,16 @@ REGISTER_ENGINE_SUBSYSTEM(Renderer)
 
 #include "Sampler.h"
 #include "SwapChain.h"
+#include "CommandList.h"
 
 #include "TextureManager.h"
 #include "ShaderManager.h"
 #include "InputLayoutManager.h"
 #include "RenderBufferManager.h"
 #include "MeshManager.h"
+#include "MaterialManager.h"
+
+#include "BasicPrimitiveFactory.h"
 
 #include <Application/Windows/WindowsApplication.h>
 #include <Application/Windows/WindowsWindowInfo.h>
@@ -42,7 +46,8 @@ bool Renderer::Init()
 	mInputManager = MakeOwned<InputLayoutManager>(this);
 	mRenderBufferManager = MakeOwned<RenderBufferManager>(this);
 	mMeshManager = MakeOwned<MeshManager>(this);
-
+	mMaterialManager = MakeOwned<MaterialManager>(this);
+	
 	WindowsApplication* app = static_cast<WindowsApplication*>(SubsystemManager::Get<Application>()->GetApplication());
 
 	DXGI_SWAP_CHAIN_DESC1 swapDesc = {};
@@ -79,5 +84,74 @@ bool Renderer::Init()
 	if (!mSampler)
 		THROW("Failed to create sampler");
 
+	mMaterialManager->Init();
+
+	mFrameSetupCommandList = mDevice.RequestCommandList(this);
+
+	mFrameConstantsBuffer = mRenderBufferManager->CreateConstantBuffer(sizeof(FrameConstantsData), nullptr);
+	mObjectConstantBuffer = mRenderBufferManager->CreateConstantBuffer(sizeof(ObjectConstantBufferData), nullptr, BufferUsage::Dynamic);
+
 	return true;
+}
+
+void Renderer::SubmitMesh(GPUResourceHandle<GPUMesh> Mesh, const Transform& ObjectTransfrom)
+{
+	mFrameSetupCommandList->SetTopology(PrimitiveTopology::TriangleList);
+
+	ObjectConstantBufferData objBuffer;
+	objBuffer.modelToWorld = ObjectTransfrom.GetMatrix();
+	mFrameSetupCommandList->UpdateConstantBuffer(mObjectConstantBuffer, &objBuffer);
+	mFrameSetupCommandList->BindConstantBuffer(mObjectConstantBuffer, (uint32)ConstantBufferBindSlots::Object, ShaderStage::FS | ShaderStage::VS);	
+
+	GPUMesh* cubeMesh = GetMeshManager()->GetInternalMesh(Mesh);
+
+	mFrameSetupCommandList->SetVertexBuffer(cubeMesh->vertexBuffer, sizeof(Vertex));
+	mFrameSetupCommandList->SetIndexBuffer(cubeMesh->indexBuffer);
+
+	for (auto& subMesh : cubeMesh->submeshes)
+	{
+		Material* mat = mMaterialManager->GetInternalMaterial(subMesh.materialHandle);
+		mFrameSetupCommandList->SetShader(mat->shader);
+		mFrameSetupCommandList->DrawIndexed(subMesh.indexCount, subMesh.startIndex);
+	}
+}
+
+void Renderer::SubmitMesh(GPUResourceHandle<GPUMesh> Mesh, const Transform& ObjectTransfrom, Vector<AssetHandle<Material>> OverrideMaterials)
+{
+	mFrameSetupCommandList->SetTopology(PrimitiveTopology::TriangleList);
+
+	ObjectConstantBufferData objBuffer;
+	objBuffer.modelToWorld = ObjectTransfrom.GetMatrix();
+	mFrameSetupCommandList->UpdateConstantBuffer(mObjectConstantBuffer, &objBuffer);
+	mFrameSetupCommandList->BindConstantBuffer(mObjectConstantBuffer, (uint32)ConstantBufferBindSlots::Object, ShaderStage::FS | ShaderStage::VS);
+
+	GPUMesh* cubeMesh = GetMeshManager()->GetInternalMesh(Mesh);
+
+	mFrameSetupCommandList->SetVertexBuffer(cubeMesh->vertexBuffer, sizeof(Vertex));
+	mFrameSetupCommandList->SetIndexBuffer(cubeMesh->indexBuffer);
+
+	if (OverrideMaterials.size() != cubeMesh->submeshes.size())
+	{
+		LOG_ERROR("Cancel draw: Override materials {} are not the same size as submesh count {}", OverrideMaterials.size(), cubeMesh->submeshes.size());
+		return;
+	}
+
+	for (int32 i = 0; i < cubeMesh->submeshes.size(); i++)
+	{
+		auto& subMesh = cubeMesh->submeshes[i];
+		
+		AssetHandle<Material> materialHandle;
+		if (OverrideMaterials[i])
+		{
+			materialHandle = OverrideMaterials[i];
+		}
+		else
+		{
+			materialHandle = subMesh.materialHandle;
+		}
+	
+		Material* mat = mMaterialManager->GetInternalMaterial(materialHandle);
+		mFrameSetupCommandList->SetShader(mat->shader);
+		mFrameSetupCommandList->DrawIndexed(subMesh.indexCount, subMesh.startIndex);
+	}
 }

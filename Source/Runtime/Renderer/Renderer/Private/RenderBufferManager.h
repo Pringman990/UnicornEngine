@@ -21,7 +21,7 @@ public:
 	* Initial data can be null if you want to set the data at a later stage.
 	* If the Initial data is set here then a Upload will take place directly
 	*/
-	DirectResourceHandle<GPUConstantBuffer> CreateConstantBuffer(uint32 Size, void* InitialData);
+	DirectResourceHandle<GPUConstantBuffer> CreateConstantBuffer(uint32 Size, void* InitialData, BufferUsage Usage = BufferUsage::Default);
 
 	void UpdateConstantBuffer(DirectResourceHandle<GPUConstantBuffer> Buffer, void* Data);
 	void BindConstantBuffer(DirectResourceHandle<GPUConstantBuffer> Buffer, uint32 Slot, ShaderStage Stages);

@@ -5,9 +5,15 @@
 struct ID3D11Device;
 struct ID3D11DeviceContext;
 
+class Renderer;
+class CommandList;
+
 class LogicalDevice
 {
 public:
+	CommandList* RequestCommandList(Renderer* InRenderer);
+	void RecycleCommandList(CommandList* List);
+
 	inline ID3D11DeviceContext* GetImmediateContext() const { return mImmediateContext.Get(); }
 
 	inline ID3D11Device* GetRaw() const { return mDevice.Get(); };
@@ -35,4 +41,7 @@ private:
 private:
 	ComPtr<ID3D11Device> mDevice;
 	ComPtr<ID3D11DeviceContext> mImmediateContext;
+
+	Vector<CommandList*> mFreeCommandLists;
+	Vector<OwnedPtr<CommandList>> mCommandLists;
 };

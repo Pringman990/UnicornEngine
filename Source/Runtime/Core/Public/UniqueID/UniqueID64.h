@@ -9,9 +9,7 @@ public:
 public:
 	UniqueID64() : mID(0) {};
 	
-	/// <summary>
-	/// Use with care as setting the id manually can lead to collision in IDs
-	/// </summary>
+	// Use with care as setting the id manually can lead to collision in IDs.
 	UniqueID64(uint64 ID) : mID(ID) {};
 
 	~UniqueID64() {};

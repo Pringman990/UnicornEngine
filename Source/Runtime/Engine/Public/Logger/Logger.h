@@ -122,5 +122,28 @@ namespace fmt
             return formatter<String>::format(result, ctx);
         }
     };
+
+
+    template <>
+    struct formatter<Quaternion> : public formatter<String>
+    {
+        template <typename FormatContext>
+        auto format(const Quaternion& v, FormatContext& ctx)
+        {
+            String result = String("X: " + std::to_string(v.x) + ", Y: " + std::to_string(v.y) + ", Z: " + std::to_string(v.z) + ", W: " + std::to_string(v.w));
+            return formatter<String>::format(result, ctx);
+        }
+    };
+
+    template <>
+    struct formatter<Vector4> : public formatter<String>
+    {
+        template <typename FormatContext>
+        auto format(const Vector4& v, FormatContext& ctx)
+        {
+            String result = String("X: " + std::to_string(v.x) + ", Y: " + std::to_string(v.y) + ", Z: " + std::to_string(v.z) + ", W: " + std::to_string(v.w));
+            return formatter<String>::format(result, ctx);
+        }
+    };
 }
 #endif // Win32

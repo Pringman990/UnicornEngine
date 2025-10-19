@@ -119,6 +119,7 @@ void EngineLoop::Update()
 	//mSandboxRender();
 
 	//mRenderer->SwitchToSwapChain();
+	mRenderLoop.Execute();
 	{
 #ifdef _EDITOR
 		//RenderScope scope(mRenderer->GetCurrentSwapChainTexture());

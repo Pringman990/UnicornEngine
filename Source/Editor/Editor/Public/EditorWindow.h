@@ -17,10 +17,10 @@ public:
 protected:
 	friend class EditorWindowManager;
 
-	/// <summary>
-	/// Can be set in the windows constructor or Init functions.
-	/// If no name is set then EditorWindowManager will set a name based on the class name.
-	/// </summary>
+	/*
+	* Can be set in the windows constructor or Init functions.
+	* If no name is set then EditorWindowManager will set a name based on the class name.
+	*/
 	String mWindowDisplayName = "";
 
 	ImGuiWindowFlags mWindowCreationFlags = 0;

@@ -2,6 +2,7 @@
 
 #include "Renderer.h"
 #include "MeshManager.h"
+#include "MaterialManager.h"
 
 #include "Vertex.h"
 
@@ -45,5 +46,5 @@ GPUResourceHandle<GPUMesh> BasicPrimitiveFactory::CreateCube()
 	};
 
     Renderer* renderer = SubsystemManager::Get<Renderer>();
-    return renderer->GetMeshManager()->CreateFromRaw(vertices, indices);
+    return renderer->GetMeshManager()->CreateFromRaw(vertices, indices, renderer->GetMaterialManager()->GetEngineMaterial("single_color_opaque"));
 }
