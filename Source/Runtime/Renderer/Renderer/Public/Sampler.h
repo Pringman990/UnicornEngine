@@ -15,6 +15,8 @@ public:
 
 	static OwnedPtr<Sampler> Create(LogicalDevice& Device, D3D11_SAMPLER_DESC Desc);
 
+	ID3D11SamplerState* GetRaw() const { return mSamplerState.Get(); };
+
 public:
 	ID3D11SamplerState* operator->() const noexcept
 	{

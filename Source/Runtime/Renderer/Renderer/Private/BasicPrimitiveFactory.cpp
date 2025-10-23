@@ -11,16 +11,16 @@ GPUResourceHandle<GPUMesh> BasicPrimitiveFactory::CreateCube()
 	Vector<Vertex> vertices =
 	{
 		// Back face (Z = -0.5)
-		{{-0.5f, -0.5f, -0.5f, 1.0f}, {1, 0, 0, 1}},  // 0
-		{{-0.5f,  0.5f, -0.5f, 1.0f}, {1, 0, 0, 1}},  // 1
-		{{ 0.5f,  0.5f, -0.5f, 1.0f}, {1, 0, 0, 1}},  // 2
-		{{ 0.5f, -0.5f, -0.5f, 1.0f}, {1, 0, 0, 1}},  // 3
+		{ {-0.5f, -0.5f, -0.5f, 1.0f}, {1, 0, 0, 1}, {0,1} },  // 0
+		{ {-0.5f,  0.5f, -0.5f, 1.0f}, {1, 0, 0, 1}, {0,0} },  // 1
+		{ { 0.5f,  0.5f, -0.5f, 1.0f}, {1, 0, 0, 1}, {1,0} },  // 2
+		{ { 0.5f, -0.5f, -0.5f, 1.0f}, {1, 0, 0, 1}, {1,1} },  // 3
 
 		// Front face (Z = +0.5)
-		{{-0.5f, -0.5f,  0.5f, 1.0f}, {0, 1, 0, 1}},  // 4
-		{{-0.5f,  0.5f,  0.5f, 1.0f}, {0, 1, 0, 1}},  // 5
-		{{ 0.5f,  0.5f,  0.5f, 1.0f}, {0, 1, 0, 1}},  // 6
-		{{ 0.5f, -0.5f,  0.5f, 1.0f}, {0, 1, 0, 1}},  // 7
+		{ {-0.5f, -0.5f,  0.5f, 1.0f}, {0, 1, 0, 1}, {0,1} },  // 4
+		{ {-0.5f,  0.5f,  0.5f, 1.0f}, {0, 1, 0, 1}, {0,0} },  // 5
+		{ { 0.5f,  0.5f,  0.5f, 1.0f}, {0, 1, 0, 1}, {1,0} },  // 6
+		{ { 0.5f, -0.5f,  0.5f, 1.0f}, {0, 1, 0, 1}, {1,1} },  // 7
 	};
 
 	// 12 triangles (two per face)
@@ -46,5 +46,5 @@ GPUResourceHandle<GPUMesh> BasicPrimitiveFactory::CreateCube()
 	};
 
     Renderer* renderer = SubsystemManager::Get<Renderer>();
-    return renderer->GetMeshManager()->CreateFromRaw(vertices, indices, renderer->GetMaterialManager()->GetEngineMaterial("single_color_opaque"));
+    return renderer->GetMeshManager()->CreateFromRaw(vertices, indices, renderer->GetMaterialManager()->GetEngineMaterial("textured_mesh"));
 }

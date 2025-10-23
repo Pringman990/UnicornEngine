@@ -128,3 +128,9 @@ inline size_t HashMemory(const void* data, size_t size)
     std::string_view view(reinterpret_cast<const char*>(data), size);
     return std::hash<std::string_view>{}(view);
 }
+
+template<typename T, typename... Ts>
+inline constexpr bool IsAnyOf(const T& Value, const Ts&... Args)
+{
+    return ((Value == Args) || ...);
+}

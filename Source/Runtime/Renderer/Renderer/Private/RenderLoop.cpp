@@ -9,6 +9,7 @@
 #include "BasicPrimitiveFactory.h"
 #include "Camera.h"
 #include "Input/InputMapper.h"
+#include "ImageDecoder.h"
 
 #include "CommandList.h"
 
@@ -28,6 +29,7 @@ bool RenderLoop::Init()
 
 	GCube = BasicPrimitiveFactory::CreateCube();
 
+	
 	return true;
 }
 
@@ -40,13 +42,18 @@ void RenderLoop::BeginFrame()
 	CommandList* context = mRenderer->GetFrameSetupCommandList();
 	
 	FrameConstantsData fConstant;
-	fConstant.position = GCamera.GetPosition();
-	fConstant.proj = GCamera.GetProjectionMatrix();
-	fConstant.view = GCamera.GetViewMatrix();
 	fConstant.deltatime = GET_TIMER()->GetDeltaTime();
 
 	context->UpdateConstantBuffer(mRenderer->GetFrameConstantsBuffer(), &fConstant);
 	context->BindConstantBuffer(mRenderer->GetFrameConstantsBuffer(), (uint32)ConstantBufferBindSlots::Frame, ShaderStage::FS | ShaderStage::VS);
+
+	CameraConstantsData cConstant;
+	cConstant.position = GCamera.GetPosition();
+	cConstant.proj = GCamera.GetProjectionMatrix();
+	cConstant.view = GCamera.GetViewMatrix();
+
+	context->UpdateConstantBuffer(mRenderer->GetCameraConstantsBuffer(), &cConstant);
+	context->BindConstantBuffer(mRenderer->GetCameraConstantsBuffer(), (uint32)ConstantBufferBindSlots::Camera, ShaderStage::FS | ShaderStage::VS);
 
 	context->ClearRenderTarget(mRenderer->GetSwapChain()->GetBackBuffer(), Color(0.2f, 0.2f, 0.2f, 1.f));
 	context->ClearDepthStencil(mRenderer->GetSwapChain()->GetBackBufferDSV());

@@ -39,6 +39,8 @@ project "Tests"
 	defines{
 	}
 
+	linkoptions {"/IGNORE:4099"}
+
 group ""
 
 filter {}

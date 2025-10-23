@@ -146,6 +146,8 @@ namespace __Subsystem
 		if (it != GetSingletons().end())
 		{
 			it->second.desc->destructor(it->second.instance);
+			delete it->second.instance;
+			it->second.instance = nullptr;
 		}
 	}
 

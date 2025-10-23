@@ -18,7 +18,7 @@ public:
 	ENGINE_API virtual size_t Write(const void* Buffer, size_t Size) = 0;
 	ENGINE_API virtual void Seek(size_t Pos) = 0;
 	ENGINE_API virtual size_t Tell() = 0;
-	ENGINE_API virtual size_t Lenght() = 0;
+	ENGINE_API virtual size_t Length() = 0;
 protected:
 	std::fstream mStream;
 	size_t mLength = 0;

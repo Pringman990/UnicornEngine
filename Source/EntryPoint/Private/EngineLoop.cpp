@@ -34,6 +34,9 @@ EngineLoop::~EngineLoop()
 
 	mGenericApplication = nullptr;
 	mFileWatcher = nullptr;
+
+	delete mWorld;
+	mWorld = nullptr;
 }
 
 bool EngineLoop::Init()

@@ -1,14 +1,20 @@
 #include "CommonAPI.hlsli"
 
-cbuffer CameraConstantBuffer : register(b0)
+cbuffer FrameConstantBuffer : register(b0)
+{
+    float deltaTime;
+    float3 _fpadding0;
+}
+
+cbuffer CameraConstantBuffer : register(b1)
 {
     float4x4 viewMatrix;
     float4x4 projMatrix;
     float3 cameraPosition;
-    uint pad;
+    uint _cpad0;
 }
 
-cbuffer ObjectConstantBuffer : register(b1)
+cbuffer ObjectConstantBuffer : register(b2)
 {
     float4x4 modelToWorld;
 }

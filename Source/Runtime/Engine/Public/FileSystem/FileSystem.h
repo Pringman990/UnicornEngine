@@ -48,3 +48,5 @@ private:
 	String mRootPath;
 	Vector<MountPoint> mMounts;
 };
+
+#define GET_FILESYSTEM() SubsystemManager::Get<FileSystem>()

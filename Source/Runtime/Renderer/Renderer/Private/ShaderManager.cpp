@@ -20,15 +20,15 @@ ShaderManager::~ShaderManager()
 GPUResourceHandle<Shader> ShaderManager::CreateShader(const String& VertexPath, const String& FragmentPath)
 {
     ComPtr<ID3DBlob> vertexBlob = nullptr;
-    HRESULT hr = CompileShader(VertexPath, "vs_5_0", &vertexBlob);
+    HRESULT hr = CompileShader(VertexPath, "vs_5_0", vertexBlob);
     if (FAILED(hr))
     {
         LOG_ERROR("Failed to compile vertex shader: {}", hr);
         return GPUResourceHandle<Shader>::Invalid();
     }
 
-    ID3D11VertexShader* vertexShader = nullptr;
-    hr = mRenderer->GetLogicalDevice()->CreateVertexShader(vertexBlob->GetBufferPointer(), vertexBlob->GetBufferSize(), nullptr, &vertexShader);
+    ComPtr<ID3D11VertexShader> vertexShader = nullptr;
+    hr = mRenderer->GetLogicalDevice()->CreateVertexShader(vertexBlob->GetBufferPointer(), vertexBlob->GetBufferSize(), nullptr, vertexShader.GetAddressOf());
     if (FAILED(hr))
     {
         LOG_ERROR("Failed to create vertex shader");
@@ -36,15 +36,15 @@ GPUResourceHandle<Shader> ShaderManager::CreateShader(const String& VertexPath, 
     }
 
     ComPtr<ID3DBlob> pixelBlob = nullptr;
-    hr = CompileShader(FragmentPath, "ps_5_0", &pixelBlob);
+    hr = CompileShader(FragmentPath, "ps_5_0", pixelBlob);
     if (FAILED(hr))
     {
         LOG_ERROR("Failed to compile pixel shader: {}", hr);
         return GPUResourceHandle<Shader>::Invalid();
     }
 
-    ID3D11PixelShader* pixelShader = nullptr;
-    hr = mRenderer->GetLogicalDevice()->CreatePixelShader(pixelBlob->GetBufferPointer(), pixelBlob->GetBufferSize(), nullptr, &pixelShader);
+    ComPtr<ID3D11PixelShader> pixelShader = nullptr;
+    hr = mRenderer->GetLogicalDevice()->CreatePixelShader(pixelBlob->GetBufferPointer(), pixelBlob->GetBufferSize(), nullptr, pixelShader.GetAddressOf());
     if (FAILED(hr))
     {
         LOG_ERROR("Failed to create pixel shader: {}", hr);
@@ -60,7 +60,7 @@ GPUResourceHandle<Shader> ShaderManager::CreateShader(const String& VertexPath, 
 	return handle;
 }
 
-bool ShaderManager::CompileShader(const String& VirtualPath, const String& ShaderModel, void** Blob)
+bool ShaderManager::CompileShader(const String& VirtualPath, const String& ShaderModel, ComPtr<ID3DBlob>& Blob)
 {
     FileSystem* fileSystem = SubsystemManager::Get<FileSystem>();
     String path = fileSystem->GetAbsolutPath(VirtualPath);
@@ -70,9 +70,9 @@ bool ShaderManager::CompileShader(const String& VirtualPath, const String& Shade
     shaderflags |= D3DCOMPILE_DEBUG;
 #endif // _DEBUG
 
-    ID3DBlob* errorBlob = nullptr;
-    ID3DBlob* shaderBlob = nullptr;
-    HRESULT hr = D3DCompileFromFile(StringToWString(path).c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", ShaderModel.c_str(), shaderflags, 0, &shaderBlob, &errorBlob);
+    ComPtr<ID3DBlob> errorBlob = nullptr;
+    ComPtr<ID3DBlob> shaderBlob = nullptr;
+    HRESULT hr = D3DCompileFromFile(StringToWString(path).c_str(), nullptr, D3D_COMPILE_STANDARD_FILE_INCLUDE, "main", ShaderModel.c_str(), shaderflags, 0, shaderBlob.GetAddressOf(), errorBlob.GetAddressOf());
     if (FAILED(hr))
     {
         if (errorBlob)
@@ -86,7 +86,7 @@ bool ShaderManager::CompileShader(const String& VirtualPath, const String& Shade
     if (errorBlob)
         errorBlob->Release();
 
-    *Blob = shaderBlob;
+    Blob = shaderBlob;
 
     return true;
 }

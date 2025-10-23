@@ -4,13 +4,15 @@ struct VSInput
 {
     float4 position : POSITION;
     float4 color : COLOR;
+    float2 uv : TEXCOORD0;
 };
 
 struct VSOutput
 {
     float4 position : SV_POSITION;
-    float4 worldPosition : TEXCOORD0;
+    float4 worldPosition : POSITION;
     float4 color : COLOR;
+    float2 uv : TEXCOORD0;
 };
 
 VSOutput main(VSInput input)
@@ -25,6 +27,6 @@ VSOutput main(VSInput input)
     result.position = clipPos;
     result.worldPosition = worldPos;
     result.color = input.color;
-   // result.uv = input.uv;
+    result.uv = input.uv;
     return result;
 }
