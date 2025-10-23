@@ -11,6 +11,7 @@ class CommandList;
 class LogicalDevice
 {
 public:
+	
 	CommandList* RequestCommandList(Renderer* InRenderer);
 	void RecycleCommandList(CommandList* List);
 
@@ -38,6 +39,8 @@ private:
 	* We hide the init and only allow the renderer to access it
 	*/
 	bool Init();
+
+	void Destroy();
 private:
 	ComPtr<ID3D11Device> mDevice;
 	ComPtr<ID3D11DeviceContext> mImmediateContext;

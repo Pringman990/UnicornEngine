@@ -46,7 +46,7 @@ public:
 		return static_cast<size_t>(mStream.tellg());
 	}
 
-	virtual size_t Lenght() override
+	virtual size_t Length() override
 	{
 		return mLength;
 	}
@@ -73,7 +73,7 @@ public:
 		SharedPtr<IFileStream> stream = Open(Path, FileMode::Read);
 		assert(stream);
 		
-		ByteBuffer data(stream->Lenght());
+		ByteBuffer data(stream->Length());
 		stream->Read(data.data(), data.size());
 		return data;
 	}

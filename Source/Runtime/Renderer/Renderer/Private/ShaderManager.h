@@ -19,7 +19,7 @@ public:
 
 	GPUResourceHandle<Shader> CreateShader(const String& VertexPath, const String& FragmentPath);
 
-	bool CompileShader(const String& VirtualPath, const String& ShaderModel, void** Blob);
+	bool CompileShader(const String& VirtualPath, const String& ShaderModel, ComPtr<ID3DBlob>& Blob);
 
 	inline Shader* GetInternalShader(GPUResourceHandle<Shader> Handle)
 	{

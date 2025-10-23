@@ -20,20 +20,36 @@ REGISTER_ENGINE_SUBSYSTEM(Renderer)
 #include <Application/Windows/WindowsWindowInfo.h>
 #include <Application/Application.h>
 
+#include "ImageDecoder.h"
+
+GPUResourceHandle<GPUTexture> GTexture;
+
 Renderer::Renderer()
 {
 }
 
 Renderer::~Renderer()
 {
+	mSwapChain.reset();
+	mSampler.reset();
+	mTextureManager.reset();
+	mShaderManager.reset();
+	mInputManager.reset();
+	mRenderBufferManager.reset();
+	mMeshManager.reset();
+	mMaterialManager.reset();
+
+	mFrameSetupCommandList = nullptr;
+
+	mDevice.Destroy();
+
 #ifdef _MEMORY_DEBUG
 	Microsoft::WRL::ComPtr<ID3D11Debug> debug;
-	DX11RenderingBackend::_GetInstance()->GetDevice()->QueryInterface(__uuidof(ID3D11Debug), &debug);
+	mDevice->QueryInterface(__uuidof(ID3D11Debug), &debug);
 	if (debug) {
 		debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
 	}
 #endif
-	
 }
 
 bool Renderer::Init()
@@ -89,13 +105,21 @@ bool Renderer::Init()
 	mFrameSetupCommandList = mDevice.RequestCommandList(this);
 
 	mFrameConstantsBuffer = mRenderBufferManager->CreateConstantBuffer(sizeof(FrameConstantsData), nullptr);
+	mCameraConstantsBuffer = mRenderBufferManager->CreateConstantBuffer(sizeof(CameraConstantsData), nullptr, BufferUsage::Dynamic);
 	mObjectConstantBuffer = mRenderBufferManager->CreateConstantBuffer(sizeof(ObjectConstantBufferData), nullptr, BufferUsage::Dynamic);
+
+	ByteBuffer imageData = GET_FILESYSTEM()->ReadAll("engine://Textures/TestImage.png");
+	auto imageDecodeData = ImageDecoder::LoadImage(imageData);
+	GTexture = mTextureManager->CreateTexture(imageDecodeData.buffer, Vector3i(imageDecodeData.width, imageDecodeData.height, 0), imageDecodeData.format, TextureBindFlags::ShaderRead);
+
 
 	return true;
 }
 
 void Renderer::SubmitMesh(GPUResourceHandle<GPUMesh> Mesh, const Transform& ObjectTransfrom)
 {
+	mFrameSetupCommandList->SetSamplers({mSampler.get()}, 0);
+
 	mFrameSetupCommandList->SetTopology(PrimitiveTopology::TriangleList);
 
 	ObjectConstantBufferData objBuffer;
@@ -107,6 +131,8 @@ void Renderer::SubmitMesh(GPUResourceHandle<GPUMesh> Mesh, const Transform& Obje
 
 	mFrameSetupCommandList->SetVertexBuffer(cubeMesh->vertexBuffer, sizeof(Vertex));
 	mFrameSetupCommandList->SetIndexBuffer(cubeMesh->indexBuffer);
+
+	mFrameSetupCommandList->SetShaderResources({GTexture}, 0, ShaderStage::FS);
 
 	for (auto& subMesh : cubeMesh->submeshes)
 	{

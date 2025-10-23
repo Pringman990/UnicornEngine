@@ -12,7 +12,7 @@ struct GPUTexture
     ComPtr<ID3D11RenderTargetView> rtv;
     ComPtr<ID3D11ShaderResourceView> srv;
     ComPtr<ID3D11DepthStencilView> dsv;
-    Vector2i extent;
+    Vector3i extent;
     RenderFormat format;
     TextureUsage usage;
     D3D11_VIEWPORT viewport;

@@ -18,16 +18,6 @@ OwnedPtr<SwapChain> SwapChain::Create(LogicalDevice& Device, WindowHandle Hwnd, 
 {
 	OwnedPtr<SwapChain> swapChain = MakeOwned<SwapChain>();
 
-	DXGI_SWAP_CHAIN_DESC1 desc = {};
-	desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	desc.Stereo = FALSE;
-	desc.SampleDesc.Count = 1;
-	desc.SampleDesc.Quality = 0;
-	desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT | DXGI_USAGE_SHADER_INPUT;
-	desc.BufferCount = 2;
-	desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-	desc.Flags = 0;
-
 	IDXGIFactory4* factory;
 	CreateDXGIFactory1(__uuidof(IDXGIFactory4), (void**)&factory);
 
@@ -88,6 +78,8 @@ OwnedPtr<SwapChain> SwapChain::Create(LogicalDevice& Device, WindowHandle Hwnd, 
 		}
 	}
 
+	factory->Release();
+
 	if (!swapChain->CreateTextures(renderer))
 	{
 		swapChain.reset();
@@ -116,7 +108,7 @@ void SwapChain::UpdateCardInfo()
 bool SwapChain::CreateTextures(Renderer* Renderer)
 {
 	ID3D11Texture2D* backBufferTexture;
-	HRESULT result = mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBufferTexture);
+	HRESULT result = mSwapChain->GetBuffer(0,  __uuidof(ID3D11Texture2D), (void**)&backBufferTexture);
 	if (FAILED(result))
 	{
 		_com_error err(result);

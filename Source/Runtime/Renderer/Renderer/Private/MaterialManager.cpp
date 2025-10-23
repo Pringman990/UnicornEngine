@@ -20,6 +20,12 @@ void MaterialManager::Init()
 		AssetHandle<Material> materialHandle = CreateMaterial(shaderHandle);
 		mEngineMaterials["single_color_opaque"] = materialHandle;
 	}
+
+	{
+		auto shaderHandle = mRenderer->GetShaderManager()->CreateShader("shaders://Mesh_VS.hlsl", "shaders://Textured_Mesh_FS.hlsl");
+		AssetHandle<Material> materialHandle = CreateMaterial(shaderHandle);
+		mEngineMaterials["textured_mesh"] = materialHandle;
+	}
 }
 
 AssetHandle<Material> MaterialManager::CreateMaterial(GPUResourceHandle<Shader> ShaderHandle)

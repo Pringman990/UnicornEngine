@@ -1,14 +1,16 @@
 #pragma once
+#include <Core.h>
+#include "EngineDefines.h"
 
 class MemoryDebugger
 {
 public:
-	MemoryDebugger();
-	~MemoryDebugger();
+	ENGINE_API MemoryDebugger();
+	ENGINE_API ~MemoryDebugger();
 
-	static void StartStackMemoryTracking(bool showFullMemoryTrack, bool showAllAllocations);
-	static void StopStackMemoryTracking();
-	static void PauseStackMemoryTracking(bool Pause);
+	ENGINE_API static void StartStackMemoryTracking(bool showFullMemoryTrack, bool showAllAllocations);
+	ENGINE_API static void StopStackMemoryTracking();
+	ENGINE_API static void PauseStackMemoryTracking(bool Pause);
 
 private:
 

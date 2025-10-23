@@ -15,11 +15,28 @@ CommandList::CommandList(ComPtr<ID3D11DeviceContext> DefferedContext, Renderer* 
 
 }
 
-CommandList::CommandList() 
+CommandList::CommandList()
 	:
 	mRenderer(nullptr),
 	mContext(nullptr)
 {
+}
+
+CommandList::~CommandList()
+{
+	mContext->ClearState();
+	mContext->Flush();
+}
+
+void CommandList::SetSamplers(const Vector<Sampler*>& Samplers, uint32 StartSlot)
+{
+	Vector<ID3D11SamplerState*> samplers;
+	for (uint32 i = 0; i < Samplers.size(); i++)
+	{
+		samplers.push_back(Samplers[i]->GetRaw());
+	}
+
+	mContext->PSSetSamplers(StartSlot, static_cast<uint32>(samplers.size()), samplers.data());
 }
 
 void CommandList::SetTopology(PrimitiveTopology Topology) const
@@ -89,7 +106,7 @@ void CommandList::BindConstantBuffer(DirectResourceHandle<GPUConstantBuffer> Buf
 	}
 }
 
-void CommandList::BindConstantBuffers(Vector<DirectResourceHandle<GPUConstantBuffer>> Buffers, uint32 StartSlot, ShaderStage Stages) const
+void CommandList::BindConstantBuffers(const Vector<DirectResourceHandle<GPUConstantBuffer>>& Buffers, uint32 StartSlot, ShaderStage Stages) const
 {
 	if (Buffers.size() == 0)
 	{
@@ -118,7 +135,7 @@ void CommandList::BindConstantBuffers(Vector<DirectResourceHandle<GPUConstantBuf
 	}
 }
 
-void CommandList::SetRenderTargets(Vector<GPUResourceHandle<GPUTexture>> Targets, GPUResourceHandle<GPUTexture> DepthStencil) const
+void CommandList::SetRenderTargets(const Vector<GPUResourceHandle<GPUTexture>>& Targets, GPUResourceHandle<GPUTexture> DepthStencil) const
 {
 	TextureManager* texManager = mRenderer->GetTextureManager();
 
@@ -148,7 +165,7 @@ void CommandList::ClearDepthStencil(GPUResourceHandle<GPUTexture> Target) const
 	mContext->ClearDepthStencilView(dsv->dsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
-void CommandList::SetViewport(GPUResourceHandle<GPUTexture> Viewport)
+void CommandList::SetViewport(GPUResourceHandle<GPUTexture> Viewport) const
 {
 	GPUTexture* texture = mRenderer->GetTextureManager()->GetInternalTexture(Viewport);
 	mContext->RSSetViewports(1, &texture->viewport);
@@ -160,6 +177,31 @@ void CommandList::SetShader(GPUResourceHandle<Shader> ShaderHandle) const
 	mContext->IASetInputLayout(shader->layout->layout.Get());
 	mContext->VSSetShader(shader->vs.Get(), nullptr, 0);
 	mContext->PSSetShader(shader->ps.Get(), nullptr, 0);
+}
+
+void CommandList::SetShaderResources(const Vector<GPUResourceHandle<GPUTexture>>& Textures, uint32 StartSlot, ShaderStage Stages) const
+{
+	TextureManager* texManager = mRenderer->GetTextureManager();
+
+	Vector<ID3D11ShaderResourceView*> srvs;
+	for (uint32 i = 0; i < Textures.size(); i++)
+	{
+		GPUTexture* srv = texManager->GetInternalTexture(Textures[i]);
+		if (srv->srv == nullptr)
+		{
+			LOG_ERROR("Can't set rendertarget");
+		}
+		srvs.push_back(srv->srv.Get());
+	}
+
+	if (HasFlag(Stages, ShaderStage::VS))
+	{
+		mContext->VSSetShaderResources(StartSlot, static_cast<uint32>(srvs.size()), srvs.data());
+	}
+	if (HasFlag(Stages, ShaderStage::FS))
+	{
+		mContext->PSSetShaderResources(StartSlot, static_cast<uint32>(srvs.size()), srvs.data());
+	}
 }
 
 void CommandList::DrawIndexed(uint32 IndexCount, uint32 StartIndex) const

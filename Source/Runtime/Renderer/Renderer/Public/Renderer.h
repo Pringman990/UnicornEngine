@@ -23,18 +23,25 @@ struct Material;
 enum class ConstantBufferBindSlots : uint32
 {
 	Frame = 0,
-	Object = 1
+	Camera = 1,
+	Object = 2
 };
 
-struct FrameConstantsData
+struct GPU_ALIGNED FrameConstantsData
+{
+	float deltatime;
+	float _pad[3];
+};
+
+struct GPU_ALIGNED CameraConstantsData
 {
 	Matrix view;
 	Matrix proj;
 	Vector3 position;
-	float deltatime;
+	int32 _pad0;
 };
 
-struct ObjectConstantBufferData
+struct GPU_ALIGNED ObjectConstantBufferData
 {
 	Matrix modelToWorld;
 };
@@ -65,6 +72,7 @@ public:
 	void SetCardInfo(const GraphicsCardInformation& Info) { mGraphicsCardInfo = Info; };
 
 	inline DirectResourceHandle<GPUConstantBuffer> GetFrameConstantsBuffer() const { return mFrameConstantsBuffer; }
+	inline DirectResourceHandle<GPUConstantBuffer> GetCameraConstantsBuffer() const { return mCameraConstantsBuffer; }
 	inline DirectResourceHandle<GPUConstantBuffer> GetObjectConstantBuffer() const { return mObjectConstantBuffer; }
 
 	inline CommandList* GetFrameSetupCommandList() const { return mFrameSetupCommandList; };
@@ -87,6 +95,7 @@ private:
 	OwnedPtr<MaterialManager> mMaterialManager;
 
 	DirectResourceHandle<GPUConstantBuffer> mFrameConstantsBuffer;
+	DirectResourceHandle<GPUConstantBuffer> mCameraConstantsBuffer;
 	DirectResourceHandle<GPUConstantBuffer> mObjectConstantBuffer;
 
 	CommandList* mFrameSetupCommandList;
