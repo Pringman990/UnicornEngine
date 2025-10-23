@@ -2,6 +2,7 @@
 #include <StandardTypes/StandardTypes.h>
 #include <sstream>
 #include <iomanip>
+#include <algortihm>
 
 class UniqueID128
 {
