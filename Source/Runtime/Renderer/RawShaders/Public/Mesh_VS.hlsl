@@ -4,7 +4,10 @@ struct VSInput
 {
     float4 position : POSITION;
     float4 color : COLOR;
-    float2 uv : TEXCOORD0;
+    float3 normal : TEXCOORD0;
+    float3 tangent : TEXCOORD1;
+    float3 bitangent : TEXCOORD2;
+    float2 uv : TEXCOORD3;
 };
 
 struct VSOutput
