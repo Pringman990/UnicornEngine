@@ -10,6 +10,7 @@
 #include "Camera.h"
 #include "Input/InputMapper.h"
 #include "ImageDecoder.h"
+#include "MeshDecoder.h"
 
 #include "CommandList.h"
 
@@ -26,9 +27,11 @@ bool RenderLoop::Init()
 
 	GCamera.SetPerspective(90.f, (16.f/9.f), 0.001f, 1000.f);
 	GCamera.GetTransform().SetPosition({0,0,-3});
+	
+	ByteBuffer meshData = GET_FILESYSTEM()->ReadAll("engine://Models/sm_cube.fbx");
+	MeshDecodeData decodeData =  MeshDecoder::LoadMesh(meshData, "fbx");
 
-	GCube = BasicPrimitiveFactory::CreateCube();
-
+	GCube = mRenderer->GetMeshManager()->CreateMesh(decodeData.meshes[0]);
 	
 	return true;
 }
