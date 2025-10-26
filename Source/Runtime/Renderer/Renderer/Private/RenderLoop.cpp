@@ -12,11 +12,17 @@
 #include "ImageDecoder.h"
 #include "MeshDecoder.h"
 
+#include "MeshAsset.h"
+#include "MeshAssetManager.h"
+#include <Assets/AssetRegistry.h>
+
 #include "CommandList.h"
 
 Camera GCamera;
 GPUResourceHandle<GPUMesh> GCube;
+GPUResourceHandle<GPUMesh> GCube2;
 Transform GTransform;
+Transform GTransform2;
 
 void UpdateCamera();
 
@@ -28,11 +34,25 @@ bool RenderLoop::Init()
 	GCamera.SetPerspective(90.f, (16.f/9.f), 0.001f, 1000.f);
 	GCamera.GetTransform().SetPosition({0,0,-3});
 	
-	ByteBuffer meshData = GET_FILESYSTEM()->ReadAll("engine://Models/sm_cube.fbx");
-	MeshDecodeData decodeData =  MeshDecoder::LoadMesh(meshData, "fbx");
+	AssetRegistry* assetReg = SubsystemManager::Get<AssetRegistry>();
+	AssetLoadData<MeshAsset> asset = assetReg->Load<MeshAsset>("engine://Models/sm_player.fbx");
+	MeshAssetManager* meshMan = assetReg->GetManager<MeshAssetManager>();
+	WeakPtr<MeshAsset> meshPtr =  meshMan->GetAssetPtr(asset.handle);
+	if (auto mesh = meshPtr.lock())
+	{
+		GCube = mesh->GetGPUMeshHandle();
+	}
 
-	GCube = mRenderer->GetMeshManager()->CreateMesh(decodeData.meshes[0]);
-	
+	AssetLoadData<MeshAsset> asset2 = assetReg->Load<MeshAsset>("engine://Models/sm_player.asset");
+	MeshAssetManager* meshMan2 = assetReg->GetManager<MeshAssetManager>();
+	WeakPtr<MeshAsset> meshPtr2 = meshMan2->GetAssetPtr(asset2.handle);
+	if (auto mesh2 = meshPtr2.lock())
+	{
+		GCube2 = mesh2->GetGPUMeshHandle();
+	}
+	GTransform2.SetPosition({-3,0,0});
+	GTransform2.SetScale(GTransform2.GetScale() * 0.01f);
+	GTransform.SetScale(GTransform.GetScale() * 0.01f);
 	return true;
 }
 
@@ -50,6 +70,10 @@ void RenderLoop::BeginFrame()
 	context->UpdateConstantBuffer(mRenderer->GetFrameConstantsBuffer(), &fConstant);
 	context->BindConstantBuffer(mRenderer->GetFrameConstantsBuffer(), (uint32)ConstantBufferBindSlots::Frame, ShaderStage::FS | ShaderStage::VS);
 
+	static Vector3 rot;
+	rot.x += fConstant.deltatime;
+	GTransform2.SetRotation(rot);
+
 	CameraConstantsData cConstant;
 	cConstant.position = GCamera.GetPosition();
 	cConstant.proj = GCamera.GetProjectionMatrix();
@@ -64,7 +88,11 @@ void RenderLoop::BeginFrame()
 
 	context->SetViewport(mRenderer->GetSwapChain()->GetBackBuffer());
 
-	mRenderer->SubmitMesh(GCube, GTransform);
+	if (GCube && GCube2)
+	{
+		mRenderer->SubmitMesh(GCube, GTransform);
+		mRenderer->SubmitMesh(GCube2, GTransform2);
+	}
 }
 
 void RenderLoop::Execute()

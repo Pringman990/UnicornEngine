@@ -85,6 +85,9 @@ solution "Unicorn Engine"
     externalanglebrackets "On"
 	disablewarnings { "4244", "4018", "4100", "4189" }
 	linkoptions {"/IGNORE:4006"}
+	defines{
+		"YAML_CPP_STATIC_DEFINE"
+	}
     filter {}
 
 

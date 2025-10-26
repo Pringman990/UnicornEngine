@@ -92,6 +92,36 @@ inline std::wstring StringToWString(const String& String)
 }
 
 /**
+* Extracts everything after the last '.'.
+* 
+* @note
+* It will return a string where the '.' is removed, ex: '.fbx' will be 'fbx'.
+*/
+inline String ExtractExtension(const String& Path)
+{
+    size_t dotPos = Path.find_last_of(".");
+    return Path.substr(dotPos + 1);
+}
+
+/**
+* Extracts everything before the last '/'.
+*/
+inline String ExtractPathWithoutFile(const String& Path)
+{
+    size_t dotPos = Path.find_last_of("/");
+    return Path.substr(0, dotPos);
+}
+
+/**
+* Extracts the full string until it finds '.' where it removes everything after the last '.'
+*/
+inline String ExtractPathWithoutExtension(const String& Path)
+{
+    size_t dotPos = Path.find_last_of(".");
+    return Path.substr(0, dotPos);
+}
+
+/**
 * Gives a random int32 between min and max.
 *
 * @ingroup global

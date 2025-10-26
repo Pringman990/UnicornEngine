@@ -3,6 +3,7 @@
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
+#include <random>
 
 class UniqueID128
 {
@@ -17,6 +18,26 @@ public:
 	{ 
 		return std::any_of(bytes.begin(), bytes.end(),
 			[](byte b) {return b != 0;});
+	}
+
+	static UniqueID128 FromRandom()
+	{
+		UniqueID128 id;
+
+		std::mt19937_64 rng(std::random_device{}());
+		std::uniform_int_distribution<uint64_t> dist;
+
+		uint64_t high = dist(rng);
+		uint64_t low = dist(rng);
+
+		std::memcpy(id.bytes.data(), &high, 8);
+		std::memcpy(id.bytes.data() + 8, &low, 8);
+
+		// UUID v4 compliance (RFC 4122)
+		id.bytes[6] = (id.bytes[6] & 0x0F) | 0x40; // version (4)
+		id.bytes[8] = (id.bytes[8] & 0x3F) | 0x80; // variant (RFC 4122)
+
+		return id;
 	}
 
 	String ToString() const

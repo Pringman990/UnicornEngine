@@ -10,7 +10,10 @@ MeshDecodeData MeshDecoder::LoadMesh(const ByteBuffer& Buffer, const String& Ext
 {
 	if (Extension == "fbx")
 	{
-		return AssimpDecoder(Buffer, Extension);
+		_PAUSE_TRACK_MEMORY(true);
+		MeshDecodeData data = AssimpDecoder(Buffer, Extension);
+		_PAUSE_TRACK_MEMORY(false);
+		return data;
 	}
 
 	return MeshDecodeData();

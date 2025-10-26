@@ -23,13 +23,15 @@ project "Engine"
 		"Core",
 		"Spdlog",
 		"StackWalker",
-		"Build"
+		"Build",
+		"Yaml",
 	})
 
 	linkDependencies("Engine", 
 	{
 		"Spdlog",
-		"StackWalker"
+		"StackWalker",
+		"Yaml",
 	})
 
 	files {

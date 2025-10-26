@@ -13,6 +13,7 @@ dirs["Vulkan"]				= os.realpath(dirs.ThirdParty .. "Vulkan/")
 dirs["SDL"]					= os.realpath(dirs.ThirdParty .. "SDL/")
 dirs["DXC"]					= os.realpath(dirs.ThirdParty .. "DXC/")
 dirs["STB"]					= os.realpath(dirs.ThirdParty .. "STB/")
+dirs["Yaml"]				= os.realpath(dirs.ThirdParty .. "Yaml/")
 
 group "ThirdParty"
 include (dirs.SimpleMath)
@@ -27,4 +28,5 @@ include (dirs.Vulkan)
 include (dirs.SDL)
 include (dirs.DXC)
 include (dirs.STB)
+include (dirs.Yaml)
 group ""

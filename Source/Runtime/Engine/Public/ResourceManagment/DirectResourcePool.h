@@ -65,6 +65,12 @@ public:
 
 	DirectResourceHandle<T> Get(const DirectResourceHandle<T>& Handle)
 	{
+		if (!Handle)
+		{
+			LOG_ERROR("Tried to get resource with invalid handle");
+			return nullptr;
+		}
+
 		if (Handle.index >= mEntries.size())
 		{
 			LOG_ERROR("Tried to get resource with index larger then the count of all entries");
@@ -101,7 +107,7 @@ public:
 			entry.resource = {};
 			mFreeIndices.push(Handle.index);
 
-			Handle.Invalidate();
+			DirectResourceHandle<T>::Invalidate(Handle);
 		}
 	}
 

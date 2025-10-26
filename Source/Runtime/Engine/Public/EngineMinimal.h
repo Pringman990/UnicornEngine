@@ -17,3 +17,4 @@
 
 #include <ResourceManagment/ResourcePool.h>
 #include <ResourceManagment/DirectResourcePool.h>
+#include <ResourceManagment/HeapResourcePool.h>

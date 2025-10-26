@@ -13,6 +13,7 @@
 #include <EWorld.h>
 
 #include <Module/ModuleManager.h>
+#include <Assets/AssetRegistry.h>
 
 EngineLoop::EngineLoop()
 	:
@@ -43,6 +44,11 @@ bool EngineLoop::Init()
 {
 	TIMER_START_READING("__Engine Loop Init__");
 	LOG_INFO("Engine Loop Starting Init");
+
+	{
+		AssetRegistry* assetReg = SubsystemManager::Get<AssetRegistry>();
+		assetReg->RegisterAllDefferedManagers();
+	}
 
 	Application* app = SubsystemManager::Get<Application>();
 	mGenericApplication = app->_CreateApplication();
