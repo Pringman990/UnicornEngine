@@ -4,4 +4,4 @@
 struct MoveCubeComponent;
 struct Reflected_MoveCubeComponent_Data;
 
-DEFINE_GETUUID_TYPEINFO(MoveCubeComponent);
+//DEFINE_GETUUID_TYPEINFO(MoveCubeComponent);

@@ -6,6 +6,8 @@
 
 #include "ImguiBackendFactory.h"
 
+#include <Scene/SceneManager.h>
+
 Editor::Editor()
 	:
 	mImguiBackend(nullptr)
@@ -18,6 +20,8 @@ Editor::~Editor()
 
 	delete mImguiBackend;
 	mImguiBackend = nullptr;
+
+	mWindowManager->ClearAllWindows();
 }
 
 bool Editor::Init()
@@ -43,29 +47,13 @@ bool Editor::Init()
 
 void Editor::BeginFrame()
 {
-	//Vector<int32> texturesIndexToRemove;
-	//for (uint32 i = 0; i < mTextureUploadQueue.size(); i++)
-	//{
-	//	Texture2D* texture = mTextureUploadQueue[i];
-	//	if (!texture->GetResourceData().gpuHandle)
-	//		continue;
-
-	//	mImguiBackend->AddTextureToImgui(texture, mTextureSampler);
-	//	texturesIndexToRemove.push_back(i);
-	//}
-
-	//for (int32 i = (int32)texturesIndexToRemove.size() - 1; i >= 0; --i)
-	//{
-	//	size_t index = texturesIndexToRemove[i];
-	//	if (index < mTextureUploadQueue.size()) // sanity check
-	//		mTextureUploadQueue.erase(mTextureUploadQueue.begin() + index);
-	//}
-
 	mImguiBackend->BeginFrame();
 }
 
 void Editor::Render()
 {
+	RenderMainMenuBar();
+
 	mWindowManager->RenderActiveWindows();
 
 	mImguiBackend->RenderFrame();
@@ -84,7 +72,74 @@ void Editor::EndFrame()
 		const ImDrawList* cmd_list = drawData->CmdLists[i];
 		Renderer::Get()->AddToEditorDrawCalls(cmd_list->CmdBuffer.Size);
 		mPreviousFrameDrawCalls += Renderer::Get()->GetEditorDrawCalls();
-	}*/	
+	}*/
+}
+
+void Editor::SetSelectedItem(SelectedItemType Type, const SelectedItemVariant& Item)
+{
+	mSelectedItem.type = Type;
+	mSelectedItem.item = Item;
+}
+
+void Editor::InvalidateSelectedItem()
+{
+	mSelectedItem.type = SelectedItemType::Non;
+	mSelectedItem.item = std::monostate();
+}
+
+void Editor::RenderMainMenuBar()
+{
+	if (ImGui::BeginMainMenuBar())
+	{
+		if (ImGui::BeginMenu(ICON_FA_FILE "\tFile"))
+		{
+			if (ImGui::BeginMenu("Load"))
+			{
+				SceneManager* sceneManager = SubsystemManager::Get<SceneManager>();
+				const auto& scenes = sceneManager->GetAllScenes();
+				for (auto& [uuid, scene] : scenes)
+				{
+					if (ImGui::MenuItem(scene->GetName().c_str()))
+					{
+						Scene* activeScene = sceneManager->GetActiveScene();
+						if (scene->GetName() != activeScene->GetName())
+						{
+							if (!sceneManager->LoadScene(scene->GetName()))
+							{
+								LOG_ERROR("Failed to load scene");
+								break;
+							}
+							sceneManager->UnloadScene(activeScene->GetName());
+						}
+						else
+						{
+							sceneManager->UnloadScene(activeScene->GetName());
+							if (!sceneManager->LoadScene(scene->GetName()))
+							{
+								LOG_ERROR("Failed to load scene");
+								break;
+							}
+						}
+
+						sceneManager->SetActiveScene(scene->GetName());
+						break;
+					}
+				}
+				ImGui::EndMenu();
+			}
+			if (ImGui::MenuItem("Save"))
+			{
+				SceneManager* sceneManager = SubsystemManager::Get<SceneManager>();
+				if (!sceneManager->SaveActiveScene())
+				{
+					LOG_ERROR("Failed to Save scene");
+				}
+			}
+
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
 }
 
 void Editor::RegisterEditorWindows()
@@ -103,4 +158,13 @@ void Editor::RegisterEditorWindows()
 
 	mWindowManager->RegisterWindowType("ModuleWindow", [this]() {return new ModuleWindow(this); });
 	mWindowManager->CreateWindow("ModuleWindow");
+
+	mWindowManager->RegisterWindowType("ReflectionRegistryWindow", [this]() {return new ReflectionRegistryWindow(this); });
+	mWindowManager->CreateWindow("ReflectionRegistryWindow");
+
+	mWindowManager->RegisterWindowType("SceneHierarchyWindow", [this]() {return new SceneHierarchyWindow(this); });
+	mWindowManager->CreateWindow("SceneHierarchyWindow");
+
+	mWindowManager->RegisterWindowType("InspectorWindow", [this]() {return new InspectorWindow(this); });
+	mWindowManager->CreateWindow("InspectorWindow");
 }

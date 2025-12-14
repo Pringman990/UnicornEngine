@@ -7,10 +7,27 @@
 #include <memory>
 
 #include <Logger/Logger.h>
+#include <Timer/Timer.h>
 
 #include <Input/InputMapper.h>
 
 #include "MoveCubeComponent.h"
+#include "ESystemManager.h"
+#include "Scene/SceneManager.h"
+#include "MoveCubeSystem.h"
+#include "Systems/StaticMeshRenderSystem.h"
+#include <Components/ETransform.h>
+#include <Components/EStaticMesh.h>
+#include <Components/ENameComponent.h>
+
+
+#include "RenderAssets/Texture2D.h"
+#include "RenderAssets/Material.h"
+
+
+#include "Renderer.h"
+
+#include <Archive/YamlArchive.h>
 
 namespace {
 	GameWorld gameworld;
@@ -89,103 +106,73 @@ GameWorld::~GameWorld()
 {
 }
 
+
+REFL_DEFINE(AssetRef<Mesh>)
+{
+	refl::ClassBuilder<AssetRef<Mesh>>(STRINGIFYEXP(AssetRef<Mesh>), "663c9ab4-e3eb-4e39-89ee-a28f365ce91c")
+		.SaveFunction([](void* obj, Archive& archive, String key)
+			{
+				SaveAssetRef<Mesh>(obj, archive, key);
+			})
+		.LoadFunction([](void* obj, Archive& archive, String key)
+			{
+				LoadAssetRef<Mesh>(obj, archive, key);
+				return true;
+			});
+}
+
 void GameWorld::Init()
 {
 	LOG_INFO("GameWorld init...");
 
-	//float aspect = (16.f / 9.f);
-	//mCamera.SetPerspective(90, aspect, 0.01f, 1000.f);
-	//mCamera.GetTransform().SetPosition({ 0,0,-5 });
-	//Renderer::Get()->SetActiveCamera(&mCamera);
-	//
-	//ByteBuffer meshData = FileSystem::Get()->ReadAll("engine://Models/sm_cube.fbx");
-	//mMeshHandle = MeshFactory::CreateMesh(meshData, "Cube");
-	
-	//LOG_INFO("YEEESSS: {}", ReflectionRegistry::GetInfo<MoveCubeComponent>().name);
+	AssetRegistry* assetReg = SubsystemManager::Get<AssetRegistry>();
+	SceneManager* sceMan = SubsystemManager::Get<SceneManager>();
+
+	////Ent 1
+	//AssetRef<Mesh> asset = assetReg->Load<Mesh>("engine://Models/sm_cube.asset");
+	//for (size_t i = 0; i < 1; i++)
+	//{
+	//	EEntity ent1 = sceMan->GetActiveScene()->GetWorld().CreateEntity();
+
+	//	ENameComponent* name1 = sceMan->GetActiveScene()->GetWorld().AddComponent<ENameComponent>(ent1);
+	//	name1->name = "Cube";
+
+	//	sceMan->GetActiveScene()->GetWorld().AddComponent<ETransform>(ent1);
+	//	
+	//	MoveCubeComponent* move = sceMan->GetActiveScene()->GetWorld().AddComponent<MoveCubeComponent>(ent1);
+	//	move->speedMultiplier = RandomFloat(0.2f, 10.f);
+	//	move->distance = RandomFloat(5.f, 100.f);
+
+	//	EStaticMesh* sMesh1 = sceMan->GetActiveScene()->GetWorld().AddComponent<EStaticMesh>(ent1);
+	//	sMesh1->mesh = asset;
+	//}
+
+	////Ent 2
+	//EEntity ent2 = sceMan->GetActiveScene()->GetWorld().CreateEntity();
+
+	//ENameComponent* name2 = sceMan->GetActiveScene()->GetWorld().AddComponent<ENameComponent>(ent2);
+	//name2->name = "Player";
+
+	//ETransform* trans = sceMan->GetActiveScene()->GetWorld().AddComponent<ETransform>(ent2);
+	//Vector3 newScale = trans->transform.GetScale() * 0.01f;
+	//trans->transform.SetScale(newScale);
+
+	//AssetRef<Mesh> asset2 = assetReg->Load<Mesh>("engine://Models/sm_player.asset");
+	//EStaticMesh* sMesh2 = sceMan->GetActiveScene()->GetWorld().AddComponent<EStaticMesh>(ent2);
+	//sMesh2->mesh = asset2;
+
+	//Systems
+	ESystemManager* sysMan = SubsystemManager::Get<ESystemManager>();
+	sysMan->RegisterSystem(&MoveCubeSystem, "Move Cube", EPipeline::ESystemUpdate);
+	sysMan->RegisterSystem(&StaticMeshRenderSystem, "Static Mesh Render", EPipeline::ESystemPostUpdate);
+
+	//sceMan->SaveActiveSceneToFile("engine://Test.scene");
+	sceMan->LoadSceneFromFile("engine://Test.scene");
+	sceMan->SetActiveScene("Test");
 }
 
 void GameWorld::Render()
 {
-	//auto cmdList = Renderer::Get()->GetMainCommandList();
-	//Vector3 rot = mTransform.GetEularRotation();
-	//rot.y += Timer::Get()->GetDeltaTime();
-	//mTransform.SetRotation(rot);
-	//
-	//Renderer::Get()->RenderMesh(mMeshHandle, mTransform);
-	//
-	//UpdateCamera();
-}
-
-void GameWorld::UpdateCamera()
-{
-	/*if (!GetAsyncKeyState(VK_RBUTTON))
-	{
-		InputMapper::Get()->ReleaseMouse();
-		return;
-	}
-
-	Transform& transform = mCamera.GetTransform();
-	Matrix matrix = transform.GetMatrix();
-	Vector3 position = transform.GetPosition();
-	Vector3 right = matrix.Right();
-	Vector3 up = matrix.Up();
-	Vector3 forward = matrix.Forward();
-
-	float realMovementSpeed = 5 * Timer::Get()->GetDeltaTime();
-
-	if (GetAsyncKeyState(VK_LSHIFT))
-	{
-		realMovementSpeed = 10 * Timer::Get()->GetDeltaTime();
-	}
-
-	if (GetAsyncKeyState('W'))
-	{
-		position = position + (forward * -realMovementSpeed);
-	}
-	if (GetAsyncKeyState('S'))
-	{
-		position = position + (forward * realMovementSpeed);
-	}
-	if (GetAsyncKeyState('D'))
-	{
-		position = position + (right * realMovementSpeed);
-	}
-	if (GetAsyncKeyState('A'))
-	{
-		position = position + (right * -realMovementSpeed);
-	}
-	if (GetAsyncKeyState('E'))
-	{
-		position = position + (up * realMovementSpeed);
-	}
-	if (GetAsyncKeyState('Q'))
-	{
-		position = position + (up * -realMovementSpeed);
-	}
-
-	Vector3 currentRotation = transform.GetEularRotation();
-	Vector3 targetRotation = currentRotation;
-	Vector2 dPos = InputMapper::Get()->GetMouseDelta();
-	if (dPos.x != 0 || dPos.y != 0)
-	{
-		float realRotationSpeed = 500 * Timer::Get()->GetDeltaTime();
-
-		targetRotation.y += realRotationSpeed * dPos.x;
-		targetRotation.x += realRotationSpeed * dPos.y;
-
-		constexpr float maxPitchAngle = 3.14159265359f / 2.0f - 0.01f;
-		targetRotation.x = CLAMP(targetRotation.x, -maxPitchAngle, maxPitchAngle);
-	}
-
-	float lerpSpeed = 30.0f;
-	Vector3 smoothedRotation = {};
-	smoothedRotation.x = std::lerp(currentRotation.x, targetRotation.x, lerpSpeed * Timer::Get()->GetDeltaTime());
-	smoothedRotation.y = std::lerp(currentRotation.y, targetRotation.y, lerpSpeed * Timer::Get()->GetDeltaTime());
-	smoothedRotation.z = 0.0f;
-	transform.SetRotation(smoothedRotation);
-
-	transform.SetPosition(position);
-	InputMapper::Get()->CaptureMouse();*/
 }
 
 void InitGameWorld()

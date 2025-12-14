@@ -14,8 +14,8 @@ namespace subsystem
 		std::string_view name;
 		std::span<const std::string_view> dependencies;
 		size_t size;
-		ConstructFunc constructor = nullptr;
-		DestroyFunc destructor = nullptr;
+		Constructor constructor = nullptr;
+		Deconstructor destructor = nullptr;
 
 		template<typename T, size_t N>
 		inline static SubsystemDescriptor MakeDescriptor(std::string_view Name, const std::array<std::string_view, N>& Dep)
@@ -26,9 +26,9 @@ namespace subsystem
 				sizeof(T),
 				
 				//Default Contructor
-				[](void* Dst)
+				[](void* dst)
 				{
-					new (Dst) T();
+					new (dst) T();
 				},
 
 				//Destructor

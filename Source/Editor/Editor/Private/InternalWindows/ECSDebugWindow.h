@@ -1,5 +1,6 @@
 #pragma once
 #include <Core.h>
+#include <EngineMinimal.h>
 #include "EditorWindow.h"
 #include <EWorld.h>
 
@@ -16,6 +17,6 @@ private:
 	EWorld mWorld;
 	UnorderedMap<EEntity, bool> mSelectedEntities;
 	//UnorderedMap<TypeIdHash, bool> mSelectedComponents;
-	EEntity mSelectedEntity = 0;
+	EEntity mSelectedEntity;
 	UniqueID128 mSelectedComponent = {};
 };

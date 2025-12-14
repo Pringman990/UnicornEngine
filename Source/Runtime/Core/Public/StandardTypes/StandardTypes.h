@@ -15,6 +15,8 @@
 #include <typeindex>
 #include <mutex>
 #include <variant>
+#include <cstdint> // uintptr_t
+#include <cstddef> // ptrdiff_t
 
 using uint8	 = uint8_t;
 using uint16 = uint16_t;
@@ -31,6 +33,7 @@ using wchar = wchar_t;
 using byte = uint8;
 
 using String = std::string;
+using Path = std::string;
 
 template<typename T>
 using Vector = std::vector<T>;
@@ -65,10 +68,16 @@ template<typename T>
 using Func = std::function<T>;
 
 template<typename T>
-using SharedPtr = std::shared_ptr<T>;
+using Optional = std::optional<T>;
+
+template<typename... Ts>
+using Variant = std::variant<Ts...>;
+
+template<typename T1, typename T2>
+using Pair = std::pair<T1, T2>;
 
 template<typename T>
-using Optional = std::optional<T>;
+using SharedPtr = std::shared_ptr<T>;
 
 template<typename T, typename... Args>
 SharedPtr<T> MakeShared(Args&&... args)
@@ -91,7 +100,7 @@ using WeakPtr = std::weak_ptr<T>;
 template<typename>
 inline constexpr bool dependent_false_v = false;
 
-using ConstructFunc = void(*)(void* Dst);
-using CopyFunc = void(*)(void* Dst, const void* Src);
-using MoveFunc = void(*)(void* Dst, void* Src);
-using DestroyFunc = void(*)(void* Obj);
+using Constructor = void(*)(void* dst);
+using Deconstructor = void(*)(void* obj);
+using Moveconstructor = void(*)(void* dst, void* src);
+using Copyconstructor = void(*)(void* dst, void* src);

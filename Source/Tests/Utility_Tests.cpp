@@ -66,3 +66,30 @@ TEST(Utility_Tests, CheckStringConversion)
 	//Check multi step conversion
 	EXPECT_TRUE(WStringToString(StringToWString(WStringToString(L"Correct"))) == "Correct");
 }
+
+TEST(Utility_Tests, CheckExtractExtension)
+{
+	String out = ExtractExtension("some/path/here/file.txt");
+	EXPECT_TRUE(out == "txt");
+
+	String out2 = ExtractExtension("txt");
+	EXPECT_TRUE(out2 == "");
+}
+
+TEST(Utility_Tests, CheckExtractPathWithoutFile)
+{
+	String out = ExtractPathWithoutFile("some/path/here/file.txt");
+	EXPECT_TRUE(out == "some/path/here/");
+
+	String out2 = ExtractPathWithoutFile("txt");
+	EXPECT_TRUE(out2 == "");
+}
+
+TEST(Utility_Tests, CheckExtractPathWithoutExtension)
+{
+	String out = ExtractPathWithoutExtension("some/path/here/file.txt");
+	EXPECT_TRUE(out == "some/path/here/file");
+
+	String out2 = ExtractPathWithoutExtension("file.txt");
+	EXPECT_TRUE(out2 == "file");
+}

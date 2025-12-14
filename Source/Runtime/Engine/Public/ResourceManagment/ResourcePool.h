@@ -112,6 +112,26 @@ public:
 		}
 	}
 
+	void Remove(ResourceHandle<T>& Handle)
+	{
+		if (Handle.index >= mEntries.size())
+		{
+			LOG_ERROR("Tried to remove resource with index larger then the count of all entries");
+			return;
+		}
+
+		Entry& entry = mEntries[Handle.index];
+		if (entry.alive && entry.generation == Handle.generation)
+		{
+			entry.alive = false;
+			entry.generation++;
+			entry.resource = {};
+			mFreeIndices.push(Handle.index);
+
+			ResourceHandle<T>::Invalidate(Handle);
+		}
+	}
+
 	/**
 	* Deletes all resources in this pool.
 	* 

@@ -12,6 +12,8 @@
 #include <EComponentRegistry.h>
 #include <EWorld.h>
 
+#include <Scene/SceneManager.h>
+
 #include <Module/ModuleManager.h>
 #include <Assets/AssetRegistry.h>
 
@@ -30,25 +32,20 @@ EngineLoop::~EngineLoop()
 	mEditor = nullptr;
 #endif // _EDITOR
 
+	//TODO: add unloading of modules (not unloading can cause fake memory leaks)
+
 	SubsystemManager::Get<ESystemManager>()->UnRegisterSystems();
+	SubsystemManager::Get<SceneManager>()->ClearAllScenes();
 	SubsystemManager::Get<ModuleManager>()->UnLoadModule("Sandbox");
 
 	mGenericApplication = nullptr;
 	mFileWatcher = nullptr;
-
-	delete mWorld;
-	mWorld = nullptr;
 }
 
 bool EngineLoop::Init()
 {
 	TIMER_START_READING("__Engine Loop Init__");
 	LOG_INFO("Engine Loop Starting Init");
-
-	{
-		AssetRegistry* assetReg = SubsystemManager::Get<AssetRegistry>();
-		assetReg->RegisterAllDefferedManagers();
-	}
 
 	Application* app = SubsystemManager::Get<Application>();
 	mGenericApplication = app->_CreateApplication();
@@ -83,6 +80,7 @@ bool EngineLoop::Init()
 	}
 #endif // _EDITOR
 
+	SandboxInit initGameWorld = nullptr;
 	{
 		_PAUSE_TRACK_MEMORY(true);
 		ModuleManager* moduleManager = SubsystemManager::Get<ModuleManager>();
@@ -90,9 +88,8 @@ bool EngineLoop::Init()
 
 		HMODULE sanboxModule = moduleManager->GetHModule("Sandbox");
 
-		SandboxInit initGameWorld = (SandboxInit)GetProcAddress(sanboxModule, "InitGameWorld");
+		initGameWorld = (SandboxInit)GetProcAddress(sanboxModule, "InitGameWorld");
 		ASSERT(initGameWorld, "Could not init gameworld");
-		initGameWorld();
 
 		mSandboxRender = (SandboxRender)GetProcAddress(sanboxModule, "RenderGameWorld");
 		ASSERT(mSandboxRender, "Could not load render gameworld");
@@ -100,14 +97,12 @@ bool EngineLoop::Init()
 		_PAUSE_TRACK_MEMORY(false);
 	}
 
-	auto infos = SubsystemManager::Get<ReflectionRegistry>()->GetAllInfos();
-	for (auto& info : infos)
-	{
-		REFLECTION_LOG_TYPE_INFO(info)
-	}
+	SubsystemManager::Get<AssetRegistry>()->FindAndRegisterAllAssets();
 
-	mWorld = new EWorld();
-	SubsystemManager::Get<ESystemManager>()->RunLoad(*mWorld);
+	SubsystemManager::Get<SceneManager>()->CreateScene("Default");
+	SubsystemManager::Get<SceneManager>()->SetActiveScene("Default");
+
+	initGameWorld();
 
 	float initTime = TIMER_END_READING("__Engine Loop Init__");
 	LOG_INFO("Engine Loop has finished Initialize, it took: {:0.7f}s", initTime);
@@ -124,8 +119,8 @@ void EngineLoop::Update()
 
 	mRenderLoop.BeginFrame();
 	
-	SubsystemManager::Get<ESystemManager>()->RunUpdate(*mWorld);
-	//mSandboxRender();
+	SubsystemManager::Get<SceneManager>()->UpdateActiveScene();
+	mSandboxRender();
 
 	//mRenderer->SwitchToSwapChain();
 	mRenderLoop.Execute();

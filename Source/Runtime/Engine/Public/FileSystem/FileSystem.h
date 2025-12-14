@@ -3,7 +3,9 @@
 #include <Subsystem/EngineSubsystem.h>
 #include "FileSystemCommon.h"
 
-#define ROOTPATH String("../../")
+#define ROOTPATH Path("../../")
+
+class NativeFileBackend;
 
 /*
 * Engine subsystem
@@ -24,7 +26,7 @@ class FileSystem
 public:
 	struct MountHandle
 	{
-		std::string protocol;
+		String protocol;
 		IFileBackend* backend; // For identity match
 	};
 
@@ -32,21 +34,23 @@ public:
 
 	ENGINE_API MountHandle Mount(const Protocol& Protocol, SharedPtr<IFileBackend> Backend, int32 Priority = 0);
 	ENGINE_API void UnMount(const MountHandle& Handle);
-	ENGINE_API bool Exists(const String& VirtualPath);
-	ENGINE_API SharedPtr<IFileStream> Open(const String& VirtualPath, FileMode Mode);
-	ENGINE_API ByteBuffer ReadAll(const String& VirtualPath);
-	ENGINE_API void WriteAll(const String& VirtualPath, const ByteBuffer& Data);
+	ENGINE_API bool Exists(const Path& VirtualPath);
+	ENGINE_API SharedPtr<IFileStream> Open(const Path& VirtualPath, FileMode Mode);
+	ENGINE_API ByteBuffer ReadAll(const Path& VirtualPath);
+	ENGINE_API ByteBuffer ReadAllNonVirtual(const Path& Path);
+	ENGINE_API void WriteAll(const Path& VirtualPath, const ByteBuffer& Data);
 
-	ENGINE_API String GetAbsolutPath(const String& VirtualPath);
+	ENGINE_API Path GetAbsolutPath(const Path& VirtualPath);
 
 protected:
 	FileSystem();
 	~FileSystem();
 
-	bool ParseVirtualPath(const String& Path, Protocol& outProtocol, String& outRelativePath);
+	bool ParseVirtualPath(const Path& VirtualPath, Protocol& outProtocol, Path& outRelativePath);
 private:
-	String mRootPath;
+	Path mRootPath;
 	Vector<MountPoint> mMounts;
+	OwnedPtr<NativeFileBackend> mDefaultFileBackend;
 };
 
 #define GET_FILESYSTEM() SubsystemManager::Get<FileSystem>()

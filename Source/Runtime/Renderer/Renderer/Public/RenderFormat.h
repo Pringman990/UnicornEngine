@@ -2,6 +2,7 @@
 
 #ifdef _WIN32
 #include <d3d11.h>
+#include <d3d11shader.h>
 #endif
 
 enum class PrimitiveTopology : uint32
@@ -28,29 +29,29 @@ inline D3D_PRIMITIVE_TOPOLOGY ToD11Topology(PrimitiveTopology flags)
 	}
 }
 
-enum class ShaderStage : uint32
+enum class ShaderStageBind : uint32
 {
 	Undefined = 0,
 	VS = 1 << 0, //Vertex Shader
 	FS = 1 << 1, //Fragment/Pixel shader
 };
 
-inline ShaderStage operator|(ShaderStage a, ShaderStage b)
+inline ShaderStageBind operator|(ShaderStageBind a, ShaderStageBind b)
 {
-	return static_cast<ShaderStage>(static_cast<uint32>(a) | static_cast<uint32>(b));
+	return static_cast<ShaderStageBind>(static_cast<uint32>(a) | static_cast<uint32>(b));
 }
 
-inline ShaderStage operator&(ShaderStage a, ShaderStage b)
+inline ShaderStageBind operator&(ShaderStageBind a, ShaderStageBind b)
 {
-	return static_cast<ShaderStage>(static_cast<uint32>(a) & static_cast<uint32>(b));
+	return static_cast<ShaderStageBind>(static_cast<uint32>(a) & static_cast<uint32>(b));
 }
 
-inline bool HasFlag(ShaderStage value, ShaderStage flag)
+inline bool HasFlag(ShaderStageBind value, ShaderStageBind flag)
 {
 	return (static_cast<uint32_t>(value) & static_cast<uint32_t>(flag)) != 0;
 }
 
-inline bool operator==(ShaderStage a, ShaderStage b)
+inline bool operator==(ShaderStageBind a, ShaderStageBind b)
 {
 	return HasFlag(a, b);
 }
@@ -132,6 +133,12 @@ inline TextureBindFlags operator|(TextureBindFlags a, TextureBindFlags b)
 	return static_cast<TextureBindFlags>(static_cast<uint32>(a) | static_cast<uint32>(b));
 }
 
+inline TextureBindFlags& operator|=(TextureBindFlags& a, TextureBindFlags b)
+{
+	a = a | b;
+	return a;
+}
+
 inline TextureBindFlags operator&(TextureBindFlags a, TextureBindFlags b)
 {
 	return static_cast<TextureBindFlags>(static_cast<uint32>(a) & static_cast<uint32>(b));
@@ -160,6 +167,116 @@ inline UINT ToD11BindFlags(TextureBindFlags flags)
 		bind |= D3D11_BIND_DEPTH_STENCIL;
 
 	return bind;
+}
+
+enum class ShaderResourceType
+{
+	Undefined,
+	Texture,
+	Sampler
+};
+
+inline ShaderResourceType FromDXInputType(D3D_SHADER_INPUT_TYPE fmt)
+{
+	switch (fmt)
+	{
+		case D3D_SIT_TEXTURE: return ShaderResourceType::Texture;
+		case D3D_SIT_SAMPLER: return ShaderResourceType::Sampler;
+	}
+
+	return ShaderResourceType::Undefined;
+}
+
+enum class ShaderVariableType
+{
+	Unknown,
+
+	// Scalars
+	Bool,
+	Int,
+	UInt,
+	Float,
+	Double,
+
+	// Vectors
+	Float2,
+	Float3,
+	Float4,
+	Int2,
+	Int3,
+	Int4,
+	UInt2,
+	UInt3,
+	UInt4,
+
+	// Matrices
+	Matrix3x3,
+	Matrix4x4,
+
+	// Textures / Samplers / Buffers
+	Texture1D,
+	Texture2D,
+	Texture3D,
+	TextureCube,
+	Sampler,
+	StructuredBuffer,
+	RWTexture2D,
+
+	// Struct or complex type (for nested cbuffer structs)
+	Struct,
+};
+
+inline ShaderVariableType FromD3DShaderVariableType(const D3D11_SHADER_TYPE_DESC& desc)
+{
+	switch (desc.Class)
+	{
+	case D3D_SVC_SCALAR:
+		switch (desc.Type)
+		{
+		case D3D_SVT_BOOL:   return ShaderVariableType::Bool;
+		case D3D_SVT_INT:    return ShaderVariableType::Int;
+		case D3D_SVT_UINT:   return ShaderVariableType::UInt;
+		case D3D_SVT_FLOAT:  return ShaderVariableType::Float;
+		case D3D_SVT_DOUBLE: return ShaderVariableType::Double;
+		}
+		break;
+
+	case D3D_SVC_VECTOR:
+		if (desc.Type == D3D_SVT_FLOAT)
+		{
+			switch (desc.Columns)
+			{
+			case 2: return ShaderVariableType::Float2;
+			case 3: return ShaderVariableType::Float3;
+			case 4: return ShaderVariableType::Float4;
+			}
+		}
+		break;
+
+	case D3D_SVC_MATRIX_ROWS:
+	case D3D_SVC_MATRIX_COLUMNS:
+		if (desc.Rows == 4 && desc.Columns == 4)
+			return ShaderVariableType::Matrix4x4;
+		if (desc.Rows == 3 && desc.Columns == 3)
+			return ShaderVariableType::Matrix3x3;
+		break;
+
+	case D3D_SVC_OBJECT:
+		switch (desc.Type)
+		{
+		case D3D_SVT_TEXTURE1D:  return ShaderVariableType::Texture1D;
+		case D3D_SVT_TEXTURE2D:  return ShaderVariableType::Texture2D;
+		case D3D_SVT_TEXTURE3D:  return ShaderVariableType::Texture3D;
+		case D3D_SVT_TEXTURECUBE: return ShaderVariableType::TextureCube;
+		case D3D_SVT_SAMPLER:    return ShaderVariableType::Sampler;
+		}
+		break;
+
+	case D3D_SVC_STRUCT:
+		return ShaderVariableType::Struct;
+	}
+
+	return ShaderVariableType::Unknown;
 }
 
 enum class RenderFormat
@@ -293,7 +410,7 @@ enum class RenderFormat
 	FORCE_UINT
 };
 
-inline DXGI_FORMAT ToDXFormat(RenderFormat fmt)
+inline constexpr DXGI_FORMAT ToDXFormat(RenderFormat fmt)
 {
 	switch (fmt)
 	{

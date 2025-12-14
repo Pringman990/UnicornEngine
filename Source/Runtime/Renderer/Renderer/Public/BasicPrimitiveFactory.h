@@ -2,7 +2,7 @@
 #include <EngineMinimal.h>
 #include "RendererMinimal.h"
 
-#include "GPUMesh.h"
+#include "GPUResources/GPUMesh.h"
 
 class BasicPrimitiveFactory
 {

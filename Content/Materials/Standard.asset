@@ -1,0 +1,10 @@
+uuid: 75877966-b7c6-467d-8142-f091ce2190ab
+type: Material
+name: Standard
+shaderprogram: shaders://StandardPBR.hlsl
+textures:
+  - name: AlbedoTex
+    uuid: 75875466-b7c6-467d-8142-f091ce2190ab
+
+  - name: NormalTex
+    uuid: 75875423-b7c6-467d-8142-f091ce2190ab

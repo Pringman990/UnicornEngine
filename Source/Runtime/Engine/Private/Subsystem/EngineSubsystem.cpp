@@ -117,7 +117,10 @@ namespace __Subsystem
 	ENGINE_API void Register(std::type_index Type, const subsystem::SubsystemDescriptor* Desc)
 	{
 		std::scoped_lock lock(sMutex);
-		ASSERT(GetSingletons().contains(Type) == false, "Subsystem has already been registered");
+		if (GetSingletons().contains(Type))
+		{
+			return;
+		}
 
 		__Subsystem::Singleton sing;
 		sing.desc = Desc;

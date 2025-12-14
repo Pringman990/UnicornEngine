@@ -16,6 +16,7 @@ project "EntryPoint"
 		"**.hpp",
 		"**.cpp",
 		"**.c",
+		"**.inl",
 	}
 
 	vpaths { ["Public/*"] = {"Public/**.h", "Public/**.hpp", "Public/**.c", "Public/**.cpp"} }
@@ -28,6 +29,7 @@ project "EntryPoint"
 	includeDependencies("EntryPoint", 
 	{
 		dirs.EntryPoint .. "Public",
+		"GameCore",
 		"Engine",
 		"Renderer",
 		"ECS",
@@ -35,6 +37,7 @@ project "EntryPoint"
 
 	linkDependencies("EntryPoint", 
 	{
+		"GameCore",
 		"Engine",
 		"Renderer",
 		"ECS",

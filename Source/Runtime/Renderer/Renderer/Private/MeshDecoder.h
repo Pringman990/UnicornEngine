@@ -16,6 +16,7 @@ struct MeshDecodeData
 		{
 			uint32 startIndex;
 			uint32 indexCount;
+			String materialName;
 		};
 
 		Vector<SubMesh> submeshes;
@@ -52,6 +53,6 @@ public:
 private:
 	static MeshDecodeData AssimpDecoder(const ByteBuffer& Buffer, const String& Extension);
 	static void ProcessAssimpNode(MeshDecodeData& DecodeData, aiNode* AiNode, const aiScene* AiScene);
-	static MeshDecodeData::Mesh::SubMesh DecodeAiMesh(aiMesh* AiMesh, uint32& IndexOffset, uint32& VertexOffset, Vector<uint32>& Indices, Vector<Vertex>& Vertices);
+	static MeshDecodeData::Mesh::SubMesh DecodeAiMesh(const aiScene* AiScene, aiMesh* AiMesh, uint32& IndexOffset, uint32& VertexOffset, Vector<uint32>& Indices, Vector<Vertex>& Vertices);
 
 };

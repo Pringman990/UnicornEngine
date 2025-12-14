@@ -5,7 +5,7 @@ class RenderLoop
 {
 public:
 	RenderLoop() = default;
-	~RenderLoop() = default;
+	~RenderLoop();
 
 	bool Init();
 	void BeginFrame();

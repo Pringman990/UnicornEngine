@@ -1,8 +1,8 @@
 #include "BasicPrimitiveFactory.h"
 
 #include "Renderer.h"
-#include "MeshManager.h"
-#include "MaterialManager.h"
+#include "GPUResources/GPUMeshManager.h"
+#include "GPUResources/GPUMaterialManager.h"
 
 #include "Vertex.h"
 
@@ -46,5 +46,5 @@ GPUResourceHandle<GPUMesh> BasicPrimitiveFactory::CreateCube()
 	};
 
     Renderer* renderer = SubsystemManager::Get<Renderer>();
-    return renderer->GetMeshManager()->CreateFromRaw(vertices, indices, renderer->GetMaterialManager()->GetEngineMaterial("textured_mesh"));
+    return renderer->GetGPUMeshManager()->CreateFromRaw(vertices, indices);
 }

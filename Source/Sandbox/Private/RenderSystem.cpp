@@ -8,6 +8,6 @@ void RenderSystem(EWorld& World)
 	//auto query = World.Query<MeshComponent, TransformComponent>();
 	//for (auto [mesh, trans] : query)
 	//{
-	//Renderer::Get()->RenderMesh(mesh.handle, trans);
+	//	Renderer::Get()->RenderMesh(mesh.handle, trans);
 	//}
 }

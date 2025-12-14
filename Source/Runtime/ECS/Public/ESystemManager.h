@@ -3,6 +3,12 @@
 #include <Subsystem/EngineSubsystem.h>
 #include "EWorld.h"
 
+struct ESystemDebugInfo
+{
+	uint32 entityCount = 0;
+	float frameRunTime = 0; //In seconds
+};
+
 /*
 * Engine subsystem
 */
@@ -31,11 +37,29 @@ public:
 		mRegisteredSystemsPipeline[Pipeline].push_back(system);
 	}
 
+	const ENameSystemMap& GetRegisteredSystems() const { return mRegisteredSystemsName; }
+
 	void UnRegisterSystems()
 	{
 		mRegisteredSystemsName.clear();
 		mRegisteredSystemsPipeline.clear();
 	}
+
+#ifdef _DEBUG
+	void RegisterFrameDebugInfo(const String& SystemName, const ESystemDebugInfo& Info)
+	{
+		if (!mRegisteredSystemsName.contains(SystemName))
+		{
+			LOG_ERROR("Can't add system debug info on non registered ecs system: {}", SystemName);
+			return;
+		}
+
+		mSystemsDebugInfo[SystemName] = Info;
+	}
+
+	const UnorderedMap<String, ESystemDebugInfo>& GetSystemsDebugInfo() const { return mSystemsDebugInfo; }
+#endif // _DEBUG
+
 
 private:
 	ESystemManager();
@@ -43,4 +67,11 @@ private:
 private:
 	ENameSystemMap mRegisteredSystemsName;
 	EPipelineSystemMap mRegisteredSystemsPipeline;
+
+#ifdef _DEBUG
+	UnorderedMap<String, ESystemDebugInfo> mSystemsDebugInfo;
+#endif // _DEBUG
+
 };
+
+#define GET_ESYSTEMMANAGER() SubsystemManager::Get<ESystemManager>()

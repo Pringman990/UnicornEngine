@@ -24,4 +24,7 @@ public:
 
 private:
 	WindowsWindowInfo mWindowInfo;
+	bool mResizingWindow;
+	int32 mPendingWidth;
+	int32 mPendingHeight;
 };

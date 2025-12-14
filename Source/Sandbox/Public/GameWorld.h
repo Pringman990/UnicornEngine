@@ -15,6 +15,9 @@
 #include <Math/Transform.h>
 #include <Camera.h>
 #include <Core.h>
+#include "Assets/AssetRegistry.h"
+#include "Assets/AssetRef.h"
+#include "RenderAssets/Mesh.h"
 
 class GameWorld
 {
@@ -27,10 +30,11 @@ public:
 private:
 	void UpdateCamera();
 private:
-	Camera mCamera;
 	//GPUResourceHandle<struct GPUMesh> mMeshHandle;
 	Transform mTransform;
 };
 
 extern "C" SANDBOX_API void InitGameWorld();
 extern "C" SANDBOX_API void RenderGameWorld();
+
+REFL_DECLARE(AssetRef<Mesh>)

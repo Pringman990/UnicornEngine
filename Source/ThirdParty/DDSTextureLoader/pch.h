@@ -4,18 +4,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 //
-// http://go.microsoft.com/fwlink/?LinkID=615561
+// http://go.microsoft.com/fwlink/?LinkId=248929
 //--------------------------------------------------------------------------------------
 
 #pragma once
 
 #ifdef _MSC_VER
 // Off by default warnings
-#pragma warning(disable : 4619 4061 4265 4355 4365 4571 4623 4625 4626 4628 4668 4710 4711 4746 4774 4820 4987 5026 5027 5031 5032 5039 5045 5219 5246 5264 26812)
-// C4619 #pragma warning: there is no warning number 'X'
+#pragma warning(disable : 4619 4616 4061 4265 4365 4571 4623 4625 4626 4628 4668 4710 4711 4746 4774 4820 4865 4987 5026 5027 5031 5032 5039 5045 5219 5264 26812)
+// C4619/4616 #pragma warning warnings
 // C4061 enumerator 'X' in switch of enum 'X' is not explicitly handled by a case label
 // C4265 class has virtual functions, but destructor is not virtual
-// C4355 'this': used in base member initializer list
 // C4365 signed/unsigned mismatch
 // C4571 behavior change
 // C4623 default constructor was implicitly defined as deleted
@@ -28,6 +27,7 @@
 // C4746 volatile access of '<expression>' is subject to /volatile:<iso|ms> setting
 // C4774 format string expected in argument 3 is not a string literal
 // C4820 padding added after data member
+// C4865 the underlying type will change from 'int' to 'unsigned int' when '/Zc:enumTypes' is specified on the command line
 // C4987 nonstandard extension used
 // C5026 move constructor was implicitly defined as deleted
 // C5027 move assignment operator was implicitly defined as deleted
@@ -35,7 +35,6 @@
 // C5039 pointer or reference to potentially throwing function passed to extern C function under - EHc
 // C5045 Spectre mitigation warning
 // C5219 implicit conversion from 'int' to 'float', possible loss of data
-// C5246 the initialization of a subobject should be wrapped in braces
 // C5264 'const' variable is not used
 // 26812: The enum type 'x' is unscoped. Prefer 'enum class' over 'enum' (Enum.3).
 
@@ -76,6 +75,7 @@
 #pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
 #pragma clang diagnostic ignored "-Wlanguage-extension-token"
 #pragma clang diagnostic ignored "-Wmissing-variable-declarations"
+#pragma clang diagnostic ignored "-Wmicrosoft-include"
 #pragma clang diagnostic ignored "-Wnested-anon-types"
 #pragma clang diagnostic ignored "-Wreserved-id-macro"
 #pragma clang diagnostic ignored "-Wswitch-enum"
@@ -103,93 +103,35 @@
 
 #include <Windows.h>
 
-#ifdef __MINGW32__
-#include <unknwn.h>
-#endif
-
 #ifndef _WIN32_WINNT_WIN10
 #define _WIN32_WINNT_WIN10 0x0A00
 #endif
 
-#define D3DX12_NO_STATE_OBJECT_HELPERS
-#define D3DX12_NO_CHECK_FEATURE_SUPPORT_CLASS
+#ifndef WINAPI_FAMILY_GAMES
+#define WINAPI_FAMILY_GAMES 6
+#endif
 
 #ifdef _GAMING_XBOX
-#include <gxdk.h>
-
-#if _GXDK_VER < 0x55F00C58 /* GXDK Edition 220300 */
-#error DirectX Tool Kit requires the March 2022 GDK or later
-#endif
-
-#ifdef _GAMING_XBOX_SCARLETT
-#pragma warning(push)
-#pragma warning(disable: 5204 5249)
-#include <d3d12_xs.h>
-#pragma warning(pop)
-#include <d3dx12_xs.h>
-#else
-#pragma warning(push)
-#pragma warning(disable: 5204)
-#include <d3d12_x.h>
-#pragma warning(pop)
-#include <d3dx12_x.h>
-#endif
+#error This version of DirectX Tool Kit not supported for GDKX
 #elif defined(_XBOX_ONE) && defined(_TITLE)
 #include <xdk.h>
 
 #if _XDK_VER < 0x42EE13B6 /* XDK Edition 180704 */
-#error DirectX Tool Kit for Direct3D 12 requires the July 2018 QFE4 XDK or later
+#error DirectX Tool Kit for Direct3D 11 requires the July 2018 QFE4 XDK or later
 #endif
 
-#include <d3d12_x.h>
-#include <d3dx12_x.h>
+#include <d3d11_x.h>
 #else
 
-#ifdef _GAMING_DESKTOP
-#include <grdk.h>
-
-#if _GRDK_VER < 0x4A611B35 /* GDK Edition 210600 */
-#error DirectX Tool Kit requires June 2021 GDK or later
-#endif
+#if (_WIN32_WINNT < 0x0603 /*_WIN32_WINNT_WINBLUE*/)
+#error DirectX Tool Kit for Direct3D 11 requires Windows 8.1 or later
 #endif
 
-#ifdef USING_DIRECTX_HEADERS
-#include <directx/dxgiformat.h>
-#include <directx/d3d12.h>
-#include <dxguids/dxguids.h>
-#else
-#include <d3d12.h>
-#endif
-
-#include <dxgi1_4.h>
-
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wtautological-type-limit-compare"
-#endif
-
-#ifdef USING_DIRECTX_HEADERS
-#include <directx/d3dx12.h>
-#else
-#include "d3dx12.h"
-#endif
-#endif
-
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
-
-#if (defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)) || (defined(_XBOX_ONE) && defined(_TITLE))
-#pragma warning(push)
-#pragma warning(disable: 4471 5204 5256)
-#include <Windows.UI.Core.h>
-#pragma warning(pop)
+#include <d3d11_1.h>
 #endif
 
 #define _USE_MATH_DEFINES
 #include <algorithm>
-#include <atomic>
 #include <array>
 #include <cassert>
 #include <cmath>
@@ -199,12 +141,10 @@
 #include <cstring>
 #include <cwchar>
 #include <exception>
-#include <initializer_list>
 #include <iterator>
 #include <list>
 #include <map>
 #include <memory>
-#include <mutex>
 #include <new>
 #include <set>
 #include <stdexcept>
@@ -214,11 +154,6 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
-
-#pragma warning(push)
-#pragma warning(disable : 5204 5220)
-#include <future>
-#pragma warning(pop)
 
 #pragma warning(push)
 #pragma warning(disable : 4702)
@@ -254,28 +189,20 @@
 #include <OCIdl.h>
 #endif
 
-#ifndef __MINGW32__
-// DirectX Tool Kit for Audio is in all versions of DirectXTK12
-#include <mmreg.h>
-#include <Audioclient.h>
-
-#ifndef XAUDIO2_HELPER_FUNCTIONS
-#define XAUDIO2_HELPER_FUNCTIONS
+#if defined(USING_GAMEINPUT) && defined(__MINGW32__)
+namespace GameInput { namespace v1 { interface IGameInput; } }
+template<> inline auto __mingw_uuidof<GameInput::v1::IGameInput>() -> GUID const&
+{
+    static constexpr GUID the_uuid = { 0x40ffb7e4,0x6150,0x407a,0xb4,0x39,0x13,0x2b,0xad,0xc0,0x8d,0x2d };
+    return the_uuid;
+}
 #endif
 
-#include <xaudio2.h>
-#include <xaudio2fx.h>
-
+#if (defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)) || (defined(_XBOX_ONE) && defined(_TITLE))
 #pragma warning(push)
-#pragma warning(disable : 4619 4616 5246)
-#include <x3daudio.h>
+#pragma warning(disable: 4471 5204 5256)
+#include <Windows.UI.Core.h>
 #pragma warning(pop)
-
-#include <xapofx.h>
-
-#if (defined(_XBOX_ONE) && defined(_TITLE)) || defined(_GAMING_XBOX)
-#include <apu.h>
-#include <shapexmacontext.h>
-#include <xma2defs.h>
 #endif
-#endif
+
+#include <mutex>

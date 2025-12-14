@@ -12,6 +12,11 @@ ESystemManager::~ESystemManager()
 
 void ESystemManager::RunLoad(EWorld& World)
 {
+#ifdef _DEBUG
+	mSystemsDebugInfo.clear();
+#endif // _DEBUG
+
+
 	for (auto& sys : mRegisteredSystemsPipeline[EPipeline::ESystemLoad])
 	{
 		sys.function(World);

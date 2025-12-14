@@ -4,3 +4,6 @@
 #include "InternalWindows/DebugInformationWindow.h"
 #include "InternalWindows/ECSDebugWindow.h"
 #include "InternalWindows/ModuleWindow.h"
+#include "InternalWindows/ReflectionRegistryWindow.h"
+#include "InternalWindows/SceneHierarchyWindow.h"
+#include "InternalWindows/InspectorWindow.h"

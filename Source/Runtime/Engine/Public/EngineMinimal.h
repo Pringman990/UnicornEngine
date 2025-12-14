@@ -18,3 +18,8 @@
 #include <ResourceManagment/ResourcePool.h>
 #include <ResourceManagment/DirectResourcePool.h>
 #include <ResourceManagment/HeapResourcePool.h>
+
+#include <UniqueID/UniqueID64.h>
+#include <UniqueID/UniqueID128.h>
+
+#define STRINGIFY(STR) #STR

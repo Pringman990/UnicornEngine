@@ -2,7 +2,9 @@
 #include <Core.h>
 
 #include "Editor.h"
-#include <imgui.h>
+#include "Utility/ImguiUtility.h"
+#include <IconFontDefines.h>
+
 class EditorWindow
 {
 public:

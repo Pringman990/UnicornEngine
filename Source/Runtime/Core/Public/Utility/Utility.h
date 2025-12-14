@@ -100,7 +100,11 @@ inline std::wstring StringToWString(const String& String)
 inline String ExtractExtension(const String& Path)
 {
     size_t dotPos = Path.find_last_of(".");
-    return Path.substr(dotPos + 1);
+    if (dotPos != std::string::npos)
+    {
+        return Path.substr(dotPos + 1);
+    }
+    return "";
 }
 
 /**
@@ -109,7 +113,11 @@ inline String ExtractExtension(const String& Path)
 inline String ExtractPathWithoutFile(const String& Path)
 {
     size_t dotPos = Path.find_last_of("/");
-    return Path.substr(0, dotPos);
+    if (dotPos != std::string::npos)
+    {
+        return Path.substr(0, dotPos + 1);
+    }
+    return "";
 }
 
 /**
@@ -118,7 +126,37 @@ inline String ExtractPathWithoutFile(const String& Path)
 inline String ExtractPathWithoutExtension(const String& Path)
 {
     size_t dotPos = Path.find_last_of(".");
-    return Path.substr(0, dotPos);
+    if (dotPos != std::string::npos)
+    {
+        return Path.substr(0, dotPos);
+    }
+    return "";
+}
+
+inline String ExtractNameFromPath(const String& Path)
+{
+    size_t dotPos = Path.find_last_of(".");
+    if (dotPos != std::string::npos)
+    {
+        String withoutDot = Path.substr(0, dotPos);
+        
+        size_t slashPos = withoutDot.find_last_of("/");
+        if (slashPos != std::string::npos)
+        {
+            return withoutDot.substr(slashPos);
+        }
+    }
+    return "";
+}
+
+inline String ExtractTypeInfoNameWithoutSpecifier(const String& Name)
+{
+    size_t dotPos = Name.find_first_of(" ");
+    if (dotPos != std::string::npos)
+    {
+        return Name.substr(dotPos + 1);
+    }
+    return "";
 }
 
 /**
@@ -159,8 +197,46 @@ inline size_t HashMemory(const void* data, size_t size)
     return std::hash<std::string_view>{}(view);
 }
 
+/**
+* Checks if T is the same as any of Ts
+*
+* @ingroup global
+*/
 template<typename T, typename... Ts>
 inline constexpr bool IsAnyOf(const T& Value, const Ts&... Args)
 {
     return ((Value == Args) || ...);
+}
+
+/**
+* Checks if string starts with comparer.
+*
+* @ingroup global
+*/
+inline constexpr bool StartsWith(const std::string_view& Value, const std::string_view& Compare)
+{
+    return Value.starts_with(Compare);
+}
+
+inline String ToString(bool b)
+{
+    switch (b)
+    {
+    case true:
+        return "True";
+    case false:
+        return "False";
+    }
+
+    return "";
+}
+
+inline String ToString(uint32 value)
+{
+    return std::to_string(value);
+}
+
+inline String ToString(int32 value)
+{
+    return std::to_string(value);
 }

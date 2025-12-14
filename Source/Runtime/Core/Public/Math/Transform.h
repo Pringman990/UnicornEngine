@@ -23,17 +23,33 @@ public:
 	{
 	};
 
-	const Vector3 GetPosition() const { return mPosition; };
-	const Vector3 GetScale() const { return mScale; };
-	const Quaternion GetQuaternion() const { return mQRotation; };
-	const Vector3 GetEularRotation() const { return mQRotation.ToEuler(); };
+	const Vector3& GetPosition() const { return mPosition; };
+	const Vector3& GetScale() const { return mScale; };
+	const Quaternion& GetQuaternion() const { return mQRotation; };
+
+	const Vector3& GetEularDegRotation() const 
+	{ 
+		return mEularRotation;
+	};
+
+	Vector3 GetEularRadRotation() const
+	{
+		return mQRotation.ToEuler();
+	};
 
 	void SetPosition(Vector3 Position) { mPosition = Position; };
 	void SetScale(Vector3 Scale) { mScale = Scale; };
-	void SetRotation(Quaternion QRotation) { mQRotation = QRotation; };
+	void SetRotation(Quaternion QRotation) 
+	{ 
+		mQRotation = QRotation;
+		mEularRotation = mQRotation.ToEuler().GetDegree();
+	};
+	
+	//Takes degrees
 	void SetRotation(Vector3 EularRotation)
 	{
-		mQRotation = Quaternion::CreateFromYawPitchRoll(EularRotation.y, EularRotation.x, EularRotation.z);
+		mEularRotation = EularRotation;
+		mQRotation = Quaternion::CreateFromYawPitchRoll(mEularRotation.GetRadian());
 	};
 
 	Matrix GetMatrix() const
@@ -42,6 +58,7 @@ public:
 		result *= Matrix::CreateScale(mScale);
 		result *= Matrix::CreateFromQuaternion(mQRotation);
 		result *= Matrix::CreateTranslation(mPosition);
+
 		return result;
 	}
 
@@ -50,6 +67,7 @@ private:
 	Vector3 mPosition = {};
 	Vector3 mScale = { 1,1,1 };
 	Quaternion mQRotation = {};
+	Vector3 mEularRotation = {};
 };
 
 inline bool Transform::operator != (const Transform& V) const noexcept

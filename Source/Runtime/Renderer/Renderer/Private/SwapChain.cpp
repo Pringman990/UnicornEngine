@@ -2,8 +2,9 @@
 
 #include "LogicalDevice.h"
 #include "Renderer.h"
-#include "TextureManager.h"
+#include "GPUResources/GPUTextureManager.h"
 
+#include <Application/Windows/WindowsApplication.h>
 #include <d3d11_4.h>
 
 SwapChain::SwapChain()
@@ -37,7 +38,7 @@ OwnedPtr<SwapChain> SwapChain::Create(LogicalDevice& Device, WindowHandle Hwnd, 
 		return nullptr;
 	}
 
-		Renderer* renderer = SubsystemManager::Get<Renderer>();
+	Renderer* renderer = SubsystemManager::Get<Renderer>();
 	{
 
 		constexpr size_t mbConvert = (1024 * 1024);
@@ -89,6 +90,18 @@ OwnedPtr<SwapChain> SwapChain::Create(LogicalDevice& Device, WindowHandle Hwnd, 
 	return std::move(swapChain);
 }
 
+void SwapChain::Resize(const Vector2i& NewExtent)
+{
+	GPUTextureManager* texManager = SubsystemManager::Get<Renderer>()->GetGPUTextureManager();
+	texManager->FreeTexture(mBackBuffer);
+	texManager->FreeTexture(mBackBufferDSV);
+
+	mSwapChain->ResizeBuffers(0, NewExtent.x, NewExtent.y, DXGI_FORMAT_UNKNOWN, 0);
+	WindowsApplication* application = static_cast<WindowsApplication*>(SubsystemManager::Get<Application>()->GetApplication());
+	if (!CreateTextures(SubsystemManager::Get<Renderer>()))
+		return;
+}
+
 void SwapChain::UpdateCardInfo()
 {
 #ifdef _DEBUG
@@ -108,7 +121,7 @@ void SwapChain::UpdateCardInfo()
 bool SwapChain::CreateTextures(Renderer* Renderer)
 {
 	ID3D11Texture2D* backBufferTexture;
-	HRESULT result = mSwapChain->GetBuffer(0,  __uuidof(ID3D11Texture2D), (void**)&backBufferTexture);
+	HRESULT result = mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBufferTexture);
 	if (FAILED(result))
 	{
 		_com_error err(result);
@@ -122,10 +135,14 @@ bool SwapChain::CreateTextures(Renderer* Renderer)
 	backBufferTexture->GetDesc(&textureDesc);
 	backBufferTexture->Release();
 
-	mBackBuffer = Renderer->GetTextureManager()->CreateTextureRenderTarget(backBufferTexture);
-	mBackBufferDSV = Renderer->GetTextureManager()->CreateTexture2D(Vector2i(textureDesc.Width, textureDesc.Height), RenderFormat::D32_FLOAT, TextureBindFlags::DepthStencil);
+	mBackBuffer = Renderer->GetGPUTextureManager()->CreateTextureRenderTarget(backBufferTexture);
+	mBackBufferDSV = Renderer->GetGPUTextureManager()->CreateTexture2D(Vector2i(textureDesc.Width, textureDesc.Height), RenderFormat::D32_FLOAT, TextureBindFlags::DepthStencil);
 	ENSURE(mBackBuffer, "Failed to create backbuffer");
 	ENSURE(mBackBufferDSV, "Failed to create backbuffer depth stencil view");
+
+	WindowsApplication* application = static_cast<WindowsApplication*>(SubsystemManager::Get<Application>()->GetApplication());
+	application->GetWindowsWindowInfo().viewportWidth = textureDesc.Width;
+	application->GetWindowsWindowInfo().viewportHeight = textureDesc.Height;
 
 	return true;
 }

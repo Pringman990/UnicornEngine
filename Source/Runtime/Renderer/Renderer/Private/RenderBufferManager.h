@@ -2,7 +2,7 @@
 #include <EngineMinimal.h>
 #include "RendererMinimal.h"
 
-#include "GPUBuffer.h"
+#include "GPUResources/GPUBuffer.h"
 #include "Vertex.h"
 
 
@@ -24,8 +24,8 @@ public:
 	DirectResourceHandle<GPUConstantBuffer> CreateConstantBuffer(uint32 Size, void* InitialData, BufferUsage Usage = BufferUsage::Default);
 
 	void UpdateConstantBuffer(DirectResourceHandle<GPUConstantBuffer> Buffer, void* Data);
-	void BindConstantBuffer(DirectResourceHandle<GPUConstantBuffer> Buffer, uint32 Slot, ShaderStage Stages);
-	void BindConstantBuffers(Vector<DirectResourceHandle<GPUConstantBuffer>> Buffers, uint32 StartSlot, ShaderStage Stages);
+	void BindConstantBuffer(DirectResourceHandle<GPUConstantBuffer> Buffer, uint32 Slot, ShaderStageBind Stages);
+	void BindConstantBuffers(Vector<DirectResourceHandle<GPUConstantBuffer>> Buffers, uint32 StartSlot, ShaderStageBind Stages);
 
 private:
 	Renderer* mRenderer;

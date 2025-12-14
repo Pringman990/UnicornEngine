@@ -80,14 +80,10 @@ struct DirectResourceHandle
 	operator bool() const
 	{
 		return index != UINT32_MAX && ptr != nullptr && generation != 0;
-
 	}
 
 	bool operator==(const DirectResourceHandle<T>& other) const = default;
 };
-
-template<typename T>
-using AssetHandle = ResourceHandle<T>;
 
 template<typename T>
 using GPUResourceHandle = ResourceHandle<T>;

@@ -29,32 +29,3 @@ ENGINE_API ByteBuffer YamlHelper::WriteToMemory(const YAML::Node& Node)
     std::string yamlText = ss.str();
     return ByteBuffer(yamlText.begin(), yamlText.end());
 }
-
-ENGINE_API void YamlHelper::WriteUniqueID128(YAML::Node& Node, const String& Key, const UniqueID128& UUID)
-{
-    WriteString(Node, Key, UUID.ToString());
-}
-
-ENGINE_API void YamlHelper::WriteString(YAML::Node& Node, const String& Key, const String& Str)
-{
-    std::stringstream ss(Key);
-    std::string key;
-    std::vector<std::string> parts;
-
-    while (std::getline(ss, key, '/'))
-        parts.push_back(key);
-
-
-}
-
-ENGINE_API YAML::Node YamlHelper::GetOrCreateChildHierarcy(YAML::Node& Node, const String& Key)
-{
-    std::stringstream ss(Key);
-    std::string segment;
-    YAML::Node current = Node;
-
-    while (std::getline(ss, segment, '/'))
-        current = current[segment];
-
-    return current;
-}

@@ -2,31 +2,11 @@
 
 #include "YAML/YamlHelper.h"
 #include "FileSystem/FileSystem.h"
+#include "Archive/YamlArchive.h"
+
+#include <filesystem>
 
 REGISTER_ENGINE_SUBSYSTEM(AssetRegistry)
-
-namespace
-{
-	struct DefferedInfo
-	{
-		OwnedPtr<IAssetManager> instance;
-		Vector<std::type_index> assetTypes;
-		Vector<String> extensions;
-	};
-
-	ENGINE_API UnorderedMap<std::type_index, DefferedInfo>& GetDefferedAssetManagerRegistrations()
-	{
-		static UnorderedMap<std::type_index, DefferedInfo> managers;
-		return managers;
-	}
-}
-
-ENGINE_API void AssetRegistry::DefferRegistration(std::type_index Type, OwnedPtr<IAssetManager> Instance, const Vector<std::type_index>& AssetTypes, const Vector<String>& Extensions)
-{
-	ASSERT(GetDefferedAssetManagerRegistrations().contains(Type) == false, "Asset manager has already been registered");
-
-	GetDefferedAssetManagerRegistrations().insert({ Type, DefferedInfo{std::move(Instance), AssetTypes, Extensions} });
-}
 
 AssetRegistry::AssetRegistry()
 {
@@ -36,86 +16,80 @@ AssetRegistry::~AssetRegistry()
 {
 }
 
+void AssetRegistry::FindAndRegisterAllAssets()
+{
+	Path root = GET_FILESYSTEM()->GetAbsolutPath("engine://");
+	for (auto& entry : std::filesystem::recursive_directory_iterator(root))
+	{
+		if (!entry.is_directory() && entry.path().extension() == ".asset")
+		{
+			auto relative = std::filesystem::relative(entry.path(), root);
+			Path virtualPath = "engine://" + relative.generic_string();
+
+			ByteBuffer buffer = GET_FILESYSTEM()->ReadAll(virtualPath);
+			YamlArchive arc(buffer);
+
+			String type;
+			arc.ReadString(type, "type");
+			Load(virtualPath, type);
+		}
+	}
+}
+
 ENGINE_API void AssetRegistry::CreateAssetFile(
 	const String& VirtualPath, 
 	const String& Type, 
+	const String& Name, 
 	const UniqueID128& UUID,
 	const YAML::Node CustomData,
 	const String& SourcePath
 )
 {
 	_PAUSE_TRACK_MEMORY(true);
-	YAML::Node root;
 
-	root["uuid"] = UUID.ToString();
-	root["type"] = Type;
+	YamlArchive arc;
+
+	arc.WriteString(UUID.ToString(), "uuid");
+	arc.WriteString(Type, "type");
+	arc.WriteString(Name, "name");
 	
 	if (SourcePath != "")
 	{
-		root["source_path"] = SourcePath;
-	}
-	
-	if (!CustomData.IsNull())
-	{
-		root["custom_data"] = CustomData;
+		arc.WriteString(SourcePath, "source_path");
 	}
 
-	ByteBuffer buffer = YamlHelper::WriteToMemory(root);
-
-	GET_FILESYSTEM()->WriteAll(VirtualPath, buffer);
+	arc.WriteToFile(VirtualPath);
 	_PAUSE_TRACK_MEMORY(false);
 }
 
 ENGINE_API AssetFileReadData AssetRegistry::ReadAssetFile(const String& VirtualPath)
 {
-	ByteBuffer buffer = GET_FILESYSTEM()->ReadAll(VirtualPath);
-	YAML::Node root = YamlHelper::LoadFromMemory(buffer);
-
-	AssetFileReadData readData;
-	readData.UUID = UniqueID128(root["uuid"].as<String>());
-	readData.Type = root["type"].as<String>();
-	readData.SourcePath = root["source_path"].as<String>();
-	readData.CustomData = root["custom_data"];
-
-	root.reset();
-	return readData;
-}
-
-ENGINE_API void AssetRegistry::RegisterAllDefferedManagers()
-{
-	for (auto& [managerType, defferedInfo] : GetDefferedAssetManagerRegistrations())
+	if (!GET_FILESYSTEM()->Exists(VirtualPath))
 	{
-		auto& manager = defferedInfo.instance;
-		mManagers.insert({ managerType, std::move(manager) });
-		
-		auto& ext = defferedInfo.extensions;
-		for (auto& extension : ext)
-		{
-#ifdef _DEBUG
-			auto it = mExtensionToManager.find(extension);
-			if (it != mExtensionToManager.end())
-			{
-				THROW("Extension already has registered manager: {}", extension);
-			}
-#endif // _DEBUG
-
-			mExtensionToManager[extension] = mManagers[managerType].get();
-		}
-
-		auto& assetType = defferedInfo.assetTypes;
-		for (auto& type : assetType)
-		{
-#ifdef _DEBUG
-			auto it = mAssetTypeToManager.find(type);
-			if (it != mAssetTypeToManager.end())
-			{
-				THROW("Asset type already has registered manager: {}", type.name());
-			}
-#endif // _DEBUG
-
-			mAssetTypeToManager[type] = mManagers[managerType].get();
-		}
+		LOG_WARNING("Trying to read a asset that doesn't exist, {}", VirtualPath);
+		return {};
 	}
 
-	GetDefferedAssetManagerRegistrations().clear();
+	ByteBuffer buffer = GET_FILESYSTEM()->ReadAll(VirtualPath);
+
+	YamlArchive arc(buffer);
+
+	AssetFileReadData readData;
+
+	String uuidStr;
+	arc.ReadString(uuidStr, "uuid");
+	readData.UUID = UniqueID128(uuidStr);
+
+	arc.ReadString(readData.Type, "type");
+	arc.ReadString(readData.Name, "name");
+
+	if(arc.HasKey("source_path"))
+		arc.ReadString(readData.SourcePath, "source_path");
+
+	if (arc.HasKey("custom_data"))
+	{
+		readData.CustomData = std::move(arc.CreateSubArchive("custom_data"));
+	}
+
+	return readData;
 }

@@ -45,7 +45,8 @@ project "Renderer"
 		"**.h",
 		"**.hpp",
 		"**.cpp",
-		"**.c"
+		"**.c",
+		"**.inl",
 	}
 
 	defines{

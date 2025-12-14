@@ -59,7 +59,7 @@ void MeshDecoder::ProcessAssimpNode(MeshDecodeData& DecodeData, aiNode* AiNode, 
 		for (uint32 i = 0; i < AiNode->mNumMeshes; i++)
 		{
 			aiMesh* aiMesh = AiScene->mMeshes[AiNode->mMeshes[i]];
-			mesh.submeshes[i] = DecodeAiMesh(aiMesh, indexOffset, vertexOffset, indices, vertices);
+			mesh.submeshes[i] = DecodeAiMesh(AiScene, aiMesh, indexOffset, vertexOffset, indices, vertices);
 		}
 
 		mesh.indices = indices;
@@ -75,7 +75,7 @@ void MeshDecoder::ProcessAssimpNode(MeshDecodeData& DecodeData, aiNode* AiNode, 
 	}
 }
 
-MeshDecodeData::Mesh::SubMesh MeshDecoder::DecodeAiMesh(aiMesh* AiMesh, uint32& IndexOffset, uint32& VertexOffset, Vector<uint32>& Indices, Vector<Vertex>& Vertices)
+MeshDecodeData::Mesh::SubMesh MeshDecoder::DecodeAiMesh(const aiScene* AiScene, aiMesh* AiMesh, uint32& IndexOffset, uint32& VertexOffset, Vector<uint32>& Indices, Vector<Vertex>& Vertices)
 {
 	for (uint32 i = 0; i < AiMesh->mNumVertices; i++)
 	{
@@ -121,17 +121,17 @@ MeshDecodeData::Mesh::SubMesh MeshDecoder::DecodeAiMesh(aiMesh* AiMesh, uint32& 
 			Indices[globalOffset + 2] = face.mIndices[2] + VertexOffset;
 		});
 
-	//std::shared_ptr<Material> material;
-	//if (AiMesh->mMaterialIndex >= 0)
-	//{
-	//	//aiMaterial* assimpMaterial = aScene->mMaterials[AiMesh->mMaterialIndex];
-	//	//material = Material::CreateDefaultPolygon();
-	//}
+	String materialName = "";
+	if (AiMesh->mMaterialIndex >= 0)
+	{
+		aiMaterial* assimpMaterial = AiScene->mMaterials[AiMesh->mMaterialIndex];
+		materialName = assimpMaterial->GetName().C_Str();
+	}
 
 	MeshDecodeData::Mesh::SubMesh subMesh;
 	subMesh.startIndex = IndexOffset;
 	subMesh.indexCount = static_cast<uint32>(Indices.size() - IndexOffset);
-	//subMesh.material = material;
+	subMesh.materialName = materialName;
 
 	IndexOffset = static_cast<uint32>(Indices.size());
 	VertexOffset += AiMesh->mNumVertices;

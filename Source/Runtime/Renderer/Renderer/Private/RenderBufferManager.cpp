@@ -145,7 +145,7 @@ void RenderBufferManager::UpdateConstantBuffer(DirectResourceHandle<GPUConstantB
 	memcpy_s(Buffer.ptr->cpuData.data(), Buffer.ptr->size, Data, Buffer.ptr->size);
 }
 
-void RenderBufferManager::BindConstantBuffer(DirectResourceHandle<GPUConstantBuffer> Buffer, uint32 Slot, ShaderStage Stages)
+void RenderBufferManager::BindConstantBuffer(DirectResourceHandle<GPUConstantBuffer> Buffer, uint32 Slot, ShaderStageBind Stages)
 {
 	if (!Buffer || Buffer.ptr == nullptr || Buffer.ptr->buffer == nullptr)
 	{
@@ -153,24 +153,24 @@ void RenderBufferManager::BindConstantBuffer(DirectResourceHandle<GPUConstantBuf
 		return;
 	}
 
-	if (HasFlag(Stages, ShaderStage::Undefined))
+	if (HasFlag(Stages, ShaderStageBind::Undefined))
 	{
 		LOG_ERROR("Can't bind constant buffer to non implemented shader stage");
 	}
 
 	ID3D11DeviceContext* context = mRenderer->GetLogicalDevice().GetImmediateContext();
 
-	if (HasFlag(Stages, ShaderStage::VS))
+	if (HasFlag(Stages, ShaderStageBind::VS))
 	{
 		context->VSSetConstantBuffers(Slot, 1, Buffer.ptr->buffer.GetAddressOf());
 	}
-	if (HasFlag(Stages, ShaderStage::FS))
+	if (HasFlag(Stages, ShaderStageBind::FS))
 	{
 		context->PSSetConstantBuffers(Slot, 1, Buffer.ptr->buffer.GetAddressOf());
 	}
 }
 
-void RenderBufferManager::BindConstantBuffers(Vector<DirectResourceHandle<GPUConstantBuffer>> Buffers, uint32 StartSlot, ShaderStage Stages)
+void RenderBufferManager::BindConstantBuffers(Vector<DirectResourceHandle<GPUConstantBuffer>> Buffers, uint32 StartSlot, ShaderStageBind Stages)
 {
 	if (Buffers.size() == 0)
 	{
@@ -191,11 +191,11 @@ void RenderBufferManager::BindConstantBuffers(Vector<DirectResourceHandle<GPUCon
 		dxBuffers.push_back(Buffers[i].ptr->buffer.Get());
 	}
 
-	if (HasFlag(Stages, ShaderStage::VS))
+	if (HasFlag(Stages, ShaderStageBind::VS))
 	{
 		context->VSSetConstantBuffers(StartSlot, static_cast<uint32>(dxBuffers.size()), dxBuffers.data());
 	}
-	if (HasFlag(Stages, ShaderStage::FS))
+	if (HasFlag(Stages, ShaderStageBind::FS))
 	{
 		context->PSSetConstantBuffers(StartSlot, static_cast<uint32>(dxBuffers.size()), dxBuffers.data());
 	}

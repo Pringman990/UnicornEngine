@@ -4,10 +4,10 @@
 
 #include "Shader.h"
 
-struct VSReflectData
-{
-	Vector<struct D3D11_INPUT_ELEMENT_DESC> inputDescs;
-};
+#define HLSL_VS_ENTRYPOINT "VSMain"
+#define HLSL_FS_ENTRYPOINT "FSMain"
+#define HLSL_VS_SUPPORTED_VERSION "vs_5_0"
+#define HLSL_FS_SUPPORTED_VERSION "ps_5_0"
 
 class Renderer;
 
@@ -17,19 +17,20 @@ public:
 	ShaderManager(Renderer* InRenderer);
 	~ShaderManager();
 
-	GPUResourceHandle<Shader> CreateShader(const String& VertexPath, const String& FragmentPath);
+	GPUResourceHandle<ShaderProgram> TryGetShaderProgram(const Path& SourcePath);
 
-	bool CompileShader(const String& VirtualPath, const String& ShaderModel, ComPtr<ID3DBlob>& Blob);
+	bool CompileShader(const Path& VirtualPath, const String& EntryPoint, const String& ShaderModel, ComPtr<ID3DBlob>& Blob);
 
-	inline Shader* GetInternalShader(GPUResourceHandle<Shader> Handle)
+	inline ShaderProgram* GetInternalShaderProgram(GPUResourceHandle<ShaderProgram> Handle)
 	{
-		return mShaderPool.Get(Handle);
+		return mShaderProgramPool.Get(Handle);
 	}
 
 private:
-	VSReflectData ReflectVSShader(ID3DBlob* Blob);
+	ShaderReflectionInfo ReflectShader(ComPtr<ID3DBlob>& BytecodeBlob);
 
 private:
 	Renderer* mRenderer;
-	ResourcePool<Shader> mShaderPool;
+	ResourcePool<ShaderProgram> mShaderProgramPool;
+	UnorderedMap<Path, GPUResourceHandle<ShaderProgram>> mPathToShaderProgram;
 };

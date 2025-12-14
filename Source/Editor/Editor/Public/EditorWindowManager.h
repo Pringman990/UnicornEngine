@@ -21,6 +21,8 @@ public:
 
 	void RenderActiveWindows();
 
+	void ClearAllWindows();
+
 	EditorWindowManager();
 	~EditorWindowManager();
 private:

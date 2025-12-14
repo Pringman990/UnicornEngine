@@ -12,3 +12,6 @@
 
 #define TRUNCATE_IMPL(a, b) a##b
 #define TRUNCATE(a, b) TRUNCATE_IMPL(a, b)
+
+#define STRINGIFYEXP(s) STRINGIFY(s)
+#define STRINGIFY(s) #s

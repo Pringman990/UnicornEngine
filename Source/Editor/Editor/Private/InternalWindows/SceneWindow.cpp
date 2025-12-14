@@ -2,6 +2,8 @@
 #include "SceneWindow.h"
 
 #include <Timer/Timer.h>
+#include <SwapChain.h>
+#include <GPUResources/GPUTextureManager.h>
 //#include <Camera.h>
 
 SceneWindow::SceneWindow(Editor* EditorPtr)
@@ -25,43 +27,42 @@ SceneWindow::~SceneWindow()
 
 bool SceneWindow::Init()
 {
-	//RenderTargetResourceManager* manager = AssetRegistry::Get()->GetManager<RenderTargetResourceManager>();
-	//mSceneView = manager->CreateRenderTarget(Vector2(128,128));
+	mRenderer = SubsystemManager::Get<Renderer>();
+	ASSERT(mRenderer, "Renderer was null in the editor scene window Init()");
 
-	/*Renderer::Get()->GetGPUResourceManager().UploadTask([&](CommandBuffer* cmd)
-		{
-			sampler = Sampler::Create();
-			GPUTexture* offscreenTexture = Renderer::Get()->GetGPUResourceManager().GetResource(Renderer::Get()->GetOffscreenTexture());
-			GPUBarrier::TransitionToShaderRead(*Renderer::Get()->GetCurrentFrameSyncCommandBuffer(), offscreenTexture);
-			imguiTex = (ImTextureID)ImGui_ImplVulkan_AddTexture(*sampler, offscreenTexture->imageView, offscreenTexture->currentImageLayout);
-			mIsTextureValid = true;
-		});*/
+	mFLCamera.SetPerspective(60.f, (16.f/9.f), 0.01f, 1000.f);
+	mFLCamera.GetTransform().SetPosition(Vector3(0,0,-3));
+	mRenderer->SetActiveCamera(&mFLCamera);
 
 	return true;
 }
 
 void SceneWindow::Render()
 {
-	//mEditorCamera.Update(Timer::Get()->GetDeltaTime());
-	////	mSceneView->Clear();
+	GPUTexture* gpuTex = mRenderer->GetGPUTextureManager()->GetInternalTexture(mRenderer->GetMainRenderTarget().texture);
+	if (!gpuTex)
+	{
+		LOG_ERROR("Backbuffer not valid in the scene window");
+		return;
+	}
 
-	//static ImVec2 lastWindowSize = ImVec2();
-	//ImVec2 currentWindowSize = ImGui::GetWindowSize();
+	if(ImGui::IsWindowHovered())
+		mFLCamera.HandleInputsAndMove();
 
-	//if (currentWindowSize.x != lastWindowSize.x || currentWindowSize.y != lastWindowSize.y)
-	//{
-	//	//TODO: Update camera projection matrix to match the new size.
-	//	//Also rember to always update the camera when changing to another rendertarget so the aspect ratio matches
-	////	mSceneView->Resize(Vector2(currentWindowSize.x, currentWindowSize.y));
-	////	mEditorCamera.GetCamera()->SetPerspective(90, (currentWindowSize.x / currentWindowSize.y), 0.001f, 1000.f);
-	////	lastWindowSize = currentWindowSize;
-	//}
+	static ImVec2 lastWindowSize = ImVec2();
+	ImVec2 currentWindowSize = ImGui::GetWindowSize();
 
-	////	mSceneView->Bind();
+	if (currentWindowSize.x != lastWindowSize.x || currentWindowSize.y != lastWindowSize.y)
+	{
+		//TODO: Update camera projection matrix to match the new size.
+		//Also rember to always update the camera when changing to another rendertarget so the aspect ratio matches
+		mRenderer->ResizeMainRenderTarget(Vector2i(currentWindowSize.x, currentWindowSize.y));
+		mFLCamera.HandleResizeEvent(static_cast<int32>(currentWindowSize.x), static_cast<int32>(currentWindowSize.y));
+		lastWindowSize = currentWindowSize;
+	}
 
-	//	//ImGui::SetCursorPos(ImVec2(0, 0));
-	//if (mIsTextureValid)
-	//{
-	//	ImGui::Image(imguiTex, currentWindowSize);
-	//}
+	
+	GenericApplication* app = SubsystemManager::Get<Application>()->GetApplication();	
+	ImGui::SetCursorPos(ImVec2(0, 0));
+	ImGui::Image(gpuTex->srv.Get(), currentWindowSize);
 }

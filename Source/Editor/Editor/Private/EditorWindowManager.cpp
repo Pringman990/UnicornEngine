@@ -61,3 +61,13 @@ void EditorWindowManager::RenderActiveWindows()
 	}
 }
 
+void EditorWindowManager::ClearAllWindows()
+{
+	mRegisteredWindows.clear();
+	for (uint32 i = 0; i < mActiveWindows.size(); i++)
+	{
+		delete mActiveWindows[i];
+	}
+	mActiveWindows.clear();
+}
+

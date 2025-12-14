@@ -15,7 +15,8 @@ project "Editor"
 		"**.h",
 		"**.hpp",
 		"**.cpp",
-		"**.c"
+		"**.c",
+		"**.inl",
 	}
 
 	vpaths { ["Public/*"] = {"Public/**.h", "Public/**.hpp", "Public/**.c", "Public/**.cpp"} }
@@ -29,6 +30,7 @@ project "Editor"
 	{
 		dirs.Editor,
 		"ImguiCore",
+		"GameCore",
 		"Renderer",
 		"Engine",
 		"ECS",
@@ -37,6 +39,7 @@ project "Editor"
 	linkDependencies("Editor", 
 	{
 		"ImguiCore",
+		"GameCore",
 		"Renderer",
 		"Engine",
 		"ECS",

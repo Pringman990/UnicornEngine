@@ -14,6 +14,8 @@ namespace winInternal
 }
 
 WindowsApplication::WindowsApplication()
+	:
+	mResizingWindow(false)
 {
 	winInternal::windowsApplication = this;
 }
@@ -80,7 +82,31 @@ LRESULT WindowsApplication::ProccessWindowsMessages(HWND hWnd, UINT message, WPA
 	}
 	case WM_SIZE:
 	{
-		OnWindowResizeEvent.Notify(LOWORD(lParam), HIWORD(wParam));
+		uint32 width = LOWORD(lParam);
+		uint32 height = HIWORD(lParam);
+
+		if (wParam == SIZE_MINIMIZED)
+			return 0;
+
+		mPendingWidth = width;
+		mPendingHeight = height;
+
+		if (!mResizingWindow && ((uint32)mPendingWidth != mWindowInfo.viewportWidth || (uint32)mPendingHeight != mWindowInfo.viewportHeight))
+			OnWindowResizeEvent.Notify(width, height);
+		break;
+	}
+	case WM_ENTERSIZEMOVE:
+	{
+		mResizingWindow = true;
+		break;
+	}
+	case WM_EXITSIZEMOVE:
+	{
+		mResizingWindow = false;
+		if ((mPendingWidth > 0 && mPendingHeight > 0) && ((uint32)mPendingWidth != mWindowInfo.viewportWidth || (uint32)mPendingHeight != mWindowInfo.viewportHeight))
+		{
+			OnWindowResizeEvent.Notify(mPendingWidth, mPendingHeight);
+		}
 		break;
 	}
 	//case WM_NCHITTEST:

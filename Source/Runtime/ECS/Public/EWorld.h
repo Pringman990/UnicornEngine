@@ -3,6 +3,46 @@
 #include "ECommon.h"
 #include "EComponentRegistry.h"
 #include "EComponentAllocator.h"
+#include "Reflection/ReflectionRegistry.h"
+
+template<typename T, typename... List>
+struct IndexHelper;
+
+template<typename T, typename First, typename... Rest>
+struct IndexHelper<T, First, Rest...>
+{
+	static constexpr uint32 value = std::is_same<T, First>::value ? 0 : 1 + IndexHelper<T, Rest...>::value;
+};
+
+template<typename T>
+struct IndexHelper<T>
+{
+	static constexpr uint32 value = 0xFFFFFFFF; // or assert fail if desired
+};
+
+template<typename... Components>
+class EQueryResult
+{
+	friend class EWorld;
+public:
+	uint32 GetCount() const { return mCount; }
+
+	template<typename T>
+	T& Get(uint32 Index)
+	{
+		return *reinterpret_cast<T*>(mComponentArrays[IndexOf<T>()][Index]);
+	}
+
+private:
+	template<typename T>
+	static constexpr uint32 IndexOf()
+	{
+		return IndexHelper<T, Components...>::value;
+	}
+private:
+	uint32 mCount = 0;
+	Array<Vector<void*>, sizeof...(Components)> mComponentArrays;
+};
 
 class EWorld final
 {
@@ -12,153 +52,143 @@ public:
 	~EWorld();
 
 	EEntity CreateEntity();
+	EEntity CreateEntity(const UniqueID128& UUID);
 
-	template<typename T>
-	T* AddComponent(EEntity Entity, T&& Component);
+	//template<typename T>
+	//T* AddComponent(EEntity Entity, T&& Component);
 
-	template<typename T>
+	template<refl::IsComponent T>
 	T* AddComponent(EEntity Entity);
 
-	template<typename T>
+	void* AddComponent(EEntity Entity, const UniqueID128& UUID);
+
+	template<refl::IsComponent T>
 	void RemoveComponent(EEntity Entity);
+
+	void RemoveComponent(EEntity Entity, const UniqueID128& UUID);
+
+	template<refl::IsComponent T>
+	T* GetComponent(EEntity Entity)
+	{
+		ComponentStore* store = GetStore<T>();
+		if (!store)
+		{
+			LOG_WARNING("Trying to get component of type '{}' but that component has no store", typeid(T).name());
+			return nullptr;
+		}
+
+		if (!store->indicies.contains(Entity))
+		{
+			//LOG_WARNING("Trying to get component on entity '{}' but it does not have one", Entity.ToString());
+			return nullptr;
+		}
+
+		return reinterpret_cast<T*>(store->allocator.Get(store->indicies[Entity]));
+	}
+
+	template<refl::IsComponent... Components>
+	EQueryResult<Components...> Query()
+	{
+		EQueryResult<Components...> result;
+
+		auto stores = Array<ComponentStore*, sizeof...(Components)>{
+			GetStore<Components>()...
+		};
+
+		for (ComponentStore* s : stores)
+		{
+			if (!s)
+			{
+				//LOG_WARNING("Trying to query components but a component store did not exist");
+				return result;
+			}
+		}
+
+		ComponentStore* smallest = stores[0];
+		for (ComponentStore* s : stores)
+		{
+			if (s->allocator.GetCount() < smallest->allocator.GetCount())
+				smallest = s;
+		}	
+
+		for (uint32 i = 0; i < smallest->allocator.GetCount(); i++)
+		{
+			EEntity e = smallest->entities[i];
+
+			bool entityHasAllComponents = true;
+			for (ComponentStore* s : stores)
+			{
+				if (!s->HasEntity(e))
+				{
+					entityHasAllComponents = false;
+					break;
+				} 
+			}
+
+			if (entityHasAllComponents == false)
+			{
+				continue;
+			}
+			
+			(result.mComponentArrays[result.IndexOf<Components>()]
+				.push_back(stores[result.IndexOf<Components>()]->Get<Components>(stores[result.IndexOf<Components>()]->indicies[e])), ...);
+
+			result.mCount++;
+		}
+
+		return result;
+	}
 
 	const Vector<EEntity>& GetAllEntities() const { return mEntities; }
 
+	UnorderedMap<UniqueID128, ComponentStore>& ComponentAllStores() { return mComponentStores; };
+
 private:
-	void ChangeArchetype(EEntity Entity, Archetype* From, Archetype* To);
+	template<refl::IsComponent T>
+	ComponentStore* GetStore()
+	{
+		const refl::Type* type = refl::ReflectionRegistry::GetInstance().GetOrNull<T>();
+		if (!type)
+		{
+			LOG_WARNING("Can't get ComponentStore of null type, {}", typeid(T).name());
+			return nullptr;
+		}
+
+		auto it = mComponentStores.find(type->uuid);
+		if (it == mComponentStores.end())
+		{
+			return nullptr;
+		}
+		return &it->second;
+	}
+
 private:
-	UnorderedMap<EEntity, EntityLocation> mEntityToLocation;
-	UnorderedMap<ESignature, Archetype*> mSigToArchetype;
-	Vector<Archetype> mArchetypes;
+	UnorderedMap<UniqueID128, ComponentStore> mComponentStores;
 	Vector<EEntity> mEntities;
-	//Temp
-	uint32 mNextEntityID = 0;
 };
 
-template<typename T>
-inline T* EWorld::AddComponent(EEntity Entity, T&& Component)
-{
-	//Archetype* oldArchetype = mEntityToLocation[Entity].archetype;
-	////Get entity component signature
-	//ESignature newSignature = EComponentRegistry::Get()->CalulateSignature<T>(oldArchetype->signature);
-	//
-	//Archetype* newArchetype = nullptr;
-
-	//ReflectionRegistry* reflectionRegistry = ReflectionRegistry::Get();
-
-	////Check if archetype with new signature exist	
-	//auto it = mSigToArchetype.find(newSignature);
-	//if (it != mSigToArchetype.end())
-	//{
-	//	//if exist move entity and component to it
-	//	newArchetype = it->second;
-	//	ChangeArchetype(Entity, oldArchetype, newArchetype);
-	//}
-	//else
-	//{
-	//	//else create new archetype and move entity and its components
-	//	Archetype archetype(newSignature);
-
-	//	Vector<uint32> componentIds = EComponentRegistry::Get()->GetIdsFromSignature(newSignature);
-	//	for (uint32 i = 0; i < componentIds.size(); i++)
-	//	{
-	//		uint32 id = componentIds[i];
-
-	//		const ReflectionRegistry::TypeInfo& typeInfo = reflectionRegistry->GetInfo(EComponentRegistry::Get()->GetType(id));
-	//		EComponentAllocator allocator(typeInfo, 16, 16);
-	//		archetype.components[id] = std::move(allocator);
-	//	}
-
-
-	//	mArchetypes.push_back(std::move(archetype));
-	//	newArchetype = mArchetypes.back();
-	//	ChangeArchetype(Entity, oldArchetype, newArchetype);
-	//}
-
-	//void* allocatedSpace = newArchetype->components[EComponentRegistry::Get()->GetID<T>()].Allocate();
-	//const ReflectionRegistry::TypeInfo& typeInfo = reflectionRegistry->GetInfo<T>();
-	//typeInfo.moveFunc(allocatedSpace, &Component);
-
-	//return reinterpret_cast<T*>(allocatedSpace);
-	return nullptr;
-}
-
-template<typename T>
+template<refl::IsComponent T>
 inline T* EWorld::AddComponent(EEntity Entity)
 {
-	//Archetype* oldArchetype = mEntityToLocation[Entity].archetype;
-	////Get entity component signature
-	//ESignature newSignature = EComponentRegistry::Get()->CalulateSignature<T>(oldArchetype->signature);
+	const refl::Type* type = refl::ReflectionRegistry::GetInstance().GetOrNull<T>();
+	if (!type)
+	{
+		LOG_WARNING("Can't get ComponentStore of null type, {}", typeid(T).name());
+		return nullptr;
+	}
 
-	//Archetype* newArchetype = nullptr;
-
-	//ReflectionRegistry* reflectionRegistry = ReflectionRegistry::Get();
-
-	////Check if archetype with new signature exist	
-	//auto it = mSigToArchetype.find(newSignature);
-	//if (it != mSigToArchetype.end())
-	//{
-	//	//if exist move entity and component to it
-	//	newArchetype = it->second;
-	//	ChangeArchetype(Entity, oldArchetype, newArchetype);
-	//}
-	//else
-	//{
-	//	//else create new archetype and move entity and its components
-	//	Archetype archetype(newSignature);
-
-	//	Vector<uint32> componentIds = EComponentRegistry::Get()->GetIdsFromSignature(newSignature);
-	//	for (uint32 i = 0; i < componentIds.size(); i++)
-	//	{
-	//		uint32 id = componentIds[i];
-
-	//		const ReflectionRegistry::TypeInfo& typeInfo = reflectionRegistry->GetInfo(EComponentRegistry::Get()->GetType(id));
-	//		EComponentAllocator allocator(typeInfo, 16, 16);
-	//		archetype.components[id] = std::move(allocator);
-	//	}
-
-
-	//	mArchetypes.push_back(std::move(archetype));
-	//	newArchetype = mArchetypes.back();
-	//	ChangeArchetype(Entity, oldArchetype, newArchetype);
-	//}
-
-	//void* allocatedSpace = newArchetype->components[EComponentRegistry::Get()->GetID<T>()].Allocate();
-	//const ReflectionRegistry::TypeInfo& typeInfo = reflectionRegistry->GetInfo<T>();
-	//typeInfo.constructFunc(allocatedSpace);
-
-	//return reinterpret_cast<T*>(allocatedSpace);
-	return nullptr;
+	return static_cast<T*>(AddComponent(Entity, type->uuid));
 }
 
-template<typename T>
+template<refl::IsComponent T>
 inline void EWorld::RemoveComponent(EEntity Entity)
 {
-	/*auto it = mEntityToLocation.find(Entity);
-	if (it == mEntityToLocation.end())
+	const refl::Type* type = refl::ReflectionRegistry::GetInstance().GetOrNull<T>();
+	if (!type)
 	{
-		LOG_WARNING("Trying to remove non existing component from entity, Component: {}, Entity: {}", typeid(T).name(), Entity);
+		LOG_WARNING("Can't get ComponentStore of null type, {}", typeid(T).name());
 		return;
 	}
 
-	auto& entityLocation = it->second;
-	
-	ESignature newSignature = EComponentRegistry::Get()->RemoveAndGetNew<T>(entityLocation.archetype->signature);
-
-	Archetype* newArchetype = nullptr;
-	auto sigit = mSigToArchetype.find(newSignature);
-	if (sigit == mSigToArchetype.end())
-	{
-		Archetype archetype(newSignature);
-		mArchetypes.push_back(std::move(archetype));
-		newArchetype = mArchetypes.back();
-	}
-	else
-	{
-		newArchetype = sigit->second;
-	}
-	
-	ReflectionRegistry::Get()->GetInfo<T>().destroyFunc(entityLocation.archetype->components[GetTypeId<T>()].Get(entityLocation.allocatorIndex));
-
-	ChangeArchetype(Entity, entityLocation.archetype, newArchetype);*/
+	RemoveComponent(Entity, type->uuid);
 }

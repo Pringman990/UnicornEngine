@@ -31,7 +31,8 @@ project "ECS"
 		"**.h",
 		"**.hpp",
 		"**.cpp",
-		"**.c"
+		"**.c",
+		"**.inl",
 	}
 
 	vpaths { ["Public/*"] = {"Public/**.h", "Public/**.hpp", "Public/**.c", "Public/**.cpp"} }

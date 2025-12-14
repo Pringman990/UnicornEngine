@@ -31,7 +31,8 @@ project "Core"
 		"**.h",
 		"**.hpp",
 		"**.cpp",
-		"**.c"
+		"**.c",
+		"**.inl",
 	}
 
 	filter{}

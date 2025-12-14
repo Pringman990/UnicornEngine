@@ -38,7 +38,8 @@ project "Engine"
 		"**.h",
 		"**.hpp",
 		"**.cpp",
-		"**.c"
+		"**.c",
+		"**.inl",
 	}
 
 	defines{

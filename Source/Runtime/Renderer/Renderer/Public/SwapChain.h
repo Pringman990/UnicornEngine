@@ -19,6 +19,7 @@ public:
 
 	static OwnedPtr<SwapChain> Create(LogicalDevice& Device, WindowHandle Hwnd, DXGI_SWAP_CHAIN_DESC1 Desc);
 
+	void Resize(const Vector2i& NewExtent);
 	void UpdateCardInfo();
 
 	IDXGISwapChain1* GetRaw() { return mSwapChain.Get(); }

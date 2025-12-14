@@ -4,7 +4,7 @@
 
 #include "InputLayout.h"
 
-struct VSReflectData;
+struct ShaderReflectionInfo;
 class Renderer;
 
 class InputLayoutManager
@@ -13,11 +13,11 @@ public:
 	InputLayoutManager(Renderer* InRenderer);
 	~InputLayoutManager();
 
-	InputLayout* TryGetLayout(void* VsBlob, const VSReflectData& VsReflection);
+	InputLayout* TryGetLayout(void* VsBlob, const ShaderReflectionInfo& VsReflection);
 
 private:
 	size_t HashSignatureBlob(ID3DBlob* Signature);
 private:
 	Renderer* mRenderer;
-	UnorderedMap<size_t, InputLayout> mLayouts;
+	UnorderedMap<size_t, OwnedPtr<InputLayout>> mLayouts;
 };

@@ -7,12 +7,12 @@ REGISTER_ENGINE_SUBSYSTEM(Renderer)
 #include "SwapChain.h"
 #include "CommandList.h"
 
-#include "TextureManager.h"
 #include "ShaderManager.h"
 #include "InputLayoutManager.h"
 #include "RenderBufferManager.h"
-#include "MeshManager.h"
-#include "MaterialManager.h"
+#include "GPUResources/GPUTextureManager.h"
+#include "GPUResources/GPUMeshManager.h"
+#include "GPUResources/GPUMaterialManager.h"
 
 #include "BasicPrimitiveFactory.h"
 
@@ -20,9 +20,15 @@ REGISTER_ENGINE_SUBSYSTEM(Renderer)
 #include <Application/Windows/WindowsWindowInfo.h>
 #include <Application/Application.h>
 
+#include <Assets/AssetRegistry.h>
+#include "RenderAssets/MeshManager.h"
+#include "RenderAssets/MaterialManager.h"
+#include "RenderAssets/Texture2DManager.h"
+
 #include "ImageDecoder.h"
 
 GPUResourceHandle<GPUTexture> GTexture;
+GPUResourceHandle<GPUTexture> GNormalTexture;
 
 Renderer::Renderer()
 {
@@ -57,14 +63,15 @@ bool Renderer::Init()
 	if (!mDevice.Init())
 		return false;
 
-	mTextureManager = MakeOwned<TextureManager>(this);
+	mTextureManager = MakeOwned<GPUTextureManager>(this);
 	mShaderManager = MakeOwned<ShaderManager>(this);
 	mInputManager = MakeOwned<InputLayoutManager>(this);
 	mRenderBufferManager = MakeOwned<RenderBufferManager>(this);
-	mMeshManager = MakeOwned<MeshManager>(this);
-	mMaterialManager = MakeOwned<MaterialManager>(this);
-	
+	mMeshManager = MakeOwned<GPUMeshManager>(this);
+	mMaterialManager = MakeOwned<GPUMaterialManager>(this);
+
 	WindowsApplication* app = static_cast<WindowsApplication*>(SubsystemManager::Get<Application>()->GetApplication());
+	app->OnWindowResizeEvent.AddRaw(this, &Renderer::HandleResizeEvent);
 
 	DXGI_SWAP_CHAIN_DESC1 swapDesc = {};
 	swapDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -104,54 +111,78 @@ bool Renderer::Init()
 
 	mFrameSetupCommandList = mDevice.RequestCommandList(this);
 
+	mMainRenderTarget.texture = mTextureManager->CreateTexture2D(
+			{ (int32)app->GetWindowInfo().viewportWidth, (int32)app->GetWindowInfo().viewportHeight },
+			RenderFormat::R16G16B16A16_UNORM, 
+			TextureBindFlags::RenderTarget | TextureBindFlags::ShaderRead
+		);
+
+	mMainRenderTarget.dsv = mTextureManager->CreateTexture2D(
+			{ (int32)app->GetWindowInfo().viewportWidth, (int32)app->GetWindowInfo().viewportHeight },
+			RenderFormat::D32_FLOAT,
+			TextureBindFlags::DepthStencil
+	);
+
 	mFrameConstantsBuffer = mRenderBufferManager->CreateConstantBuffer(sizeof(FrameConstantsData), nullptr);
 	mCameraConstantsBuffer = mRenderBufferManager->CreateConstantBuffer(sizeof(CameraConstantsData), nullptr, BufferUsage::Dynamic);
 	mObjectConstantBuffer = mRenderBufferManager->CreateConstantBuffer(sizeof(ObjectConstantBufferData), nullptr, BufferUsage::Dynamic);
 
-	ByteBuffer imageData = GET_FILESYSTEM()->ReadAll("engine://Textures/TestImage.png");
-	auto imageDecodeData = ImageDecoder::LoadImage(imageData);
-	GTexture = mTextureManager->CreateTexture(imageDecodeData.buffer, Vector3i(imageDecodeData.width, imageDecodeData.height, 0), imageDecodeData.format, TextureBindFlags::ShaderRead);
-
+	//Render Asset Managers
+	REGISTER_ASSET_LOADER(MeshManager, (Mesh), ("fbx"));
+	REGISTER_ASSET_LOADER(MaterialManager, (Material), ());
+	REGISTER_ASSET_LOADER(Textrue2DManager, (Texture2D), ("png", "dds", "sjpeg"));
 
 	return true;
 }
 
-void Renderer::SubmitMesh(GPUResourceHandle<GPUMesh> Mesh, const Transform& ObjectTransfrom)
+void Renderer::SubmitMesh(AssetRef<Mesh> Mesh, const Transform& ObjectTransfrom)
 {
-	mFrameSetupCommandList->SetSamplers({mSampler.get()}, 0);
-
-	mFrameSetupCommandList->SetTopology(PrimitiveTopology::TriangleList);
-
-	ObjectConstantBufferData objBuffer;
-	objBuffer.modelToWorld = ObjectTransfrom.GetMatrix();
-	mFrameSetupCommandList->UpdateConstantBuffer(mObjectConstantBuffer, &objBuffer);
-	mFrameSetupCommandList->BindConstantBuffer(mObjectConstantBuffer, (uint32)ConstantBufferBindSlots::Object, ShaderStage::FS | ShaderStage::VS);	
-
-	GPUMesh* cubeMesh = GetMeshManager()->GetInternalMesh(Mesh);
-
-	mFrameSetupCommandList->SetVertexBuffer(cubeMesh->vertexBuffer, sizeof(Vertex));
-	mFrameSetupCommandList->SetIndexBuffer(cubeMesh->indexBuffer);
-
-	mFrameSetupCommandList->SetShaderResources({GTexture}, 0, ShaderStage::FS);
-
-	for (auto& subMesh : cubeMesh->submeshes)
+	if (!Mesh)
 	{
-		Material* mat = mMaterialManager->GetInternalMaterial(subMesh.materialHandle);
-		mFrameSetupCommandList->SetShader(mat->shader);
-		mFrameSetupCommandList->DrawIndexed(subMesh.indexCount, subMesh.startIndex);
+		LOG_ERROR("Trying to render mesh that has an invalid AssetRef");
+		return;
 	}
+
+	mFrameSetupCommandList->SetSamplers({ mSampler.get() }, 0);
+
+	//mFrameSetupCommandList->SetTopology(PrimitiveTopology::TriangleList);
+
+	//ObjectConstantBufferData objBuffer;
+	//objBuffer.modelToWorld = ObjectTransfrom.GetMatrix();
+	//mFrameSetupCommandList->UpdateConstantBuffer(mObjectConstantBuffer, &objBuffer);
+	//mFrameSetupCommandList->BindConstantBuffer(mObjectConstantBuffer, (uint32)ConstantBufferBindSlots::Object, ShaderStageBind::FS | ShaderStageBind::VS);
+
+	//GPUMesh* cubeMesh = GetGPUMeshManager()->GetInternalMesh(Mesh);
+
+	//mFrameSetupCommandList->SetVertexBuffer(cubeMesh->vertexBuffer, sizeof(Vertex));
+	//mFrameSetupCommandList->SetIndexBuffer(cubeMesh->indexBuffer);
+
+	//for (auto& subMesh : cubeMesh->submeshes)
+	//{
+	//	GPUMaterial* mat = mMaterialManager->GetInternalMaterial(subMesh.materialHandle);
+
+	//	for (uint32 i = 0; i < mat->boundTextures.size(); i++)
+	//	{
+	//		mFrameSetupCommandList->SetShaderResource(mat->boundTextures[i].texture, mat->boundTextures[i].slot, mat->boundTextures[i].stage);
+	//	}
+
+	//	mFrameSetupCommandList->SetShaderProgram(mat->shaderProgram);
+	//	mFrameSetupCommandList->DrawIndexed(subMesh.indexCount, subMesh.startIndex);
+	//}
+
+	mFrameSetupCommandList->DrawMesh(Mesh.Get(), ObjectTransfrom);
 }
 
-void Renderer::SubmitMesh(GPUResourceHandle<GPUMesh> Mesh, const Transform& ObjectTransfrom, Vector<AssetHandle<Material>> OverrideMaterials)
+void Renderer::SubmitMesh(GPUResourceHandle<GPUMesh> Mesh, const Transform& ObjectTransfrom, Vector<Material*> OverrideMaterials)
 {
-	mFrameSetupCommandList->SetTopology(PrimitiveTopology::TriangleList);
+	/*mFrameSetupCommandList->SetTopology(PrimitiveTopology::TriangleList);
 
 	ObjectConstantBufferData objBuffer;
 	objBuffer.modelToWorld = ObjectTransfrom.GetMatrix();
 	mFrameSetupCommandList->UpdateConstantBuffer(mObjectConstantBuffer, &objBuffer);
-	mFrameSetupCommandList->BindConstantBuffer(mObjectConstantBuffer, (uint32)ConstantBufferBindSlots::Object, ShaderStage::FS | ShaderStage::VS);
+	mFrameSetupCommandList->BindConstantBuffer(mObjectConstantBuffer, (uint32)ConstantBufferBindSlots::Object, ShaderStageBind::FS | ShaderStageBind::VS);
 
-	GPUMesh* cubeMesh = GetMeshManager()->GetInternalMesh(Mesh);
+	GPUMesh* cubeMesh = GetGPUMeshManager()->GetInternalMesh(Mesh);
 
 	mFrameSetupCommandList->SetVertexBuffer(cubeMesh->vertexBuffer, sizeof(Vertex));
 	mFrameSetupCommandList->SetIndexBuffer(cubeMesh->indexBuffer);
@@ -165,7 +196,7 @@ void Renderer::SubmitMesh(GPUResourceHandle<GPUMesh> Mesh, const Transform& Obje
 	for (int32 i = 0; i < cubeMesh->submeshes.size(); i++)
 	{
 		auto& subMesh = cubeMesh->submeshes[i];
-		
+
 		AssetHandle<Material> materialHandle;
 		if (OverrideMaterials[i])
 		{
@@ -175,9 +206,35 @@ void Renderer::SubmitMesh(GPUResourceHandle<GPUMesh> Mesh, const Transform& Obje
 		{
 			materialHandle = subMesh.materialHandle;
 		}
-	
-		Material* mat = mMaterialManager->GetInternalMaterial(materialHandle);
+
+		GPUMaterial* mat = mMaterialManager->GetInternalMaterial(materialHandle);
 		mFrameSetupCommandList->SetShader(mat->shader);
 		mFrameSetupCommandList->DrawIndexed(subMesh.indexCount, subMesh.startIndex);
-	}
+	}*/
+}
+
+void Renderer::HandleResizeEvent(int32 Width, int32 Height)
+{
+	if (Width == 0 || Height == 0)
+		return;
+
+	mSwapChain->Resize(Vector2i(Width, Height));
+}
+
+void Renderer::ResizeMainRenderTarget(const Vector2i& Extent)
+{
+	mTextureManager->FreeTexture(mMainRenderTarget.texture);
+	mTextureManager->FreeTexture(mMainRenderTarget.dsv);
+
+	mMainRenderTarget.texture = mTextureManager->CreateTexture2D(
+		Extent,
+		RenderFormat::R16G16B16A16_UNORM,
+		TextureBindFlags::RenderTarget | TextureBindFlags::ShaderRead
+	);
+
+	mMainRenderTarget.dsv = mTextureManager->CreateTexture2D(
+		Extent,
+		RenderFormat::D32_FLOAT,
+		TextureBindFlags::DepthStencil
+	);
 }

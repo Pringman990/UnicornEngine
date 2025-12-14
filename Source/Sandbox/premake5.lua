@@ -21,16 +21,12 @@ project "Sandbox"
 	includeDependencies("Sandbox", 
 	{
 		dirs.Sandbox,
-		"Renderer",
-		"Engine",
-		"ECS",
+		"GameCore",
 	})
 
 	linkDependencies("Sandbox", 
 	{
-		"Renderer",
-		"Engine",
-		"ECS",
+		"GameCore",
 	})
 
 	files {
@@ -38,6 +34,7 @@ project "Sandbox"
 		"**.hpp",
 		"**.cpp",
 		"**.c",
+		"**.inl",
 	}
 
 	defines{

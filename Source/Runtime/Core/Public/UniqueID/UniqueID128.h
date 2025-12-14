@@ -57,6 +57,8 @@ public:
 
 	constexpr const Array<byte, 16>& Bytes() const noexcept { return bytes; }
 
+	static constexpr UniqueID128 Invalid() { return UniqueID128(); };
+
 public:
 	constexpr UniqueID128& operator=(const UniqueID128&) noexcept = default;
 	constexpr UniqueID128& operator=(UniqueID128&&) noexcept = default;

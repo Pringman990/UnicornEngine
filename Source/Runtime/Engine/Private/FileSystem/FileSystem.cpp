@@ -18,6 +18,8 @@ FileSystem::~FileSystem()
 
 void FileSystem::Init()
 {
+    mDefaultFileBackend = MakeOwned<NativeFileBackend>("");
+
     SharedPtr<NativeFileBackend> native = MakeShared<NativeFileBackend>(mRootPath + "Content/");
     Mount("engine", native);
     Mount("game", native);
@@ -33,12 +35,14 @@ FileSystem::MountHandle FileSystem::Mount(const Protocol& Protocol, SharedPtr<IF
     auto& mounts = mMounts;
     mounts.push_back(std::move(mp));
 
+    MountHandle mp2{ Protocol, mounts.back().backend.get()};
+
     std::sort(mounts.begin(), mounts.end(), [](const MountPoint& a, const MountPoint& b)
         {
             return a.priority > b.priority;
         });
 
-    return MountHandle{Protocol, mp.backend.get()};
+    return mp2;
 }
 
 void FileSystem::UnMount(const MountHandle& Handle)
@@ -52,9 +56,10 @@ void FileSystem::UnMount(const MountHandle& Handle)
     );
 }
 
-bool FileSystem::Exists(const String& VirtualPath)
+bool FileSystem::Exists(const Path& VirtualPath)
 {
-    String proto, relativePath;
+    String proto;
+    Path relativePath;
     
     if (!ParseVirtualPath(VirtualPath, proto, relativePath))
         return false;
@@ -68,9 +73,10 @@ bool FileSystem::Exists(const String& VirtualPath)
     return false;
 }
 
-SharedPtr<IFileStream> FileSystem::Open(const String& VirtualPath, FileMode Mode)
+SharedPtr<IFileStream> FileSystem::Open(const Path& VirtualPath, FileMode Mode)
 {
-    String proto, relativePath;
+    String proto;
+    Path relativePath;
    
     if (!ParseVirtualPath(VirtualPath, proto, relativePath))
         return nullptr;
@@ -83,9 +89,10 @@ SharedPtr<IFileStream> FileSystem::Open(const String& VirtualPath, FileMode Mode
     return nullptr;
 }
 
-ByteBuffer FileSystem::ReadAll(const String& VirtualPath)
+ByteBuffer FileSystem::ReadAll(const Path& VirtualPath)
 {
-    String proto, relativePath;
+    String proto;
+    Path relativePath;
    
     if (!ParseVirtualPath(VirtualPath, proto, relativePath)) 
         return {};
@@ -98,9 +105,15 @@ ByteBuffer FileSystem::ReadAll(const String& VirtualPath)
     return {};
 }
 
-void FileSystem::WriteAll(const String& VirtualPath, const ByteBuffer& Data)
+ENGINE_API ByteBuffer FileSystem::ReadAllNonVirtual(const Path& Path)
 {
-    String proto, relativePath;
+    return mDefaultFileBackend->ReadAll(Path);
+}
+
+void FileSystem::WriteAll(const Path& VirtualPath, const ByteBuffer& Data)
+{
+    String proto;
+    Path relativePath;
     
     if (!ParseVirtualPath(VirtualPath, proto, relativePath))
         return;
@@ -115,9 +128,11 @@ void FileSystem::WriteAll(const String& VirtualPath, const ByteBuffer& Data)
     }
 }
 
-String FileSystem::GetAbsolutPath(const String& VirtualPath)
+Path FileSystem::GetAbsolutPath(const Path& VirtualPath)
 {
-    String proto, relativePath;
+    String proto;
+    Path relativePath;
+
     if (!ParseVirtualPath(VirtualPath, proto, relativePath))
     {
         LOG_ERROR("Virtual path did not exist: {}", VirtualPath);
@@ -133,19 +148,19 @@ String FileSystem::GetAbsolutPath(const String& VirtualPath)
     }
 
     LOG_ERROR("Virtual path mount did not exist: {}", VirtualPath);
-    return String();
+    return Path();
 }
 
-bool FileSystem::ParseVirtualPath(const String& Path, Protocol& outProtocol, String& outRelativePath)
+bool FileSystem::ParseVirtualPath(const Path& VirtualPath, Protocol& outProtocol, Path& outRelativePath)
 {
-    size_t pos = Path.find("://");
+    size_t pos = VirtualPath.find("://");
     if (pos == String::npos)
     {
         return false;
     }
 
-    outProtocol = Path.substr(0, pos);
-    outRelativePath = Path.substr(pos + 3);
+    outProtocol = VirtualPath.substr(0, pos);
+    outRelativePath = VirtualPath.substr(pos + 3);
 
     return true;
 }

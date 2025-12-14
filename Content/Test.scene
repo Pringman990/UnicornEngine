@@ -1,0 +1,85 @@
+uuid: aa32f850-f3de-4b07-8810-8f9aeb9db429
+name: Test
+entities:
+  - cf8f8606-b2b8-47a6-8e4e-51d27efebc33
+  - 573dfc5e-747b-4c68-a9a2-de3fcd716a43
+  - 1b3a187e-b1fc-4241-8d10-c4e8e3cf12fa
+  - b4273e21-e0a1-4820-b59a-4a38899133bb
+components:
+  1743b14b-3df0-4ed0-b2c6-85d3be17651c:
+    - entity: cf8f8606-b2b8-47a6-8e4e-51d27efebc33
+      Name: Cube
+    - entity: 573dfc5e-747b-4c68-a9a2-de3fcd716a43
+      Name: Player
+    - entity: 1b3a187e-b1fc-4241-8d10-c4e8e3cf12fa
+      Name: Cube0
+    - entity: b4273e21-e0a1-4820-b59a-4a38899133bb
+      Name: Cube1
+  afdb9258-ee2e-49be-ae05-46c8cc74bd10:
+    - entity: cf8f8606-b2b8-47a6-8e4e-51d27efebc33
+      Position:
+        x: 28.947674
+        y: 0
+        z: 0
+      Rotation:
+        x: 0
+        y: 0
+        z: 0
+      Scale:
+        x: 1
+        y: 1
+        z: 1
+    - entity: 573dfc5e-747b-4c68-a9a2-de3fcd716a43
+      Position:
+        x: 0
+        y: 0
+        z: 0
+      Rotation:
+        x: 0
+        y: 0
+        z: 0
+      Scale:
+        x: 0.01
+        y: 0.01
+        z: 0.01
+    - entity: 1b3a187e-b1fc-4241-8d10-c4e8e3cf12fa
+      Position:
+        x: -2.19
+        y: 0
+        z: 0
+      Rotation:
+        x: 0.04
+        y: 0
+        z: 0
+      Scale:
+        x: 1
+        y: 1
+        z: 1
+    - entity: b4273e21-e0a1-4820-b59a-4a38899133bb
+      Position:
+        x: 0
+        y: 0
+        z: 0
+      Rotation:
+        x: 0
+        y: 0
+        z: 0
+      Scale:
+        x: 1
+        y: 1
+        z: 1
+  afda9258-ee2e-49be-ae05-46c8cc74bd10:
+    - entity: cf8f8606-b2b8-47a6-8e4e-51d27efebc33
+      Mesh: 74897956-e7c6-467d-8142-f091ce2190ab
+    - entity: 573dfc5e-747b-4c68-a9a2-de3fcd716a43
+      Mesh: 09cba324-aeaf-4635-9c5f-4fdbc17a63f9
+    - entity: 1b3a187e-b1fc-4241-8d10-c4e8e3cf12fa
+      Mesh: 74897956-e7c6-467d-8142-f091ce2190ab
+    - entity: b4273e21-e0a1-4820-b59a-4a38899133bb
+      Mesh: 74897956-e7c6-467d-8142-f091ce2190ab
+  bfda9258-ee2e-49be-ae05-46c8cc74bd10:
+    - entity: cf8f8606-b2b8-47a6-8e4e-51d27efebc33
+      Flip: true
+      Speed: 3.0858707
+      a: 1
+      Distance: 53.990665

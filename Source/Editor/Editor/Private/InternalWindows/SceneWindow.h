@@ -1,9 +1,8 @@
 #pragma once
 #include <Core.h>
 #include "EditorWindow.h"
-//#include <RenderTarget/RenderTarget.h>
-#include "EditorCamera.h"
-
+#include <Renderer.h>
+#include <FreeLookCamera.h>
 
 class SceneWindow : public EditorWindow
 {
@@ -15,8 +14,10 @@ public:
 	virtual void Render() override;
 
 private:
+	Renderer* mRenderer;
+	FreeLookCamera mFLCamera;
+	
 	//RenderTarget* mSceneView;
-	EditorCamera mEditorCamera;
 
 	ImTextureID imguiTex;
 	bool mIsTextureValid = false;

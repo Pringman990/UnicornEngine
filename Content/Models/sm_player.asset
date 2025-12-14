@@ -1,3 +1,8 @@
 uuid: 09cba324-aeaf-4635-9c5f-4fdbc17a63f9
-type: mesh
+type: Mesh
+name: Player
 source_path: engine://Models/sm_player.fbx
+custom_data:
+  materials:
+    - uuid: 75817966-b7c6-437d-8142-f091ce2190ab
+

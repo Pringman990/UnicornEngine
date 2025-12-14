@@ -1,5 +1,7 @@
 #include "ECSDebugWindow.h"
 
+#include <ESystemManager.h>
+
 ECSDebugWindow::ECSDebugWindow(Editor* EditorPtr)
 	:
 	EditorWindow(EditorPtr)
@@ -18,6 +20,35 @@ bool ECSDebugWindow::Init()
 
 void ECSDebugWindow::Render()
 {
+	auto systemsInfo = GET_ESYSTEMMANAGER()->GetSystemsDebugInfo();
+	auto systems = GET_ESYSTEMMANAGER()->GetRegisteredSystems();
+
+	for (const auto& [name, sys] : systems)
+	{
+		if (ImGui::CollapsingHeader(name.c_str()))
+		{
+			if (ImGui::CollapsingHeader("debug info"))
+			{
+				if (systemsInfo.contains(name))
+				{
+					auto info = systemsInfo[name];
+					ImGui::Text(String("Entity Count: " + std::to_string(info.entityCount)).c_str());
+					ImGui::Text(String("Frame Run Time (sec): " + std::to_string(info.frameRunTime)).c_str());
+					ImGui::Text(String("Frame Run Time (ms): " + std::to_string(info.frameRunTime * 1000.f)).c_str());
+				}
+			}
+		}
+	}
+
+	if (ImGui::CollapsingHeader("Component Types"))
+	{
+		auto types = refl::ReflectionRegistry::GetInstance().GetAllTypesWithAttribute(refl::Attribute::EComponent);
+		for (const auto& type : types)
+		{
+			ImGui::Selectable(type->name.c_str());
+		}
+	}
+
 	//ImGui::BeginColumns("#", 3);
 
 	////Column 1
