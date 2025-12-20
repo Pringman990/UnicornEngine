@@ -1,4 +1,5 @@
 #pragma once
+#include "ECSDefines.h"
 #include <Core.h>
 #include "ECommon.h"
 #include "EComponentRegistry.h"
@@ -48,11 +49,11 @@ class EWorld final
 {
 
 public:
-	EWorld();
-	~EWorld();
+	ECS_API EWorld();
+	ECS_API ~EWorld();
 
-	EEntity CreateEntity();
-	EEntity CreateEntity(const UniqueID128& UUID);
+	ECS_API EEntity CreateEntity();
+	ECS_API EEntity CreateEntity(const UniqueID128& UUID);
 
 	//template<typename T>
 	//T* AddComponent(EEntity Entity, T&& Component);
@@ -60,12 +61,12 @@ public:
 	template<refl::IsComponent T>
 	T* AddComponent(EEntity Entity);
 
-	void* AddComponent(EEntity Entity, const UniqueID128& UUID);
+	ECS_API void* AddComponent(EEntity Entity, const UniqueID128& UUID);
 
 	template<refl::IsComponent T>
 	void RemoveComponent(EEntity Entity);
 
-	void RemoveComponent(EEntity Entity, const UniqueID128& UUID);
+	ECS_API void RemoveComponent(EEntity Entity, const UniqueID128& UUID);
 
 	template<refl::IsComponent T>
 	T* GetComponent(EEntity Entity)
@@ -147,7 +148,7 @@ private:
 	template<refl::IsComponent T>
 	ComponentStore* GetStore()
 	{
-		const refl::Type* type = refl::ReflectionRegistry::GetInstance().GetOrNull<T>();
+		const refl::Type* type = refl::ReflectionRegistry::Instance()->GetOrNull<T>();
 		if (!type)
 		{
 			LOG_WARNING("Can't get ComponentStore of null type, {}", typeid(T).name());
@@ -170,7 +171,7 @@ private:
 template<refl::IsComponent T>
 inline T* EWorld::AddComponent(EEntity Entity)
 {
-	const refl::Type* type = refl::ReflectionRegistry::GetInstance().GetOrNull<T>();
+	const refl::Type* type = refl::ReflectionRegistry::Instance()->GetOrNull<T>();
 	if (!type)
 	{
 		LOG_WARNING("Can't get ComponentStore of null type, {}", typeid(T).name());
@@ -183,7 +184,7 @@ inline T* EWorld::AddComponent(EEntity Entity)
 template<refl::IsComponent T>
 inline void EWorld::RemoveComponent(EEntity Entity)
 {
-	const refl::Type* type = refl::ReflectionRegistry::GetInstance().GetOrNull<T>();
+	const refl::Type* type = refl::ReflectionRegistry::Instance()->GetOrNull<T>();
 	if (!type)
 	{
 		LOG_WARNING("Can't get ComponentStore of null type, {}", typeid(T).name());

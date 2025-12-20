@@ -30,7 +30,7 @@ Mesh* MeshManager::Load(const String& VirtualPath)
 	mesh->SetName(readData.Name);
 	mesh->SetType(readData.Type);
 
-	ByteBuffer meshData = GET_FILESYSTEM()->ReadAll(readData.SourcePath);
+	ByteBuffer meshData = FileSystem::Instance()->ReadAll(readData.SourcePath);
 	MeshDecodeData decodeData = MeshDecoder::LoadMesh(meshData, "fbx");
 	if (!decodeData.IsValid())
 	{
@@ -39,7 +39,7 @@ Mesh* MeshManager::Load(const String& VirtualPath)
 	}
 
 	//TODO: add suppport to import a mesh on a specific index and not just 0
-	GPUResourceHandle<GPUMesh> gpuMesh = SubsystemManager::Get<Renderer>()->GetGPUMeshManager()->CreateMesh(decodeData.meshes[0]);
+	GPUResourceHandle<GPUMesh> gpuMesh = Renderer::Instance()->GetGPUMeshManager()->CreateMesh(decodeData.meshes[0]);
 	if (!gpuMesh)
 	{
 		LOG_ERROR("Loading mesh asset failed trying to import source");
@@ -65,10 +65,11 @@ Mesh* MeshManager::Load(const String& VirtualPath)
 		UniqueID128 uuid = UniqueID128(uuidStr);
 		if (uuid.IsValid())
 		{
-			submesh.material = GET_ASSETREGISTRY()->Load<Material>(uuid);
+			submesh.material = AssetRegistry::Instance()->Load<Material>(uuid);
 		}
 
 		submeshes[i] = submesh;
+		readData.CustomData->EndReadObject();
 	}
 	readData.CustomData->EndReadArray();
 	mesh->FillSubmeshes(submeshes);
@@ -78,7 +79,7 @@ Mesh* MeshManager::Load(const String& VirtualPath)
 
 Mesh* MeshManager::ImportSource(const String& VirtualSourcePath)
 {
-	ByteBuffer meshData = GET_FILESYSTEM()->ReadAll(VirtualSourcePath);
+	ByteBuffer meshData = FileSystem::Instance()->ReadAll(VirtualSourcePath);
 	MeshDecodeData decodeData = MeshDecoder::LoadMesh(meshData, "fbx");
 	if (!decodeData.IsValid())
 	{
@@ -86,7 +87,7 @@ Mesh* MeshManager::ImportSource(const String& VirtualSourcePath)
 	}
 
 	//TODO: add suppport to import all meshes from a file
-	GPUResourceHandle<GPUMesh> mesh = SubsystemManager::Get<Renderer>()->GetGPUMeshManager()->CreateMesh(decodeData.meshes[0]);
+	GPUResourceHandle<GPUMesh> mesh = Renderer::Instance()->GetGPUMeshManager()->CreateMesh(decodeData.meshes[0]);
 
 	UniqueID128 uuid = UniqueID128::FromRandom();
 	Mesh* asset = new Mesh(uuid);

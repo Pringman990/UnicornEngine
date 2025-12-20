@@ -1,15 +1,30 @@
  #include "Module/ModuleManager.h"
 
+ModuleManager* ModuleManager::sInstance = nullptr;
 REGISTER_ENGINE_SUBSYSTEM(ModuleManager)
 
 MultiNotifierArgs<String> ModuleManager::OnModuleUnload;
 
 ModuleManager::ModuleManager()
 {
+#ifdef _DEBUG
+	ASSERT(sInstance == nullptr, "The instance was not null and we are trying to set it again");
+#endif
+	sInstance = this;
 }
 
 ModuleManager::~ModuleManager()
 {
+	if (sInstance == this)
+		sInstance = nullptr;
+}
+
+ENGINE_API ModuleManager* ModuleManager::Instance()
+{
+#ifdef _DEBUG
+	ASSERT(sInstance, "Instance was accessed before/after it was created/destroyed");
+#endif
+	return sInstance;
 }
 
 bool ModuleManager::LoadModule(const String& ModuleName)

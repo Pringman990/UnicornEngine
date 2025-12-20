@@ -8,8 +8,8 @@ class WindowsFileWatcher : public IFileWatcherBackend
 {
 	friend class FileWatcherBackendFactory;
 public:
-	ENGINE_API bool Init(const String& RootPath) override;
-	ENGINE_API virtual void Watch(const String& RootPath, FuncType Callback) override;
+	ENGINE_API bool Init(PathView RootPath) override;
+	ENGINE_API virtual void Watch(PathView RootPath, FuncType Callback) override;
 
 	ENGINE_API WindowsFileWatcher();
 	ENGINE_API ~WindowsFileWatcher();

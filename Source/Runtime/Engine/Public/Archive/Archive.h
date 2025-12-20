@@ -15,7 +15,7 @@ public:
 	ENGINE_API virtual ~Archive() = default;
 
 	ENGINE_API virtual OwnedPtr<Archive> CreateSubArchive(const String& Key) = 0;
-	ENGINE_API virtual void WriteToFile(const Path& VirtualPath) = 0;
+	ENGINE_API virtual void WriteToFile(PathView FilePath) = 0;
 
 	//--------------- Writing ---------------
 	ENGINE_API virtual bool WriteInt32(int32 Value, const String& Key = "") = 0;

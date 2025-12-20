@@ -1,0 +1,25 @@
+uuid: 73353ef8-2e3d-4862-8980-30ca6e6e9c78
+name: Tests2
+entities:
+  - f754676d-c748-470d-bb7e-66ab922313d6
+components:
+  afdb9258-ee2e-49be-ae05-46c8cc74bd10:
+    - entity: f754676d-c748-470d-bb7e-66ab922313d6
+      Position:
+        x: 0
+        y: 0
+        z: 0
+      Rotation:
+        x: 0
+        y: 0
+        z: 0
+      Scale:
+        x: 1
+        y: 1
+        z: 1
+  1743b14b-3df0-4ed0-b2c6-85d3be17651c:
+    - entity: f754676d-c748-470d-bb7e-66ab922313d6
+      Name: Cube
+  afda9258-ee2e-49be-ae05-46c8cc74bd10:
+    - entity: f754676d-c748-470d-bb7e-66ab922313d6
+      Mesh: 74897956-e7c6-467d-8142-f091ce2190ab

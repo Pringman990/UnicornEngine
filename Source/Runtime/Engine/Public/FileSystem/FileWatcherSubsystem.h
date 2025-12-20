@@ -11,6 +11,8 @@ class FileWatcherSubsystem
 {
 	friend struct subsystem::SubsystemDescriptor;
 public:
+	ENGINE_API static FileWatcherSubsystem* Instance();
+
 	ENGINE_API bool Init(const String& Root, SharedPtr<IFileWatcherBackend> Backend);
 
 	ENGINE_API void Watch(const String& Path, Func<void(const FileWatchInfo&)> Callback);
@@ -29,6 +31,8 @@ private:
 	~FileWatcherSubsystem();
 
 private:
+	static FileWatcherSubsystem* sInstance;
+
 	SharedPtr<IFileWatcherBackend> mBackend;
 	UnorderedMap<String, MultiNotifierArgs<FileWatchInfo>> mWatched;
 };

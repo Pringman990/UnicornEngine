@@ -24,7 +24,7 @@ EEntity EWorld::CreateEntity(const UniqueID128& UUID)
 
 void* EWorld::AddComponent(EEntity Entity, const UniqueID128& UUID)
 {
-	const refl::Type* type = refl::ReflectionRegistry::GetInstance().GetOrNull(UUID);
+	const refl::Type* type = refl::ReflectionRegistry::Instance()->GetOrNull(UUID);
 	if (!type)
 	{
 		LOG_WARNING("Can't get ComponentStore with type uuid '{}'", UUID.ToString());
@@ -51,7 +51,7 @@ void* EWorld::AddComponent(EEntity Entity, const UniqueID128& UUID)
 
 void EWorld::RemoveComponent(EEntity Entity, const UniqueID128& UUID)
 {
-	const refl::Type* type = refl::ReflectionRegistry::GetInstance().GetOrNull(UUID);
+	const refl::Type* type = refl::ReflectionRegistry::Instance()->GetOrNull(UUID);
 	if (!type)
 	{
 		LOG_WARNING("Can't get ComponentStore with type uuid '{}'", UUID.ToString());

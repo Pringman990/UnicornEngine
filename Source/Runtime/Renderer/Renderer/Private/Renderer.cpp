@@ -27,11 +27,18 @@ REGISTER_ENGINE_SUBSYSTEM(Renderer)
 
 #include "ImageDecoder.h"
 
+
+Renderer* Renderer::sInstance = nullptr;
+
 GPUResourceHandle<GPUTexture> GTexture;
 GPUResourceHandle<GPUTexture> GNormalTexture;
 
 Renderer::Renderer()
 {
+#ifdef _DEBUG
+	ASSERT(sInstance == nullptr, "The instance was not null and we are trying to set it again");
+#endif
+	sInstance = this;
 }
 
 Renderer::~Renderer()
@@ -56,6 +63,17 @@ Renderer::~Renderer()
 		debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
 	}
 #endif
+
+	if (sInstance == this)
+		sInstance = nullptr;
+}
+
+Renderer* Renderer::Instance()
+{
+#ifdef _DEBUG
+	ASSERT(sInstance, "Instance was accessed before/after it was created/destroyed");
+#endif
+	return sInstance;
 }
 
 bool Renderer::Init()
@@ -70,7 +88,7 @@ bool Renderer::Init()
 	mMeshManager = MakeOwned<GPUMeshManager>(this);
 	mMaterialManager = MakeOwned<GPUMaterialManager>(this);
 
-	WindowsApplication* app = static_cast<WindowsApplication*>(SubsystemManager::Get<Application>()->GetApplication());
+	WindowsApplication* app = static_cast<WindowsApplication*>(Application::Instance()->GetApplication());
 	app->OnWindowResizeEvent.AddRaw(this, &Renderer::HandleResizeEvent);
 
 	DXGI_SWAP_CHAIN_DESC1 swapDesc = {};

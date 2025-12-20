@@ -4,7 +4,7 @@
 class NativeFileStream : public IFileStream
 {
 public:
-	NativeFileStream(const String& Path, FileMode Mode)
+	NativeFileStream(PathView FilePath, FileMode Mode)
 	{
 		std::ios_base::openmode iosMode = std::ios::failbit;
 		switch (Mode)
@@ -17,7 +17,7 @@ public:
 			break;
 		}
 
-		mStream.open(Path, iosMode);
+		mStream.open(FilePath, iosMode);
 		mStream.seekg(0, std::ios::end);
 		mLength = mStream.tellg();
 		mStream.seekg(0, std::ios::beg);
@@ -56,21 +56,21 @@ class NativeFileBackend : public IFileBackend
 {
 public:
 	NativeFileBackend() = default;
-	NativeFileBackend(const String& Root) : mRoot(Root) {};
+	NativeFileBackend(const Path& Root) : mRoot(Root) {};
 
-	virtual bool Exists(const String& Path) override
+	virtual bool Exists(PathView FilePath) override
 	{
-		return std::filesystem::exists(mRoot + Path);
+		return std::filesystem::exists(mRoot + String(FilePath));
 	}
 
-	virtual SharedPtr<IFileStream> Open(const String& Path, FileMode Mode) override
+	virtual SharedPtr<IFileStream> Open(PathView FilePath, FileMode Mode) override
 	{
-		return MakeShared<NativeFileStream>(mRoot + Path, Mode);
+		return MakeShared<NativeFileStream>(mRoot + String(FilePath), Mode);
 	}
 
-	virtual ByteBuffer ReadAll(const String& Path) override
+	virtual ByteBuffer ReadAll(PathView FilePath) override
 	{
-		SharedPtr<IFileStream> stream = Open(Path, FileMode::Read);
+		SharedPtr<IFileStream> stream = Open(FilePath, FileMode::Read);
 		assert(stream);
 		
 		ByteBuffer data(stream->Length());
@@ -78,15 +78,15 @@ public:
 		return data;
 	}
 
-	virtual void WriteAll(const String& Path, const ByteBuffer& Data) override
+	virtual void WriteAll(PathView FilePath, const ByteBuffer& Data) override
 	{
-		SharedPtr<IFileStream> stream = Open(Path, FileMode::Write);
+		SharedPtr<IFileStream> stream = Open(FilePath, FileMode::Write);
 		assert(stream);
 		stream->Write(Data.data(), Data.size());
 	}
 
-	const String& GetRoot() override { return mRoot; };
+	const Path& GetRoot() const override { return mRoot; };
 
 private:
-	String mRoot;
+	Path mRoot;
 };

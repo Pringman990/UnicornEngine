@@ -28,7 +28,7 @@ Texture2D* Textrue2DManager::Load(const String& VirtualPath)
 	asset->SetSourcePath(readData.SourcePath);
 	asset->SetType(readData.Type);
 
-	ByteBuffer data = GET_FILESYSTEM()->ReadAll(readData.SourcePath);
+	ByteBuffer data = FileSystem::Instance()->ReadAll(readData.SourcePath);
 	ImageDecodeData decodeData = ImageDecoder::LoadImage(data, ExtractExtension(readData.SourcePath));
 	if (!decodeData.IsValid())
 	{
@@ -37,7 +37,7 @@ Texture2D* Textrue2DManager::Load(const String& VirtualPath)
 		return nullptr;
 	}
 
-	GPUResourceHandle<GPUTexture> texture = SubsystemManager::Get<Renderer>()->GetGPUTextureManager()->CreateTexture(decodeData.buffer, Vector3i(decodeData.width, decodeData.height, 0), decodeData.format, TextureBindFlags::ShaderRead);
+	GPUResourceHandle<GPUTexture> texture = Renderer::Instance()->GetGPUTextureManager()->CreateTexture(decodeData.buffer, Vector3i(decodeData.width, decodeData.height, 0), decodeData.format, TextureBindFlags::ShaderRead);
 	if (!texture)
 	{
 		LOG_ERROR("Loading texture asset failed trying to import source");
@@ -51,7 +51,7 @@ Texture2D* Textrue2DManager::Load(const String& VirtualPath)
 
 Texture2D* Textrue2DManager::ImportSource(const String& VirtualSourcePath)
 {
-	ByteBuffer data = GET_FILESYSTEM()->ReadAll(VirtualSourcePath);
+	ByteBuffer data = FileSystem::Instance()->ReadAll(VirtualSourcePath);
 	ImageDecodeData decodeData = ImageDecoder::LoadImage(data, ExtractExtension(VirtualSourcePath));
 	if (!decodeData.IsValid())
 	{
@@ -59,7 +59,7 @@ Texture2D* Textrue2DManager::ImportSource(const String& VirtualSourcePath)
 		return nullptr;
 	}
 
-	GPUResourceHandle<GPUTexture> texture = SubsystemManager::Get<Renderer>()->GetGPUTextureManager()->CreateTexture2D(Vector2i(decodeData.width, decodeData.height), decodeData.format, TextureBindFlags::ShaderRead);
+	GPUResourceHandle<GPUTexture> texture = Renderer::Instance()->GetGPUTextureManager()->CreateTexture2D(Vector2i(decodeData.width, decodeData.height), decodeData.format, TextureBindFlags::ShaderRead);
 
 	UniqueID128 uuid = UniqueID128::FromRandom();
 	Texture2D* asset = new Texture2D(uuid);

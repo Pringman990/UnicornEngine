@@ -11,6 +11,8 @@ class Timer
 {
 	friend struct subsystem::SubsystemDescriptor;
 public:
+	ENGINE_API static Timer* Instance();
+
 	void Update() {
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		mDeltaTime = std::chrono::duration<float>(currentTime - mLastTime).count();
@@ -75,13 +77,23 @@ public:
 	};
 
 private:
-	Timer() {
+	Timer() 
+	{
+#ifdef _DEBUG
+		ASSERT(sInstance == nullptr, "The instance was not null and we are trying to set it again");
+#endif
+		sInstance = this;
+
 		mLastTime = std::chrono::high_resolution_clock::now();
 	}
 
-	~Timer() {};
+	~Timer() 
+	{
+		if (sInstance == this)
+			sInstance = nullptr;
+	};
 private:
-	//static Timer* mInstance;
+	static Timer* sInstance;
 
 	mutable std::mutex mReadingMutex;
 
@@ -96,6 +108,5 @@ private:
 	UnorderedMap<String, float> mSavedReadings;
 };
 
-#define TIMER_START_READING(NAME) SubsystemManager::Get<Timer>()->StartReading(NAME);
-#define TIMER_END_READING(NAME) SubsystemManager::Get<Timer>()->EndReading(NAME);
-#define GET_TIMER() SubsystemManager::Get<Timer>()
+#define TIMER_START_READING(NAME) Timer::Instance()->StartReading(NAME);
+#define TIMER_END_READING(NAME) Timer::Instance()->EndReading(NAME);

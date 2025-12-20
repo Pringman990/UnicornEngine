@@ -29,9 +29,9 @@ public:
 	IFileWatcherBackend() {};
 	virtual ~IFileWatcherBackend() = default;
 
-	virtual bool Init(const String& RootPath) = 0;
+	virtual bool Init(PathView RootPath) = 0;
 
-	virtual void Watch(const String& RootPath, FuncType Callback) = 0;
+	virtual void Watch(PathView RootPath, FuncType Callback) = 0;
 
 	//For backends that needs polling
 	virtual void Update() {};

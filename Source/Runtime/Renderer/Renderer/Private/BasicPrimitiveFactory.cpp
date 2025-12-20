@@ -45,6 +45,6 @@ GPUResourceHandle<GPUMesh> BasicPrimitiveFactory::CreateCube()
 		4, 0, 3,   4, 3, 7
 	};
 
-    Renderer* renderer = SubsystemManager::Get<Renderer>();
+    Renderer* renderer = Renderer::Instance();
     return renderer->GetGPUMeshManager()->CreateFromRaw(vertices, indices);
 }

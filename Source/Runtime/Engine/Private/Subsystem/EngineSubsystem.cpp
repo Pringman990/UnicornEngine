@@ -1,7 +1,7 @@
 #include "Subsystem/EngineSubsystem.h"
 #include <iostream>
 
-namespace 
+namespace
 {
 	static std::mutex sMutex;
 
@@ -26,7 +26,7 @@ namespace
 		Vector<String>& cycleNodes
 	)
 	{
-		if (stack.count(node)) 
+		if (stack.count(node))
 		{
 			// cycle detected, add node to cycle list
 			cycleNodes.push_back(node);
@@ -42,9 +42,9 @@ namespace
 		auto it = graph.find(node);
 		if (it != graph.end())
 		{
-			for (const auto& dep : it->second) 
+			for (const auto& dep : it->second)
 			{
-				if (!DFSVisit(dep, graph, visited, stack, order, cycleNodes)) 
+				if (!DFSVisit(dep, graph, visited, stack, order, cycleNodes))
 				{
 					cycleNodes.push_back(node); // add current node to cycle
 					return false;
@@ -64,7 +64,7 @@ namespace
 		Vector<String> order;
 		Vector<String> cycleNodes;
 
-		for (const auto& [node,_] : Graph)
+		for (const auto& [node, _] : Graph)
 		{
 			if (!visited.count(node))
 			{
@@ -152,6 +152,36 @@ namespace __Subsystem
 			delete it->second.instance;
 			it->second.instance = nullptr;
 		}
+	}
+
+	ENGINE_API void UnregisterAll()
+	{
+		UnorderedMap<String, Vector<String>> graph;
+		for (auto& [type, sing] : GetSingletons())
+		{
+			auto& deps = graph[String(sing.desc->name)];
+			deps.assign(sing.desc->dependencies.begin(), sing.desc->dependencies.end());
+		}
+
+		Vector<String> order = TopologicSortWithCycle(graph);
+
+		//Loops reverse order
+		for (uint32 i = (uint32)order.size(); i-- > 0; )
+		{
+			const String& sys = order[i];
+
+			auto& names = GetSingletonsName();
+			__Subsystem::Singleton* sing = names[sys];
+			if (sing->desc->destructor)
+			{
+				sing->desc->destructor(sing->instance);
+				delete sing->instance;
+				sing->instance = nullptr;
+			}
+		}
+
+		GetSingletonsName().clear();
+		GetSingletons().clear();
 	}
 
 	ENGINE_API void EnsureAllShutdown()

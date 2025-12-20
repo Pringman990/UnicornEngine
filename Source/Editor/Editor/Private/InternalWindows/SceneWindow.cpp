@@ -27,7 +27,7 @@ SceneWindow::~SceneWindow()
 
 bool SceneWindow::Init()
 {
-	mRenderer = SubsystemManager::Get<Renderer>();
+	mRenderer = Renderer::Instance();
 	ASSERT(mRenderer, "Renderer was null in the editor scene window Init()");
 
 	mFLCamera.SetPerspective(60.f, (16.f/9.f), 0.01f, 1000.f);
@@ -62,7 +62,7 @@ void SceneWindow::Render()
 	}
 
 	
-	GenericApplication* app = SubsystemManager::Get<Application>()->GetApplication();	
+	GenericApplication* app = Application::Instance()->GetApplication();
 	ImGui::SetCursorPos(ImVec2(0, 0));
 	ImGui::Image(gpuTex->srv.Get(), currentWindowSize);
 }

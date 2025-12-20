@@ -26,7 +26,7 @@ RenderLoop::~RenderLoop()
 
 bool RenderLoop::Init()
 {
-	mRenderer = SubsystemManager::Get<Renderer>();
+	mRenderer = Renderer::Instance();
 	mRenderer->Init();
 
 	return true;
@@ -39,7 +39,7 @@ void RenderLoop::BeginFrame()
 	CommandList* context = mRenderer->GetFrameSetupCommandList();
 	
 	FrameConstantsData fConstant;
-	fConstant.deltatime = GET_TIMER()->GetDeltaTime();
+	fConstant.deltatime = Timer::Instance()->GetDeltaTime();
 
 	context->UpdateConstantBuffer(mRenderer->GetFrameConstantsBuffer(), &fConstant);
 	context->BindConstantBuffer(mRenderer->GetFrameConstantsBuffer(), (uint32)ConstantBufferBindSlots::Frame, ShaderStageBind::FS | ShaderStageBind::VS);

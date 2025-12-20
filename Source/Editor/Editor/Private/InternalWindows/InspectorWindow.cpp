@@ -18,7 +18,6 @@ InspectorWindow::~InspectorWindow()
 
 bool InspectorWindow::Init()
 {
-    mSceneManager = SubsystemManager::Get<SceneManager>();
     return true;
 }
 
@@ -29,7 +28,9 @@ void InspectorWindow::Render()
         return;
     }
 
-    EWorld& world = mSceneManager->GetActiveScene()->GetWorld();
+    SceneManager* sceneManager = SceneManager::Instance();
+
+    EWorld& world = sceneManager->GetActiveScene()->GetWorld();
 
     EEntity entity = std::get<EEntity>(mEditor->GetSelectedItem().item);
     ETransform* transform = world.GetComponent<ETransform>(entity);
@@ -55,7 +56,7 @@ void InspectorWindow::Render()
     {
         ImGui::SeparatorText("Static Mesh");
 
-        AssetRegistry* assetReg = SubsystemManager::Get<AssetRegistry>();
+        AssetRegistry* assetReg = AssetRegistry::Instance();
         Mesh* mesh = assetReg->GetAsset(staticMeshComponent->mesh);
         if (mesh)
         {

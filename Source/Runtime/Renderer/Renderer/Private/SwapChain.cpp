@@ -38,7 +38,7 @@ OwnedPtr<SwapChain> SwapChain::Create(LogicalDevice& Device, WindowHandle Hwnd, 
 		return nullptr;
 	}
 
-	Renderer* renderer = SubsystemManager::Get<Renderer>();
+	Renderer* renderer = Renderer::Instance();
 	{
 
 		constexpr size_t mbConvert = (1024 * 1024);
@@ -92,13 +92,13 @@ OwnedPtr<SwapChain> SwapChain::Create(LogicalDevice& Device, WindowHandle Hwnd, 
 
 void SwapChain::Resize(const Vector2i& NewExtent)
 {
-	GPUTextureManager* texManager = SubsystemManager::Get<Renderer>()->GetGPUTextureManager();
+	GPUTextureManager* texManager = Renderer::Instance()->GetGPUTextureManager();
 	texManager->FreeTexture(mBackBuffer);
 	texManager->FreeTexture(mBackBufferDSV);
 
 	mSwapChain->ResizeBuffers(0, NewExtent.x, NewExtent.y, DXGI_FORMAT_UNKNOWN, 0);
-	WindowsApplication* application = static_cast<WindowsApplication*>(SubsystemManager::Get<Application>()->GetApplication());
-	if (!CreateTextures(SubsystemManager::Get<Renderer>()))
+	WindowsApplication* application = static_cast<WindowsApplication*>(Application::Instance()->GetApplication());
+	if (!CreateTextures(Renderer::Instance()))
 		return;
 }
 
@@ -109,11 +109,11 @@ void SwapChain::UpdateCardInfo()
 	DXGI_QUERY_VIDEO_MEMORY_INFO memoryInfo = {};
 	if (SUCCEEDED(mAdapter3->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &memoryInfo)))
 	{
-		GraphicsCardInformation info = SubsystemManager::Get<Renderer>()->GetCardInfo();
+		GraphicsCardInformation info = Renderer::Instance()->GetCardInfo();
 		info.totalVideoMemoryInMB = memoryInfo.Budget / mbConvert;
 		info.currentVideoMemoryUsage = memoryInfo.CurrentUsage / mbConvert;
 		info.approxFreeVideoMemory = info.totalVideoMemoryInMB - info.currentVideoMemoryUsage;
-		SubsystemManager::Get<Renderer>()->SetCardInfo(info);
+		Renderer::Instance()->SetCardInfo(info);
 	}
 #endif // _DEBUG
 }
@@ -140,7 +140,7 @@ bool SwapChain::CreateTextures(Renderer* Renderer)
 	ENSURE(mBackBuffer, "Failed to create backbuffer");
 	ENSURE(mBackBufferDSV, "Failed to create backbuffer depth stencil view");
 
-	WindowsApplication* application = static_cast<WindowsApplication*>(SubsystemManager::Get<Application>()->GetApplication());
+	WindowsApplication* application = static_cast<WindowsApplication*>(Application::Instance()->GetApplication());
 	application->GetWindowsWindowInfo().viewportWidth = textureDesc.Width;
 	application->GetWindowsWindowInfo().viewportHeight = textureDesc.Height;
 

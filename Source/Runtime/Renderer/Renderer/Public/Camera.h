@@ -1,4 +1,5 @@
 #pragma once
+#include "RendererDefines.h"
 #include <EngineMinimal.h>
 
 struct alignas(16) CameraUBO
@@ -25,28 +26,28 @@ public:
 		return (Other.mTransform != this->mTransform);
 	}
 public:
-	Camera();
-	virtual ~Camera();
+	RENDERER_API Camera();
+	RENDERER_API virtual ~Camera();
 
-	void SetPerspective(float FovAngleY, float AspectRatio, float NearZ, float FarZ);
-	void SetOrthographic(Vector2 Resolution, float NearZ, float FarZ);
-	void SetOrthoSize(float Size);
+	RENDERER_API void SetPerspective(float FovAngleY, float AspectRatio, float NearZ, float FarZ);
+	RENDERER_API void SetOrthographic(Vector2 Resolution, float NearZ, float FarZ);
+	RENDERER_API void SetOrthoSize(float Size);
 
-	void KeepAspect(bool Keep) { mKeepAspect = Keep; };
+	RENDERER_API void KeepAspect(bool Keep) { mKeepAspect = Keep; };
 
-	Transform& GetTransform();
-	Vector3 GetPosition();
-	Matrix& GetProjectionMatrix();
-	Matrix GetViewMatrix();
-	float GetOrtoSize() const { return mOrtoSize; };
+	RENDERER_API Transform& GetTransform();
+	RENDERER_API Vector3 GetPosition();
+	RENDERER_API Matrix& GetProjectionMatrix();
+	RENDERER_API Matrix GetViewMatrix();
+	RENDERER_API float GetOrtoSize() const { return mOrtoSize; };
 
-	void GetFarNearPlanes(float& OUT Far, float& OUT Near);
-	Matrix GetClipSpaceMatrix();
+	RENDERER_API void GetFarNearPlanes(float& OUT Far, float& OUT Near);
+	RENDERER_API Matrix GetClipSpaceMatrix();
 
 	/**
 	* Will not resize if KeepAspect is true.
 	*/
-	void HandleResizeEvent(int32 Width, int32 Height);
+	RENDERER_API void HandleResizeEvent(int32 Width, int32 Height);
 protected:
 
 protected:

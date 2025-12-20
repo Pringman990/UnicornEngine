@@ -20,6 +20,7 @@ class ModuleManager
 {
 	friend struct subsystem::SubsystemDescriptor;
 public:
+	ENGINE_API static ModuleManager* Instance();
 
 	ENGINE_API bool LoadModule(const String& ModuleName);
 	ENGINE_API bool UnLoadModule(const String& ModuleName);
@@ -35,6 +36,8 @@ private:
 	~ModuleManager();
 
 private:
+	static ModuleManager* sInstance;
+
 	UnorderedMap<String, ModuleInfo> mLoadedModules;
 };
 

@@ -30,6 +30,16 @@ struct EditorToolSettings
 	float scaleSpeed = 0.01f;
 };
 
+struct InputTextDialogInfo
+{
+	bool open = false;
+	bool confirmed = false;
+	char input[128] = "";
+
+	String windowText;
+	String inputText;
+};
+
 class Editor
 {
 public:
@@ -50,6 +60,9 @@ public:
 	EditorToolSettings& GetToolSettings() { return mEditorToolSettings; };
 
 private:
+	bool RenderTextInputBox();
+	void OpenNewSceneCreatePopup();
+
 	void RenderMainMenuBar();
 	void RegisterEditorWindows();
 private:
@@ -59,4 +72,6 @@ private:
 
 	SelectedItem mSelectedItem;
 	EditorToolSettings mEditorToolSettings;
+
+	InputTextDialogInfo mInputTextDialogInfo;
 };

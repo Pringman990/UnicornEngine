@@ -153,18 +153,18 @@ REFL_DEFINE(Vector3)
 
 #pragma endregion
 
+
 ENGINE_API refl::ReflectionRegistry::ReflectionRegistry()
 {
-
 }
 
 ENGINE_API refl::ReflectionRegistry::~ReflectionRegistry()
 {
 }
 
-ENGINE_API refl::ReflectionRegistry& refl::ReflectionRegistry::GetInstance()
+ENGINE_API refl::ReflectionRegistry* refl::ReflectionRegistry::Instance()
 {
-	static ReflectionRegistry instance;
+	static refl::ReflectionRegistry* instance = new refl::ReflectionRegistry();
 	return instance;
 }
 

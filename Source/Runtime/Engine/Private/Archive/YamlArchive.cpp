@@ -50,10 +50,10 @@ ENGINE_API OwnedPtr<Archive> YamlArchive::CreateSubArchive(const String& Key)
 	return MakeOwned<YamlArchive>(ctx.node[Key]);
 }
 
-void YamlArchive::WriteToFile(const Path& VirtualPath)
+void YamlArchive::WriteToFile(PathView FilePath)
 {
-	FileSystem* fs = SubsystemManager::Get<FileSystem>();
-	fs->WriteAll(VirtualPath, YamlHelper::WriteToMemory(mStack[0].node));
+	FileSystem* fs = FileSystem::Instance();
+	fs->WriteAll(FilePath, YamlHelper::WriteToMemory(mStack[0].node));
 }
 
 #pragma region Writing

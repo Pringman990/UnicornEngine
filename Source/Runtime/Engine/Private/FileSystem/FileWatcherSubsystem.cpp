@@ -1,9 +1,14 @@
 #include "FileSystem/FileWatcherSubsystem.h"
 
+FileWatcherSubsystem* FileWatcherSubsystem::sInstance = nullptr;
 REGISTER_ENGINE_SUBSYSTEM(FileWatcherSubsystem)
 
 FileWatcherSubsystem::FileWatcherSubsystem()
 {
+#ifdef _DEBUG
+	ASSERT(sInstance == nullptr, "The instance was not null and we are trying to set it again");
+#endif
+	sInstance = this;
 };
 
 FileWatcherSubsystem::~FileWatcherSubsystem()
@@ -12,6 +17,17 @@ FileWatcherSubsystem::~FileWatcherSubsystem()
 		notifier.RemoveAll();
 
 	mWatched.clear();
+
+	if (sInstance == this)
+		sInstance = nullptr;
+}
+
+ENGINE_API FileWatcherSubsystem* FileWatcherSubsystem::Instance()
+{
+#ifdef _DEBUG
+	ASSERT(sInstance, "Instance was accessed before/after it was created/destroyed");
+#endif
+	return sInstance;
 }
 
 bool FileWatcherSubsystem::Init(const String& Root, SharedPtr<IFileWatcherBackend> Backend)

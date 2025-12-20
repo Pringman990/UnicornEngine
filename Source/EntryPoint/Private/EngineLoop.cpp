@@ -34,9 +34,9 @@ EngineLoop::~EngineLoop()
 
 	//TODO: add unloading of modules (not unloading can cause fake memory leaks)
 
-	SubsystemManager::Get<ESystemManager>()->UnRegisterSystems();
-	SubsystemManager::Get<SceneManager>()->ClearAllScenes();
-	SubsystemManager::Get<ModuleManager>()->UnLoadModule("Sandbox");
+	ESystemManager::Instance()->UnRegisterSystems();
+	SceneManager::Instance()->ClearAllScenes();
+	ModuleManager::Instance()->UnLoadModule("Sandbox");
 
 	mGenericApplication = nullptr;
 	mFileWatcher = nullptr;
@@ -47,7 +47,7 @@ bool EngineLoop::Init()
 	TIMER_START_READING("__Engine Loop Init__");
 	LOG_INFO("Engine Loop Starting Init");
 
-	Application* app = SubsystemManager::Get<Application>();
+	Application* app = Application::Instance();
 	mGenericApplication = app->_CreateApplication();
 	ASSERT(mGenericApplication, "Engine Loop Failed To Create Application");
 
@@ -55,7 +55,7 @@ bool EngineLoop::Init()
 
 	mGenericApplication->OnApplicationRequestExist.AddRaw(this, &EngineLoop::RequestExit);
 
-	SubsystemManager::Get<InputMapper>()->Init();
+	InputMapper::Instance()->Init();
 
 	{
 		LOG_INFO("Render Loop Initializing");
@@ -83,7 +83,7 @@ bool EngineLoop::Init()
 	SandboxInit initGameWorld = nullptr;
 	{
 		_PAUSE_TRACK_MEMORY(true);
-		ModuleManager* moduleManager = SubsystemManager::Get<ModuleManager>();
+		ModuleManager* moduleManager = ModuleManager::Instance();
 		ASSERT(moduleManager->LoadModule("Sandbox"), "Failed to load Sandbox module");
 
 		HMODULE sanboxModule = moduleManager->GetHModule("Sandbox");
@@ -97,10 +97,12 @@ bool EngineLoop::Init()
 		_PAUSE_TRACK_MEMORY(false);
 	}
 
-	SubsystemManager::Get<AssetRegistry>()->FindAndRegisterAllAssets();
+	AssetRegistry::Instance()->FindAndRegisterAllAssets();
 
-	SubsystemManager::Get<SceneManager>()->CreateScene("Default");
-	SubsystemManager::Get<SceneManager>()->SetActiveScene("Default");
+	SceneManager::Instance()->CreateScene("Default");
+	SceneManager::Instance()->SetActiveScene("Default");
+
+	SceneManager::Instance()->LoadAllSceneFiles();
 
 	initGameWorld();
 
@@ -115,11 +117,11 @@ void EngineLoop::Update()
 	if (mShouldExit)
 		return;
 
-	SubsystemManager::Get<InputMapper>()->Update();
+	InputMapper::Instance()->Update();
 
 	mRenderLoop.BeginFrame();
 	
-	SubsystemManager::Get<SceneManager>()->UpdateActiveScene();
+	SceneManager::Instance()->UpdateActiveScene();
 	mSandboxRender();
 
 	//mRenderer->SwitchToSwapChain();

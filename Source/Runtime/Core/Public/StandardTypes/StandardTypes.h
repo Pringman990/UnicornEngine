@@ -33,7 +33,9 @@ using wchar = wchar_t;
 using byte = uint8;
 
 using String = std::string;
+using StringView = std::string_view;
 using Path = std::string;
+using PathView = std::string_view;
 
 template<typename T>
 using Vector = std::vector<T>;
@@ -45,6 +47,10 @@ using Array = std::array<T, N>;
 
 template<typename T, typename V>
 using Map = std::map<T, V>;
+
+/// TODO IMPORTANT:
+/// Make Unordered map with custom string comparitor so we can use a stringview for lookup.
+/// -------------------------------------------------
 
 template<typename T, typename V>
 using UnorderedMap = std::unordered_map<T, V>;

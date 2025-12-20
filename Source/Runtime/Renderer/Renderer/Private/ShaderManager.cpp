@@ -87,7 +87,7 @@ GPUResourceHandle<ShaderProgram> ShaderManager::TryGetShaderProgram(const Path& 
 
 bool ShaderManager::CompileShader(const Path& VirtualPath, const String& EntryPoint, const String& ShaderModel, ComPtr<ID3DBlob>& Blob)
 {
-	FileSystem* fileSystem = SubsystemManager::Get<FileSystem>();
+	FileSystem* fileSystem = FileSystem::Instance();
 	Path path = fileSystem->GetAbsolutPath(VirtualPath);
 
 	DWORD shaderflags = D3DCOMPILE_ENABLE_STRICTNESS;

@@ -4,10 +4,11 @@ print("Including Runtime/Renderer/")
 project "Renderer"
 	language "C++"
 	cppdialect "C++20"
-	kind "StaticLib"
+	kind "SharedLib"
 
 	targetname(UCE_TARGET_NAME)
-    targetdir (UCE_TARGET_DIR)
+    targetdir (UCE_EXECUTABLE_DIR)
+	implibdir(UCE_TARGET_DIR)
 
     objdir(UCE_OBJ_DIR)
     location (UCE_VCXPROJ_DIR)
@@ -51,7 +52,8 @@ project "Renderer"
 
 	defines{
 		"GRAPHICS_DEBUG_INFORMATION",
-		"STB_IMAGE_IMPLEMENTATION"
+		"STB_IMAGE_IMPLEMENTATION",
+		"RENDERER_EXPORTS"
 	}
 
 	filter ("platforms:x64-windows")

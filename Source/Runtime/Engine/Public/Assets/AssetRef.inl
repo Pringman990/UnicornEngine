@@ -5,7 +5,7 @@
 template<typename T>
 T* AssetRef<T>::Get() const
 {
-	return SubsystemManager::Get<AssetRegistry>()->GetAsset(*this);
+	return AssetRegistry::Instance()->GetAsset(*this);
 }
 
 template<IsAsset T>
@@ -23,5 +23,5 @@ inline void LoadAssetRef(void* obj, Archive& archive, const String& key)
 	String uuidStr;
 	archive.ReadString(uuidStr, key);
 
-	(*ref) = SubsystemManager::Get<AssetRegistry>()->GetAssetFromUUID<T>(UniqueID128(uuidStr));
+	(*ref) = AssetRegistry::Instance()->GetAssetFromUUID<T>(UniqueID128(uuidStr));
 }

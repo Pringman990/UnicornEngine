@@ -1,4 +1,5 @@
 #pragma once
+#include "RendererDefines.h"
 #include <EngineMinimal.h>
 #include <RendererMinimal.h>
 #include "LogicalDevice.h"
@@ -69,44 +70,48 @@ class Renderer
 	friend struct subsystem::SubsystemDescriptor;
 
 public:
-	bool Init();
+	RENDERER_API static Renderer* Instance();
 
-	void SubmitMesh(AssetRef<Mesh> Mesh, const Transform& ObjectTransfrom);
-	void SubmitMesh(GPUResourceHandle<GPUMesh> Mesh, const Transform& ObjectTransfrom, Vector<Material*> OverrideMaterials);
+	RENDERER_API bool Init();
 
-	void HandleResizeEvent(int32 Width, int32 Height);
+	RENDERER_API void SubmitMesh(AssetRef<Mesh> Mesh, const Transform& ObjectTransfrom);
+	RENDERER_API void SubmitMesh(GPUResourceHandle<GPUMesh> Mesh, const Transform& ObjectTransfrom, Vector<Material*> OverrideMaterials);
 
-	inline const LogicalDevice& GetLogicalDevice() const { return mDevice; };
-	inline SwapChain* GetSwapChain() const { return mSwapChain.get(); };
+	RENDERER_API void HandleResizeEvent(int32 Width, int32 Height);
+
+	RENDERER_API inline const LogicalDevice& GetLogicalDevice() const { return mDevice; };
+	RENDERER_API inline SwapChain* GetSwapChain() const { return mSwapChain.get(); };
 	
-	inline ShaderManager* GetShaderManager() const { return mShaderManager.get(); };
-	inline InputLayoutManager* GetInputManager() const { return mInputManager.get(); };
-	inline RenderBufferManager* GetBufferManager() const { return mRenderBufferManager.get(); };
+	RENDERER_API inline ShaderManager* GetShaderManager() const { return mShaderManager.get(); };
+	RENDERER_API inline InputLayoutManager* GetInputManager() const { return mInputManager.get(); };
+	RENDERER_API inline RenderBufferManager* GetBufferManager() const { return mRenderBufferManager.get(); };
 	
-	inline GPUTextureManager*	GetGPUTextureManager()	const { return mTextureManager.get(); };
-	inline GPUMeshManager*		GetGPUMeshManager()		const { return mMeshManager.get(); };
-	inline GPUMaterialManager*  GetGPUMaterialManager() const { return mMaterialManager.get(); };
+	RENDERER_API inline GPUTextureManager*	GetGPUTextureManager()	const { return mTextureManager.get(); };
+	RENDERER_API inline GPUMeshManager*		GetGPUMeshManager()		const { return mMeshManager.get(); };
+	RENDERER_API inline GPUMaterialManager*  GetGPUMaterialManager() const { return mMaterialManager.get(); };
 
-	inline const GraphicsCardInformation& GetCardInfo() const { return mGraphicsCardInfo; };
-	void SetCardInfo(const GraphicsCardInformation& Info) { mGraphicsCardInfo = Info; };
+	RENDERER_API inline const GraphicsCardInformation& GetCardInfo() const { return mGraphicsCardInfo; };
+	RENDERER_API void SetCardInfo(const GraphicsCardInformation& Info) { mGraphicsCardInfo = Info; };
 
-	inline DirectResourceHandle<GPUConstantBuffer> GetFrameConstantsBuffer() const { return mFrameConstantsBuffer; }
-	inline DirectResourceHandle<GPUConstantBuffer> GetCameraConstantsBuffer() const { return mCameraConstantsBuffer; }
-	inline DirectResourceHandle<GPUConstantBuffer> GetObjectConstantBuffer() const { return mObjectConstantBuffer; }
+	RENDERER_API inline DirectResourceHandle<GPUConstantBuffer> GetFrameConstantsBuffer() const { return mFrameConstantsBuffer; }
+	RENDERER_API inline DirectResourceHandle<GPUConstantBuffer> GetCameraConstantsBuffer() const { return mCameraConstantsBuffer; }
+	RENDERER_API inline DirectResourceHandle<GPUConstantBuffer> GetObjectConstantBuffer() const { return mObjectConstantBuffer; }
 
-	inline CommandList* GetFrameSetupCommandList() const { return mFrameSetupCommandList; };
+	RENDERER_API inline CommandList* GetFrameSetupCommandList() const { return mFrameSetupCommandList; };
 
-	inline const MainRenderTarget& GetMainRenderTarget() const { return mMainRenderTarget; };
-	void ResizeMainRenderTarget(const Vector2i& Extent);
+	RENDERER_API inline const MainRenderTarget& GetMainRenderTarget() const { return mMainRenderTarget; };
+	RENDERER_API void ResizeMainRenderTarget(const Vector2i& Extent);
 
 	//TODO: remove later
-	inline Camera* GetActiveCamera() const { return mActiveCamera; };
-	inline void SetActiveCamera(Camera* Cam) { mActiveCamera = Cam; };
+	RENDERER_API inline Camera* GetActiveCamera() const { return mActiveCamera; };
+	RENDERER_API inline void SetActiveCamera(Camera* Cam) { mActiveCamera = Cam; };
 
 private:
 	Renderer();
 	~Renderer();
 private:
+	static Renderer* sInstance;
+
 	LogicalDevice mDevice;
 	GraphicsCardInformation mGraphicsCardInfo;
 
@@ -131,5 +136,3 @@ private:
 	//TODO: Remove when camera manager is added
 	Camera* mActiveCamera;
 };
-
-#define GET_RENDERER() SubsystemManager::Get<Renderer>()

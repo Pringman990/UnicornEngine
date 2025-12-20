@@ -1,4 +1,6 @@
 #include "Scene/SceneManager.h"
+
+SceneManager* SceneManager::sInstance = nullptr;
 REGISTER_ENGINE_SUBSYSTEM(SceneManager)
 
 #include <YAML/YamlHelper.h>
@@ -8,15 +10,29 @@ SceneManager::SceneManager()
 	:
 	mActiveScene(nullptr)
 {
+#ifdef _DEBUG
+	ASSERT(sInstance == nullptr, "The instance was not null and we are trying to set it again");
+#endif
+	sInstance = this;
 }
 
 SceneManager::~SceneManager()
 {
+	if (sInstance == this)
+		sInstance = nullptr;
+}
+
+GAMECORE_API SceneManager* SceneManager::Instance()
+{
+#ifdef _DEBUG
+	ASSERT(sInstance, "Instance was accessed before/after it was created/destroyed");
+#endif
+	return sInstance;
 }
 
 GAMECORE_API void SceneManager::LoadAllSceneFiles()
 {
-	Path root = GET_FILESYSTEM()->GetAbsolutPath("engine://");
+	Path root = FileSystem::Instance()->GetAbsolutPath("engine://");
 	for (auto& entry : std::filesystem::recursive_directory_iterator(root))
 	{
 		if (!entry.is_directory() && entry.path().extension() == ".scene")
@@ -24,19 +40,19 @@ GAMECORE_API void SceneManager::LoadAllSceneFiles()
 			auto relative = std::filesystem::relative(entry.path(), root);
 			Path virtualPath = "engine://" + relative.generic_string();
 
-			ByteBuffer buffer = GET_FILESYSTEM()->ReadAll(virtualPath);
+			ByteBuffer buffer = FileSystem::Instance()->ReadAll(virtualPath);
 
 			LoadSceneMetadataOnly(virtualPath);
 		}
 	}
 }
 
-Scene* SceneManager::CreateScene(const String& Name)
+Scene* SceneManager::CreateScene(String Name)
 {
 	return CreateScene(UniqueID128::FromRandom(), Name);
 }
 
-GAMECORE_API Scene* SceneManager::CreateScene(const UniqueID128& UUID, const String& Name)
+GAMECORE_API Scene* SceneManager::CreateScene(const UniqueID128& UUID, String Name)
 {
 	Scene* checkNameScene = Exists(Name);
 	if (checkNameScene)
@@ -62,12 +78,12 @@ Scene* SceneManager::GetActiveScene()
 	return mActiveScene;
 }
 
-Scene* SceneManager::GetScene(const String& Name)
+Scene* SceneManager::GetScene(StringView Name)
 {
 	return GetSceneFromName(Name);
 }
 
-void SceneManager::SetActiveScene(const String& Name)
+void SceneManager::SetActiveScene(StringView Name)
 {
 	Scene* scene = GetSceneFromName(Name);
 	if (!scene)
@@ -86,26 +102,31 @@ void SceneManager::ClearAllScenes()
 	mActiveScene = nullptr;
 }
 
-bool SceneManager::SaveActiveSceneToFile(const Path& VirtualPath)
+SceneErrorCode SceneManager::SaveActiveSceneToFile(PathView FilePath)
 {
-	return SaveSceneToFile(mActiveScene, VirtualPath);	
+	SceneErrorCode result;
+	if (result = SaveSceneToFile(mActiveScene, FilePath))
+	{
+		String sourcePath(FilePath);
+		mActiveScene->SetSourcePath(sourcePath);
+	}
+	return result;
 }
 
-bool SceneManager::SaveActiveScene()
+SceneErrorCode SceneManager::SaveActiveScene()
 {
 	if (mActiveScene->GetName() == "Default")
-		return true;
+		return SceneErrorCode(SceneErrorCode::ErrorCode::OK);
 
 	if (mActiveScene->GetSourcePath().empty())
 	{
-		LOG_ERROR("Couldn't save active scene as it does not have a source path, use SaveActiveSceneToFile");
-		return false;
+		return SceneErrorCode(SceneErrorCode::ErrorCode::InvalidPath);
 	}
 
 	return SaveSceneToFile(mActiveScene, mActiveScene->GetSourcePath());
 }
 
-Scene* SceneManager::GetSceneFromName(const String& Name)
+Scene* SceneManager::GetSceneFromName(StringView Name)
 {
 	Scene* scene = Exists(Name);
 	if (!scene)
@@ -117,9 +138,9 @@ Scene* SceneManager::GetSceneFromName(const String& Name)
 	return scene;
 }
 
-GAMECORE_API Scene* SceneManager::Exists(const String& Name)
+GAMECORE_API Scene* SceneManager::Exists(StringView Name)
 {
-	auto it = mNameToUUID.find(Name);
+	auto it = mNameToUUID.find(String(Name));
 	if (it == mNameToUUID.end())
 	{
 		return nullptr;
@@ -140,19 +161,19 @@ Scene* SceneManager::GetSceneFromUUID(const UniqueID128& UUID)
 	return it->second.get();
 }
 
-GAMECORE_API bool SceneManager::SaveSceneToFile(Scene* ScenePtr, const Path& VirtualPath)
+GAMECORE_API SceneErrorCode SceneManager::SaveSceneToFile(Scene* ScenePtr, PathView FilePath)
 {
-	FileSystem* fileSys = SubsystemManager::Get<FileSystem>();
-	if (!fileSys->Exists(VirtualPath))
+	FileSystem* fileSys = FileSystem::Instance();
+	if (!fileSys->Exists(FilePath))
 	{
-		LOG_ERROR("Filed to save active scene to file path '{}', because it doesn't exist", VirtualPath);
-		return false;
+		LOG_ERROR("Filed to save active scene to file path '{}', because it doesn't exist", FilePath);
+		return SceneErrorCode(SceneErrorCode::ErrorCode::InvalidPath);
 	}
 
 	if (!ScenePtr)
 	{
 		LOG_ERROR("Can't save the active scene as its null??");
-		return false;
+		return SceneErrorCode(SceneErrorCode::ErrorCode::InvalidScenePtr);
 	}
 
 	YamlArchive archive;
@@ -169,13 +190,13 @@ GAMECORE_API bool SceneManager::SaveSceneToFile(Scene* ScenePtr, const Path& Vir
 	}
 	archive.EndWriteArray();
 
-	refl::ReflectionRegistry& rr = refl::ReflectionRegistry::GetInstance();
+	refl::ReflectionRegistry* rr = refl::ReflectionRegistry::Instance();
 	auto& componentStores = world.ComponentAllStores();
 
 	archive.BeginWriteObject("components");
 	for (auto& [componentUUID, store] : componentStores)
 	{
-		const refl::Type* type = rr.GetOrNull(componentUUID);
+		const refl::Type* type = rr->GetOrNull(componentUUID);
 		//I don't think this can ever happen as all components added on entities most be is_component reflected
 		if (!type)
 			continue;
@@ -200,11 +221,11 @@ GAMECORE_API bool SceneManager::SaveSceneToFile(Scene* ScenePtr, const Path& Vir
 	}
 	archive.EndWriteObject();
 
-	archive.WriteToFile(VirtualPath);
-	return true;
+	archive.WriteToFile(FilePath);
+	return SceneErrorCode(SceneErrorCode::ErrorCode::OK);
 }
 
-GAMECORE_API bool SceneManager::LoadScene(const String& Name)
+GAMECORE_API bool SceneManager::LoadScene(StringView Name)
 {
 	if (Name == "Default")
 		return true;
@@ -219,7 +240,7 @@ GAMECORE_API bool SceneManager::LoadScene(const String& Name)
 	return LoadExistingScene(scene->GetUUID());
 }
 
-GAMECORE_API void SceneManager::UnloadScene(const String& Name)
+GAMECORE_API void SceneManager::UnloadScene(StringView Name)
 {
 	Scene* scene = GetSceneFromName(Name);
 	if (!scene)
@@ -231,16 +252,16 @@ GAMECORE_API void SceneManager::UnloadScene(const String& Name)
 	scene->Unload();
 }
 
-GAMECORE_API UniqueID128 SceneManager::LoadSceneMetadataOnly(const Path& VirtualPath)
+GAMECORE_API UniqueID128 SceneManager::LoadSceneMetadataOnly(PathView FilePath)
 {
-	FileSystem* fileSys = SubsystemManager::Get<FileSystem>();
-	if (!fileSys->Exists(VirtualPath))
+	FileSystem* fileSys = FileSystem::Instance();
+	if (!fileSys->Exists(FilePath))
 	{
-		LOG_ERROR("Failed to load scene to file path '{}', because it doesn't exist", VirtualPath);
+		LOG_ERROR("Failed to load scene to file path '{}', because it doesn't exist", FilePath);
 		return UniqueID128::Invalid();
 	}
 
-	ByteBuffer buffer = fileSys->ReadAll(VirtualPath);
+	ByteBuffer buffer = fileSys->ReadAll(FilePath);
 	YamlArchive archive(buffer);
 
 	String uuidStr;
@@ -249,26 +270,26 @@ GAMECORE_API UniqueID128 SceneManager::LoadSceneMetadataOnly(const Path& Virtual
 
 	String name;
 	archive.ReadString(name, "name");
-
+	
 	Scene* scene = CreateScene(uuid, name);
-	scene->SetSourcePath(VirtualPath);
+	scene->SetSourcePath(String(FilePath));
 
 	return uuid;
 }
 
-GAMECORE_API bool SceneManager::LoadSceneFromFile(const Path& VirtualPath)
+GAMECORE_API bool SceneManager::LoadSceneFromFile(PathView FilePath)
 {
-	FileSystem* fileSys = SubsystemManager::Get<FileSystem>();
-	if (!fileSys->Exists(VirtualPath))
+	FileSystem* fileSys = FileSystem::Instance();
+	if (!fileSys->Exists(FilePath))
 	{
-		LOG_ERROR("Filed to load scene from file path '{}', because it doesn't exist", VirtualPath);
+		LOG_ERROR("Filed to load scene from file path '{}', because it doesn't exist", FilePath);
 		return false;
 	}
 
-	UniqueID128 uuid = LoadSceneMetadataOnly(VirtualPath);
+	UniqueID128 uuid = LoadSceneMetadataOnly(FilePath);
 	if (!uuid.IsValid())
 	{
-		LOG_ERROR("Failed to get scene uuid, path '{}'", VirtualPath);
+		LOG_ERROR("Failed to get scene uuid, path '{}'", FilePath);
 		return false;
 	}
 
@@ -285,7 +306,7 @@ GAMECORE_API bool SceneManager::LoadExistingScene(const UniqueID128& UUID)
 		return false;
 	}
 
-	FileSystem* fileSys = SubsystemManager::Get<FileSystem>();
+	FileSystem* fileSys = FileSystem::Instance();
 	if (!fileSys->Exists(scene->GetSourcePath()))
 	{
 		LOG_ERROR("Filed to load scene to file path '{}', because it doesn't exist", scene->GetSourcePath());
@@ -311,14 +332,14 @@ GAMECORE_API bool SceneManager::LoadExistingScene(const UniqueID128& UUID)
 	}
 	archive.EndReadArray();
 
-	refl::ReflectionRegistry& rr = refl::ReflectionRegistry::GetInstance();
+	refl::ReflectionRegistry* rr = refl::ReflectionRegistry::Instance();
 
 	archive.BeginReadObject("components");
 	String componentKey;
 	while (archive.ReadObjectKey(componentKey))
 	{
 		UniqueID128 componentUUID(componentKey);
-		const refl::Type* componentType = rr.GetOrNull(componentUUID);
+		const refl::Type* componentType = rr->GetOrNull(componentUUID);
 		if (!componentType)
 		{
 			LOG_WARNING("Tried to get a component from scene file that does not exist anymore");

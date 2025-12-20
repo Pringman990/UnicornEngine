@@ -1,7 +1,8 @@
 #pragma once
+#include "RendererDefines.h"
 #include <EngineMinimal.h>
 
-class RenderLoop
+class RENDERER_API RenderLoop
 {
 public:
 	RenderLoop() = default;

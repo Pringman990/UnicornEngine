@@ -16,7 +16,7 @@ FreeLookCamera::~FreeLookCamera()
 
 void FreeLookCamera::HandleInputsAndMove()
 {
-	InputMapper* input = SubsystemManager::Get<InputMapper>();
+	InputMapper* input = InputMapper::Instance();
 
 	if (!GetAsyncKeyState(VK_RBUTTON))
 	{
@@ -24,7 +24,7 @@ void FreeLookCamera::HandleInputsAndMove()
 		return;
 	}
 
-	Timer* timer = GET_TIMER();
+	Timer* timer = Timer::Instance();
 
 	Matrix matrix = mTransform.GetMatrix();
 	Vector3 position = mTransform.GetPosition();

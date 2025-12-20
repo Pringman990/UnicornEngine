@@ -125,8 +125,8 @@ void GameWorld::Init()
 {
 	LOG_INFO("GameWorld init...");
 
-	AssetRegistry* assetReg = SubsystemManager::Get<AssetRegistry>();
-	SceneManager* sceMan = SubsystemManager::Get<SceneManager>();
+	AssetRegistry* assetReg = AssetRegistry::Instance();
+	SceneManager* sceMan = SceneManager::Instance();
 
 	////Ent 1
 	//AssetRef<Mesh> asset = assetReg->Load<Mesh>("engine://Models/sm_cube.asset");
@@ -162,12 +162,12 @@ void GameWorld::Init()
 	//sMesh2->mesh = asset2;
 
 	//Systems
-	ESystemManager* sysMan = SubsystemManager::Get<ESystemManager>();
+	ESystemManager* sysMan = ESystemManager::Instance();
 	sysMan->RegisterSystem(&MoveCubeSystem, "Move Cube", EPipeline::ESystemUpdate);
 	sysMan->RegisterSystem(&StaticMeshRenderSystem, "Static Mesh Render", EPipeline::ESystemPostUpdate);
 
 	//sceMan->SaveActiveSceneToFile("engine://Test.scene");
-	sceMan->LoadSceneFromFile("engine://Test.scene");
+	sceMan->LoadScene("Test");
 	sceMan->SetActiveScene("Test");
 }
 

@@ -20,8 +20,8 @@ bool ECSDebugWindow::Init()
 
 void ECSDebugWindow::Render()
 {
-	auto systemsInfo = GET_ESYSTEMMANAGER()->GetSystemsDebugInfo();
-	auto systems = GET_ESYSTEMMANAGER()->GetRegisteredSystems();
+	auto systemsInfo = ESystemManager::Instance()->GetSystemsDebugInfo();
+	auto systems = ESystemManager::Instance()->GetRegisteredSystems();
 
 	for (const auto& [name, sys] : systems)
 	{
@@ -42,7 +42,7 @@ void ECSDebugWindow::Render()
 
 	if (ImGui::CollapsingHeader("Component Types"))
 	{
-		auto types = refl::ReflectionRegistry::GetInstance().GetAllTypesWithAttribute(refl::Attribute::EComponent);
+		auto types = refl::ReflectionRegistry::Instance()->GetAllTypesWithAttribute(refl::Attribute::EComponent);
 		for (const auto& type : types)
 		{
 			ImGui::Selectable(type->name.c_str());

@@ -10,6 +10,8 @@ class Application
 {
 	friend struct subsystem::SubsystemDescriptor;
 public:
+	ENGINE_API static Application* Instance();
+
 	/// <summary>
 	/// Pointer can be null if used before EngineLoop has run Init
 	/// </summary>
@@ -24,5 +26,7 @@ private:
 	Application();
 	~Application();
 private:
+	static Application* sInstance;
+
 	GenericApplication* mGenericApplication;
 };

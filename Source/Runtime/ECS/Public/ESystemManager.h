@@ -1,9 +1,10 @@
 #pragma once
+#include "ECSDefines.h"
 #include <Core.h>
 #include <Subsystem/EngineSubsystem.h>
 #include "EWorld.h"
 
-struct ESystemDebugInfo
+struct ECS_API ESystemDebugInfo
 {
 	uint32 entityCount = 0;
 	float frameRunTime = 0; //In seconds
@@ -17,8 +18,10 @@ class ESystemManager
 	friend struct subsystem::SubsystemDescriptor;
 public:
 
-	void RunLoad(EWorld& World);
-	void RunUpdate(EWorld& World);
+	ECS_API static ESystemManager* Instance();
+
+	ECS_API void RunLoad(EWorld& World);
+	ECS_API void RunUpdate(EWorld& World);
 
 	void RegisterSystem(Func<void(EWorld&)> SystemFunction, const String& Name, EPipeline Pipeline)
 	{
@@ -62,9 +65,11 @@ public:
 
 
 private:
-	ESystemManager();
-	~ESystemManager();
+	ECS_API ESystemManager();
+	ECS_API ~ESystemManager();
 private:
+	static ESystemManager* sInstance;
+
 	ENameSystemMap mRegisteredSystemsName;
 	EPipelineSystemMap mRegisteredSystemsPipeline;
 
@@ -73,5 +78,3 @@ private:
 #endif // _DEBUG
 
 };
-
-#define GET_ESYSTEMMANAGER() SubsystemManager::Get<ESystemManager>()

@@ -54,6 +54,7 @@ namespace __Subsystem
 	ENGINE_API void* Get(const std::type_index& Type);
 	ENGINE_API UnorderedMap<std::type_index, Singleton>& GetAll();
 	ENGINE_API void Unregister(const std::type_index& Type);
+	ENGINE_API void UnregisterAll();
 	ENGINE_API void EnsureAllShutdown();
 
 	template <typename... Deps>
@@ -80,12 +81,6 @@ public:
 	}
 
 	template<typename T>
-	static T* Get()
-	{
-		return static_cast<T*>(__Subsystem::Get(typeid(T)));
-	}
-
-	template<typename T>
 	static void RequestDelete()
 	{
 		__Subsystem::Unregister(typeid(T));
@@ -93,11 +88,7 @@ public:
 
 	static void DestroyAll()
 	{
-		for (auto& sys : __Subsystem::GetAll())
-		{
-			__Subsystem::Unregister(sys.first);
-		}
-		__Subsystem::GetAll().clear();
+		__Subsystem::UnregisterAll();
 	}
 
 private:

@@ -13,7 +13,7 @@ public:
 	ENGINE_API ~YamlArchive() override;
 
 	ENGINE_API virtual OwnedPtr<Archive> CreateSubArchive(const String& Key) override;
-	ENGINE_API virtual void WriteToFile(const Path& VirtualPath) override;
+	ENGINE_API virtual void WriteToFile(PathView FilePath) override;
 
 	//--------------- Writing ---------------
 	ENGINE_API virtual bool WriteInt32(int32 Value, const String& Key = "") override;

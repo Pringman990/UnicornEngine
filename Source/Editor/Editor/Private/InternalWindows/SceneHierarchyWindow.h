@@ -16,7 +16,6 @@ public:
 private:
 	void DrawEntityNode(const EEntity& Entity, EWorld& World);
 private:
-	class SceneManager* mSceneManager;
 	EEntity mSelectedEntity;
 	EEntity mRenamingEntity;
 	char mRenameBuffer[256];

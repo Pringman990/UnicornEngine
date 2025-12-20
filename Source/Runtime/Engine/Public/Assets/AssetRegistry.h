@@ -41,6 +41,8 @@ class AssetRegistry
 	friend struct subsystem::SubsystemDescriptor;
 public:
 
+	ENGINE_API static AssetRegistry* Instance();
+
 	/**
 	* Used to pre register all uuids when starting the engine.
 	*/
@@ -283,7 +285,8 @@ private:
 	}
 
 private:
-	
+	static AssetRegistry* sInstance;
+
 	UnorderedMap<std::type_index, OwnedPtr<IAssetLoader>> mLoaders;
 	UnorderedMap<std::type_index, IAssetLoader*> mTypeToLoader;
 	UnorderedMap<String, IAssetLoader*> mTypeStringToLoader;
@@ -292,8 +295,6 @@ private:
 	UnorderedMap<Path, UniqueID128> mPathToUUID;
 	AssetResourcePool<AssetBase> mAssets;
 };
-
-#define GET_ASSETREGISTRY() SubsystemManager::Get<AssetRegistry>()
 
 #define UNWRAP(...) __VA_ARGS__
 
@@ -304,4 +305,4 @@ private:
 * AssetRegistry.
 */
 #define REGISTER_ASSET_LOADER(CLASS, ASSETS, SUPPORTED) \
-	GET_ASSETREGISTRY()->RegisterLoader<CLASS>(AssetRegistry::MakeTypeIndexVector<UNWRAP ASSETS>(), AssetRegistry::MakeExtensions(UNWRAP SUPPORTED));
+	AssetRegistry::Instance()->RegisterLoader<CLASS>(AssetRegistry::MakeTypeIndexVector<UNWRAP ASSETS>(), AssetRegistry::MakeExtensions(UNWRAP SUPPORTED));

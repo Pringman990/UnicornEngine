@@ -36,9 +36,9 @@ void GraphicsDebugWindow::Render()
     //ImGui::Text("Texture Load Test:");
     //ImGui::Image(texture->GetImGuiHandle(), ImVec2(texture->GetMetadata().extent.x, texture->GetMetadata().extent.y));
 
-    ImGui::Text(("FPS: " + std::to_string(GET_TIMER()->GetFps())).c_str());
+    ImGui::Text(("FPS: " + std::to_string(Timer::Instance()->GetFps())).c_str());
 
-    GraphicsCardInformation info = SubsystemManager::Get<Renderer>()->GetCardInfo();
+    GraphicsCardInformation info = Renderer::Instance()->GetCardInfo();
     ImGui::Text(info.name.c_str());
 
     std::string vram = "Video Memory: ";

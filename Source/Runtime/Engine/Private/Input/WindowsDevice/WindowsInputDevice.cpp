@@ -28,7 +28,7 @@ void WindowsInputDevice::Init()
 #define HID_USAGE_GENERIC_KEYBOARD        ((USHORT) 0x06)
 #endif
 
-	WindowsApplication* application = static_cast<WindowsApplication*>(SubsystemManager::Get<Application>()->GetApplication());
+	WindowsApplication* application = static_cast<WindowsApplication*>(Application::Instance()->GetApplication());
 	HWND hWnd = application->GetWindowsWindowInfo().windowHandle;
 
 	//Keyboard setup
@@ -326,7 +326,7 @@ void WindowsInputDevice::CaptureMouse()
 	//clipRect.bottom = lowerRight.y;
 
 	//ClipCursor(&clipRect);
-	WindowsApplication* application = static_cast<WindowsApplication*>(SubsystemManager::Get<Application>()->GetApplication());
+	WindowsApplication* application = static_cast<WindowsApplication*>(Application::Instance()->GetApplication());
 
 	// Get the window handle
 	HWND window = application->GetWindowsWindowInfo().windowHandle;

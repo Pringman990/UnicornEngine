@@ -24,33 +24,51 @@ class FileSystem
 	};
 
 public:
+
+	enum class PathKind
+	{
+		Virtual,
+		Relative,
+		Absolute,
+		Invalid
+	};
+
 	struct MountHandle
 	{
 		String protocol;
 		IFileBackend* backend; // For identity match
 	};
 
+	ENGINE_API static FileSystem* Instance();
+
 	ENGINE_API void Init();
 
 	ENGINE_API MountHandle Mount(const Protocol& Protocol, SharedPtr<IFileBackend> Backend, int32 Priority = 0);
 	ENGINE_API void UnMount(const MountHandle& Handle);
-	ENGINE_API bool Exists(const Path& VirtualPath);
-	ENGINE_API SharedPtr<IFileStream> Open(const Path& VirtualPath, FileMode Mode);
-	ENGINE_API ByteBuffer ReadAll(const Path& VirtualPath);
-	ENGINE_API ByteBuffer ReadAllNonVirtual(const Path& Path);
-	ENGINE_API void WriteAll(const Path& VirtualPath, const ByteBuffer& Data);
+	ENGINE_API bool Exists(PathView FilePath);
+	ENGINE_API SharedPtr<IFileStream> Open(PathView FilePath, FileMode Mode);
+	
+	ENGINE_API ByteBuffer ReadAll(PathView FilePath);
+	ENGINE_API void WriteAll(PathView FilePath, const ByteBuffer& Data);
 
-	ENGINE_API Path GetAbsolutPath(const Path& VirtualPath);
+	ENGINE_API Path GetAbsolutPath(PathView FilePath);
 
 protected:
 	FileSystem();
 	~FileSystem();
 
-	bool ParseVirtualPath(const Path& VirtualPath, Protocol& outProtocol, Path& outRelativePath);
+	bool ParseVirtualPath(PathView FilePath, Protocol& outProtocol, Path& outRelativePath);
+
+	PathKind GetPathKind(PathView FilePath);
+	void WriteAllVirtual(PathView FilePath, const ByteBuffer& Data);
+	void WriteAllAbsolute(PathView Path, const ByteBuffer& Data);
+
+	ByteBuffer ReadAllVirtual(PathView FilePath);
+	ByteBuffer ReadAllAbsolute(PathView FilePath);
 private:
+	static FileSystem* sInstance;
+
 	Path mRootPath;
 	Vector<MountPoint> mMounts;
-	OwnedPtr<NativeFileBackend> mDefaultFileBackend;
+	OwnedPtr<NativeFileBackend> mAbsoluteFileBackend;
 };
-
-#define GET_FILESYSTEM() SubsystemManager::Get<FileSystem>()

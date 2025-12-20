@@ -1,4 +1,5 @@
 #pragma once
+#include "Subsystem/EngineSubsystem.h"
 #include "EventDispatcher/Notifier.h"
 #include "Logger/Logger.h"
 
@@ -43,6 +44,7 @@ namespace refl
 
 	using TypeSaveFunction = Func<void(void* obj, Archive& archive, String key)>;
 	using TypeLoadFunction = Func<bool(void* obj, Archive& archive, String key)>;
+	using TypeDeferedRegisterFunction = void(*)();
 	
 	struct VectorOps
 	{
@@ -159,9 +161,15 @@ namespace refl
 
 	class ReflectionRegistry
 	{
+		enum class Phase
+		{
+			Runtime,
+			Static
+		};
+
 	public:
 
-		ENGINE_API static ReflectionRegistry& GetInstance();
+		ENGINE_API static ReflectionRegistry* Instance();
 
 		ENGINE_API void RegisterType(Type& InType);
 
@@ -316,7 +324,7 @@ namespace refl
 		{
 			return [InType](void* obj, Archive& archive, String key)
 				{
-					const Type* type = ReflectionRegistry::GetInstance().GetOrNull(InType->uuid);
+					const Type* type = ReflectionRegistry::Instance()->GetOrNull(InType->uuid);
 					for (auto& prop : type->properties)
 					{
 						if (!prop.type->functions.saveFunction)
@@ -335,7 +343,7 @@ namespace refl
 		{
 			return [InType](void* obj, Archive& archive, String key) -> bool
 				{
-					const Type* type = ReflectionRegistry::GetInstance().GetOrNull(InType->uuid);
+					const Type* type = ReflectionRegistry::Instance()->GetOrNull(InType->uuid);
 					for (auto& prop : type->properties)
 					{
 						if (!prop.type->functions.loadFunction)
@@ -409,10 +417,13 @@ namespace refl
 		}
 
 	private:
+		friend struct subsystem::SubsystemDescriptor;
+
 		ENGINE_API ReflectionRegistry();
 		ENGINE_API ~ReflectionRegistry();
 
 	private:
+
 		UnorderedMap<UniqueID128, OwnedPtr<Type>> mRegisteredTypes;
 		UnorderedMap<std::type_index, UniqueID128> mIndexToUUID;
 	};
@@ -432,12 +443,12 @@ namespace refl
 
 			mType.isFullyReflected = true;
 			mType.isValid = true;
-			ReflectionRegistry::GetInstance().RegisterType(mType);
+			ReflectionRegistry::Instance()->RegisterType(mType);
 		}
 
 		void Init(const String& Name, const String& UUID)
 		{
-			const Type* type = ReflectionRegistry::GetInstance().GetOrCreateType<T>();
+			const Type* type = ReflectionRegistry::Instance()->GetOrCreateType<T>();
 
 			mType = *type;
 
@@ -538,7 +549,7 @@ namespace refl
 					)
 				);
 
-			prop.type = ReflectionRegistry::GetInstance().GetOrCreateType<PT>();
+			prop.type = ReflectionRegistry::Instance()->GetOrCreateType<PT>();
 
 			this->mType.properties.push_back(std::move(prop));
 			return *this;
@@ -597,7 +608,7 @@ namespace refl
 			}																						\
 			~TRUNCATE(Refl_Register_, __LINE__)()													\
 			{																						\
-				refl::ReflectionRegistry::GetInstance().MarkInvalid<TYPE>();						\
+				refl::ReflectionRegistry::Instance()->MarkInvalid<TYPE>();						    \
 			}																						\
 		};																							\
 	}																								\

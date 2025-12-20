@@ -10,7 +10,7 @@
 void MoveCubeSystem(EWorld& World)
 {
 #ifdef _DEBUG
-	GET_TIMER()->StartReading("MoveCubeSystem");
+	Timer::Instance()->StartReading("MoveCubeSystem");
 #endif // _DEBUG
 
 	auto query = World.Query<ETransform, MoveCubeComponent>();
@@ -27,19 +27,19 @@ void MoveCubeSystem(EWorld& World)
 
 		Vector3 newPos = transform.position;
 		if (moveComp.flip)
-			newPos.x -= GET_TIMER()->GetDeltaTime() * moveComp.speedMultiplier;
+			newPos.x -= Timer::Instance()->GetDeltaTime() * moveComp.speedMultiplier;
 		else
-			newPos.x += GET_TIMER()->GetDeltaTime() * moveComp.speedMultiplier;
+			newPos.x += Timer::Instance()->GetDeltaTime() * moveComp.speedMultiplier;
 	
 		transform.position = newPos;
 	}
 
 #ifdef _DEBUG
-	float systemTime = GET_TIMER()->EndReading("MoveCubeSystem");
+	float systemTime = Timer::Instance()->EndReading("MoveCubeSystem");
 
 	ESystemDebugInfo debugInfo{};
 	debugInfo.entityCount = query.GetCount();
 	debugInfo.frameRunTime = systemTime;
-	GET_ESYSTEMMANAGER()->RegisterFrameDebugInfo("Move Cube", debugInfo);
+	ESystemManager::Instance()->RegisterFrameDebugInfo("Move Cube", debugInfo);
 #endif // _DEBUG
 }

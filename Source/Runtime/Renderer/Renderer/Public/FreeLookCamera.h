@@ -4,18 +4,18 @@
 class FreeLookCamera : public Camera
 {
 public:
-	FreeLookCamera();
-	~FreeLookCamera() override;
+	RENDERER_API FreeLookCamera();
+	RENDERER_API ~FreeLookCamera() override;
 
-	void HandleInputsAndMove();
+	RENDERER_API void HandleInputsAndMove();
 
-	void SetMoveSpeed(float Speed) { mMoveSpeed = Speed; };
-	void SetBoostMoveSpeed(float Speed) { mBoostMoveSpeed = Speed; };
-	void SetRotateSpeed(float Speed) { mRotateSpeed = Speed; };
+	RENDERER_API void SetMoveSpeed(float Speed) { mMoveSpeed = Speed; };
+	RENDERER_API void SetBoostMoveSpeed(float Speed) { mBoostMoveSpeed = Speed; };
+	RENDERER_API void SetRotateSpeed(float Speed) { mRotateSpeed = Speed; };
 
-	float GetMoveSpeed() const { return mMoveSpeed; };
-	float GetBoostMoveSpeed() const { return mBoostMoveSpeed; };
-	float GetRotateSpeed() const { return mRotateSpeed; };
+	RENDERER_API float GetMoveSpeed() const { return mMoveSpeed; };
+	RENDERER_API float GetBoostMoveSpeed() const { return mBoostMoveSpeed; };
+	RENDERER_API float GetRotateSpeed() const { return mRotateSpeed; };
 
 private:
 	float mMoveSpeed;

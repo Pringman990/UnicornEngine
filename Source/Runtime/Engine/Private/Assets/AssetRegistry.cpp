@@ -6,19 +6,34 @@
 
 #include <filesystem>
 
+AssetRegistry* AssetRegistry::sInstance = nullptr;
 REGISTER_ENGINE_SUBSYSTEM(AssetRegistry)
 
 AssetRegistry::AssetRegistry()
 {
+#ifdef _DEBUG
+	ASSERT(sInstance == nullptr, "The instance was not null and we are trying to set it again");
+#endif
+	sInstance = this;
 }
 
 AssetRegistry::~AssetRegistry()
 {
+	if (sInstance == this)
+		sInstance = nullptr;
+}
+
+ENGINE_API AssetRegistry* AssetRegistry::Instance()
+{
+#ifdef _DEBUG
+	ASSERT(sInstance, "Instance was accessed before/after it was created/destroyed");
+#endif
+	return sInstance;
 }
 
 void AssetRegistry::FindAndRegisterAllAssets()
 {
-	Path root = GET_FILESYSTEM()->GetAbsolutPath("engine://");
+	Path root = FileSystem::Instance()->GetAbsolutPath("engine://");
 	for (auto& entry : std::filesystem::recursive_directory_iterator(root))
 	{
 		if (!entry.is_directory() && entry.path().extension() == ".asset")
@@ -26,7 +41,7 @@ void AssetRegistry::FindAndRegisterAllAssets()
 			auto relative = std::filesystem::relative(entry.path(), root);
 			Path virtualPath = "engine://" + relative.generic_string();
 
-			ByteBuffer buffer = GET_FILESYSTEM()->ReadAll(virtualPath);
+			ByteBuffer buffer = FileSystem::Instance()->ReadAll(virtualPath);
 			YamlArchive arc(buffer);
 
 			String type;
@@ -64,13 +79,13 @@ ENGINE_API void AssetRegistry::CreateAssetFile(
 
 ENGINE_API AssetFileReadData AssetRegistry::ReadAssetFile(const String& VirtualPath)
 {
-	if (!GET_FILESYSTEM()->Exists(VirtualPath))
+	if (!FileSystem::Instance()->Exists(VirtualPath))
 	{
 		LOG_WARNING("Trying to read a asset that doesn't exist, {}", VirtualPath);
 		return {};
 	}
 
-	ByteBuffer buffer = GET_FILESYSTEM()->ReadAll(VirtualPath);
+	ByteBuffer buffer = FileSystem::Instance()->ReadAll(VirtualPath);
 
 	YamlArchive arc(buffer);
 

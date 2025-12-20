@@ -35,6 +35,8 @@ public:
 	//
 	//TVector<InputActionMap*>& _GetActionMappings();
 
+	ENGINE_API static InputMapper* Instance();
+
 	ENGINE_API void Init();
 	ENGINE_API void Update();
 			   
@@ -51,6 +53,8 @@ private:
 	~InputMapper();
 
 private:
+	static InputMapper* sInstance;
+
 	InputDevice* mInputDevice;
 	UnorderedMap<String, uint32> mNameToKey;
 };

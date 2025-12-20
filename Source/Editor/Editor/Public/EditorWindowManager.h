@@ -26,7 +26,6 @@ public:
 	EditorWindowManager();
 	~EditorWindowManager();
 private:
-private:
 	UnorderedMap<String, WindowCreator> mRegisteredWindows;
 	Vector<EditorWindow*> mActiveWindows;
 };

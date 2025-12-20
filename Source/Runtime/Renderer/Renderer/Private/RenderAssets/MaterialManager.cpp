@@ -31,7 +31,7 @@ Material* MaterialManager::Load(const String& VirtualPath)
 	material->SetSourcePath(readData.SourcePath);
 	material->SetType(readData.Type);
 
-	ByteBuffer materialData = GET_FILESYSTEM()->ReadAll(VirtualPath);
+	ByteBuffer materialData = FileSystem::Instance()->ReadAll(VirtualPath);
 	MaterialDecodeData decodeData = MaterialDecoder::LoadMaterial(materialData);
 	if (!decodeData.IsValid())
 	{
@@ -40,10 +40,10 @@ Material* MaterialManager::Load(const String& VirtualPath)
 		return nullptr;
 	}
 
-	GPUResourceHandle<ShaderProgram> programHandle = GET_RENDERER()->GetShaderManager()->TryGetShaderProgram(decodeData.shaderProgram);
-	material->SetGPUMaterialHandle(GET_RENDERER()->GetGPUMaterialManager()->CreateMaterialFromProgram(programHandle));
+	GPUResourceHandle<ShaderProgram> programHandle = Renderer::Instance()->GetShaderManager()->TryGetShaderProgram(decodeData.shaderProgram);
+	material->SetGPUMaterialHandle(Renderer::Instance()->GetGPUMaterialManager()->CreateMaterialFromProgram(programHandle));
 
-	ShaderProgram* program = GET_RENDERER()->GetShaderManager()->GetInternalShaderProgram(programHandle);
+	ShaderProgram* program = Renderer::Instance()->GetShaderManager()->GetInternalShaderProgram(programHandle);
 
 	for (auto& resource : program->fs.reflectedInfo.boundResources)
 	{

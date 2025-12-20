@@ -27,9 +27,9 @@ WindowsFileWatcher::~WindowsFileWatcher()
 	}
 }
 
-bool WindowsFileWatcher::Init(const String& RootPath)
+bool WindowsFileWatcher::Init(PathView RootPath)
 {
-	mRootDirectory = RootPath;
+	mRootDirectory = String(RootPath);
 	if (!std::filesystem::is_directory(mRootDirectory))
 	{
 		LOG_ERROR("Failed to init WindowsFileWatcher, Directory does not exist: %s", RootPath);
@@ -50,7 +50,7 @@ bool WindowsFileWatcher::Init(const String& RootPath)
 	return true;
 }
 
-void WindowsFileWatcher::Watch(const String& RootPath, FuncType Callback)
+void WindowsFileWatcher::Watch(PathView RootPath, FuncType Callback)
 {
 	FileWatchInfo info;
 

@@ -16,13 +16,13 @@ Camera::Camera()
 	mKeepAspect(false),
 	mPerspective(CameraPerspective::Undefined)
 {
-	WindowsApplication* app = static_cast<WindowsApplication*>(SubsystemManager::Get<Application>()->GetApplication());
+	WindowsApplication* app = static_cast<WindowsApplication*>(Application::Instance()->GetApplication());
 	app->OnWindowResizeEvent.AddRaw(this, &Camera::HandleResizeEvent);
 }
 
 Camera::~Camera()
 {
-	WindowsApplication* app = static_cast<WindowsApplication*>(SubsystemManager::Get<Application>()->GetApplication());
+	WindowsApplication* app = static_cast<WindowsApplication*>(Application::Instance()->GetApplication());
 	app->OnWindowResizeEvent.RemoveOwned(this);
 }
 

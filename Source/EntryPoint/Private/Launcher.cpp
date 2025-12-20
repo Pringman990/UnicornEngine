@@ -11,11 +11,13 @@ int32_t GuardedMain()
 	{
 		SubsystemManager::Init();
 		
-		SubsystemManager::Get<FileSystem>()->Init();
+		//refl::ReflectionRegistry::Instance()->ProcessDeferredRegistrations();
 
-		SubsystemManager::Get<FileWatcherSubsystem>()->Init(std::filesystem::current_path().parent_path().parent_path().string(), FileWatcherBackendFactory::Create());
+		FileSystem::Instance()->Init();
 
-		Timer* timer = SubsystemManager::Get<Timer>();
+		FileWatcherSubsystem::Instance()->Init(std::filesystem::current_path().parent_path().parent_path().string(), FileWatcherBackendFactory::Create());
+
+		Timer* timer = Timer::Instance();
 
 		EngineLoop engineLoop;
 		ASSERT(engineLoop.Init(), "Engine Loop Failed To Init");

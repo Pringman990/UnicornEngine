@@ -29,7 +29,7 @@ bool Win32DX11ImguiBackend::Init()
 
 	ImGui::LoadIniSettingsFromDisk("imgui.ini");
 
-	std::string contentPath = SubsystemManager::Get<FileSystem>()->GetAbsolutPath("engine://");
+	std::string contentPath = FileSystem::Instance()->GetAbsolutPath("engine://");
 	{
 		static const ImWchar ranges[] =
 		{
@@ -58,7 +58,7 @@ bool Win32DX11ImguiBackend::Init()
 
 	_PAUSE_TRACK_MEMORY(false);
 
-	Application* app = SubsystemManager::Get<Application>();
+	Application* app = Application::Instance();
 
 	WindowsApplication* windowsApp = static_cast<WindowsApplication*>(app->GetApplication());
 	windowsApp->OnWndProc.AddRaw(this, &Win32DX11ImguiBackend::ProccessMessages);
@@ -66,7 +66,7 @@ bool Win32DX11ImguiBackend::Init()
 	if (!ImGui_ImplWin32_Init(windowsApp->GetWindowsWindowInfo().windowHandle.hwnd))
 		return false;
 
-	Renderer* renderer = SubsystemManager::Get<Renderer>();
+	Renderer* renderer = Renderer::Instance();
 
 	if (!ImGui_ImplDX11_Init(renderer->GetLogicalDevice().GetRaw(), renderer->GetLogicalDevice().GetImmediateContext()))
 		return false;

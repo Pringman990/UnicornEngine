@@ -28,9 +28,9 @@ class ENGINE_API IFileBackend
 {
 public:
 	virtual ~IFileBackend() = default;
-	virtual bool Exists(const String& Path) = 0;
-	virtual SharedPtr<IFileStream> Open(const String& Path, FileMode Mode) = 0;
-	virtual ByteBuffer ReadAll(const String& Path) = 0;
-	virtual void WriteAll(const String& Path, const ByteBuffer& Data) = 0;
-	virtual const String& GetRoot() = 0;
+	virtual bool Exists(PathView FilePath) = 0;
+	virtual SharedPtr<IFileStream> Open(PathView FilePath, FileMode Mode) = 0;
+	virtual ByteBuffer ReadAll(PathView FilePath) = 0;
+	virtual void WriteAll(PathView FilePath, const ByteBuffer& Data) = 0;
+	virtual const Path& GetRoot() const = 0;
 };

@@ -13,7 +13,7 @@
 void StaticMeshRenderSystem(EWorld& World)
 {
 #ifdef _DEBUG
-	GET_TIMER()->StartReading("StaticMeshRenderSystem");
+	Timer::Instance()->StartReading("StaticMeshRenderSystem");
 #endif // _DEBUG
 
 	auto query = World.Query<ETransform, EStaticMesh>();
@@ -33,15 +33,15 @@ void StaticMeshRenderSystem(EWorld& World)
 		trans.SetPosition(transform.position);
 		trans.SetRotation(transform.rotation);
 		trans.SetScale(transform.scale);
-		GET_RENDERER()->SubmitMesh(mesh.mesh, trans);
+		Renderer::Instance()->SubmitMesh(mesh.mesh, trans);
 	}
 
 #ifdef _DEBUG
-	float systemTime = GET_TIMER()->EndReading("StaticMeshRenderSystem");
+	float systemTime = Timer::Instance()->EndReading("StaticMeshRenderSystem");
 
 	ESystemDebugInfo debugInfo{};
 	debugInfo.entityCount = query.GetCount();
 	debugInfo.frameRunTime = systemTime;
-	GET_ESYSTEMMANAGER()->RegisterFrameDebugInfo("Static Mesh Render", debugInfo);
+	ESystemManager::Instance()->RegisterFrameDebugInfo("Static Mesh Render", debugInfo);
 #endif // _DEBUG
 }

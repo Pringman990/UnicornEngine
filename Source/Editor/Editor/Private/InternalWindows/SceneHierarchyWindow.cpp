@@ -7,8 +7,7 @@
 
 SceneHierarchyWindow::SceneHierarchyWindow(Editor* EditorPtr)
 	:
-	EditorWindow(EditorPtr),
-	mSceneManager(nullptr)
+	EditorWindow(EditorPtr)
 {
 }
 
@@ -18,14 +17,15 @@ SceneHierarchyWindow::~SceneHierarchyWindow()
 
 bool SceneHierarchyWindow::Init()
 {
-	mSceneManager = SubsystemManager::Get<SceneManager>();
 	return true;
 }
 
 void SceneHierarchyWindow::Render()
 {
-	ImGui::SeparatorText(mSceneManager->GetActiveScene()->GetName().c_str());
-	EWorld& world = mSceneManager->GetActiveScene()->GetWorld();
+	SceneManager* sceneManager = SceneManager::Instance();
+
+	ImGui::SeparatorText(sceneManager->GetActiveScene()->GetName().c_str());
+	EWorld& world = sceneManager->GetActiveScene()->GetWorld();
 	const Vector<EEntity>& entities = world.GetAllEntities();
 
 	static bool addMenuOpened = false;
@@ -55,7 +55,7 @@ void SceneHierarchyWindow::Render()
 			else
 				nameComponent->name = String("Cube") + ToString(cubeNameCount);
 
-			AssetRegistry* assetReg = SubsystemManager::Get<AssetRegistry>();
+			AssetRegistry* assetReg = AssetRegistry::Instance();
 			//TODO: We need a better way to get a asset. (maybe just the path is enough).
 			world.AddComponent<EStaticMesh>(entity)->mesh = assetReg->GetAssetFromUUID<Mesh>(UniqueID128("74897956-e7c6-467d-8142-f091ce2190ab"));
 			

@@ -36,13 +36,13 @@ Scene::~Scene()
 
 void Scene::OnLoad()
 {
-	ESystemManager* sysMan = SubsystemManager::Get<ESystemManager>();
+	ESystemManager* sysMan = ESystemManager::Instance();
 	sysMan->RunLoad(mEWorld);
 }
 
 void Scene::OnUpdate()
 {
-	ESystemManager* sysMan = SubsystemManager::Get<ESystemManager>();
+	ESystemManager* sysMan = ESystemManager::Instance();
 	sysMan->RunUpdate(mEWorld);
 }
 

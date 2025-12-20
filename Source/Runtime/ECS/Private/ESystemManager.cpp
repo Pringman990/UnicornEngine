@@ -1,13 +1,28 @@
 #include "ESystemManager.h"
 
+ESystemManager* ESystemManager::sInstance = nullptr;
 REGISTER_ENGINE_SUBSYSTEM(ESystemManager)
 
 ESystemManager::ESystemManager()
 {
+#ifdef _DEBUG
+	ASSERT(sInstance == nullptr, "The instance was not null and we are trying to set it again");
+#endif
+	sInstance = this;
 }
 
 ESystemManager::~ESystemManager()
 {
+	if (sInstance == this)
+		sInstance = nullptr;
+}
+
+ESystemManager* ESystemManager::Instance()
+{
+#ifdef _DEBUG
+	ASSERT(sInstance, "Instance was accessed before/after it was created/destroyed");
+#endif
+	return sInstance;
 }
 
 void ESystemManager::RunLoad(EWorld& World)

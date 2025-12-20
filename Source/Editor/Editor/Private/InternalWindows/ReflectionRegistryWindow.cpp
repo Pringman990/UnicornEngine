@@ -18,7 +18,7 @@ bool ReflectionRegistryWindow::Init()
 
 void ReflectionRegistryWindow::Render()
 {
-	auto types = refl::ReflectionRegistry::GetInstance().GetAllTypes();
+	auto types = refl::ReflectionRegistry::Instance()->GetAllTypes();
 
 	ImGui::Columns(2);
 

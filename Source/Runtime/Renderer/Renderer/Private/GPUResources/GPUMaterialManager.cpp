@@ -35,11 +35,11 @@ void GPUMaterialManager::Init()
 		GPUResourceHandle<GPUMaterial> materialHandle = CreateMaterialFromProgram(shaderHandle);
 		mEngineMaterials["StandardPBR"] = materialHandle;
 
-		ByteBuffer imageData = GET_FILESYSTEM()->ReadAll("engine://Textures/defaultMaterial_c.dds");
+		ByteBuffer imageData = FileSystem::Instance()->ReadAll("engine://Textures/defaultMaterial_c.dds");
 		auto imageDecodeData = ImageDecoder::LoadImage(imageData, ExtractExtension("engine://Textures/defaultMaterial_c.dds"));
 		auto albedoTexHandle = texMan->CreateTexture(imageDecodeData.buffer, Vector3i(imageDecodeData.width, imageDecodeData.height, 0), imageDecodeData.format, TextureBindFlags::ShaderRead);
 
-		ByteBuffer imageDataN = GET_FILESYSTEM()->ReadAll("engine://Textures/defaultMaterial_n.dds");
+		ByteBuffer imageDataN = FileSystem::Instance()->ReadAll("engine://Textures/defaultMaterial_n.dds");
 		auto imageDecodeDataN = ImageDecoder::LoadImage(imageDataN, ExtractExtension("engine://Textures/defaultMaterial_n.dds"));
 		auto normalTexHandle = texMan->CreateTexture(imageDecodeDataN.buffer, Vector3i(imageDecodeDataN.width, imageDecodeDataN.height, 0), imageDecodeDataN.format, TextureBindFlags::ShaderRead);
 
@@ -143,7 +143,7 @@ void GPUMaterialManager::UpdateFromAsset(GPUResourceHandle<GPUMaterial> GPU, Mat
 			}
 			else
 			{
-				AssetRef<Texture2D> texture = GET_ASSETREGISTRY()->Load<Texture2D>(texture2DUUID);
+				AssetRef<Texture2D> texture = AssetRegistry::Instance()->Load<Texture2D>(texture2DUUID);
 				if (!texture)
 				{
 					allResolved = false;
@@ -174,7 +174,7 @@ void GPUMaterialManager::UpdateFromAsset(GPUResourceHandle<GPUMaterial> GPU, Mat
 			LOG_WARNING("Tried to get texture2d for cpu-gpu material sync but uuid was invalid");
 			continue;
 		}
-		AssetRef<Texture2D> texture = GET_ASSETREGISTRY()->Load<Texture2D>(texture2DUUID);
+		AssetRef<Texture2D> texture = AssetRegistry::Instance()->Load<Texture2D>(texture2DUUID);
 		if (!texture)
 		{
 			allResolved = false;

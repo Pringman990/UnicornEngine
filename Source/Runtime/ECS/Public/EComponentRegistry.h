@@ -1,4 +1,5 @@
 #pragma once
+#include "ECSDefines.h"
 #include <Core.h>
 #include <Subsystem/EngineSubsystem.h>
 #include <Reflection/ReflectionRegistry.h>

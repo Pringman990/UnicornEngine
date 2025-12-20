@@ -2,23 +2,36 @@
 
 #include "FileSystem/NativeFileBackend.h"
 
+FileSystem* FileSystem::sInstance = nullptr;
 REGISTER_ENGINE_SUBSYSTEM(FileSystem)
 
 FileSystem::FileSystem()
     :
     mRootPath("../../")
 {
-
+#ifdef _DEBUG
+    ASSERT(sInstance == nullptr, "The instance was not null and we are trying to set it again");
+#endif
+    sInstance = this;
 }
 
 FileSystem::~FileSystem()
 {
+    if (sInstance == this)
+        sInstance = nullptr;
+}
 
+ENGINE_API FileSystem* FileSystem::Instance()
+{
+#ifdef _DEBUG
+    ASSERT(sInstance, "Filesystem registry was accessed before/after it was created/destroyed");
+#endif
+    return sInstance;
 }
 
 void FileSystem::Init()
 {
-    mDefaultFileBackend = MakeOwned<NativeFileBackend>("");
+    mAbsoluteFileBackend = MakeOwned<NativeFileBackend>("");
 
     SharedPtr<NativeFileBackend> native = MakeShared<NativeFileBackend>(mRootPath + "Content/");
     Mount("engine", native);
@@ -56,47 +69,143 @@ void FileSystem::UnMount(const MountHandle& Handle)
     );
 }
 
-bool FileSystem::Exists(const Path& VirtualPath)
+bool FileSystem::Exists(PathView FilePath)
 {
-    String proto;
-    Path relativePath;
-    
-    if (!ParseVirtualPath(VirtualPath, proto, relativePath))
-        return false;
-    
-    for (auto& mount : mMounts)
+    FileSystem::PathKind kind = GetPathKind(FilePath);
+    switch (kind)
     {
-        if (mount.protocol == proto && mount.backend->Exists(relativePath))
-            return true;
+    case FileSystem::PathKind::Virtual:
+    {
+        String proto;
+        Path relativePath;
+
+        if (!ParseVirtualPath(FilePath, proto, relativePath))
+            return false;
+
+        for (auto& mount : mMounts)
+        {
+            if (mount.protocol == proto && mount.backend->Exists(relativePath))
+                return true;
+        }
+        break;
+    }
+    case FileSystem::PathKind::Relative:
+        THROW("Not Implemented!!!!");
+        break;
+    case FileSystem::PathKind::Absolute:
+    {
+        return std::filesystem::exists(FilePath);
+    }
+    default:
+        break;
     }
 
     return false;
 }
 
-SharedPtr<IFileStream> FileSystem::Open(const Path& VirtualPath, FileMode Mode)
+SharedPtr<IFileStream> FileSystem::Open(PathView FilePath, FileMode Mode)
 {
-    String proto;
-    Path relativePath;
-   
-    if (!ParseVirtualPath(VirtualPath, proto, relativePath))
-        return nullptr;
-    
-    for (auto& mount : mMounts)
+    FileSystem::PathKind kind = GetPathKind(FilePath);
+    switch (kind)
     {
-        if (mount.protocol == proto && mount.backend->Exists(relativePath))
-            return mount.backend->Open(relativePath, Mode);
+    case FileSystem::PathKind::Virtual:
+    {
+        String proto;
+        Path relativePath;
+
+        if (!ParseVirtualPath(FilePath, proto, relativePath))
+            return nullptr;
+
+        for (auto& mount : mMounts)
+        {
+            if (mount.protocol == proto && mount.backend->Exists(relativePath))
+                return mount.backend->Open(relativePath, Mode);
+        }
+        return nullptr;
     }
+    case FileSystem::PathKind::Relative:
+        THROW("Not Implemented!!!!");
+        break;
+    case FileSystem::PathKind::Absolute:
+    {
+        return mAbsoluteFileBackend->Open(FilePath, Mode);
+    }
+    default:
+        break;
+    }
+
     return nullptr;
 }
 
-ByteBuffer FileSystem::ReadAll(const Path& VirtualPath)
+ByteBuffer FileSystem::ReadAll(PathView FilePath)
+{
+    FileSystem::PathKind kind = GetPathKind(FilePath);
+    switch (kind)
+    {
+    case FileSystem::PathKind::Virtual:
+        return ReadAllVirtual(FilePath);
+    case FileSystem::PathKind::Relative:
+        THROW("Not Implemented!!!!");
+        break;
+    case FileSystem::PathKind::Absolute:
+        return ReadAllAbsolute(FilePath);
+    default:
+        break;
+    }
+
+    return {};
+}
+
+void FileSystem::WriteAll(PathView FilePath, const ByteBuffer& Data)
+{
+    FileSystem::PathKind kind = GetPathKind(FilePath);
+    switch (kind)
+    {
+    case FileSystem::PathKind::Virtual:
+        WriteAllVirtual(FilePath, Data);
+        break;
+    case FileSystem::PathKind::Relative:
+        THROW("Not Implemented!!!!");
+        break;
+    case FileSystem::PathKind::Absolute:
+        WriteAllAbsolute(FilePath, Data);
+        break;
+    default:
+        break;
+    }
+}
+
+void FileSystem::WriteAllVirtual(PathView FilePath, const ByteBuffer& Data)
 {
     String proto;
     Path relativePath;
-   
-    if (!ParseVirtualPath(VirtualPath, proto, relativePath)) 
+
+    if (!ParseVirtualPath(FilePath, proto, relativePath))
+        return;
+
+    for (auto& mount : mMounts)
+    {
+        if (mount.protocol == proto)
+        {
+            mount.backend->WriteAll(relativePath, Data);
+            return;
+        }
+    }
+}
+
+void FileSystem::WriteAllAbsolute(PathView FilePath, const ByteBuffer& Data)
+{
+    mAbsoluteFileBackend->WriteAll(FilePath, Data);
+}
+
+ByteBuffer FileSystem::ReadAllVirtual(PathView FilePath)
+{
+    String proto;
+    Path relativePath;
+
+    if (!ParseVirtualPath(FilePath, proto, relativePath))
         return {};
-    
+
     for (auto& mount : mMounts)
     {
         if (mount.protocol == proto && mount.backend->Exists(relativePath))
@@ -105,37 +214,19 @@ ByteBuffer FileSystem::ReadAll(const Path& VirtualPath)
     return {};
 }
 
-ENGINE_API ByteBuffer FileSystem::ReadAllNonVirtual(const Path& Path)
+ByteBuffer FileSystem::ReadAllAbsolute(PathView FilePath)
 {
-    return mDefaultFileBackend->ReadAll(Path);
+    return mAbsoluteFileBackend->ReadAll(FilePath);
 }
 
-void FileSystem::WriteAll(const Path& VirtualPath, const ByteBuffer& Data)
-{
-    String proto;
-    Path relativePath;
-    
-    if (!ParseVirtualPath(VirtualPath, proto, relativePath))
-        return;
-   
-    for (auto& mount : mMounts)
-    {
-        if (mount.protocol == proto) 
-        {
-            mount.backend->WriteAll(relativePath, Data);
-            return;
-        }
-    }
-}
-
-Path FileSystem::GetAbsolutPath(const Path& VirtualPath)
+Path FileSystem::GetAbsolutPath(PathView FilePath)
 {
     String proto;
     Path relativePath;
 
-    if (!ParseVirtualPath(VirtualPath, proto, relativePath))
+    if (!ParseVirtualPath(FilePath, proto, relativePath))
     {
-        LOG_ERROR("Virtual path did not exist: {}", VirtualPath);
+        LOG_ERROR("Virtual path did not exist: {}", FilePath);
         return String();
     }
 
@@ -147,20 +238,34 @@ Path FileSystem::GetAbsolutPath(const Path& VirtualPath)
         }
     }
 
-    LOG_ERROR("Virtual path mount did not exist: {}", VirtualPath);
+    LOG_ERROR("Virtual path mount did not exist: {}", FilePath);
     return Path();
 }
 
-bool FileSystem::ParseVirtualPath(const Path& VirtualPath, Protocol& outProtocol, Path& outRelativePath)
+bool FileSystem::ParseVirtualPath(PathView FilePath, Protocol& outProtocol, Path& outRelativePath)
 {
-    size_t pos = VirtualPath.find("://");
+    size_t pos = FilePath.find("://");
     if (pos == String::npos)
     {
         return false;
     }
 
-    outProtocol = VirtualPath.substr(0, pos);
-    outRelativePath = VirtualPath.substr(pos + 3);
+    outProtocol = FilePath.substr(0, pos);
+    outRelativePath = FilePath.substr(pos + 3);
 
     return true;
+}
+
+FileSystem::PathKind FileSystem::GetPathKind(PathView FilePath)
+{
+    if (FilePath.find("://") != String::npos)
+        return FileSystem::PathKind::Virtual;
+
+    if (std::filesystem::path(FilePath).is_absolute())
+        return FileSystem::PathKind::Absolute;
+
+    if (!FilePath.empty())
+        return FileSystem::PathKind::Relative;
+
+    return FileSystem::PathKind::Invalid;
 }
