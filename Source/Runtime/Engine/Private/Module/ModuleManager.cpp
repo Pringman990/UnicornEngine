@@ -1,5 +1,8 @@
  #include "Module/ModuleManager.h"
 
+#include "FileSystem/FileSystem.h"
+#include "Archive/YamlArchive.h"
+
 ModuleManager* ModuleManager::sInstance = nullptr;
 REGISTER_ENGINE_SUBSYSTEM(ModuleManager)
 
@@ -25,6 +28,27 @@ ENGINE_API ModuleManager* ModuleManager::Instance()
 	ASSERT(sInstance, "Instance was accessed before/after it was created/destroyed");
 #endif
 	return sInstance;
+}
+
+ENGINE_API void ModuleManager::LoadAllPlugins()
+{
+	if (!FileSystem::Instance()->Exists("root://plugins.yaml"))
+	{
+		return;
+	}
+
+	ByteBuffer buffer = FileSystem::Instance()->ReadAll("root://plugins.yaml");
+	YamlArchive arc(buffer);
+	arc.BeginReadArray("plugins");
+	uint32 count = arc.GetArraySize();
+	for (uint32 i = 0; i < count; i++)
+	{
+		String outName;
+		arc.ReadString(outName);
+		LoadModule(outName);
+		arc.Next();
+	}
+	arc.EndReadArray();
 }
 
 bool ModuleManager::LoadModule(const String& ModuleName)

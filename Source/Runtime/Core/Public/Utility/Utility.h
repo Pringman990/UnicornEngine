@@ -42,6 +42,18 @@ inline bool EraseItemFromVector(Vector<T>& Vector, T& Item)
     return false;
 }
 
+template<typename T>
+inline bool EraseItemFromVector(Vector<T*>& Vector, T* Item)
+{
+    auto it = std::find(Vector.begin(), Vector.end(), Item);
+    if (it != Vector.end())
+    {
+        Vector.erase(it);
+        return true;
+    }
+    return false;
+}
+
 /**
 * Converts a std::wstring to std::string.
 *
@@ -240,3 +252,7 @@ inline String ToString(int32 value)
 {
     return std::to_string(value);
 }
+
+#define ENUM_ADD(MASK, FLAG)    MASK = (decltype(MASK))(MASK | FLAG)
+#define ENUM_REMOVE(MASK, FLAG) MASK = (decltype(MASK))(MASK & ~FLAG)
+#define ENUM_HAS(MASK, FLAG) ((MASK & FLAG) != 0)

@@ -61,11 +61,60 @@ GAMECORE_API Scene* SceneManager::CreateScene(const UniqueID128& UUID, String Na
 		return nullptr;
 	}
 
-	OwnedPtr<Scene> scene = MakeOwned<Scene>(UUID, Name);
+	OwnedPtr<Scene> scene = MakeOwned<Scene>(this, UUID, Name);
 	mScenes[UUID] = std::move(scene);
 	mNameToUUID[Name] = UUID;
 
 	return mScenes[UUID].get();
+}
+
+GAMECORE_API Scene* SceneManager::CopyScene(StringView SceneToCopy, String NewName)
+{
+	Scene* sceneToCopy = Exists(SceneToCopy);
+	if (!sceneToCopy)
+	{
+		LOG_WARNING("Scene to copy did not exist, {}", SceneToCopy);
+		return nullptr;
+	}
+
+	uint32 copyNumber = 0;
+	String name = NewName + "_copy_0";
+	while (Exists(name))
+	{
+		copyNumber++;
+		name = NewName + "_copy_" + ToString(copyNumber);
+	}
+
+	Scene* scene = CreateScene(name);
+	UniqueID128 uuid = scene->GetUUID();
+	String orgName = scene->GetName();
+	Scene copy = sceneToCopy->Clone();
+	*scene = copy;
+	scene->SetName(orgName);
+	scene->mUUID = uuid;
+
+	return scene;
+}
+
+GAMECORE_API SceneErrorCode SceneManager::DestroyScene(String Name)
+{
+	Scene* scene = GetSceneFromName(Name);
+	if (!scene)
+	{
+		LOG_ERROR("Failed to get scene '{}'", Name);
+		return SceneErrorCode(SceneErrorCode::ErrorCode::InvalidScenePtr);
+	}
+
+	if (scene == GetActiveScene())
+	{
+		LOG_WARNING("Can't destroy scene when it's set as active");
+		return SceneErrorCode(SceneErrorCode::ErrorCode::IsActiveScene);;
+	}
+
+	mNameToUUID.erase(scene->GetName());
+	mScenes.erase(scene->GetUUID());
+
+	return SceneErrorCode(SceneErrorCode::ErrorCode::OK);
 }
 
 void SceneManager::UpdateActiveScene()
@@ -105,7 +154,7 @@ void SceneManager::ClearAllScenes()
 SceneErrorCode SceneManager::SaveActiveSceneToFile(PathView FilePath)
 {
 	SceneErrorCode result;
-	if (result = SaveSceneToFile(mActiveScene, FilePath))
+	if ((result = SaveSceneToFile(mActiveScene, FilePath)))
 	{
 		String sourcePath(FilePath);
 		mActiveScene->SetSourcePath(sourcePath);

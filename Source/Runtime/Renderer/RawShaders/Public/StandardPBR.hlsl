@@ -54,11 +54,27 @@ VSOutput VSMain(VSInput input)
 struct ColorOutput
 {
     float4 color : SV_Target0;
+    uint objectID : SV_Target1;
+    float4 objectIDVisual : SV_Target2;
 };
 
 SamplerState DefaultSampler : register(s0);
 Texture2D AlbedoTex : register(t0);
 Texture2D NormalTex : register(t1);
+
+float3 HashIDToColor(uint id)
+{
+    id = (id ^ 61) ^ (id >> 16);
+    id *= 9;
+    id = id ^ (id >> 4);
+    id *= 0x27d4eb2d;
+    id = id ^ (id >> 15);
+
+    float r = ((id >> 0) & 0xFF) / 255.0;
+    float g = ((id >> 8) & 0xFF) / 255.0;
+    float b = ((id >> 16) & 0xFF) / 255.0;
+    return float3(r, g, b);
+}
 
 ColorOutput FSMain(VSOutput input)
 {
@@ -66,7 +82,9 @@ ColorOutput FSMain(VSOutput input)
     
     ////Just Albedo
     result.color = AlbedoTex.Sample(DefaultSampler, input.uv.xy).rgba + NormalTex.Sample(DefaultSampler, input.uv.xy).rgba;
-    
+    result.objectID = objectRenderID;
+    result.objectIDVisual = float4(HashIDToColor(objectRenderID), 1.0f);
+
     ////Vertex Normals
     //float3 n = normalize(input.normal) * 0.5f + 0.5f;
     //result.color = float4(n, 1.0f);

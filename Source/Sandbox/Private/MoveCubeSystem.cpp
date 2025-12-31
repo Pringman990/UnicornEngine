@@ -1,4 +1,5 @@
 #include <Core.h>
+#include <GameCore.h>
 #include <ESystemManager.h>
 #include "MoveCubeComponent.h"
 #include "Components/ETransform.h"
@@ -6,7 +7,6 @@
 #include <EWorld.h>
 #include <Timer/Timer.h>
 
-//[[ESystemUpdate]]
 void MoveCubeSystem(EWorld& World)
 {
 #ifdef _DEBUG
@@ -40,6 +40,14 @@ void MoveCubeSystem(EWorld& World)
 	ESystemDebugInfo debugInfo{};
 	debugInfo.entityCount = query.GetCount();
 	debugInfo.frameRunTime = systemTime;
-	ESystemManager::Instance()->RegisterFrameDebugInfo("Move Cube", debugInfo);
+	ESystemManager::Instance()->RegisterFrameDebugInfo("MoveCubeSystem", debugInfo);
 #endif // _DEBUG
 }
+
+REGISTER_ESYSTEM(
+	STRINGIFYEXP(MoveCubeSystem),
+	"fcd60f23-00bc-4b84-bdaa-35d87bd93279",
+	EPipeline::ESystemUpdate,
+	EP_Simulation,
+	MoveCubeSystem
+	);

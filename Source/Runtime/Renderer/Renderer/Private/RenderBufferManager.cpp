@@ -125,7 +125,7 @@ void RenderBufferManager::UpdateConstantBuffer(DirectResourceHandle<GPUConstantB
 		return;
 	}
 
-	ID3D11DeviceContext* context = mRenderer->GetLogicalDevice().GetImmediateContext();
+	ID3D11DeviceContext* context = mRenderer->GetLogicalDevice().GetDx11ImmediateContext();
 	if (Buffer.ptr->usage == BufferUsage::Default)
 	{
 		context->UpdateSubresource(Buffer.ptr->buffer.Get(), 0, nullptr, Data, 0, 0);
@@ -158,7 +158,7 @@ void RenderBufferManager::BindConstantBuffer(DirectResourceHandle<GPUConstantBuf
 		LOG_ERROR("Can't bind constant buffer to non implemented shader stage");
 	}
 
-	ID3D11DeviceContext* context = mRenderer->GetLogicalDevice().GetImmediateContext();
+	ID3D11DeviceContext* context = mRenderer->GetLogicalDevice().GetDx11ImmediateContext();
 
 	if (HasFlag(Stages, ShaderStageBind::VS))
 	{
@@ -178,7 +178,7 @@ void RenderBufferManager::BindConstantBuffers(Vector<DirectResourceHandle<GPUCon
 		return;
 	}
 
-	ID3D11DeviceContext* context = mRenderer->GetLogicalDevice().GetImmediateContext();
+	ID3D11DeviceContext* context = mRenderer->GetLogicalDevice().GetDx11ImmediateContext();
 
 	Vector<ID3D11Buffer*> dxBuffers;
 	for (uint32 i = 0; i < Buffers.size(); i++)

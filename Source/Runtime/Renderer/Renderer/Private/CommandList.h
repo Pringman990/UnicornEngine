@@ -36,6 +36,7 @@ public:
 			Transform transform;
 			uint32 startIndex;
 			uint32 indexCount;
+			uint32 renderID = 0;
 		};
 
 		CommandType type;
@@ -43,6 +44,13 @@ public:
 		Variant<
 			DrawSubMesh
 		> data;
+	};
+
+	struct MapContext
+	{
+		void* data;
+		uint32 rowPitch;
+		uint32 depthPitch;
 	};
 
 public:
@@ -53,6 +61,7 @@ public:
 	//High Level
 
 	void DrawMesh(Mesh* MeshAsset, const Transform& MeshTransform);
+	void DrawMesh(Mesh* MeshAsset, const Transform& MeshTransform, uint32 RenderID);
 
 	ID3D11CommandList* Finalize();
 
@@ -83,6 +92,10 @@ public:
 
 	ID3D11CommandList* Finish();
 	void Reset();
+
+	void CopyResource(GPUResourceHandle<GPUTexture> From, GPUResourceHandle<GPUTexture> To);
+	void Map(GPUResourceHandle<GPUTexture> Texture, MapContext& Context);
+	void Unmap(GPUResourceHandle<GPUTexture> Texture);
 
 private:
 private:

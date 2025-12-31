@@ -215,14 +215,7 @@ namespace refl
 				using ElemT = typename T::value_type;
 
 				const Type* elementType = GetOrCreateType<ElemT>();
-				
-		/*		String elemTypeName = elementType->name;
-				if (StartsWith(elementType->name, "NON REFLECTED_"))
-				{
-					elemTypeName = elemTypeName.substr(String("NON REFLECTED_").size() - 1);
-				}
 
-				type->name = String("Vector<") + elemTypeName + String(">");*/
 				Property prop;
 				prop.name = elementType->name;
 				prop.offset = 0;
@@ -636,4 +629,5 @@ REFL_DECLARE_PRIMITIVE(double)
 REFL_DECLARE_PRIMITIVE(bool)
 REFL_DECLARE_PRIMITIVE(String)
 REFL_DECLARE(Vector3)
+REFL_DECLARE(UniqueID128)
 #pragma endregion

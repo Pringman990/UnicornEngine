@@ -43,7 +43,7 @@ void Camera::SetPerspective(float FovAngleY, float AspectRatio, float NearZ, flo
 	mPerspective = Camera::CameraPerspective::Perspective;
 }
 
-void Camera::SetOrthographic(Vector2 Resolution, float NearZ, float FarZ)
+void Camera::SetOrthographic(Vector2i Resolution, float NearZ, float FarZ)
 {
 	ENSURE(NearZ < FarZ, "Far plane cant be less then Near plane");
 	ENSURE(NearZ > 0, "Near plane needs to be above Zero");
@@ -55,7 +55,13 @@ void Camera::SetOrthographic(Vector2 Resolution, float NearZ, float FarZ)
 	mNearPlane = NearZ;
 
 	float orthoHeight = mOrtoSize; // world units
-	float orthoWidth = orthoHeight * (mOrtoResolution.x / mOrtoResolution.y);
+	float aspect =
+		static_cast<float>(Resolution.x) /
+		static_cast<float>(Resolution.y);
+
+	float orthoWidth = orthoHeight * aspect;
+
+	ENSURE(orthoWidth > 0.0f, "Orthograpic width collapsed");
 
 	float halfW = orthoWidth * 0.5f;
 	float halfH = orthoHeight * 0.5f;
@@ -121,7 +127,7 @@ void Camera::HandleResizeEvent(int32 Width, int32 Height)
 	}
 	case Camera::CameraPerspective::Orthographic:
 	{
-		SetOrthographic(Vector2(Width, Height), mNearPlane, mFarPlane);
+		SetOrthographic(Vector2i(Width, Height), mNearPlane, mFarPlane);
 		break;
 	}
 	default:

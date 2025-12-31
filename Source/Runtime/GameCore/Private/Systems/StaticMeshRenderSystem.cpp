@@ -3,12 +3,13 @@
 #include <Core.h>
 #include <ESystemManager.h>
 
-
 #include <Timer/Timer.h>
 #include <Renderer.h>
 
 #include "Components/ETransform.h"
 #include "Components/EStaticMesh.h"
+
+#include "Scene/SceneManager.h"
 
 void StaticMeshRenderSystem(EWorld& World)
 {
@@ -17,6 +18,8 @@ void StaticMeshRenderSystem(EWorld& World)
 #endif // _DEBUG
 
 	auto query = World.Query<ETransform, EStaticMesh>();
+
+	Scene* scene = SceneManager::Instance()->GetActiveScene();
 
 	for (uint32 i = 0; i < query.GetCount(); i++)
 	{
@@ -33,7 +36,9 @@ void StaticMeshRenderSystem(EWorld& World)
 		trans.SetPosition(transform.position);
 		trans.SetRotation(transform.rotation);
 		trans.SetScale(transform.scale);
-		Renderer::Instance()->SubmitMesh(mesh.mesh, trans);
+		
+		scene->GetSceneView().SubmitMesh(query.GetEntity(i), mesh.mesh, trans);
+		//Renderer::Instance()->SubmitMesh(mesh.mesh, trans);
 	}
 
 #ifdef _DEBUG
@@ -42,6 +47,14 @@ void StaticMeshRenderSystem(EWorld& World)
 	ESystemDebugInfo debugInfo{};
 	debugInfo.entityCount = query.GetCount();
 	debugInfo.frameRunTime = systemTime;
-	ESystemManager::Instance()->RegisterFrameDebugInfo("Static Mesh Render", debugInfo);
+	ESystemManager::Instance()->RegisterFrameDebugInfo("StaticMeshRenderSystem", debugInfo);
 #endif // _DEBUG
 }
+
+REGISTER_ESYSTEM(
+	STRINGIFYEXP(StaticMeshRenderSystem),
+	"fad60f23-00bc-4b84-bdaa-35d87bd93279",
+	EPipeline::ESystemPostUpdate,
+	EP_Rendering,
+	StaticMeshRenderSystem
+);

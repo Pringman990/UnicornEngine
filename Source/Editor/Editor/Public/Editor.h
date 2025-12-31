@@ -1,9 +1,9 @@
 #pragma once
 #include <Core.h>
 #include <ECommon.h>
+#include "EditorDefines.h"
 
 class IImguiBackend;
-class EditorWindowManager;
 
 enum class SelectedItemType
 { 
@@ -30,6 +30,12 @@ struct EditorToolSettings
 	float scaleSpeed = 0.01f;
 };
 
+enum class EditorPlayState
+{
+	Play,
+	Stopped
+};
+
 struct InputTextDialogInfo
 {
 	bool open = false;
@@ -43,35 +49,54 @@ struct InputTextDialogInfo
 class Editor
 {
 public:
-	Editor();
-	~Editor();
+	EDITOR_API static Editor* Instance();
 
-	bool Init();
-	void BeginFrame();
-	void Render();
-	void EndFrame();
+	EDITOR_API void Shutdown();
+
+	EDITOR_API bool Init();
+	EDITOR_API void BeginFrame();
+	EDITOR_API void Render();
+	EDITOR_API void EndFrame();
 
 	uint32 GetPreviousFrameDrawCalls() const { return mPreviousFrameDrawCalls; };
 
-	void SetSelectedItem(SelectedItemType Type, const SelectedItemVariant& Item);
+	EDITOR_API void SetSelectedItem(SelectedItemType Type, const SelectedItemVariant& Item);
 	const SelectedItem& GetSelectedItem() const { return mSelectedItem; };
-	void InvalidateSelectedItem();
+	EDITOR_API void InvalidateSelectedItem();
 
 	EditorToolSettings& GetToolSettings() { return mEditorToolSettings; };
 
+	EditorPlayState GetPlayState() const { return mPlayState; }
+	void SetPlayState(EditorPlayState State) 
+	{
+		mPlayState = State;
+		PlayStateChangeNotifier.Notify(State);
+	};
+
+	MultiNotifierArgs<EditorPlayState> PlayStateChangeNotifier;
+
 private:
+	Editor();
+	~Editor();
+
 	bool RenderTextInputBox();
 	void OpenNewSceneCreatePopup();
 
 	void RenderMainMenuBar();
 	void RegisterEditorWindows();
+
+	void PlayStateChangeCallback(EditorPlayState State);
 private:
 	IImguiBackend* mImguiBackend;
-	EditorWindowManager* mWindowManager;
 	uint32 mPreviousFrameDrawCalls = 0;
 
 	SelectedItem mSelectedItem;
 	EditorToolSettings mEditorToolSettings;
 
 	InputTextDialogInfo mInputTextDialogInfo;
+
+	class Scene* mPlayScene;
+	String mCopiedSceneName;
+
+	EditorPlayState mPlayState;
 };

@@ -106,21 +106,6 @@ GameWorld::~GameWorld()
 {
 }
 
-
-REFL_DEFINE(AssetRef<Mesh>)
-{
-	refl::ClassBuilder<AssetRef<Mesh>>(STRINGIFYEXP(AssetRef<Mesh>), "663c9ab4-e3eb-4e39-89ee-a28f365ce91c")
-		.SaveFunction([](void* obj, Archive& archive, String key)
-			{
-				SaveAssetRef<Mesh>(obj, archive, key);
-			})
-		.LoadFunction([](void* obj, Archive& archive, String key)
-			{
-				LoadAssetRef<Mesh>(obj, archive, key);
-				return true;
-			});
-}
-
 void GameWorld::Init()
 {
 	LOG_INFO("GameWorld init...");
@@ -162,9 +147,20 @@ void GameWorld::Init()
 	//sMesh2->mesh = asset2;
 
 	//Systems
-	ESystemManager* sysMan = ESystemManager::Instance();
-	sysMan->RegisterSystem(&MoveCubeSystem, "Move Cube", EPipeline::ESystemUpdate);
-	sysMan->RegisterSystem(&StaticMeshRenderSystem, "Static Mesh Render", EPipeline::ESystemPostUpdate);
+	/*ESystemManager* sysMan = ESystemManager::Instance();
+	sysMan->RegisterSystem(
+		&MoveCubeSystem, 
+		"Move Cube", 
+		EPipeline::ESystemUpdate,
+		EP_Simulation
+	);
+
+	sysMan->RegisterSystem(
+		&StaticMeshRenderSystem, 
+		"Static Mesh Render", 
+		EPipeline::ESystemPostUpdate,
+		EP_Rendering
+	);*/
 
 	//sceMan->SaveActiveSceneToFile("engine://Test.scene");
 	sceMan->LoadScene("Test");

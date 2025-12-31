@@ -8,7 +8,8 @@ WindowsInputDevice::WindowsInputDevice(InputMapper* aMapper)
 	:
 	InputDevice(aMapper),
 	mTentativeMouseDelta(Vector2(0, 0)),
-	mMouseDelta(Vector2(0, 0))
+	mMouseDelta(Vector2(0, 0)),
+	mScrollDelta(0)
 {
 }
 
@@ -58,6 +59,8 @@ void WindowsInputDevice::Update()
 {
 	mMouseDelta = mTentativeMouseDelta;
 	mTentativeMouseDelta = { 0, 0 };
+	mScrollDelta = mTentativeScrollDelta;
+	mTentativeScrollDelta = 0;
 }
 
 bool WindowsInputDevice::ProccessMessages(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -119,7 +122,7 @@ bool WindowsInputDevice::ProccessMessages(HWND hWnd, UINT message, WPARAM wParam
 			}
 			if (rawMouse.usButtonFlags & RI_MOUSE_WHEEL) {
 				short wheelDelta = (short)rawMouse.usButtonData;
-				wheelDelta;
+				mTentativeScrollDelta += wheelDelta / (float)WHEEL_DELTA;
 				//std::cout << "Mouse Wheel: " << wheelDelta << std::endl;
 			}
 		}
@@ -303,29 +306,6 @@ void WindowsInputDevice::GetKeys(UnorderedMap<String, uint32>& StringKeyMap)
 
 void WindowsInputDevice::CaptureMouse()
 {
-	//WindowsApplication* application = static_cast<WindowsApplication*>(Application::Get()->GetApplication());
-
-	//RECT clipRect;
-	//HWND window = application->GetWindowsWindowInfo().windowHandle;
-	//GetClientRect(window, &clipRect);
-
-	//POINT upperLeft;
-	//upperLeft.x = clipRect.left;
-	//upperLeft.y = clipRect.top;
-
-	//POINT lowerRight;
-	//lowerRight.x = clipRect.right;
-	//lowerRight.y = clipRect.bottom;
-
-	//MapWindowPoints(window, nullptr, &upperLeft, 1);
-	//MapWindowPoints(window, nullptr, &lowerRight, 1);
-
-	//clipRect.left = upperLeft.x;
-	//clipRect.top = upperLeft.y;
-	//clipRect.right = lowerRight.x;
-	//clipRect.bottom = lowerRight.y;
-
-	//ClipCursor(&clipRect);
 	WindowsApplication* application = static_cast<WindowsApplication*>(Application::Instance()->GetApplication());
 
 	// Get the window handle
@@ -392,6 +372,11 @@ void WindowsInputDevice::ShowMouse()
 Vector2 WindowsInputDevice::GetMouseDelta()
 {
 	return mMouseDelta;
+}
+
+float WindowsInputDevice::GetMouseWheelDelta()
+{
+	return mScrollDelta;
 }
 
 void WindowsInputDevice::ProccessVirtualKeyboardKeys(USHORT /*aVirtualKey*/, bool /*isDown*/)

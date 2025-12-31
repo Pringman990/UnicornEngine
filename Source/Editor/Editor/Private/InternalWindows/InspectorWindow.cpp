@@ -6,9 +6,14 @@
 #include <Components/ETransform.h>
 #include <Components/EStaticMesh.h>
 
+#include "EditorViewRegistry.h"
+
+#include <EditorWindowManager.h>
+REGISTER_EDITOR_WINDOW(InspectorWindow, "92b8e2bc-a1bb-49aa-8509-a85b46afad3a");
+
 InspectorWindow::InspectorWindow(Editor* EditorPtr)
-    :
-    EditorWindow(EditorPtr)
+	:
+	EditorWindow(EditorPtr)
 {
 }
 
@@ -18,78 +23,106 @@ InspectorWindow::~InspectorWindow()
 
 bool InspectorWindow::Init()
 {
-    return true;
+	return true;
 }
 
 void InspectorWindow::Render()
 {
-    if (mEditor->GetSelectedItem().type != SelectedItemType::Entity)
-    {
-        return;
-    }
+	if (mEditor->GetSelectedItem().type != SelectedItemType::Entity)
+	{
+		return;
+	}
 
-    SceneManager* sceneManager = SceneManager::Instance();
+	SceneManager* sceneManager = SceneManager::Instance();
 
-    EWorld& world = sceneManager->GetActiveScene()->GetWorld();
+	EWorld& world = sceneManager->GetActiveScene()->GetWorld();
 
-    EEntity entity = std::get<EEntity>(mEditor->GetSelectedItem().item);
-    ETransform* transform = world.GetComponent<ETransform>(entity);
-    if (transform)
-    {
-        ImGui::SeparatorText("Transform");
+	EEntity entity = std::get<EEntity>(mEditor->GetSelectedItem().item);
+	auto components = world.GetAllComponentsOnEntity(entity);
 
-        Vector3 entityPosition = transform->position;
-        if(ImGui::DragFloat3("Position", (float*)&entityPosition, mEditor->GetToolSettings().translationSpeed))
-            transform->position = entityPosition;
+	ImGui::DrawCopyableText("UUID: ", entity.ToString());
 
-        Vector3 eularDeg = transform->rotation;
-        if (ImGui::DragFloat3("Rotation", (float*)&eularDeg, mEditor->GetToolSettings().rotationSpeed))
-            transform->rotation = eularDeg;
+	for (auto& [typeUUID, componentPtr] : components)
+	{
+		const refl::Type* type = refl::ReflectionRegistry::Instance()->GetOrNull(typeUUID);
+		if (type == nullptr)
+		{
+			LOG_ERROR("Entity had a component of type that was not valid");
+			return;
+		}
 
-        Vector3 entityScale = transform->scale;
-        if (ImGui::DragFloat3("Scale", (float*)&entityScale, mEditor->GetToolSettings().scaleSpeed, 0.001f))
-            transform->scale = entityScale;
-    }
+		const char* typeName = type->name.c_str();
 
-    EStaticMesh* staticMeshComponent = world.GetComponent<EStaticMesh>(entity);
-    if (staticMeshComponent)
-    {
-        ImGui::SeparatorText("Static Mesh");
+		ImGui::PushID(typeName);
+		ImGui::SeparatorText(typeName);
+		if (type->name != "ETransform" && type->name != "ENameComponent")
+		{
+			float width = ImGui::CalcTextSize(ICON_FA_TRASH).x
+				+ ImGui::GetStyle().FramePadding.x * 2;
 
-        AssetRegistry* assetReg = AssetRegistry::Instance();
-        Mesh* mesh = assetReg->GetAsset(staticMeshComponent->mesh);
-        if (mesh)
-        {
-            ImGui::DrawCopyableText("", mesh->GetName());
-            ImGui::SameLine();
+			ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x - width);
 
-            static bool listOpened = false;
-            if (ImGui::Button(ICON_FA_LEMON))
-            {
-                listOpened = true;
-            }
+			if (ImGui::Button(ICON_FA_TRASH))
+			{
+				world.RemoveComponent(entity, typeUUID);
+				ImGui::PopID();
+				continue;
+			}
+		}
+		ImGui::PopID();
+		CallViewFunctionsRecurcivly(typeUUID, componentPtr);
+	}
 
-            if (listOpened)
-            {
-                if (ImGui::BeginListBox("##meshesList"))
-                {
-                    auto meshAssets = assetReg->GetAssetsOfType<Mesh>("Mesh");
-                    for (uint32 i = 0; i < meshAssets.size(); i++)
-                    {
-                        if (ImGui::Selectable(meshAssets[i]->GetName().c_str(), false))
-                        {
-                            staticMeshComponent->mesh = assetReg->GetAssetFromUUID<Mesh>(meshAssets[i]->GetUUID());
-                            listOpened = false;
-                        }
-                    }
+	ImGui::SeparatorText("");
 
-                    ImGui::EndListBox();
-                }
-            }
+	ImGui::SetNextItemWidth(-FLT_MIN);
+	if (ImGui::BeginCombo("##componentsDropdown", "Components"))
+	{
+		auto reflComponents = refl::ReflectionRegistry::Instance()->GetAllTypesWithAttribute(refl::Attribute::EComponent);
+		for (auto& comp : reflComponents)
+		{
+			if (ImGui::Selectable(comp->name.c_str(), false))
+			{
+				world.AddComponent(entity, comp->uuid);
+			}
+		}
+		ImGui::EndCombo();
+	}
+}
 
-            if (ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsWindowHovered())
-                listOpened = false;
-        }
-    }
+void InspectorWindow::CallViewFunctionsRecurcivly(UniqueID128 TypeID, void* ComponentPtr)
+{
+	auto func = EditorViewRegistry::Instance()->GetFunction(TypeID);
+	if (func)
+	{
+		func(ComponentPtr, "");
+		return;
+	}
 
+	const refl::Type* type = refl::ReflectionRegistry::Instance()->GetOrNull(TypeID);
+	if (type == nullptr)
+	{
+		LOG_ERROR("Entity had a component of type that was not valid");
+		return;
+	}
+
+	for (auto& member : type->properties)
+	{
+		void* memberPtr = static_cast<byte*>(ComponentPtr) + member.offset;
+
+		auto memberFunc = EditorViewRegistry::Instance()->GetFunction(member.type->uuid);
+		if (memberFunc)
+		{
+			const char* memberName = member.name.c_str();
+			auto typeAttIt = member.attributes.find(refl::Attribute::DisplayName);
+			if (typeAttIt != member.attributes.end())
+				memberName = std::get<String>(typeAttIt->second).c_str();
+
+			memberFunc(memberPtr, memberName);
+		}
+		else
+		{
+			CallViewFunctionsRecurcivly(member.type->uuid, memberPtr);
+		}
+	}
 }

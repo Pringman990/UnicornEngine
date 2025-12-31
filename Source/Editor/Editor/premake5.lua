@@ -3,10 +3,11 @@ print("Including Editor/Editor")
 project "Editor"
 	language "C++"
 	cppdialect "C++20"
-	kind "StaticLib"
+	kind "SharedLib"
 
 	targetname(UCE_TARGET_NAME)
-    targetdir (UCE_TARGET_DIR)
+    targetdir (UCE_EXECUTABLE_DIR)
+	implibdir(UCE_TARGET_DIR)
 
     objdir(UCE_OBJ_DIR)
     location (UCE_VCXPROJ_DIR)
@@ -23,12 +24,12 @@ project "Editor"
 	vpaths { ["Private/*"] = {"Private/**.h", "Private/**.hpp", "Private/**.c", "Private/**.cpp"}}
 
 	includedirs {
-		normalizePath(dirs.Editor) .. "/Private",
+		normalizePath(dirs.EditorCore) .. "/Private",
 	}
 
 	includeDependencies("Editor", 
 	{
-		dirs.Editor,
+		dirs.EditorCore,
 		"ImguiCore",
 		"GameCore",
 		"Renderer",
@@ -44,5 +45,7 @@ project "Editor"
 		"Engine",
 		"ECS",
 	})
+
+	defines{"EDITOR_EXPORTS"}
 
 filter {}

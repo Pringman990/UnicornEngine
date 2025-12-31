@@ -34,6 +34,11 @@ public:
 		return *reinterpret_cast<T*>(mComponentArrays[IndexOf<T>()][Index]);
 	}
 
+	EEntity GetEntity(uint32 Index)
+	{
+		return mEntities[Index];
+	}
+
 private:
 	template<typename T>
 	static constexpr uint32 IndexOf()
@@ -43,6 +48,7 @@ private:
 private:
 	uint32 mCount = 0;
 	Array<Vector<void*>, sizeof...(Components)> mComponentArrays;
+	Vector<EEntity> mEntities;
 };
 
 class EWorld final
@@ -87,6 +93,10 @@ public:
 		return reinterpret_cast<T*>(store->allocator.Get(store->indicies[Entity]));
 	}
 
+	bool HasComponent(EEntity Entity, UniqueID128 UUID);
+
+	ECS_API UnorderedMap<UniqueID128, void*> GetAllComponentsOnEntity(EEntity Entity);
+
 	template<refl::IsComponent... Components>
 	EQueryResult<Components...> Query()
 	{
@@ -112,6 +122,7 @@ public:
 				smallest = s;
 		}	
 
+		result.mEntities.resize(smallest->entities.size());
 		for (uint32 i = 0; i < smallest->allocator.GetCount(); i++)
 		{
 			EEntity e = smallest->entities[i];
@@ -135,6 +146,7 @@ public:
 				.push_back(stores[result.IndexOf<Components>()]->Get<Components>(stores[result.IndexOf<Components>()]->indicies[e])), ...);
 
 			result.mCount++;
+			result.mEntities[i] = e;
 		}
 
 		return result;
@@ -178,7 +190,10 @@ inline T* EWorld::AddComponent(EEntity Entity)
 		return nullptr;
 	}
 
-	return static_cast<T*>(AddComponent(Entity, type->uuid));
+	void* compPtr = AddComponent(Entity, type->uuid);
+	if (!compPtr)
+		return nullptr;
+	return static_cast<T*>(compPtr);
 }
 
 template<refl::IsComponent T>

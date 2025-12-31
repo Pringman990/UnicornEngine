@@ -1,5 +1,8 @@
 #include "ReflectionRegistryWindow.h"
 
+#include <EditorWindowManager.h>
+REGISTER_EDITOR_WINDOW(ReflectionRegistryWindow, "48b6a9a9-56b8-43a8-91ff-672a4161f017");
+
 ReflectionRegistryWindow::ReflectionRegistryWindow(Editor* EditorPtr)
 	:
 	EditorWindow(EditorPtr)

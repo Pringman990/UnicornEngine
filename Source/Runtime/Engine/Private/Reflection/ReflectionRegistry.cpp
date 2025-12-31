@@ -150,6 +150,25 @@ REFL_DEFINE(Vector3)
 				return succeded;
 			});
 }
+REFL_DEFINE(UniqueID128)
+{
+	refl::ClassBuilder<UniqueID128>(STRINGIFYEXP(UniqueID128), "59145678-1234-49be-ae05-46c8cc74bd10")
+		.SaveFunction([](void* obj, Archive& archive, String key)
+			{
+				UniqueID128* value = reinterpret_cast<UniqueID128*>(obj);
+				archive.WriteString(value->ToString(), key);
+
+			})
+		.LoadFunction([](void* obj, Archive& archive, String key)
+			{
+				UniqueID128* value = reinterpret_cast<UniqueID128*>(obj);
+				String strUUID;
+				bool result = archive.ReadString(strUUID, key);
+				*value = UniqueID128(strUUID);
+
+				return result;
+			});
+}
 
 #pragma endregion
 

@@ -61,7 +61,7 @@ public:
 			//Destory the object
 			mType->functions.deconstructor(dst);
 
-			//Move last object to the deleted distination
+			//Move last object to the deleted destination
 			mType->functions.moveconstructor(dst, src);
 
 			//Destroy where the moved object was

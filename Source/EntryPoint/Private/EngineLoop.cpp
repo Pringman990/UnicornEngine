@@ -27,12 +27,10 @@ EngineLoop::EngineLoop()
 
 EngineLoop::~EngineLoop()
 {
-#ifdef _EDITOR
-	delete mEditor;
-	mEditor = nullptr;
-#endif // _EDITOR
-
 	//TODO: add unloading of modules (not unloading can cause fake memory leaks)
+#ifdef _EDITOR
+	Editor::Instance()->Shutdown();
+#endif // EDITOR
 
 	ESystemManager::Instance()->UnRegisterSystems();
 	SceneManager::Instance()->ClearAllScenes();
@@ -72,8 +70,7 @@ bool EngineLoop::Init()
 		LOG_INFO("Editor Initializing");
 		TIMER_START_READING("__Engine Loop Editor Init__");
 
-		mEditor = new Editor();
-		ASSERT(mEditor->Init(), "Engine Loop Failed To Init Editor");
+		ASSERT(Editor::Instance()->Init(), "Engine Loop Failed To Init Editor");
 
 		float editorInitTime = TIMER_END_READING("__Engine Loop Editor Init__");
 		LOG_INFO("Editor has finished Initialize, it took: {:0.7f}s", editorInitTime);
@@ -84,7 +81,9 @@ bool EngineLoop::Init()
 	{
 		_PAUSE_TRACK_MEMORY(true);
 		ModuleManager* moduleManager = ModuleManager::Instance();
-		ASSERT(moduleManager->LoadModule("Sandbox"), "Failed to load Sandbox module");
+		
+		//Loads all plugins from plugins.yaml file found at root folder
+		moduleManager->LoadAllPlugins();
 
 		HMODULE sanboxModule = moduleManager->GetHModule("Sandbox");
 
@@ -129,9 +128,10 @@ void EngineLoop::Update()
 	{
 #ifdef _EDITOR
 		//RenderScope scope(mRenderer->GetCurrentSwapChainTexture());
-		mEditor->BeginFrame();
-		mEditor->Render();
-		mEditor->EndFrame();
+		auto editor = Editor::Instance();
+		editor->BeginFrame();
+		editor->Render();
+		editor->EndFrame();
 #endif // _EDITOR
 
 #ifdef _EDITOR

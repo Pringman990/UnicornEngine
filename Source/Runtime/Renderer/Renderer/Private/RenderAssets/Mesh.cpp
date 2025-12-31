@@ -7,7 +7,19 @@ REFL_DEFINE(Mesh)
 	refl::ClassBuilder<Mesh>(STRINGIFYEXP(Mesh), "653c9ab4-e3eb-4e39-89ee-a28f365ce91c");
 }
 
-
+REFL_DEFINE(AssetRef<Mesh>)
+{
+	refl::ClassBuilder<AssetRef<Mesh>>(STRINGIFYEXP(AssetRef<Mesh>), "663c9ab4-e3eb-4e39-89ee-a28f365ce91c")
+		.SaveFunction([](void* obj, Archive& archive, String key)
+			{
+				SaveAssetRef<Mesh>(obj, archive, key);
+			})
+		.LoadFunction([](void* obj, Archive& archive, String key)
+			{
+				LoadAssetRef<Mesh>(obj, archive, key);
+				return true;
+			});
+}
 
 Mesh::Mesh() :
 	AssetBase({})

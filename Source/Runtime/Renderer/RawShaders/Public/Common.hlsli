@@ -17,4 +17,8 @@ cbuffer EngineCameraConstantBuffer : register(b1)
 cbuffer EngineObjectConstantBuffer : register(b2)
 {
     float4x4 modelToWorld;
+    uint objectRenderID;
+    uint _opad1;
+	uint _opad2;
+	uint _opad3;
 }

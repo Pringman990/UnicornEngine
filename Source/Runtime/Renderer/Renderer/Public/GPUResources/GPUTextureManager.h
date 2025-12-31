@@ -8,6 +8,17 @@ struct ID3D11Texture2D;
 
 class Renderer;
 
+struct TextureReadContext
+{
+	const void* data;
+	uint32 rowPitch;
+	uint32 width;
+	uint32 height;
+	RenderFormat format;
+};
+
+using TextureReadCallback = Func<void(const TextureReadContext& context)>;
+
 /**
 * Manager for GPUTextures and not Texture assets.
 */
@@ -52,6 +63,10 @@ public:
 	{
 		return mTexturePool.Remove(Handle);
 	}
+
+	Vector<uint32> GetTextureAsArray(GPUResourceHandle<GPUTexture> Handle);
+
+	void ReadTexture(GPUResourceHandle<GPUTexture> Handle, TextureReadCallback Callback);
 
 private:
 	Renderer* mRenderer;

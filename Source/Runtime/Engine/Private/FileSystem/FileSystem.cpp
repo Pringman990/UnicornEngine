@@ -33,6 +33,9 @@ void FileSystem::Init()
 {
     mAbsoluteFileBackend = MakeOwned<NativeFileBackend>("");
 
+    SharedPtr<NativeFileBackend> root = MakeShared<NativeFileBackend>(mRootPath);
+    Mount("root", root);
+
     SharedPtr<NativeFileBackend> native = MakeShared<NativeFileBackend>(mRootPath + "Content/");
     Mount("engine", native);
     Mount("game", native);

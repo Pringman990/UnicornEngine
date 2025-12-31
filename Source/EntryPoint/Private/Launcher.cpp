@@ -10,8 +10,6 @@ int32_t GuardedMain()
 	_TRACK_MEMORY(true, true);
 	{
 		SubsystemManager::Init();
-		
-		//refl::ReflectionRegistry::Instance()->ProcessDeferredRegistrations();
 
 		FileSystem::Instance()->Init();
 

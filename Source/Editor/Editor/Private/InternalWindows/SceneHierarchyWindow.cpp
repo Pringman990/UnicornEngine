@@ -5,6 +5,9 @@
 #include <Components/ETransform.h>
 #include <Components/EStaticMesh.h>
 
+#include <EditorWindowManager.h>
+REGISTER_EDITOR_WINDOW(SceneHierarchyWindow, "92b8e2bc-a1bb-49aa-8501-a85b46afad3c");
+
 SceneHierarchyWindow::SceneHierarchyWindow(Editor* EditorPtr)
 	:
 	EditorWindow(EditorPtr)

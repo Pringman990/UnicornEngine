@@ -7,6 +7,5 @@ REFL_DEFINE(MoveCubeComponent)
 		.Property("Flip", &MoveCubeComponent::flip)
 			.Attribute("Flip", refl::Attribute::Private)
 		.Property("Speed", &MoveCubeComponent::speedMultiplier)
-		.Property("a", &MoveCubeComponent::a)
 		.Property("Distance", &MoveCubeComponent::distance);
 }

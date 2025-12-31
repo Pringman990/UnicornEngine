@@ -1,29 +1,39 @@
 #include "pch.h"
+#include "ImguiBackendFactory.h"
 #include "Editor.h"
 
 #include "EditorWindowManager.h"
 #include "EditorWindowsIncludes.generated.h"
 
-#include "ImguiBackendFactory.h"
 
 #include <Scene/SceneManager.h>
+#include <Module/ModuleManager.h>
 
 Editor::Editor()
 	:
-	mImguiBackend(nullptr)
+	mImguiBackend(nullptr),
+	mPlayScene(nullptr),
+	mPlayState(EditorPlayState::Stopped)
 {
 }
 
 Editor::~Editor()
 {
-	//EditorWindowManager::Shutdown();
+}
 
+EDITOR_API Editor* Editor::Instance()
+{
+	static Editor* instance = new Editor();
+	return instance;
+}
+
+void Editor::Shutdown()
+{
 	delete mImguiBackend;
 	mImguiBackend = nullptr;
 
-	mWindowManager->ClearAllWindows();
+	EditorWindowManager::Instance()->ClearAllWindows();
 }
-
 
 //TODO: Remove temporary
 enum OFBD_FLAGS { OFBD_FLAGS_OPEN = 0x1, OFBD_FLAGS_SAVE = 0x2 };
@@ -78,10 +88,9 @@ bool Editor::Init()
 		return false;
 	}
 
-	mWindowManager = new EditorWindowManager();
-	ENSURE(mWindowManager, "Editor Window Manager was null");
+	EditorWindowManager::Instance()->InitAllRegisteredWindows();
 
-	RegisterEditorWindows();
+	PlayStateChangeNotifier.AddRaw(this, &Editor::PlayStateChangeCallback);
 
 	return true;
 }
@@ -95,7 +104,7 @@ void Editor::Render()
 {
 	RenderMainMenuBar();
 
-	mWindowManager->RenderActiveWindows();
+	EditorWindowManager::Instance()->RenderActiveWindows();
 
 	mImguiBackend->RenderFrame();
 }
@@ -145,12 +154,12 @@ bool Editor::RenderTextInputBox()
 		ImGui::Text((mInputTextDialogInfo.inputText + ":").c_str());
 		ImGui::SetNextItemWidth(-1);
 
-		if(ImGui::IsWindowAppearing())
+		if (ImGui::IsWindowAppearing())
 			ImGui::SetKeyboardFocusHere();
 
 		ImGui::InputText(
-			("##" + mInputTextDialogInfo.inputText).c_str(), 
-			mInputTextDialogInfo.input, 
+			("##" + mInputTextDialogInfo.inputText).c_str(),
+			mInputTextDialogInfo.input,
 			IM_ARRAYSIZE(mInputTextDialogInfo.input),
 			ImGuiInputTextFlags_AutoSelectAll
 		);
@@ -170,7 +179,7 @@ bool Editor::RenderTextInputBox()
 
 		bool valid = mInputTextDialogInfo.input[0] != '\0' && nameFree;
 		ImGui::BeginDisabled(!valid);
-		if (ImGui::Button("Confirm", ImVec2(120,0)))
+		if (ImGui::Button("Confirm", ImVec2(120, 0)))
 		{
 			mInputTextDialogInfo.confirmed = true;
 			result = true;
@@ -269,10 +278,10 @@ void Editor::RenderMainMenuBar()
 				{
 					//TODO: Open file browser dialog and select path then call sceneManager->SaveActiveSceneToFile();
 					FileSystem* fs = FileSystem::Instance();
-					
+
 					Path contentPath = fs->GetAbsolutPath("engine://");
-					char path[MAX_PATH] = {0};
-					
+					char path[MAX_PATH] = { 0 };
+
 					contentPath = sceneManager->GetActiveScene()->GetName();
 					std::snprintf(path, MAX_PATH, "%s", contentPath.c_str());
 
@@ -300,6 +309,21 @@ void Editor::RenderMainMenuBar()
 
 			ImGui::EndMenu();
 		}
+
+		ImGui::BeginDisabled(mPlayState == EditorPlayState::Play);
+		if (ImGui::Button("Play"))
+		{
+			SetPlayState(EditorPlayState::Play);
+		}
+		ImGui::EndDisabled();
+
+		ImGui::BeginDisabled(mPlayState == EditorPlayState::Stopped);
+		if (ImGui::Button("Stop"))
+		{
+			SetPlayState(EditorPlayState::Stopped);
+		}
+		ImGui::EndDisabled();
+
 		ImGui::EndMainMenuBar();
 	}
 
@@ -325,27 +349,71 @@ void Editor::RenderMainMenuBar()
 
 void Editor::RegisterEditorWindows()
 {
-	mWindowManager->RegisterWindowType("SceneWindow", [this]() {return new SceneWindow(this); });
-	mWindowManager->CreateWindow("SceneWindow");
+	//mWindowManager->RegisterWindowType("SceneWindow", [this]() {return new SceneWindow(this); });
+	//mWindowManager->CreateWindow("SceneWindow");
 
-	mWindowManager->RegisterWindowType("GraphicsDebugWindow", [this]() {return new GraphicsDebugWindow(this); });
-	mWindowManager->CreateWindow("GraphicsDebugWindow");
+	//mWindowManager->RegisterWindowType("GraphicsDebugWindow", [this]() {return new GraphicsDebugWindow(this); });
+	//mWindowManager->CreateWindow("GraphicsDebugWindow");
 
-	mWindowManager->RegisterWindowType("DebugInformationWindow", [this]() {return new DebugInformationWindow(this); });
-	mWindowManager->CreateWindow("DebugInformationWindow");
+	//mWindowManager->RegisterWindowType("DebugInformationWindow", [this]() {return new DebugInformationWindow(this); });
+	//mWindowManager->CreateWindow("DebugInformationWindow");
 
-	mWindowManager->RegisterWindowType("ECSDebugWindow", [this]() {return new ECSDebugWindow(this); });
-	mWindowManager->CreateWindow("ECSDebugWindow");
+	//mWindowManager->RegisterWindowType("ECSDebugWindow", [this]() {return new ECSDebugWindow(this); });
+	//mWindowManager->CreateWindow("ECSDebugWindow");
 
-	mWindowManager->RegisterWindowType("ModuleWindow", [this]() {return new ModuleWindow(this); });
-	mWindowManager->CreateWindow("ModuleWindow");
+	//mWindowManager->RegisterWindowType("ModuleWindow", [this]() {return new ModuleWindow(this); });
+	//mWindowManager->CreateWindow("ModuleWindow");
 
-	mWindowManager->RegisterWindowType("ReflectionRegistryWindow", [this]() {return new ReflectionRegistryWindow(this); });
-	mWindowManager->CreateWindow("ReflectionRegistryWindow");
+	//mWindowManager->RegisterWindowType("ReflectionRegistryWindow", [this]() {return new ReflectionRegistryWindow(this); });
+	//mWindowManager->CreateWindow("ReflectionRegistryWindow");
 
-	mWindowManager->RegisterWindowType("SceneHierarchyWindow", [this]() {return new SceneHierarchyWindow(this); });
-	mWindowManager->CreateWindow("SceneHierarchyWindow");
+	//mWindowManager->RegisterWindowType("SceneHierarchyWindow", [this]() {return new SceneHierarchyWindow(this); });
+	//mWindowManager->CreateWindow("SceneHierarchyWindow");
 
-	mWindowManager->RegisterWindowType("InspectorWindow", [this]() {return new InspectorWindow(this); });
-	mWindowManager->CreateWindow("InspectorWindow");
+	//mWindowManager->RegisterWindowType("InspectorWindow", [this]() {return new InspectorWindow(this); });
+	//mWindowManager->CreateWindow("InspectorWindow");
+
+	//mWindowManager->RegisterWindowType("RenderTargetDebugWindow", [this]() {return new RenderTargetDebugWindow(this); });
+	//mWindowManager->CreateWindow("RenderTargetDebugWindow");
+}
+
+void Editor::PlayStateChangeCallback(EditorPlayState State)
+{
+	switch (State)
+	{
+	case EditorPlayState::Play:
+	{
+		if (!mPlayScene)
+		{
+			auto* sceneManager = SceneManager::Instance();
+			mCopiedSceneName = sceneManager->GetActiveScene()->GetName();
+			mPlayScene = sceneManager->CopyScene(mCopiedSceneName, mCopiedSceneName);
+			if (mPlayScene)
+			{
+				sceneManager->SetActiveScene(mPlayScene->GetName());
+				sceneManager->AddExecutionPhase(EP_Simulation);
+			}
+			else
+			{
+				mCopiedSceneName = "";
+			}
+		}
+		break;
+	}
+	case EditorPlayState::Stopped:
+	{
+		if (mPlayScene)
+		{
+			auto* sceneManager = SceneManager::Instance();
+			sceneManager->RemoveExecutionPhase(EP_Simulation);
+			sceneManager->SetActiveScene(mCopiedSceneName);
+			sceneManager->DestroyScene(mPlayScene->GetName());
+			mPlayScene = nullptr;
+			mCopiedSceneName = "";
+		}
+		break;
+	}
+	default:
+		break;
+	}
 }

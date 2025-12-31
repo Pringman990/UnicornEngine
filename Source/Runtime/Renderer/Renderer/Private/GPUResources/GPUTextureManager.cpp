@@ -2,6 +2,7 @@
 
 #include <d3d11.h>
 #include "Renderer.h"
+#include "CommandList.h"
 
 GPUTextureManager::GPUTextureManager(Renderer* InRenderer)
 	:
@@ -29,7 +30,7 @@ GPUResourceHandle<GPUTexture> GPUTextureManager::CreateTexture2D(const Vector2i&
 	desc.BindFlags = 0;
 	desc.MipLevels = 1;
 	desc.ArraySize = 1;
-	desc.CPUAccessFlags = 0;
+	desc.CPUAccessFlags = Usage == TextureUsage::Undefined ? 0 : (Usage == TextureUsage::CPURead ? D3D11_CPU_ACCESS_READ : D3D11_CPU_ACCESS_WRITE);
 	desc.MiscFlags = 0;
 	desc.SampleDesc.Count = 1;
 	desc.SampleDesc.Quality = 0;
@@ -370,4 +371,72 @@ void GPUTextureManager::ResizeTexture2D(GPUResourceHandle<GPUTexture> Handle, co
 	gpuTex->extent = NewExtent;
 
 	gpuTex->binds = binds;
+}
+
+Vector<uint32> GPUTextureManager::GetTextureAsArray(GPUResourceHandle<GPUTexture> Handle)
+{
+	const LogicalDevice& device = mRenderer->GetLogicalDevice();
+	auto context = mRenderer->GetFrameSetupCommandList();
+
+	auto texture = GetInternalTexture(Handle);
+	auto stagingHandle = CreateTexture2D(texture->extent, texture->format, TextureBindFlags::Undefined, TextureUsage::CPURead);
+
+	context->CopyResource(stagingHandle, Handle);
+
+	Vector<uint32> result;
+
+	CommandList::MapContext mapContext = {};
+	context->Map(stagingHandle, mapContext);
+	if(mapContext.data)
+	{
+		byte* src = reinterpret_cast<byte*>(mapContext.data);
+		
+		for (uint32 y = 0; y < texture->extent.y; ++y)
+		{
+			uint32* dstRow = &result[y * texture->extent.x];
+			uint32* srcRow = reinterpret_cast<uint32*>(src + y * mapContext.rowPitch);
+
+			memcpy(dstRow, srcRow, texture->extent.x * sizeof(uint32));
+		}
+
+		context->Unmap(stagingHandle);
+	}
+
+	FreeTexture(stagingHandle);
+	return result;
+}
+
+void GPUTextureManager::ReadTexture(GPUResourceHandle<GPUTexture> Handle, TextureReadCallback Callback)
+{
+	auto context = mRenderer->GetLogicalDevice().GetImmediateContext();
+	auto texture = GetInternalTexture(Handle);
+
+	Vector3i extent = texture->extent;
+	RenderFormat format = texture->format;
+
+	auto stagingHandle = CreateTexture2D(extent, format, TextureBindFlags::Undefined, TextureUsage::CPURead);
+
+	context->CopyResource(Handle, stagingHandle);
+
+	CommandList::MapContext mapContext = {};
+	context->Map(stagingHandle, mapContext);
+
+	if (!mapContext.data)
+	{
+		LOG_WARNING("Failed to map staging texture");
+		FreeTexture(stagingHandle);
+		return;
+	}
+
+	TextureReadContext readContext = {};
+	readContext.data = mapContext.data;
+	readContext.rowPitch = mapContext.rowPitch;
+	readContext.width = extent.x;
+	readContext.height = extent.y;
+	readContext.format = format;
+
+	Callback(readContext);
+
+	context->Unmap(stagingHandle);
+	FreeTexture(stagingHandle);
 }

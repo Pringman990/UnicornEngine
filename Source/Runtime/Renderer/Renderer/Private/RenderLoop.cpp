@@ -54,19 +54,21 @@ void RenderLoop::BeginFrame()
 	context->BindConstantBuffer(mRenderer->GetCameraConstantsBuffer(), (uint32)ConstantBufferBindSlots::Camera, ShaderStageBind::FS | ShaderStageBind::VS);
 
 	context->ClearRenderTarget(mRenderer->GetMainRenderTarget().texture, Color(0.2f, 0.2f, 0.2f, 1.f));
+	context->ClearRenderTarget(mRenderer->GetObjectIDTexture(), Color(0.0f, 0.0f, 0.0f, 1.f));
+	context->ClearRenderTarget(mRenderer->GetObjectIDVisualTexture(), Color(0.0f, 0.0f, 0.0f, 1.f));
 	context->ClearDepthStencil(mRenderer->GetMainRenderTarget().dsv);
-	context->SetRenderTargets({ mRenderer->GetMainRenderTarget().texture }, mRenderer->GetMainRenderTarget().dsv);
+	context->SetRenderTargets({ mRenderer->GetMainRenderTarget().texture, mRenderer->GetObjectIDTexture(), mRenderer->GetObjectIDVisualTexture() }, mRenderer->GetMainRenderTarget().dsv);
 
 	context->SetViewport(mRenderer->GetMainRenderTarget().texture);
 }
 
 void RenderLoop::Execute()
 {
-	auto immediateContext = mRenderer->GetLogicalDevice().GetImmediateContext();
+	auto immediateContext = mRenderer->GetLogicalDevice().GetDx11ImmediateContext();
 
 	CommandList* context = mRenderer->GetFrameSetupCommandList();
 	auto list = context->Finalize();
-	mRenderer->GetLogicalDevice().GetImmediateContext()->ExecuteCommandList(list, TRUE);
+	mRenderer->GetLogicalDevice().GetDx11ImmediateContext()->ExecuteCommandList(list, TRUE);
 	context->Reset();
 
 	auto backbuffer = mRenderer->GetGPUTextureManager()->GetInternalTexture(mRenderer->GetSwapChain()->GetBackBuffer());

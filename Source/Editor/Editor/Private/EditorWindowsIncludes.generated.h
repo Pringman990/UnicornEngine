@@ -7,3 +7,4 @@
 #include "InternalWindows/ReflectionRegistryWindow.h"
 #include "InternalWindows/SceneHierarchyWindow.h"
 #include "InternalWindows/InspectorWindow.h"
+#include "InternalWindows/RenderTargetDebugWindow.h"

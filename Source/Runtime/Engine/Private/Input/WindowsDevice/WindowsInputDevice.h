@@ -23,6 +23,7 @@ public:
 	virtual void ShowMouse() override;
 
 	virtual Vector2 GetMouseDelta() override;
+	virtual float GetMouseWheelDelta() override;
 
 private:
 	void ProccessVirtualKeyboardKeys(USHORT VirtualKey, bool IsDown);
@@ -30,6 +31,8 @@ private:
 private:
 	Vector2 mMouseDelta;
 	Vector2 mTentativeMouseDelta;
+	float mTentativeScrollDelta;
+	float mScrollDelta;
 };
 
 #ifdef _Win32

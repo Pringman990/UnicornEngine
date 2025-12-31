@@ -53,6 +53,10 @@ struct GPU_ALIGNED CameraConstantsData
 struct GPU_ALIGNED ObjectConstantBufferData
 {
 	Matrix modelToWorld;
+	uint32 renderID;
+	uint32 _pad1;
+	uint32 _pad2;
+	uint32 _pad3;
 };
 
 struct MainRenderTarget
@@ -75,11 +79,12 @@ public:
 	RENDERER_API bool Init();
 
 	RENDERER_API void SubmitMesh(AssetRef<Mesh> Mesh, const Transform& ObjectTransfrom);
+	RENDERER_API void SubmitMesh(AssetRef<Mesh> Mesh, const Transform& ObjectTransfrom, uint32 RenderID);
 	RENDERER_API void SubmitMesh(GPUResourceHandle<GPUMesh> Mesh, const Transform& ObjectTransfrom, Vector<Material*> OverrideMaterials);
 
 	RENDERER_API void HandleResizeEvent(int32 Width, int32 Height);
 
-	RENDERER_API inline const LogicalDevice& GetLogicalDevice() const { return mDevice; };
+	RENDERER_API inline LogicalDevice& GetLogicalDevice() { return mDevice; };
 	RENDERER_API inline SwapChain* GetSwapChain() const { return mSwapChain.get(); };
 	
 	RENDERER_API inline ShaderManager* GetShaderManager() const { return mShaderManager.get(); };
@@ -106,6 +111,9 @@ public:
 	RENDERER_API inline Camera* GetActiveCamera() const { return mActiveCamera; };
 	RENDERER_API inline void SetActiveCamera(Camera* Cam) { mActiveCamera = Cam; };
 
+	RENDERER_API GPUResourceHandle<GPUTexture> GetObjectIDTexture() { return mObjectIDTexture; };
+	RENDERER_API GPUResourceHandle<GPUTexture> GetObjectIDVisualTexture() { return mObjectIDVisualTexture; };
+	RENDERER_API uint32 GetRenderIDFromPosition(Vector2i Position);
 private:
 	Renderer();
 	~Renderer();
@@ -135,4 +143,7 @@ private:
 
 	//TODO: Remove when camera manager is added
 	Camera* mActiveCamera;
+
+	GPUResourceHandle<GPUTexture> mObjectIDTexture;
+	GPUResourceHandle<GPUTexture> mObjectIDVisualTexture;
 };

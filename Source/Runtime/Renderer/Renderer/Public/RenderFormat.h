@@ -101,7 +101,6 @@ inline bool HasFlag(TextureUsage value, TextureUsage flag)
 	return (static_cast<uint32_t>(value) & static_cast<uint32_t>(flag)) != 0;
 }
 
-
 // Map high-level flags to DX11 D3D11_USAGE
 inline D3D11_USAGE ToD11Usage(TextureUsage flags)
 {

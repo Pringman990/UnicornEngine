@@ -39,6 +39,12 @@ void* EWorld::AddComponent(EEntity Entity, const UniqueID128& UUID)
 		mComponentStores.emplace(type->uuid, std::move(store));
 	}
 
+	if (HasComponent(Entity, UUID))
+	{
+		LOG_WARNING("Trying to add already existing component on entity '{}'", Entity.ToString());
+		return nullptr;
+	}
+
 	auto& store = mComponentStores[type->uuid];
 	void* component = store.allocator.Allocate();
 	store.entities.push_back(Entity);
@@ -74,16 +80,30 @@ void EWorld::RemoveComponent(EEntity Entity, const UniqueID128& UUID)
 		return;
 	}
 
-	store.allocator.RemoveAt(entityIt->second);
+	EEntity ent = entityIt->first;
+	uint32 index = entityIt->second;
+	EEntity lastEntity = store.entities.back();
+	uint32 lastIndex = store.indicies[lastEntity];
 
-	store.entities[entityIt->second] = store.entities.back();
-	store.entities[entityIt->second] = entityIt->first;
+	store.allocator.RemoveAt(index);
 
-	store.indexToEntity[entityIt->second] = store.entities[entityIt->second];
-	store.indexToEntity.erase(store.allocator.GetCount());
+	if (index == lastIndex)
+	{
+		store.entities.pop_back();
+		store.indexToEntity.erase(store.allocator.GetCount());
+		store.indicies.erase(Entity);
+	}
+	else
+	{
+		store.entities[index] = store.entities.back();
+		store.entities.pop_back();
 
-	store.indicies.erase(Entity);
-	store.entities.pop_back();
+		store.indexToEntity[index] = store.entities[index];
+		store.indexToEntity.erase(store.allocator.GetCount());
+
+		store.indicies.erase(Entity);
+		store.indicies[store.indexToEntity[index]] = index;
+	}
 }
 
 //void EWorld::ChangeArchetype(EEntity Entity, Archetype* From, Archetype* To)
@@ -113,3 +133,29 @@ void EWorld::RemoveComponent(EEntity Entity, const UniqueID128& UUID)
 //	//entityLocation.allocatorIndex = static_cast<uint32>(To->entities.size() - 1);
 //	//entityLocation.archetype = To;
 //}
+
+bool EWorld::HasComponent(EEntity Entity, UniqueID128 UUID)
+{
+	auto it = mComponentStores.find(UUID);
+	if (it == mComponentStores.end())
+	{
+		return false;
+	}
+
+	return it->second.indicies.contains(Entity);
+}
+
+ECS_API UnorderedMap<UniqueID128, void*> EWorld::GetAllComponentsOnEntity(EEntity Entity)
+{
+	UnorderedMap<UniqueID128, void*> map;
+	for (auto& [typeUUID, store] : mComponentStores)
+	{
+		auto it = std::find(store.entities.begin(), store.entities.end(), Entity);
+		if (it == store.entities.end())
+			continue;
+
+		map.insert({ typeUUID, store.allocator.Get(store.indicies[Entity]) });
+	}
+
+	return map;
+}

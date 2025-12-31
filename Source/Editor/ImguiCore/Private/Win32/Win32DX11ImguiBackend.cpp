@@ -68,7 +68,7 @@ bool Win32DX11ImguiBackend::Init()
 
 	Renderer* renderer = Renderer::Instance();
 
-	if (!ImGui_ImplDX11_Init(renderer->GetLogicalDevice().GetRaw(), renderer->GetLogicalDevice().GetImmediateContext()))
+	if (!ImGui_ImplDX11_Init(renderer->GetLogicalDevice().GetRaw(), renderer->GetLogicalDevice().GetDx11ImmediateContext()))
 		return false;
 
 	return true;

@@ -1,3 +1,4 @@
+#pragma once
 #ifdef _WIN32
 
 #ifdef ENGINE_EXPORTS

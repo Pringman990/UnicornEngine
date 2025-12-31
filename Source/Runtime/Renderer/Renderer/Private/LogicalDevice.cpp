@@ -33,7 +33,7 @@ bool LogicalDevice::Init()
 		D3D11_SDK_VERSION,
 		&mDevice,
 		&featureLevel,
-		&mImmediateContext
+		&mDx11ImmediateContext
 	);
 
 	if (FAILED(hr))
@@ -42,6 +42,8 @@ bool LogicalDevice::Init()
 		return false;
 	}
 
+	mImmediateContext = MakeOwned<CommandList>(mDx11ImmediateContext, Renderer::Instance());
+
 	return true;
 }
 
@@ -49,9 +51,10 @@ void LogicalDevice::Destroy()
 {
 	mFreeCommandLists.clear();
 	mCommandLists.clear();
-	mImmediateContext->ClearState();
-	mImmediateContext->Flush();
-	mImmediateContext.Reset();
+	mImmediateContext->Reset();
+	mDx11ImmediateContext->ClearState();
+	mDx11ImmediateContext->Flush();
+	mDx11ImmediateContext.Reset();
 }
 
 CommandList* LogicalDevice::RequestCommandList(Renderer* InRenderer)

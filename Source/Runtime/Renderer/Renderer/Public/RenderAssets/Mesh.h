@@ -42,3 +42,4 @@ private:
 };
 
 REFL_DECLARE(Mesh)
+REFL_DECLARE(AssetRef<Mesh>)

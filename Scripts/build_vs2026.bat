@@ -1,0 +1,18 @@
+@ECHO OFF
+pushd %~dp0..
+
+mkdir Binaries\Win64
+mkdir Binaries\Shaders
+
+mkdir Intermediate\
+mkdir Intermediate\ProjectFiles
+mkdir Intermediate\Temp
+
+:: Generate project files for VS2026
+call "Scripts/Premake/premake5" --file=Source/premake5.lua vs2026 || @PAUSE
+
+:: Generate compile_commands.json
+:: call "Scripts/Premake/premake5" --file=Source/premake5.lua export-compile-commands || @PAUSE
+
+popd
+@ECHO ON

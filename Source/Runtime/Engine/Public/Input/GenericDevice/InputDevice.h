@@ -22,6 +22,7 @@ public:
 	virtual void ShowMouse() = 0;
 
 	virtual Vector2 GetMouseDelta() = 0;
+	virtual float GetMouseWheelDelta() = 0;
 
 protected:
 	InputMapper* mInputMapper;

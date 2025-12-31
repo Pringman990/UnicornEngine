@@ -13,4 +13,6 @@ public:
 	virtual void Render() override;
 
 private:
+	void CallViewFunctionsRecurcivly(UniqueID128 TypeID, void* ComponentPtr);
+private:
 };

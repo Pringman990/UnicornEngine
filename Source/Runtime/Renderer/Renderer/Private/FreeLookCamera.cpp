@@ -4,9 +4,11 @@
 
 FreeLookCamera::FreeLookCamera()
 	:
-	mMoveSpeed(5),
+	mMoveSpeed(2),
 	mBoostMoveSpeed(10),
-	mRotateSpeed(10)
+	mRotateSpeed(2),
+	mZoomSpeed(1),
+	mSchema(FreeLookCameraControlSchema::FreeLook)
 {
 }
 
@@ -15,6 +17,21 @@ FreeLookCamera::~FreeLookCamera()
 }
 
 void FreeLookCamera::HandleInputsAndMove()
+{
+	switch (mSchema)
+	{
+	case FreeLookCameraControlSchema::FreeLook:
+		HandleFreeLook();
+		break;
+	case FreeLookCameraControlSchema::OrthoPan:
+		HandleOrthoPan();
+		break;
+	default:
+		break;
+	}	
+}
+
+void FreeLookCamera::HandleFreeLook()
 {
 	InputMapper* input = InputMapper::Instance();
 
@@ -82,4 +99,53 @@ void FreeLookCamera::HandleInputsAndMove()
 
 	mTransform.SetPosition(position);
 	input->CaptureMouse();
+}
+
+void FreeLookCamera::HandleOrthoPan()
+{
+	InputMapper* input = InputMapper::Instance();
+	Timer* timer = Timer::Instance();
+
+	if (!GetAsyncKeyState(VK_RBUTTON))
+	{
+		input->ReleaseMouse();
+		return;
+	}
+
+	HandleZoom();
+
+	Vector3 position = mTransform.GetPosition();
+	float moveSpeed = mMoveSpeed * timer->GetDeltaTime();
+
+	if (GetAsyncKeyState('W')) 
+		position.y += moveSpeed;
+	
+	if (GetAsyncKeyState('S'))
+		position.y -= moveSpeed;
+	
+	if (GetAsyncKeyState('A'))
+		position.x -= moveSpeed;
+	
+	if (GetAsyncKeyState('D'))
+		position.x += moveSpeed;
+
+	Vector2 delta = input->GetMouseDelta();
+	position.x += delta.x * 0.05f;
+	position.y -= delta.y * 0.05f;
+
+	mTransform.SetPosition(position);
+	input->CaptureMouse();
+}
+
+void FreeLookCamera::HandleZoom()
+{
+	float scroll = InputMapper::Instance()->GetMouseWheelDelta();
+	if (scroll == 0.0f) 
+		return;
+
+	float orthoSize = mOrtoSize;
+	orthoSize -= scroll * mZoomSpeed;
+	orthoSize = max(orthoSize, 1);
+
+	SetOrthoSize(orthoSize);
 }

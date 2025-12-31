@@ -10,10 +10,6 @@
 class GenericApplication;
 class WindowsFileWatcher;
 
-#ifdef _EDITOR
-class Editor;
-#endif // _EDITOR
-
 typedef void*(*SandboxRender)();
 typedef void*(*SandboxInit)();
 
@@ -32,10 +28,6 @@ private:
 	GenericApplication* mGenericApplication;
 	RenderLoop mRenderLoop;
 	WindowsFileWatcher* mFileWatcher;
-
-#ifdef _EDITOR
-	Editor* mEditor = nullptr;
-#endif // _EDITOR
 
 	SandboxRender mSandboxRender;
 

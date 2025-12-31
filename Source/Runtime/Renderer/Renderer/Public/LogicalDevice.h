@@ -15,7 +15,8 @@ public:
 	CommandList* RequestCommandList(Renderer* InRenderer);
 	void RecycleCommandList(CommandList* List);
 
-	inline ID3D11DeviceContext* GetImmediateContext() const { return mImmediateContext.Get(); }
+	inline CommandList* GetImmediateContext() { return mImmediateContext.get(); }
+	inline ID3D11DeviceContext* GetDx11ImmediateContext() const { return mDx11ImmediateContext.Get(); }
 
 	inline ID3D11Device* GetRaw() const { return mDevice.Get(); };
 
@@ -43,7 +44,9 @@ private:
 	void Destroy();
 private:
 	ComPtr<ID3D11Device> mDevice;
-	ComPtr<ID3D11DeviceContext> mImmediateContext;
+	ComPtr<ID3D11DeviceContext> mDx11ImmediateContext;
+
+	OwnedPtr<CommandList> mImmediateContext;
 
 	Vector<CommandList*> mFreeCommandLists;
 	Vector<OwnedPtr<CommandList>> mCommandLists;

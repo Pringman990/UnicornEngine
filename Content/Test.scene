@@ -18,7 +18,7 @@ components:
   afdb9258-ee2e-49be-ae05-46c8cc74bd10:
     - entity: cf8f8606-b2b8-47a6-8e4e-51d27efebc33
       Position:
-        x: 28.947674
+        x: 0
         y: 0
         z: 0
       Rotation:
@@ -31,12 +31,12 @@ components:
         z: 1
     - entity: 573dfc5e-747b-4c68-a9a2-de3fcd716a43
       Position:
-        x: 0
-        y: 0
-        z: 0
+        x: -0.35
+        y: 0.63
+        z: 0.52
       Rotation:
         x: 0
-        y: 0
+        y: -90
         z: 0
       Scale:
         x: 0.01
@@ -57,17 +57,23 @@ components:
         z: 1
     - entity: b4273e21-e0a1-4820-b59a-4a38899133bb
       Position:
-        x: 0
+        x: -0.49
         y: 0
         z: 0
       Rotation:
-        x: 0
-        y: 0
-        z: 0
+        x: 5.45
+        y: 4.85
+        z: 5.12
       Scale:
         x: 1
         y: 1
         z: 1
+  bfda9258-ee2e-49be-ae05-46c8cc74bd10:
+    - entity: cf8f8606-b2b8-47a6-8e4e-51d27efebc33
+      Flip: false
+      Speed: 3.0858707
+      a: 1
+      Distance: 53.990665
   afda9258-ee2e-49be-ae05-46c8cc74bd10:
     - entity: cf8f8606-b2b8-47a6-8e4e-51d27efebc33
       Mesh: 74897956-e7c6-467d-8142-f091ce2190ab
@@ -77,9 +83,3 @@ components:
       Mesh: 74897956-e7c6-467d-8142-f091ce2190ab
     - entity: b4273e21-e0a1-4820-b59a-4a38899133bb
       Mesh: 74897956-e7c6-467d-8142-f091ce2190ab
-  bfda9258-ee2e-49be-ae05-46c8cc74bd10:
-    - entity: cf8f8606-b2b8-47a6-8e4e-51d27efebc33
-      Flip: true
-      Speed: 3.0858707
-      a: 1
-      Distance: 53.990665

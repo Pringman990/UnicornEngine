@@ -22,6 +22,8 @@ class ModuleManager
 public:
 	ENGINE_API static ModuleManager* Instance();
 
+	ENGINE_API void LoadAllPlugins();
+
 	ENGINE_API bool LoadModule(const String& ModuleName);
 	ENGINE_API bool UnLoadModule(const String& ModuleName);
 
@@ -41,13 +43,13 @@ private:
 	UnorderedMap<String, ModuleInfo> mLoadedModules;
 };
 
-#define IMPLEMENT_MODULE(MODULE_NAME) \
+#define IMPLEMENT_MODULE_CREATE_FUNC(MODULE_NAME) \
 	extern "C" __declspec(dllexport) IModule* CreateModule() \
 	{ \
 		return new MODULE_NAME(); \
 	}
 
-#define IMPLEMENT_MAIN_GAME_MODULE(MODULE_NAME) \
+#define IMPLEMENT_MODULE(MODULE_NAME) \
 class MODULE_NAME : public IModule \
 { \
 public: \
@@ -55,4 +57,7 @@ public: \
 	virtual void Startup() override {}; \
 	virtual void Shutdown() override {}; \
 }; \
+	IMPLEMENT_MODULE_CREATE_FUNC(MODULE_NAME)
+
+#define IMPLEMENT_MAIN_GAME_MODULE(MODULE_NAME) \
 	IMPLEMENT_MODULE(MODULE_NAME)

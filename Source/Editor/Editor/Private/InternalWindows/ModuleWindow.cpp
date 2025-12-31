@@ -3,6 +3,9 @@
 
 #include <Module/ModuleManager.h>
 
+#include <EditorWindowManager.h>
+REGISTER_EDITOR_WINDOW(ModuleWindow, "92b8e2bc-a1bb-49fa-8509-a85b46afad3c");
+
 ModuleWindow::ModuleWindow(Editor* EditorPtr)
 	:
 	EditorWindow(EditorPtr)

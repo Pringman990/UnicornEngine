@@ -36,6 +36,11 @@ CommandList::~CommandList()
 
 void CommandList::DrawMesh(Mesh* MeshAsset, const Transform& MeshTransform)
 {
+	DrawMesh(MeshAsset, MeshTransform, 0);
+}
+
+void CommandList::DrawMesh(Mesh* MeshAsset, const Transform& MeshTransform, uint32 RenderID)
+{
 	for (uint32 i = 0; i < MeshAsset->GetSubmeshes().size(); i++)
 	{
 		const auto& submesh = MeshAsset->GetSubmeshes()[i];
@@ -45,6 +50,7 @@ void CommandList::DrawMesh(Mesh* MeshAsset, const Transform& MeshTransform)
 		drawMeshCmd.transform = MeshTransform;
 		drawMeshCmd.startIndex = submesh.startIndex;
 		drawMeshCmd.indexCount = submesh.indexCount;
+		drawMeshCmd.renderID = RenderID;
 
 		if (!submesh.material)
 		{
@@ -84,6 +90,7 @@ ID3D11CommandList* CommandList::Finalize()
 			auto objCBuffer = mRenderer->GetObjectConstantBuffer();
 			ObjectConstantBufferData objBuffer;
 			objBuffer.modelToWorld = drawCmd.transform.GetMatrix();
+			objBuffer.renderID = drawCmd.renderID;
 			UpdateConstantBuffer(objCBuffer, &objBuffer);
 			BindConstantBuffer(objCBuffer, (uint32)ConstantBufferBindSlots::Object, ShaderStageBind::FS | ShaderStageBind::VS);
 
@@ -357,4 +364,34 @@ ID3D11CommandList* CommandList::Finish()
 void CommandList::Reset()
 {
 	mCachedList.Reset();
+}
+
+void CommandList::CopyResource(GPUResourceHandle<GPUTexture> From, GPUResourceHandle<GPUTexture> To)
+{
+	GPUTexture* fromTex = mRenderer->GetGPUTextureManager()->GetInternalTexture(From);
+	GPUTexture* toTex = mRenderer->GetGPUTextureManager()->GetInternalTexture(To);
+	mContext->CopyResource(toTex->texture.Get(), fromTex->texture.Get());
+}
+
+void CommandList::Map(GPUResourceHandle<GPUTexture> Texture, MapContext& Context)
+{
+	GPUTexture* texture = mRenderer->GetGPUTextureManager()->GetInternalTexture(Texture);
+
+	D3D11_MAPPED_SUBRESOURCE mappedResource = {};
+	HRESULT hr = mContext->Map(texture->texture.Get(), 0, D3D11_MAP_READ, 0, &mappedResource);
+	if (FAILED(hr))
+	{
+		Context.data = nullptr;
+		return;
+	}
+	
+	Context.data = mappedResource.pData;
+	Context.rowPitch = mappedResource.RowPitch;
+	Context.depthPitch = mappedResource.DepthPitch;
+}
+
+void CommandList::Unmap(GPUResourceHandle<GPUTexture> Texture)
+{
+	GPUTexture* texture = mRenderer->GetGPUTextureManager()->GetInternalTexture(Texture);
+	mContext->Unmap(texture->texture.Get(), 0);
 }

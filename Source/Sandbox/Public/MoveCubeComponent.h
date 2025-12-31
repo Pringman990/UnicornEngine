@@ -7,7 +7,6 @@ struct MoveCubeComponent
 	bool flip = false;
 	float speedMultiplier = 1;
 	float distance = 5;
-	int a = 1;
 };
 
 REFL_DECLARE_COMPONENT(MoveCubeComponent);

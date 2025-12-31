@@ -47,6 +47,7 @@ public:
 	ENGINE_API void ShowMouse();
 
 	ENGINE_API Vector2 GetMouseDelta();
+	ENGINE_API float GetMouseWheelDelta();
 
 private:
 	InputMapper();

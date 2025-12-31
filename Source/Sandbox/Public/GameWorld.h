@@ -37,4 +37,3 @@ private:
 extern "C" SANDBOX_API void InitGameWorld();
 extern "C" SANDBOX_API void RenderGameWorld();
 
-REFL_DECLARE(AssetRef<Mesh>)

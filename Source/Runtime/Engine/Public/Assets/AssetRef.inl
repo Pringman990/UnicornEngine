@@ -23,5 +23,5 @@ inline void LoadAssetRef(void* obj, Archive& archive, const String& key)
 	String uuidStr;
 	archive.ReadString(uuidStr, key);
 
-	(*ref) = AssetRegistry::Instance()->GetAssetFromUUID<T>(UniqueID128(uuidStr));
+	(*ref) = AssetRegistry::Instance()->template GetAssetFromUUID<T>(UniqueID128(uuidStr));
 }

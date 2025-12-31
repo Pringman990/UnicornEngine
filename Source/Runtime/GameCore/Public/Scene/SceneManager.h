@@ -9,7 +9,8 @@ struct SceneErrorCode
 	{
 		OK,
 		InvalidPath,
-		InvalidScenePtr
+		InvalidScenePtr,
+		IsActiveScene
 	};
 
 	SceneErrorCode() {};
@@ -26,6 +27,13 @@ struct SceneErrorCode
 	}
 };
 
+enum ExecutionPhase
+{
+	None = 0,
+	EP_Rendering = 1 << 0,
+	EP_Simulation = 1 << 1
+};
+
 /*
 * Engine Subsystem
 */
@@ -40,6 +48,10 @@ public:
 
 	GAMECORE_API Scene* CreateScene(String Name);
 	GAMECORE_API Scene* CreateScene(const UniqueID128& UUID, String Name);
+
+	GAMECORE_API Scene* CopyScene(StringView SceneToCopy, String NewName);
+
+	GAMECORE_API SceneErrorCode DestroyScene(String Name);
 
 	GAMECORE_API void UpdateActiveScene();
 
@@ -60,6 +72,11 @@ public:
 
 	GAMECORE_API const UnorderedMap<UniqueID128, OwnedPtr<Scene>>& GetAllScenes() const { return mScenes; };
 
+	GAMECORE_API ExecutionPhase GetExecutionPhase() const { return mCurrentExecutionPhase; }
+	GAMECORE_API void SetExecutionPhase(ExecutionPhase Phases) { mCurrentExecutionPhase = Phases; };
+	GAMECORE_API void AddExecutionPhase(ExecutionPhase Phase) { ENUM_ADD(mCurrentExecutionPhase, Phase); };
+	GAMECORE_API void RemoveExecutionPhase(ExecutionPhase Phase) { ENUM_REMOVE(mCurrentExecutionPhase, Phase); };
+
 private:
 	GAMECORE_API SceneManager();
 	GAMECORE_API ~SceneManager();
@@ -78,4 +95,5 @@ private:
 	UnorderedMap<UniqueID128, OwnedPtr<Scene>> mScenes;
 	UnorderedMap<String, UniqueID128> mNameToUUID;
 	Scene* mActiveScene;
+	ExecutionPhase mCurrentExecutionPhase = EP_Rendering;
 };

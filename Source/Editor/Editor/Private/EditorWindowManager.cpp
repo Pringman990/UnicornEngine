@@ -20,13 +20,18 @@ EditorWindowManager::~EditorWindowManager()
 	mRegisteredWindows.clear();
 }
 
-void EditorWindowManager::CreateWindow(const String& WindowType)
+EDITOR_API EditorWindowManager* EditorWindowManager::Instance()
 {
-	auto it = mRegisteredWindows.find(WindowType);
+	static EditorWindowManager* instance = new EditorWindowManager();
+	return instance;
+}
+
+void EditorWindowManager::AddAndInitWindow(UniqueID128 UUID, String Name)
+{
+	auto it = mRegisteredWindows.find(UUID);
 	if (it != mRegisteredWindows.end())
 	{
-		auto& windowCallback = it->second;
-		auto window = windowCallback();
+		EditorWindow* window = it->second.get();
 		
 		if (!AddUniqueToVector(mActiveWindows, window))
 		{
@@ -34,7 +39,9 @@ void EditorWindowManager::CreateWindow(const String& WindowType)
 			return;
 		}
 
-		if (!window->Init())
+		if (mStage == Stage::Static)
+			mWindowsToInit.push_back(UUID);
+		else if (!window->Init())
 		{
 			LOG_WARNING("Window failed to init");
 			EraseItemFromVector(mActiveWindows, window);
@@ -43,8 +50,16 @@ void EditorWindowManager::CreateWindow(const String& WindowType)
 
 		if (window->mWindowDisplayName == "")
 		{
-			window->mWindowDisplayName = WindowType;
+			window->mWindowDisplayName = Name;
 		}
+	}
+}
+
+void EditorWindowManager::UnregisterWindow(UniqueID128 UUID)
+{
+	if (mRegisteredWindows.contains(UUID))
+	{
+		mRegisteredWindows.erase(UUID);
 	}
 }
 
@@ -63,11 +78,26 @@ void EditorWindowManager::RenderActiveWindows()
 
 void EditorWindowManager::ClearAllWindows()
 {
+	mActiveWindows.clear();
 	mRegisteredWindows.clear();
-	for (uint32 i = 0; i < mActiveWindows.size(); i++)
+	/*for (uint32 i = 0; i < mActiveWindows.size(); i++)
 	{
 		delete mActiveWindows[i];
+	}*/
+}
+
+void EditorWindowManager::InitAllRegisteredWindows()
+{
+	mStage = Stage::Runtime;
+
+	for (auto& window : mWindowsToInit)
+	{
+		if (!mRegisteredWindows[window]->Init())
+		{
+			LOG_ERROR("Failed to init editor window {}", window.ToString());
+		}
 	}
-	mActiveWindows.clear();
+
+	mWindowsToInit.clear();
 }
 

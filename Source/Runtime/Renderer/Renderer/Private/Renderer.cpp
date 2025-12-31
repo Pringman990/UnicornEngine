@@ -141,6 +141,18 @@ bool Renderer::Init()
 			TextureBindFlags::DepthStencil
 	);
 
+	mObjectIDTexture = mTextureManager->CreateTexture2D(
+		{ (int32)app->GetWindowInfo().viewportWidth, (int32)app->GetWindowInfo().viewportHeight },
+		RenderFormat::R32_UINT, 
+		TextureBindFlags::RenderTarget
+	);
+
+	mObjectIDVisualTexture = mTextureManager->CreateTexture2D(
+		{ (int32)app->GetWindowInfo().viewportWidth, (int32)app->GetWindowInfo().viewportHeight },
+		RenderFormat::R8G8B8A8_UNORM,
+		TextureBindFlags::RenderTarget | TextureBindFlags::ShaderRead
+	);
+
 	mFrameConstantsBuffer = mRenderBufferManager->CreateConstantBuffer(sizeof(FrameConstantsData), nullptr);
 	mCameraConstantsBuffer = mRenderBufferManager->CreateConstantBuffer(sizeof(CameraConstantsData), nullptr, BufferUsage::Dynamic);
 	mObjectConstantBuffer = mRenderBufferManager->CreateConstantBuffer(sizeof(ObjectConstantBufferData), nullptr, BufferUsage::Dynamic);
@@ -189,6 +201,18 @@ void Renderer::SubmitMesh(AssetRef<Mesh> Mesh, const Transform& ObjectTransfrom)
 	//}
 
 	mFrameSetupCommandList->DrawMesh(Mesh.Get(), ObjectTransfrom);
+}
+
+RENDERER_API void Renderer::SubmitMesh(AssetRef<Mesh> Mesh, const Transform& ObjectTransfrom, uint32 RenderID)
+{
+	if (!Mesh)
+	{
+		LOG_ERROR("Trying to render mesh that has an invalid AssetRef");
+		return;
+	}
+
+	mFrameSetupCommandList->SetSamplers({ mSampler.get() }, 0);
+	mFrameSetupCommandList->DrawMesh(Mesh.Get(), ObjectTransfrom, RenderID);
 }
 
 void Renderer::SubmitMesh(GPUResourceHandle<GPUMesh> Mesh, const Transform& ObjectTransfrom, Vector<Material*> OverrideMaterials)
@@ -243,6 +267,7 @@ void Renderer::ResizeMainRenderTarget(const Vector2i& Extent)
 {
 	mTextureManager->FreeTexture(mMainRenderTarget.texture);
 	mTextureManager->FreeTexture(mMainRenderTarget.dsv);
+	mTextureManager->FreeTexture(mObjectIDTexture);
 
 	mMainRenderTarget.texture = mTextureManager->CreateTexture2D(
 		Extent,
@@ -255,4 +280,50 @@ void Renderer::ResizeMainRenderTarget(const Vector2i& Extent)
 		RenderFormat::D32_FLOAT,
 		TextureBindFlags::DepthStencil
 	);
+
+	mObjectIDTexture = mTextureManager->CreateTexture2D(
+		Extent,
+		RenderFormat::R32_UINT,
+		TextureBindFlags::RenderTarget
+	);
+
+	mObjectIDVisualTexture = mTextureManager->CreateTexture2D(
+		Extent,
+		RenderFormat::R8G8B8A8_UNORM,
+		TextureBindFlags::RenderTarget | TextureBindFlags::ShaderRead
+	);
+}
+
+RENDERER_API uint32 Renderer::GetRenderIDFromPosition(Vector2i Position)
+{
+	uint32 readID = 0;
+	mTextureManager->ReadTexture(mObjectIDTexture,
+		[&](const TextureReadContext& ctx)
+		{
+			ENSURE(ctx.format == RenderFormat::R32_UINT, "Wrong texture format for picking");
+
+			uint32 x = Position.x;
+			uint32 y = Position.y;
+
+			const uint32 bytesPerPixel = 4;
+
+			Vector<uint32> pixels;
+			pixels.resize(ctx.width * ctx.height);
+
+			uint8* src = (uint8*)ctx.data;
+
+			for (uint32 yx = 0; yx < ctx.height; yx++)
+			{
+				uint8* rowSrc = src + yx * ctx.rowPitch;
+				uint32* rowDst = pixels.data() + yx * ctx.width;
+
+				memcpy(rowDst, rowSrc, ctx.width * bytesPerPixel);
+			}
+
+			const byte* row = (const byte*)ctx.data + y * ctx.rowPitch;
+
+			readID = *(const uint32*)(row + x * sizeof(uint32));
+		});
+
+	return readID;
 }

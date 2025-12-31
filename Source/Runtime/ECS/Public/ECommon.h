@@ -48,6 +48,7 @@ enum EPipeline
 struct ESystem final
 {
 	EPipeline pipeline = ESystemUpdate;
+	uint32 executionPhase = 0;
 	String name = "";
 	ESignature signature = 0;
 	ESystemFunction function;

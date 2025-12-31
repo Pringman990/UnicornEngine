@@ -64,3 +64,8 @@ Vector2 InputMapper::GetMouseDelta()
 {
 	return mInputDevice->GetMouseDelta();
 }
+
+float InputMapper::GetMouseWheelDelta()
+{
+	return mInputDevice->GetMouseWheelDelta();
+}

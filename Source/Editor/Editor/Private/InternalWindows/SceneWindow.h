@@ -15,7 +15,7 @@ public:
 
 private:
 	Renderer* mRenderer;
-	FreeLookCamera mFLCamera;
+	FreeLookCamera* mFLCamera;
 	
 	//RenderTarget* mSceneView;
 

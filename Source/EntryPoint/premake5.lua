@@ -49,24 +49,24 @@ project "EntryPoint"
 
 	filter("configurations:Debug_Editor")
 		includedirs {
-			dirs.Editor,
+			dirs.EditorCore,
 		}	
 		links {
-			"Editor"
+			"Editor",
 		} 
 	filter("configurations:MemoryDebug_Editor")
 		includedirs {
-			dirs.Editor,
+			dirs.EditorCore,
 		}	
 		links {
-			"Editor"
+			"Editor",
 		} 
 	filter("configurations:Tests")
 		includedirs {
-			dirs.Editor,
+			dirs.EditorCore,
 		}	
 		links {
-			"Editor"
+			"Editor",
 		} 
 
 	filter {"configurations:MemoryDebug"}

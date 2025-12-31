@@ -30,7 +30,7 @@ public:
 	RENDERER_API virtual ~Camera();
 
 	RENDERER_API void SetPerspective(float FovAngleY, float AspectRatio, float NearZ, float FarZ);
-	RENDERER_API void SetOrthographic(Vector2 Resolution, float NearZ, float FarZ);
+	RENDERER_API void SetOrthographic(Vector2i Resolution, float NearZ, float FarZ);
 	RENDERER_API void SetOrthoSize(float Size);
 
 	RENDERER_API void KeepAspect(bool Keep) { mKeepAspect = Keep; };
@@ -58,7 +58,7 @@ protected:
 	float mFov;
 	float mAspectRatio;
 	float mOrtoSize;
-	Vector2 mOrtoResolution;
+	Vector2i mOrtoResolution;
 	bool mKeepAspect;
 	CameraPerspective mPerspective;
 };

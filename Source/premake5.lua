@@ -34,6 +34,7 @@ solution "Unicorn Engine"
 		optimize "Off"
 		defines {'BUILD_CONFIG="MemoryDebug"', "_MEMORY_DEBUG", "_DEBUG"}
 		flags {"FatalWarnings"}
+		linkoptions {"/IGNORE:4099"}
 
 	filter ("configurations:MemoryDebug_Editor")
 		runtime "Debug"
@@ -41,6 +42,7 @@ solution "Unicorn Engine"
 		optimize "Off"
 		defines {'BUILD_CONFIG="MemoryDebug_Editor"', "_MEMORY_DEBUG", "_DEBUG", "_EDITOR"}
 		flags {"FatalWarnings"}
+		linkoptions {"/IGNORE:4099"}
 
     filter ("configurations:Debug")
 		runtime "Debug"
@@ -48,6 +50,7 @@ solution "Unicorn Engine"
 		optimize "Off"
 		defines {'BUILD_CONFIG="Debug"', "_DEBUG"}
 		flags {"FatalWarnings"}
+		linkoptions {"/IGNORE:4099"}
 
 	filter("configurations:Debug_Editor")
 		runtime "Debug"
@@ -55,6 +58,7 @@ solution "Unicorn Engine"
 		optimize "Off"
 		defines {'BUILD_CONFIG="Debug_Editor"', "_EDITOR"}
 		flags {"FatalWarnings"}
+		linkoptions {"/IGNORE:4099"}
 
 	filter ("configurations:Retail")
 		runtime "Release"
@@ -100,6 +104,7 @@ dirs["Editor"]			    = os.realpath(dirs.Source .. "Editor/")
 dirs["EntryPoint"]			= os.realpath(dirs.Source .. "EntryPoint/")
 dirs["Sandbox"]				= os.realpath(dirs.Source .. "Sandbox/Public/")
 dirs["Tests"]				= os.realpath(dirs.Source .. "Tests/")
+dirs["GSK"]					= os.realpath(dirs.Source .. "GSK/Public/")
 
 --Inluding all thirdparty standalone libs
 include (dirs.ThirdParty)
@@ -114,5 +119,7 @@ include (dirs.Editor)
 include (dirs.EntryPoint)
 
 include (normalizePath(dirs.Sandbox))
+
+include (normalizePath(dirs.GSK))
 
 include (dirs.Tests)
