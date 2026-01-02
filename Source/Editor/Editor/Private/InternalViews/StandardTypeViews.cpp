@@ -10,6 +10,12 @@ REGISTER_EDITOR_VIEW(int,
 		ImGui::DragInt(label.c_str(), &data, 0.1f);
 	});
 
+REGISTER_EDITOR_VIEW(float,
+	[](float& data, String label)
+	{
+		ImGui::DragFloat(label.c_str(), &data, 0.1f);
+	});
+
 REGISTER_EDITOR_VIEW(Vector3,
 	[](Vector3& data, String label)
 	{
