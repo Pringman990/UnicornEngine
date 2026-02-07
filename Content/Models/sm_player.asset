@@ -4,5 +4,5 @@ name: Player
 source_path: engine://Models/sm_player.fbx
 custom_data:
   materials:
-    - uuid: 75817966-b7c6-437d-8142-f091ce2190ab
+    - uuid: 11817966-b7c6-437d-8142-f091ce2190ab
 

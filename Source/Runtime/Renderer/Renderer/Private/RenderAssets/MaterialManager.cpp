@@ -16,32 +16,39 @@ MaterialManager::~MaterialManager()
 {
 }
 
-Material* MaterialManager::Load(const String& VirtualPath)
+Material* MaterialManager::CreateEmptyAsset(UniqueID128 UUID)
 {
+	return new Material(UUID);
+}
+
+bool MaterialManager::Load(AssetBase* Asset, const String& VirtualPath)
+{
+	//AssetFileReadData readData = AssetRegistry::ReadAssetFile(VirtualPath);
+
+	//if (!readData.UUID.IsValid())
+	//{
+	//	LOG_ERROR("Trying to load asset without uuid");
+	//	return nullptr;
+	//}
+
+	//Material* material = new Material(readData.UUID);
+	//material->SetMetaPath(VirtualPath);
+	//material->SetSourcePath(readData.SourcePath);
+	//material->SetType(readData.Type);
+
+	Material* asset = static_cast<Material*>(Asset);
 	AssetFileReadData readData = AssetRegistry::ReadAssetFile(VirtualPath);
-
-	if (!readData.UUID.IsValid())
-	{
-		LOG_ERROR("Trying to load asset without uuid");
-		return nullptr;
-	}
-
-	Material* material = new Material(readData.UUID);
-	material->SetMetaPath(VirtualPath);
-	material->SetSourcePath(readData.SourcePath);
-	material->SetType(readData.Type);
 
 	ByteBuffer materialData = FileSystem::Instance()->ReadAll(VirtualPath);
 	MaterialDecodeData decodeData = MaterialDecoder::LoadMaterial(materialData);
 	if (!decodeData.IsValid())
 	{
 		LOG_ERROR("Loading mesh asset failed trying to import source");
-		delete material;
-		return nullptr;
+		return false;
 	}
 
 	GPUResourceHandle<ShaderProgram> programHandle = Renderer::Instance()->GetShaderManager()->TryGetShaderProgram(decodeData.shaderProgram);
-	material->SetGPUMaterialHandle(Renderer::Instance()->GetGPUMaterialManager()->CreateMaterialFromProgram(programHandle));
+	asset->SetGPUMaterialHandle(Renderer::Instance()->GetGPUMaterialManager()->CreateMaterialFromProgram(programHandle));
 
 	ShaderProgram* program = Renderer::Instance()->GetShaderManager()->GetInternalShaderProgram(programHandle);
 
@@ -62,7 +69,7 @@ Material* MaterialManager::Load(const String& VirtualPath)
 
 			if (decodeData.textures[i].first.IsValid())
 			{
-				material->AddMaterialParameter(decodeData.textures[i].second, MaterialParameterType::Texture2D, decodeData.textures[i].first);
+				asset->AddMaterialParameter(decodeData.textures[i].second, MaterialParameterType::Texture2D, decodeData.textures[i].first);
 				found = true;
 			}
 
@@ -71,12 +78,12 @@ Material* MaterialManager::Load(const String& VirtualPath)
 
 		if (!found)
 		{
-			material->AddMaterialParameter(resource.name, MaterialParameterType::Undefined, {});
+			asset->AddMaterialParameter(resource.name, MaterialParameterType::Undefined, {});
 			LOG_WARNING("Tried to get texture2d from decoded material but the texture was not found");
 		}
 	}
 
-	return material;
+	return asset;
 }
 
 Material* MaterialManager::ImportSource(const String& VirtualSourcePath)

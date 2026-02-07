@@ -6,6 +6,9 @@
 #include "GraphicsCardInformation.h"
 #include <Assets/AssetRef.h>
 
+#include <RenderScene.h>
+#include <RenderView.h>
+
 class Sampler;
 class SwapChain;
 
@@ -66,6 +69,12 @@ struct MainRenderTarget
 	GPUResourceHandle<GPUTexture> dsv;
 };
 
+struct RenderInfo
+{
+	RenderScene scene;
+	RenderView view;
+};
+
 /*
 * Engine Subsystem
 */
@@ -114,6 +123,12 @@ public:
 	RENDERER_API GPUResourceHandle<GPUTexture> GetObjectIDTexture() { return mObjectIDTexture; };
 	RENDERER_API GPUResourceHandle<GPUTexture> GetObjectIDVisualTexture() { return mObjectIDVisualTexture; };
 	RENDERER_API uint32 GetRenderIDFromPosition(Vector2i Position);
+
+	RENDERER_API void SubmitRenderView(RenderView View, RenderScene Scene);
+	RENDERER_API Vector<RenderInfo>& GetRenderInfo() { return mRenderInfo; };
+
+	RENDERER_API Sampler* GetSampler() { return mSampler.get(); }
+
 private:
 	Renderer();
 	~Renderer();
@@ -146,4 +161,6 @@ private:
 
 	GPUResourceHandle<GPUTexture> mObjectIDTexture;
 	GPUResourceHandle<GPUTexture> mObjectIDVisualTexture;
+
+	Vector<RenderInfo> mRenderInfo;
 };

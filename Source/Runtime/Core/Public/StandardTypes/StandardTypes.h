@@ -109,4 +109,4 @@ inline constexpr bool dependent_false_v = false;
 using Constructor = void(*)(void* dst);
 using Deconstructor = void(*)(void* obj);
 using Moveconstructor = void(*)(void* dst, void* src);
-using Copyconstructor = void(*)(void* dst, void* src);
+using Copyconstructor = void(*)(void* dst, const void* src);

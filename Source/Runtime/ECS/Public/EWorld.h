@@ -58,8 +58,18 @@ public:
 	ECS_API EWorld();
 	ECS_API ~EWorld();
 
+	ECS_API EWorld(const EWorld&) = delete;
+	ECS_API EWorld& operator=(const EWorld&) = delete;
+
+	ECS_API EWorld(EWorld&&) noexcept = default;
+	ECS_API EWorld& operator=(EWorld&&) noexcept = default;
+
+	ECS_API EWorld Clone() const;
+
 	ECS_API EEntity CreateEntity();
 	ECS_API EEntity CreateEntity(const UniqueID128& UUID);
+
+	ECS_API void DestroyEntity(EEntity Entity);
 
 	//template<typename T>
 	//T* AddComponent(EEntity Entity, T&& Component);
@@ -73,6 +83,9 @@ public:
 	void RemoveComponent(EEntity Entity);
 
 	ECS_API void RemoveComponent(EEntity Entity, const UniqueID128& UUID);
+
+	const void* GetComponent(EEntity Entity, UniqueID128 UUID) const;
+	void* GetComponent(EEntity Entity, UniqueID128 UUID);
 
 	template<refl::IsComponent T>
 	T* GetComponent(EEntity Entity)

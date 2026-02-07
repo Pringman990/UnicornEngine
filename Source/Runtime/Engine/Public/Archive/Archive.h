@@ -20,6 +20,7 @@ public:
 	//--------------- Writing ---------------
 	ENGINE_API virtual bool WriteInt32(int32 Value, const String& Key = "") = 0;
 	ENGINE_API virtual bool WriteInt64(int64 Value, const String& Key = "") = 0;
+	ENGINE_API virtual bool WriteUInt8(uint8 Value, const String& Key = "") = 0;
 	ENGINE_API virtual bool WriteUInt32(uint32 Value, const String& Key = "") = 0;
 	ENGINE_API virtual bool WriteUInt64(uint64 Value, const String& Key = "") = 0;
 	ENGINE_API virtual bool WriteLong(long Value, const String& Key = "") = 0;
@@ -41,6 +42,7 @@ public:
 
 	ENGINE_API virtual bool ReadInt32(int32& OutValue, const String& Key = "") = 0;
 	ENGINE_API virtual bool ReadInt64(int64& OutValue, const String& Key = "") = 0;
+	ENGINE_API virtual bool ReadUInt8(uint8& OutValue, const String& Key = "") = 0;
 	ENGINE_API virtual bool ReadUInt32(uint32& OutValue, const String& Key = "") = 0;
 	ENGINE_API virtual bool ReadUInt64(uint64& OutValue, const String& Key = "") = 0;
 	ENGINE_API virtual bool ReadLong(long& OutValue, const String& Key = "") = 0;

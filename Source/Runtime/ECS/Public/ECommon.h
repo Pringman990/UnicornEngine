@@ -61,6 +61,18 @@ struct ComponentStore
 	UnorderedMap<EEntity, uint32> indicies;
 	UnorderedMap<uint32, EEntity> indexToEntity;
 
+	ComponentStore() = default;
+	
+	ComponentStore(EComponentAllocator&& alloc)
+		: allocator(std::move(alloc)) {
+	}
+
+	ComponentStore(const ComponentStore&) = delete;
+	ComponentStore& operator=(const ComponentStore&) = delete;
+
+	ComponentStore(ComponentStore&&) noexcept = default;
+	ComponentStore& operator=(ComponentStore&&) noexcept = default;
+
 	bool HasEntity(EEntity Entity) const
 	{
 		return indicies.contains(Entity);

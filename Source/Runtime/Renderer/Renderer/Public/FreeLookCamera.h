@@ -17,12 +17,12 @@ public:
 	RENDERER_API void SetControlSchema(FreeLookCameraControlSchema Schema) { mSchema = Schema; };
 
 	RENDERER_API void SetMoveSpeed(float Speed) { mMoveSpeed = Speed; };
-	RENDERER_API void SetBoostMoveSpeed(float Speed) { mBoostMoveSpeed = Speed; };
+	RENDERER_API void SetBoostMoveMultiplier(float Speed) { mBoostMoveMultiplier = Speed; };
 	RENDERER_API void SetRotateSpeed(float Speed) { mRotateSpeed = Speed; };
 	RENDERER_API void SetZoomSpeed(float Speed) { mZoomSpeed = Speed; };
 
 	RENDERER_API float GetMoveSpeed() const { return mMoveSpeed; };
-	RENDERER_API float GetBoostMoveSpeed() const { return mBoostMoveSpeed; };
+	RENDERER_API float GetBoostMoveMultiplier() const { return mBoostMoveMultiplier; };
 	RENDERER_API float GetRotateSpeed() const { return mRotateSpeed; };
 	RENDERER_API float GetZoomSpeed() const { return mZoomSpeed; };
 
@@ -33,8 +33,9 @@ private:
 
 private:
 	float mMoveSpeed;
-	float mBoostMoveSpeed;
+	float mBoostMoveMultiplier;
 	float mRotateSpeed;
+	float mOrtoMouseSpeed;
 	float mZoomSpeed;
 	FreeLookCameraControlSchema mSchema;
 };

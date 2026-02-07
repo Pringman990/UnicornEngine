@@ -4,4 +4,4 @@ name: Cubus
 source_path: engine://Models/sm_cube.fbx
 custom_data:
   materials:
-    - uuid: 75817966-b7c6-437d-8142-f091ce2190ab
+    - uuid: 75877966-b7c6-467d-8142-f091ce2190ab

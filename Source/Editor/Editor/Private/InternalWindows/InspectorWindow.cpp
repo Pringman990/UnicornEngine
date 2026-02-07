@@ -70,7 +70,7 @@ void InspectorWindow::Render()
 			}
 		}
 		ImGui::PopID();
-		CallViewFunctionsRecurcivly(typeUUID, componentPtr);
+		CallViewFunctionsRecurcivly(typeUUID, componentPtr, "");
 	}
 
 	ImGui::SeparatorText("");
@@ -90,12 +90,12 @@ void InspectorWindow::Render()
 	}
 }
 
-void InspectorWindow::CallViewFunctionsRecurcivly(UniqueID128 TypeID, void* ComponentPtr)
+void InspectorWindow::CallViewFunctionsRecurcivly(UniqueID128 TypeID, void* ComponentPtr, String Name)
 {
 	auto func = EditorViewRegistry::Instance()->GetFunction(TypeID);
 	if (func)
 	{
-		func(ComponentPtr, "");
+		func(ComponentPtr, Name);
 		return;
 	}
 
@@ -106,23 +106,60 @@ void InspectorWindow::CallViewFunctionsRecurcivly(UniqueID128 TypeID, void* Comp
 		return;
 	}
 
+	if (type->trait == refl::TypeTrait::Array)
+	{
+		DrawVector(type, ComponentPtr, Name);
+		return;
+	}
+
 	for (auto& member : type->properties)
 	{
 		void* memberPtr = static_cast<byte*>(ComponentPtr) + member.offset;
 
-		auto memberFunc = EditorViewRegistry::Instance()->GetFunction(member.type->uuid);
-		if (memberFunc)
-		{
-			const char* memberName = member.name.c_str();
-			auto typeAttIt = member.attributes.find(refl::Attribute::DisplayName);
-			if (typeAttIt != member.attributes.end())
-				memberName = std::get<String>(typeAttIt->second).c_str();
+		const char* memberName = member.name.c_str();
+		auto typeAttIt = member.attributes.find(refl::Attribute::DisplayName);
+		if (typeAttIt != member.attributes.end())
+			memberName = std::get<String>(typeAttIt->second).c_str();
 
-			memberFunc(memberPtr, memberName);
-		}
-		else
+			CallViewFunctionsRecurcivly(member.type->uuid, memberPtr, memberName);
+	}
+}
+
+void InspectorWindow::DrawVector(const refl::Type* Type, void* ComponentPtr, String Name)
+{
+	if (ImGui::TreeNodeEx(Name.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		int32 deleteIndex = -1;
+		size_t count = Type->vectorOps.size(ComponentPtr);
+		for (size_t i = 0; i < count; i++)
 		{
-			CallViewFunctionsRecurcivly(member.type->uuid, memberPtr);
+			ImGui::PushID(static_cast<int>(i));
+
+			float width = ImGui::CalcTextSize(ICON_FA_TRASH).x
+				+ ImGui::GetStyle().FramePadding.x * 2;
+
+			ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x - width);
+
+			if (ImGui::Button(ICON_FA_TRASH))
+			{
+				deleteIndex = static_cast<int32>(i);
+			}
+			else
+			{
+				const refl::Type* elemType = Type->properties[0].type;
+				void* elem = Type->vectorOps.get(ComponentPtr, i);
+				CallViewFunctionsRecurcivly(elemType->uuid, elem, Type->properties[0].name);
+			}
+
+			ImGui::PopID();
 		}
+
+		if(deleteIndex != -1)
+			Type->vectorOps.erase(ComponentPtr, deleteIndex);
+
+		if (ImGui::Button(ICON_FA_PLUS))
+			Type->vectorOps.push_back_default(ComponentPtr);
+
+		ImGui::TreePop();
 	}
 }

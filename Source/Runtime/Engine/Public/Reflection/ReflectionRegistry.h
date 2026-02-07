@@ -52,6 +52,8 @@ namespace refl
 		void   (*clear)(void* vec);
 		void*  (*get)(void* vec, size_t index);
 		void   (*push_back)(void* vec, void* element);
+		void   (*push_back_default)(void* vec);
+		void   (*erase)(void* vec, size_t index);
 	};
 
 	template<typename T>
@@ -143,6 +145,7 @@ namespace refl
 	{
 		String name;
 		size_t size = 0;
+		size_t alignment = 0;
 
 		UniqueID128 uuid;
 		std::type_index typeIndex = typeid(void);
@@ -228,7 +231,7 @@ namespace refl
 
 				type->vectorOps.clear = [](void* vec)
 					{
-						return static_cast<T*>(vec)->clear();
+						static_cast<T*>(vec)->clear();
 					};
 
 				type->vectorOps.get = [](void* vec, size_t index) -> void*
@@ -238,12 +241,22 @@ namespace refl
 
 				type->vectorOps.push_back = [](void* vec, void* element)
 					{
-						return static_cast<T*>(vec)->push_back(std::move(*static_cast<ElemT*>(element)));
+						static_cast<T*>(vec)->push_back(std::move(*static_cast<ElemT*>(element)));
+					};
+
+				type->vectorOps.push_back_default = [](void* vec)
+					{
+						static_cast<T*>(vec)->push_back(ElemT());
 					};
 
 				type->vectorOps.size = [](void* vec) -> size_t
 					{
 						return static_cast<T*>(vec)->size();
+					};
+
+				type->vectorOps.erase = [](void* vec, size_t index)
+					{
+						static_cast<T*>(vec)->erase(static_cast<T*>(vec)->begin() + index);
 					};
 			}
 			else if constexpr (std::is_class_v<T>)
@@ -448,6 +461,7 @@ namespace refl
 			mType.name = Name;
 			mType.uuid = UniqueID128(UUID);
 			mType.size = sizeof(T);
+			mType.alignment = std::alignment_of_v<T>;
 			mType.typeIndex = typeid(T);
 
 			RegisterBasicTypeOps();
@@ -458,11 +472,10 @@ namespace refl
 			if constexpr (std::is_default_constructible_v<T>)
 				mType.functions.constructor = [](void* dst) { new (dst) T(); };
 
-			if constexpr (std::is_trivially_destructible_v<T>)
-				mType.functions.deconstructor = [](void* obj) { reinterpret_cast<T*>(obj)->~T(); };
+			mType.functions.deconstructor = [](void* obj) { reinterpret_cast<T*>(obj)->~T(); };
 
 			if constexpr (std::is_copy_constructible_v<T>)
-				mType.functions.copyconstructor = [](void* dst, void* src) { new (dst) T(*(const T*)src); };
+				mType.functions.copyconstructor = [](void* dst, const void* src) { new (dst) T(*(const T*)src); };
 
 			if constexpr (std::is_move_constructible_v<T>)
 				mType.functions.moveconstructor = [](void* dst, void* src) { new (dst) T(std::move(*(T*)src)); };

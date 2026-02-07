@@ -15,9 +15,9 @@ namespace Logger
 #ifdef _DEBUG
 
 #define _LOGGER_STOP_MEMORY_TRACKING(LOGGER) \
-    _PAUSE_TRACK_MEMORY(true);\
+    do {_PAUSE_TRACK_MEMORY(true);\
     LOGGER; \
-    _PAUSE_TRACK_MEMORY(false)
+    _PAUSE_TRACK_MEMORY(false);}while(0)
 
 //User Logs
 #define LOG_INFO(...)       _LOGGER_STOP_MEMORY_TRACKING(SPDLOG_LOGGER_INFO(Logger::GetMain(), __VA_ARGS__))

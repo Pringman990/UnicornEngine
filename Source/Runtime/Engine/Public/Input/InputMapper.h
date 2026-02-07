@@ -4,19 +4,21 @@
 #include <StandardTypes/StandardTypes.h>
 #include "GenericDevice/InputDevice.h"
 
-enum class eInputActionType
+enum class InputSourceType
 {
-	eReleased,
-	ePressed,
-	eHold
+	KeyboardMouse,
+	//Gamepad,
+	//Network,
+	//AI
 };
 
-struct InputAction
+struct InputSource
 {
-};
+	//InputSourceID id;
+	InputSourceType type;
 
-struct InputActionMap
-{
+	bool connected;
+	uint64 deviceUID;
 };
 
 /*
@@ -25,15 +27,8 @@ struct InputActionMap
 class InputMapper final 
 {
 	friend struct subsystem::SubsystemDescriptor;
-	//using Key = USHORT;
 
 public:
-	//void CreateMapping(InputActionMap& aActionMapping);
-	//void UnRegisterActionMapping(InputActionMap& aActionMapping);
-	//
-	//void Init();
-	//
-	//TVector<InputActionMap*>& _GetActionMappings();
 
 	ENGINE_API static InputMapper* Instance();
 
@@ -58,4 +53,13 @@ private:
 
 	InputDevice* mInputDevice;
 	UnorderedMap<String, uint32> mNameToKey;
+
+	//struct DeviceEntry
+	//{
+	//	OwnedPtr<InputDevice> device;
+	//	InputSourceID source;
+	//};
+
+	//UnorderedMap<uint64, DeviceEntry> mUIDToDevice;
+	//UnorderedMap<InputSourceID, InputSource> mSources;
 };

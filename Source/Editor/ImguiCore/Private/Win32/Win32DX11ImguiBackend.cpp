@@ -4,6 +4,7 @@
 #include <imgui_impl_dx11.h>
 #include <imgui_impl_win32.h>
 #include <imgui_internal.h>
+#include <ImGuizmo.h>
 #include "IconFontDefines.h"
 
 #include <Renderer.h>
@@ -80,6 +81,7 @@ void Win32DX11ImguiBackend::BeginFrame()
 	ImGui_ImplDX11_NewFrame();
 	ImGui::NewFrame();
 	ImGui::DockSpaceOverViewport(ImGui::GetMainViewport()->ID, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+	ImGuizmo::BeginFrame();
 }
 
 void Win32DX11ImguiBackend::RenderFrame()

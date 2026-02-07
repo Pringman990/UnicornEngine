@@ -46,12 +46,13 @@ void Scene::OnLoad()
 
 void Scene::OnUpdate()
 {
-	mSceneView.Reset();
+	mRenderScene.Reset();
+	//mSceneView.Reset();
 
 	ESystemManager* sysMan = ESystemManager::Instance();
 	sysMan->RunUpdate(mEWorld, mManager->GetExecutionPhase());
 	
-	mSceneView.Flush();
+	//mSceneView.Flush();
 }
 
 GAMECORE_API void Scene::Unload()
@@ -59,12 +60,12 @@ GAMECORE_API void Scene::Unload()
 	mEWorld = EWorld();
 }
 
-GAMECORE_API Scene Scene::Clone()
+GAMECORE_API Scene Scene::Clone() const
 {
 	Scene clone;
 
-	clone.mEWorld = mEWorld;
-	clone.mSceneView = mSceneView;
+	clone.mEWorld = mEWorld.Clone();
+	//clone.mSceneView = mSceneView;
 	clone.mSourcePath = mSourcePath;
 	clone.mManager = mManager;
 

@@ -52,31 +52,6 @@ REGISTER_EDITOR_VIEW(ETransform,
 		}
 	});
 
-REGISTER_EDITOR_VIEW(EStaticMesh,
-	[](EStaticMesh& data, String label)
-	{
-		Mesh* mesh = data.mesh.Get();
-		String meshName = "INVALID";
-		if (mesh)
-			meshName = mesh->GetName();
-
-		ImGui::SetNextItemWidth(-FLT_MIN);
-		if (ImGui::BeginCombo("##estaticmesh", meshName.c_str()))
-		{
-			auto meshes = AssetRegistry::Instance()->GetAssetsOfType<Mesh>("Mesh");
-
-			for (auto& m : meshes)
-			{
-				bool selected = (m->GetName() == meshName);
-				if (ImGui::Selectable(m->GetName().c_str(), &selected))
-				{
-					data.mesh = AssetRegistry::Instance()->GetAssetFromUUID<Mesh>(m->GetUUID());
-				}
-			}
-			ImGui::EndCombo();
-		}
-	});
-
 REGISTER_EDITOR_VIEW(EEntity,
 	[](EEntity& data, String label)
 	{

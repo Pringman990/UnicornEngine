@@ -12,7 +12,13 @@ template<IsAsset T>
 inline void SaveAssetRef(void* obj, Archive& archive, const String& key)
 {
 	AssetRef<T>& ref = *static_cast<AssetRef<T>*>(obj);
-	String uuid = ref.Get()->GetUUID().ToString();
+	
+	String uuid;
+	if (ref)
+		uuid = ref.Get()->GetUUID().ToString();
+	else
+		uuid = UniqueID128::Invalid().ToString();
+	
 	archive.WriteString(uuid, key);
 }
 

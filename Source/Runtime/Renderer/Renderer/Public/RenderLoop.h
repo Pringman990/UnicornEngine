@@ -6,7 +6,7 @@ class RENDERER_API RenderLoop
 {
 public:
 	RenderLoop() = default;
-	~RenderLoop();
+	~RenderLoop() = default;
 
 	bool Init();
 	void BeginFrame();

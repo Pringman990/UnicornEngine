@@ -39,6 +39,8 @@ public:
 	GenericHandle GetCachedTumbnailHandle() const { return mCachedThumbnailHandle; };
 
 private:
+	friend class AssetRegistry;
+
 	String mSourcePath;
 	String mMetaPath;
 	String mName;

@@ -163,8 +163,8 @@ void GameWorld::Init()
 	);*/
 
 	//sceMan->SaveActiveSceneToFile("engine://Test.scene");
-	sceMan->LoadScene("Test");
-	sceMan->SetActiveScene("Test");
+	sceMan->LoadScene("SpaceShooter");
+	sceMan->SetActiveScene("SpaceShooter");
 }
 
 void GameWorld::Render()

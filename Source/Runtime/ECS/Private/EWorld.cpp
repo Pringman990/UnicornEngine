@@ -22,6 +22,22 @@ EEntity EWorld::CreateEntity(const UniqueID128& UUID)
 	return ent;
 }
 
+ECS_API void EWorld::DestroyEntity(EEntity Entity)
+{
+	for (auto& [uuid, store] : mComponentStores)
+	{
+		if (store.HasEntity(Entity))
+		{
+			RemoveComponent(Entity, uuid);
+		}
+	}
+
+	if (!EraseItemFromVector(mEntities, Entity))
+	{
+		LOG_WARNING("Tried to remove entity that doesn't exist");
+	}
+}
+
 void* EWorld::AddComponent(EEntity Entity, const UniqueID128& UUID)
 {
 	const refl::Type* type = refl::ReflectionRegistry::Instance()->GetOrNull(UUID);
@@ -34,8 +50,8 @@ void* EWorld::AddComponent(EEntity Entity, const UniqueID128& UUID)
 	auto it = mComponentStores.find(type->uuid);
 	if (it == mComponentStores.end())
 	{
-		ComponentStore store = {};
-		store.allocator = EComponentAllocator(type, 10, 10);
+		//mComponentStores.emplace(type->uuid, ComponentStore{ EComponentAllocator(type, 10, 10) });
+		ComponentStore store(EComponentAllocator(type, 10, 10));
 		mComponentStores.emplace(type->uuid, std::move(store));
 	}
 
@@ -106,6 +122,58 @@ void EWorld::RemoveComponent(EEntity Entity, const UniqueID128& UUID)
 	}
 }
 
+const void* EWorld::GetComponent(EEntity Entity, UniqueID128 UUID) const
+{
+	const refl::Type* type = refl::ReflectionRegistry::Instance()->GetOrNull(UUID);
+	if (!type)
+	{
+		LOG_WARNING("Can't get type with uuid '{}'", UUID.ToString());
+		return nullptr;
+	}
+
+	auto it = mComponentStores.find(type->uuid);
+	if (it == mComponentStores.end())
+	{
+		LOG_WARNING("Trying to get component of type uuid '{}' but that component has no store", UUID.ToString());
+		return nullptr;
+	}
+
+	const ComponentStore& store = it->second;
+	if (!store.indicies.contains(Entity))
+	{
+		//LOG_WARNING("Trying to get component on entity '{}' but it does not have one", Entity.ToString());
+		return nullptr;
+	}
+
+	return store.allocator.Get(store.indicies.at(Entity));
+}
+
+void* EWorld::GetComponent(EEntity Entity, UniqueID128 UUID)
+{
+	const refl::Type* type = refl::ReflectionRegistry::Instance()->GetOrNull(UUID);
+	if (!type)
+	{
+		LOG_WARNING("Can't get type with uuid '{}'", UUID.ToString());
+		return nullptr;
+	}
+
+	auto it = mComponentStores.find(type->uuid);
+	if (it == mComponentStores.end())
+	{
+		LOG_WARNING("Trying to get component of type uuid '{}' but that component has no store", UUID.ToString());
+		return nullptr;
+	}
+
+	ComponentStore& store = it->second;
+	if (!store.indicies.contains(Entity))
+	{
+		//LOG_WARNING("Trying to get component on entity '{}' but it does not have one", Entity.ToString());
+		return nullptr;
+	}
+
+	return store.allocator.Get(store.indicies[Entity]);
+}
+
 //void EWorld::ChangeArchetype(EEntity Entity, Archetype* From, Archetype* To)
 //{
 //	//EntityLocation& entityLocation = mEntityToLocation[Entity];
@@ -158,4 +226,27 @@ ECS_API UnorderedMap<UniqueID128, void*> EWorld::GetAllComponentsOnEntity(EEntit
 	}
 
 	return map;
+}
+
+EWorld EWorld::Clone() const
+{
+	EWorld out;
+
+	for (auto e : mEntities)
+		out.CreateEntity(e);
+
+	for (auto& [uuid, store] : mComponentStores)
+	{
+		const refl::Type* type = refl::ReflectionRegistry::Instance()->GetOrNull(uuid);
+
+		for (auto& e : store.entities)
+		{
+			void* newComponent = out.AddComponent(e, uuid);
+			const void* oldComponent = GetComponent(e, uuid);
+
+			type->functions.copyconstructor(newComponent, oldComponent);
+		}
+	}
+
+	return out;
 }

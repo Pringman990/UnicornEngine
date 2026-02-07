@@ -110,7 +110,7 @@ void Camera::GetFarNearPlanes(float& OUT Far, float& OUT Near)
 
 Matrix Camera::GetClipSpaceMatrix()
 {
-	return mTransform.GetMatrix().Invert() * mProjectionMatrix;
+	return GetViewMatrix() * mProjectionMatrix;
 }
 
 void Camera::HandleResizeEvent(int32 Width, int32 Height)

@@ -1,0 +1,6 @@
+uuid: 13897956-e7c6-467d-8142-f091ce2190ab
+type: InputAction
+name: MoveAction
+custom_data:
+  type: 1
+  trigger: 0

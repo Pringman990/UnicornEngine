@@ -46,7 +46,7 @@ void AssetRegistry::FindAndRegisterAllAssets()
 
 			String type;
 			arc.ReadString(type, "type");
-			Load(virtualPath, type);
+			LoadMetaOnly(virtualPath, type);
 		}
 	}
 }

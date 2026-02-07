@@ -13,6 +13,7 @@ public:
 	virtual void Render() override;
 
 private:
-	void CallViewFunctionsRecurcivly(UniqueID128 TypeID, void* ComponentPtr);
+	void CallViewFunctionsRecurcivly(UniqueID128 TypeID, void* ComponentPtr, String Name);
+	void DrawVector(const refl::Type* Type, void* ComponentPtr, String Name);
 private:
 };

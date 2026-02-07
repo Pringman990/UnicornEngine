@@ -11,7 +11,8 @@ public:
 	Textrue2DManager();
 	~Textrue2DManager() override;
 
-	virtual Texture2D* Load(const String& VirtualPath) override;
+	virtual Texture2D* CreateEmptyAsset(UniqueID128 UUID) override;
+	virtual bool Load(AssetBase* Asset, const String& VirtualPath) override;
 	virtual Texture2D* ImportSource(const String& VirtualSourcePath) override;
 	virtual Texture2D* ReimportSource(const String& VirtualSourcePath, UniqueID128 UUID) override;
 	virtual bool UnLoad(const String& VirtualPath) override;

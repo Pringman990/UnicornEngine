@@ -42,6 +42,9 @@ public:
 
 	String ToString() const
 	{
+		if (!IsValid())
+			return "00000000-0000-0000-0000-000000000000";
+
 		std::ostringstream oss;
 		oss << std::hex << std::setfill('0');
 
@@ -80,6 +83,9 @@ public:
 private:
 	static constexpr Array<byte, 16> FromString(std::string_view Str)
 	{
+		if (Str.empty())
+			return Array<byte, 16>{};
+
 		if (Str.size() != 36)
 			throw "UUID string must be 36 chars";
 

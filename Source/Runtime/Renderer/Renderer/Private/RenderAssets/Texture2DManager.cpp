@@ -13,36 +13,42 @@ Textrue2DManager::~Textrue2DManager()
 {
 }
 
-Texture2D* Textrue2DManager::Load(const String& VirtualPath)
+Texture2D* Textrue2DManager::CreateEmptyAsset(UniqueID128 UUID)
 {
+	return new Texture2D(UUID);
+}
+
+bool Textrue2DManager::Load(AssetBase* Asset, const String& VirtualPath)
+{
+	//AssetFileReadData readData = AssetRegistry::ReadAssetFile(VirtualPath);
+
+	//if (!readData.UUID.IsValid())
+	//{
+	//	LOG_ERROR("Trying to load asset without uuid");
+	//	return nullptr;
+	//}
+
+	//Texture2D* asset = new Texture2D(readData.UUID);
+	//asset->SetMetaPath(VirtualPath);
+	//asset->SetSourcePath(readData.SourcePath);
+	//asset->SetType(readData.Type);
+
+	Texture2D* asset = static_cast<Texture2D*>(Asset);
 	AssetFileReadData readData = AssetRegistry::ReadAssetFile(VirtualPath);
-
-	if (!readData.UUID.IsValid())
-	{
-		LOG_ERROR("Trying to load asset without uuid");
-		return nullptr;
-	}
-
-	Texture2D* asset = new Texture2D(readData.UUID);
-	asset->SetMetaPath(VirtualPath);
-	asset->SetSourcePath(readData.SourcePath);
-	asset->SetType(readData.Type);
 
 	ByteBuffer data = FileSystem::Instance()->ReadAll(readData.SourcePath);
 	ImageDecodeData decodeData = ImageDecoder::LoadImage(data, ExtractExtension(readData.SourcePath));
 	if (!decodeData.IsValid())
 	{
 		LOG_ERROR("Loading texture asset failed trying to import source");
-		delete asset;
-		return nullptr;
+		return false;
 	}
 
 	GPUResourceHandle<GPUTexture> texture = Renderer::Instance()->GetGPUTextureManager()->CreateTexture(decodeData.buffer, Vector3i(decodeData.width, decodeData.height, 0), decodeData.format, TextureBindFlags::ShaderRead);
 	if (!texture)
 	{
 		LOG_ERROR("Loading texture asset failed trying to import source");
-		delete asset;
-		return nullptr;
+		return false;
 	}
 	asset->SetGPUTextureHandle(texture);
 

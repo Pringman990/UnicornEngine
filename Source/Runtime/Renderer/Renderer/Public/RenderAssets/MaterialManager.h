@@ -11,7 +11,8 @@ public:
 	MaterialManager();
 	~MaterialManager() override;
 
-	virtual Material* Load(const String& VirtualPath) override;
+	virtual Material* CreateEmptyAsset(UniqueID128 UUID) override;
+	virtual bool Load(AssetBase* Asset, const String& VirtualPath) override;
 	virtual Material* ImportSource(const String& VirtualSourcePath) override;
 	virtual Material* ReimportSource(const String& VirtualSourcePath, UniqueID128 UUID) override;
 	virtual bool UnLoad(const String& VirtualPath) override;

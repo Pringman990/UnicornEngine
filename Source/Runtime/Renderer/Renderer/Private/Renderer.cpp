@@ -327,3 +327,11 @@ RENDERER_API uint32 Renderer::GetRenderIDFromPosition(Vector2i Position)
 
 	return readID;
 }
+
+RENDERER_API void Renderer::SubmitRenderView(RenderView View, RenderScene Scene)
+{
+	RenderInfo info;
+	info.view = View;
+	info.scene = Scene;
+	mRenderInfo.push_back(std::move(info));
+}

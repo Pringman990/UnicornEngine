@@ -1,5 +1,8 @@
 #include "InputMapper.h"
 
+#include "Input/Assets/InputMappingLoader.h"
+#include "Input/Assets/InputActionLoader.h"
+
 InputMapper* InputMapper::sInstance = nullptr;
 REGISTER_ENGINE_SUBSYSTEM(InputMapper)
 
@@ -32,6 +35,9 @@ ENGINE_API InputMapper* InputMapper::Instance()
 
 void InputMapper::Init()
 {
+	REGISTER_ASSET_LOADER(InputActionLoader, (InputAction), ());
+	REGISTER_ASSET_LOADER(InputMappingLoader, (InputMapping), ());
+
 	mInputDevice->Init();
 }
 

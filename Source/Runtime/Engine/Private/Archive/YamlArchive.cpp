@@ -68,6 +68,11 @@ bool YamlArchive::WriteInt64(int64 Value, const String& Key)
 	return WriteStandardTypes<int64>(Value, Key);
 }
 
+bool YamlArchive::WriteUInt8(uint8 Value, const String& Key)
+{
+	return WriteStandardTypes<uint8>(Value, Key);
+}
+
 bool YamlArchive::WriteUInt32(uint32 Value, const String& Key)
 {
 	return WriteStandardTypes<uint32>(Value, Key);
@@ -222,6 +227,11 @@ bool YamlArchive::ReadInt32(int32& OutValue, const String& Key)
 bool YamlArchive::ReadInt64(int64& OutValue, const String& Key)
 {
 	return ReadStandardTypes<int64>(OutValue, Key);
+}
+
+bool YamlArchive::ReadUInt8(uint8& OutValue, const String& Key)
+{
+	return ReadStandardTypes<uint8>(OutValue, Key);
 }
 
 bool YamlArchive::ReadUInt32(uint32& OutValue, const String& Key)

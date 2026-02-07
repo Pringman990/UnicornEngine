@@ -103,26 +103,42 @@ public:
 		String extension = ExtractExtension(VirtualPath);
 		if (extension == "asset")
 		{
+			AssetBase* assetBase = nullptr;
+
 			//If the extension was an asset then we want to check if it's already loaded and if it is just return that version.
 			auto it = mPathToUUID.find(VirtualPath);
 			if (it != mPathToUUID.end())
 			{
-				return AssetRef<T>(mUUIDToHandle[it->second]);
+				assetBase = mAssets.Get<AssetBase>(mUUIDToHandle[it->second]);
+				if (assetBase && assetBase->GetLoadStage() == AssetLoadStage::Loaded)
+				{
+					return AssetRef<T>(mUUIDToHandle[it->second]);
+				}
+			}
+			else
+			{
+				assetBase = LoadMetaOnly(VirtualPath, ExtractTypeInfoNameWithoutSpecifier(typeid(T).name()));
+			}
+
+			if (!assetBase)
+			{
+				LOG_ERROR("Failed to create asset for loading '{}'", VirtualPath);
+				return AssetRef<T>::MakeInvalid();
 			}
 
 			//If the asset was not loaded yet then allocate and load it.
-			AssetBase* asset = loader->Load(VirtualPath);
-			if (!asset)
+			if (!loader->Load(assetBase, VirtualPath))
 			{
 				LOG_WARNING("Asset failed to load, path: {}", VirtualPath);
 				return AssetRef<T>::MakeInvalid();
 			}
 
-			AssetRefHandle handle = mAssets.Allocate(asset);
-			mPathToUUID[VirtualPath] = asset->GetUUID();
-			mUUIDToHandle[asset->GetUUID()] = handle;
+			//AssetRefHandle handle = mAssets.Allocate(asset);
+			//mPathToUUID[VirtualPath] = asset->GetUUID();
+			//mUUIDToHandle[asset->GetUUID()] = handle;
 
-			return AssetRef<T>(handle);
+			assetBase->SetLoadStage(AssetLoadStage::Loaded);
+			return mUUIDToHandle[assetBase->GetUUID()];
 		}
 
 		return AssetRef<T>::MakeInvalid();
@@ -142,7 +158,12 @@ public:
 	template<typename T>
 	T* GetAsset(const AssetRef<T>& Handle)
 	{
-		return mAssets.template Get<T>(Handle);
+		//TODO CRITICAL:Remove and find a better more explicit way
+		T* asset = mAssets.template Get<T>(Handle);
+		if (asset && asset->GetLoadStage() != AssetLoadStage::Loaded)
+			Load<T>(asset->GetMetaPath());
+
+		return asset;
 	}
 
 	template<typename T>
@@ -206,43 +227,55 @@ public:
 		return { std::type_index(typeid(Ts))... };
 	}
 
+	static void SetAssetDefaultData(AssetBase* Asset, Path MetaPath, const AssetFileReadData& ReadData)
+	{
+		Asset->SetMetaPath(MetaPath);
+		Asset->SetSourcePath(ReadData.SourcePath);
+		Asset->SetName(ReadData.Name);
+		Asset->SetType(ReadData.Type);
+	}
+
 private:
 	AssetRegistry();
 	~AssetRegistry();
 
-	void Load(const Path& VirtualPath, const String& Type)
+	AssetBase* LoadMetaOnly(const Path& VirtualPath, const String& Type)
 	{
 		IAssetLoader* loader = GetLoaderFromAssetTypeString(Type);
 		if (!loader)
 		{
 			LOG_WARNING("Trying to get asset without a loader, path: {}", VirtualPath);
-			return;
+			return nullptr;
 		}
 
 		String extension = ExtractExtension(VirtualPath);
 		if (extension == "asset")
 		{
-			//If the extension was an asset then we want to check if it's already loaded and if it is just return that version.
 			auto it = mPathToUUID.find(VirtualPath);
 			if (it != mPathToUUID.end())
 			{
-				return;
+				return nullptr;
 			}
 
 			//If the asset was not loaded yet then allocate and load it.
-			AssetBase* asset = loader->Load(VirtualPath);
-			if (!asset)
+			AssetFileReadData readData = ReadAssetFile(VirtualPath);
+			if (!readData.UUID.IsValid())
 			{
-				LOG_WARNING("Asset failed to load, path: {}", VirtualPath);
-				return;
+				LOG_ERROR("Tried loading asset meta data but uuid was not valid '{}'", readData.UUID.ToString());
+				return nullptr;
 			}
+			AssetBase* asset = loader->CreateEmptyAsset(readData.UUID);
+			SetAssetDefaultData(asset, VirtualPath, readData);
+			asset->SetLoadStage(AssetLoadStage::Registered);
 
 			AssetRefHandle handle = mAssets.Allocate(asset);
 			mPathToUUID[VirtualPath] = asset->GetUUID();
 			mUUIDToHandle[asset->GetUUID()] = handle;
 
-			return;
+			return asset;
 		}
+
+		return nullptr;
 	}
 
 	template<typename T>

@@ -14,28 +14,35 @@ MeshManager::~MeshManager()
 {
 }
 
-Mesh* MeshManager::Load(const String& VirtualPath)
+Mesh* MeshManager::CreateEmptyAsset(UniqueID128 UUID)
 {
+	return new Mesh(UUID);
+}
+
+bool MeshManager::Load(AssetBase* Asset, const String& VirtualPath)
+{
+
+	//if (!readData.UUID.IsValid())
+	//{
+	//	LOG_ERROR("Trying to load asset without uuid");
+	//	return nullptr;
+	//}
+
+	//Mesh* mesh = new Mesh(readData.UUID);
+	//mesh->SetMetaPath(VirtualPath);
+	//mesh->SetSourcePath(readData.SourcePath);
+	//mesh->SetName(readData.Name);
+	//mesh->SetType(readData.Type);
+
+	Mesh* asset = static_cast<Mesh*>(Asset);
 	AssetFileReadData readData = AssetRegistry::ReadAssetFile(VirtualPath);
-
-	if (!readData.UUID.IsValid())
-	{
-		LOG_ERROR("Trying to load asset without uuid");
-		return nullptr;
-	}
-
-	Mesh* mesh = new Mesh(readData.UUID);
-	mesh->SetMetaPath(VirtualPath);
-	mesh->SetSourcePath(readData.SourcePath);
-	mesh->SetName(readData.Name);
-	mesh->SetType(readData.Type);
 
 	ByteBuffer meshData = FileSystem::Instance()->ReadAll(readData.SourcePath);
 	MeshDecodeData decodeData = MeshDecoder::LoadMesh(meshData, "fbx");
 	if (!decodeData.IsValid())
 	{
 		LOG_ERROR("Loading mesh asset failed trying to import source");
-		return nullptr;
+		return false;
 	}
 
 	//TODO: add suppport to import a mesh on a specific index and not just 0
@@ -43,10 +50,9 @@ Mesh* MeshManager::Load(const String& VirtualPath)
 	if (!gpuMesh)
 	{
 		LOG_ERROR("Loading mesh asset failed trying to import source");
-		delete mesh;
-		return nullptr;
+		return false;
 	}
-	mesh->SetGPUMeshHandle(gpuMesh);
+	asset->SetGPUMeshHandle(gpuMesh);
 
 	Vector<Mesh::Submesh> submeshes;
 	submeshes.resize(decodeData.meshes[0].submeshes.size());
@@ -72,9 +78,9 @@ Mesh* MeshManager::Load(const String& VirtualPath)
 		readData.CustomData->EndReadObject();
 	}
 	readData.CustomData->EndReadArray();
-	mesh->FillSubmeshes(submeshes);
+	asset->FillSubmeshes(submeshes);
 
-	return mesh;
+	return true;
 }
 
 Mesh* MeshManager::ImportSource(const String& VirtualSourcePath)

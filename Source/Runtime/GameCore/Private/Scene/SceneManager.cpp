@@ -89,7 +89,7 @@ GAMECORE_API Scene* SceneManager::CopyScene(StringView SceneToCopy, String NewNa
 	UniqueID128 uuid = scene->GetUUID();
 	String orgName = scene->GetName();
 	Scene copy = sceneToCopy->Clone();
-	*scene = copy;
+	*scene = std::move(copy);
 	scene->SetName(orgName);
 	scene->mUUID = uuid;
 

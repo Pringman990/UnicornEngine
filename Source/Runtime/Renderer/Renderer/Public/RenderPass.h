@@ -1,7 +1,9 @@
 #pragma once
 #include <EngineMinimal.h>
 
-#include <GPUTexture.h>
+#include <GPUResources/GPUTexture.h>
+#include <CommandList.h>
+#include <RenderScene.h>
 
 enum class ResourceAccess
 {
@@ -22,10 +24,23 @@ struct RenderPassDependency
 	LoadOp loadOp;
 };
 
+struct RenderPassContext
+{
+	RenderPassContext(CommandList& Command) : cmd(Command) {};
+
+	CommandList& cmd;
+	Vector<MeshInstance> scene;
+};
+
 struct RenderPass
 {
+	using PassExecuteFn = Func<void(RenderPassContext&)>;
+
 	String name;
-	Vector<RenderPassDependency> input;
-	Vector<RenderPassDependency> output;
-	Func<void(ID3D11DeviceContext* context)> execute;
+	//GPUResourceHandle<GPUTexture> target;
+
+	PassExecuteFn execute;
+
+	//Vector<RenderPassDependency> reads;
+	Vector<RenderPassDependency> writes;
 };

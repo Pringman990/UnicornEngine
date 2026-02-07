@@ -4,10 +4,11 @@
 
 FreeLookCamera::FreeLookCamera()
 	:
-	mMoveSpeed(2),
-	mBoostMoveSpeed(10),
-	mRotateSpeed(2),
+	mMoveSpeed(5),
+	mBoostMoveMultiplier(1.5f),
+	mRotateSpeed(8),
 	mZoomSpeed(1),
+	mOrtoMouseSpeed(500),
 	mSchema(FreeLookCameraControlSchema::FreeLook)
 {
 }
@@ -41,6 +42,12 @@ void FreeLookCamera::HandleFreeLook()
 		return;
 	}
 
+	float scrollDelta = input->GetMouseWheelDelta();
+	if (scrollDelta > 0)
+		mMoveSpeed += 0.1f;
+	else if(scrollDelta < 0 && mMoveSpeed > 0.1f)
+		mMoveSpeed -= 0.1f;
+
 	Timer* timer = Timer::Instance();
 
 	Matrix matrix = mTransform.GetMatrix();
@@ -49,11 +56,11 @@ void FreeLookCamera::HandleFreeLook()
 	Vector3 up = matrix.Up();
 	Vector3 forward = matrix.Forward();
 
-	float realMovementSpeed = 5 * timer->GetDeltaTime();
+	float realMovementSpeed = mMoveSpeed * timer->GetDeltaTime();
 
 	if (GetAsyncKeyState(VK_LSHIFT))
 	{
-		realMovementSpeed = 10 * timer->GetDeltaTime();
+		realMovementSpeed = (mMoveSpeed * mBoostMoveMultiplier)*timer->GetDeltaTime();
 	}
 
 	if (GetAsyncKeyState('W'))
@@ -86,7 +93,7 @@ void FreeLookCamera::HandleFreeLook()
 	Vector2 dPos = input->GetMouseDelta();
 	if (dPos.x != 0 || dPos.y != 0)
 	{
-		float realRotationSpeed = 10 * timer->GetDeltaTime();
+		float realRotationSpeed = mRotateSpeed * timer->GetDeltaTime();
 
 		targetRotation.y += realRotationSpeed * dPos.x;
 		targetRotation.x += realRotationSpeed * dPos.y;
@@ -129,9 +136,11 @@ void FreeLookCamera::HandleOrthoPan()
 	if (GetAsyncKeyState('D'))
 		position.x += moveSpeed;
 
+	float realRotationSpeed = mOrtoMouseSpeed * timer->GetDeltaTime();
+
 	Vector2 delta = input->GetMouseDelta();
-	position.x += delta.x * 0.05f;
-	position.y -= delta.y * 0.05f;
+	position.x += (delta.x * 0.05f) * realRotationSpeed;
+	position.y -= (delta.y * 0.05f) * realRotationSpeed;
 
 	mTransform.SetPosition(position);
 	input->CaptureMouse();

@@ -11,7 +11,8 @@ public:
 	MeshManager();
 	~MeshManager() override;
 
-	virtual Mesh* Load(const String& VirtualPath) override;
+	virtual Mesh* CreateEmptyAsset(UniqueID128 UUID) override;
+	virtual bool Load(AssetBase* Asset, const String& VirtualPath) override;
 	virtual Mesh* ImportSource(const String& VirtualSourcePath) override;
 	virtual Mesh* ReimportSource(const String& VirtualSourcePath, UniqueID128 UUID) override;
 	virtual bool UnLoad(const String& VirtualPath) override;

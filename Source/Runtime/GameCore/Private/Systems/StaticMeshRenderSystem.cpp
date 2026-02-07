@@ -37,8 +37,7 @@ void StaticMeshRenderSystem(EWorld& World)
 		trans.SetRotation(transform.rotation);
 		trans.SetScale(transform.scale);
 		
-		scene->GetSceneView().SubmitMesh(query.GetEntity(i), mesh.mesh, trans);
-		//Renderer::Instance()->SubmitMesh(mesh.mesh, trans);
+		scene->GetRenderScene().SubmitMesh(mesh.mesh, trans);
 	}
 
 #ifdef _DEBUG

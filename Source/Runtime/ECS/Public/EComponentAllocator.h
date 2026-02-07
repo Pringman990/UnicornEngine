@@ -7,9 +7,12 @@ class EComponentAllocator
 public:
 	EComponentAllocator() 
 		:
+		mComponents(nullptr),
 		mType(nullptr),
 		mGrowthRate(0),
-		mComponentCount(0)
+		mComponentCount(0),
+		mCapacity(0),
+		mAlignment(0)
 	{
 	};
 
@@ -19,17 +22,67 @@ public:
 		mGrowthRate(GrowthRate * mType->size),
 		mComponentCount(0)
 	{
-		mComponents.resize(InitalReserve * mType->size);
+#undef max
+		mAlignment = std::max(mType->alignment, alignof(std::max_align_t));
+
+		mCapacity = InitalReserve;
+		mComponents = operator new (mCapacity * mType->size, std::align_val_t(mAlignment));
 	}
 
 	~EComponentAllocator() 
 	{
 		for (size_t i = 0; i < mComponentCount; i++)
-		{
-			if(mType->functions.deconstructor)
-				mType->functions.deconstructor(Get(i));
-		}
+			mType->functions.deconstructor(Get(i));
+		
+		operator delete(mComponents, std::align_val_t(mAlignment));
 	};
+
+	EComponentAllocator(EComponentAllocator&& Other) noexcept
+		:
+		mComponents(Other.mComponents),
+		mType(Other.mType),
+		mGrowthRate(Other.mGrowthRate),
+		mComponentCount(Other.mComponentCount),
+		mCapacity(Other.mCapacity),
+		mAlignment(Other.mAlignment)
+	{
+		Other.mComponents = nullptr;
+		Other.mType = nullptr;
+		Other.mComponentCount = 0;
+		Other.mCapacity = 0;
+		Other.mAlignment = 0;
+		Other.mGrowthRate = 0;
+	};
+
+	EComponentAllocator& operator=(EComponentAllocator&& Other) noexcept
+	{
+		if (this != nullptr)
+		{
+			for (size_t i = 0; i < mComponentCount; i++)
+				mType->functions.deconstructor(Get(i));
+
+			operator delete(mComponents, std::align_val_t(mAlignment));
+
+			mComponents = Other.mComponents;
+			mType = Other.mType;
+			mCapacity = Other.mCapacity;
+			mComponentCount = Other.mComponentCount;
+			mAlignment = Other.mAlignment;
+			mGrowthRate = Other.mGrowthRate;
+
+			Other.mComponents = nullptr;
+			Other.mType = nullptr;
+			Other.mComponentCount = 0;
+			Other.mCapacity = 0;
+			Other.mAlignment = 0;
+			Other.mGrowthRate = 0;
+		}
+
+		return *this;
+	};
+
+	EComponentAllocator(const EComponentAllocator&) = delete;
+	EComponentAllocator& operator=(const EComponentAllocator&) = delete;
 
 	uint32 GetCount() const { return static_cast<uint32>(mComponentCount); }
 
@@ -41,9 +94,10 @@ public:
 	/// </returns>
 	void* Allocate()
 	{
-		GrowIfNeeded();
+		if (mComponentCount >= mCapacity)
+			Grow();
 
-		void* ptr = Get(mComponentCount);
+		void* ptr = GetUnsafe(mComponentCount);
 		mType->functions.constructor(ptr);
 		mComponentCount++;
 		return ptr;
@@ -75,90 +129,53 @@ public:
 		mComponentCount--;
 	}
 
+	/**
+	* Will not check if Index is out of bounds.
+	*/
+	void* GetUnsafe(size_t Index)
+	{
+		return static_cast<byte*>(mComponents) + (Index * mType->size);
+	}
+
 	void* Get(size_t Index)
 	{
-		if (Index > mComponentCount)
-		{
+		if (Index >= mComponentCount) 
 			return nullptr;
-		}
-
-		return mComponents.data() + Index * mType->size;
+		return static_cast<byte*>(mComponents) + (Index * mType->size);
 	}
 
-	/*template<typename T>
-	T& Get(size_t Index)
+	const void* Get(size_t Index) const
 	{
-		if (Index * mComponentSize > mBuffer.size() - mComponentSize)
-		{
+		if (Index >= mComponentCount) 
 			return nullptr;
-		}
-
-		return *reinterpret_cast<T*>(&mBuffer[Index * mComponentSize]);
-	}*/
-
-	//template<typename T>
-	//const T& Get(size_t Index) const
-	//{
-	//	if (Index * mComponentSize > mBuffer.size() - mComponentSize)
-	//	{
-	//		return {};
-	//	}
-
-	//	return *reinterpret_cast<const T*>(&mBuffer[Index * mComponentSize]);
-	//}
-
-	//template<typename T>
-	//T& Back()
-	//{
-	//	return *reinterpret_cast<T*>(&mBuffer[mComponentCount * mComponentSize]);
-	//}
-
-public:
-	//struct Iterator
-	//{
-	//	char* ptr;
-	//	size_t stride;
-
-	//	template<typename T>
-	//	T& operator*() const
-	//	{
-	//		return *reinterpret_cast<T*>(ptr);
-	//	}
-
-	//	Iterator& operator++()
-	//	{
-	//		ptr += stride;
-	//		return *this;
-	//	}
-
-	//	bool operator!=(const Iterator& Other) const
-	//	{
-	//		return ptr != Other.ptr;
-	//	}
-	//};
-
-	//Iterator begin()
-	//{
-	//	return Iterator{mBuffer.data(), mType.size };
-	//}
-
-	//Iterator end()
-	//{
-	//	return Iterator{ mBuffer.data() + mComponentCount * mType.size, mType.size };
-	//}
+		return static_cast<byte*>(mComponents) + (Index * mType->size);
+	}
 
 private:
-	void GrowIfNeeded()
+	void Grow()
 	{
-		if (((mComponentCount + 1) * mType->size) > mComponents.size())
+		size_t newCapacity = mCapacity + mGrowthRate;
+		void* newMemory = operator new(newCapacity * mType->size, std::align_val_t(mAlignment));
+
+		for (size_t i = 0; i < mComponentCount; i++)
 		{
-			mComponents.resize(mComponents.size() + mGrowthRate);
+			void* oldPtr = Get(i);
+			void* newPtr = static_cast<byte*>(newMemory) + (i * mType->size);
+			mType->functions.moveconstructor(newPtr, oldPtr);
+			mType->functions.deconstructor(oldPtr);
 		}
+
+		operator delete(mComponents, std::align_val_t(mAlignment));
+		mComponents = newMemory;
+		mCapacity = newCapacity;
 	}
 private:
-	ByteBuffer mComponents;
+	//ByteBuffer mComponents;
+	void* mComponents;
 
 	const refl::Type* mType;
 	size_t mGrowthRate;
+	size_t mCapacity;
 	size_t mComponentCount;
+	size_t mAlignment;
 };
