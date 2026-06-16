@@ -1,6 +1,22 @@
 cmake_minimum_required(VERSION 4.2)
-project(UnicornEngine2D)
+project(UnicornEngine)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_executable(UnicornEngine2D main.cpp)
+find_package(OpenGL REQUIRED)
+
+set(SDL_SHARED OFF)
+set(SDL_STATIC ON)
+add_subdirectory(Source/External/SDL3)
+
+add_library(glad STATIC Source/External/glad/src/glad.c)
+
+target_include_directories(glad PUBLIC Source/External/glad/include)
+
+add_executable(UnicornEngine main.cpp)
+
+target_link_libraries(UnicornEngine PRIVATE
+        glad
+        OpenGL::GL
+        SDL3::SDL3-static
+)
