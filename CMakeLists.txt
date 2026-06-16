@@ -13,7 +13,7 @@ add_library(glad STATIC Source/External/glad/src/glad.c)
 
 target_include_directories(glad PUBLIC Source/External/glad/include)
 
-add_executable(UnicornEngine main.cpp)
+add_executable(UnicornEngine Source/Game/main.cpp)
 
 target_link_libraries(UnicornEngine PRIVATE
         glad
