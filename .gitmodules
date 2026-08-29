@@ -1,3 +1,12 @@
 [submodule "Source/External/SDL3"]
-	path = Source/External/SDL3
+	path = ThirdParty/SDL3
 	url = https://github.com/libsdl-org/SDL.git
+[submodule "Source/External/fmt"]
+	path = ThirdParty/fmt
+	url = https://github.com/fmtlib/fmt.git
+[submodule "Source/External/glm"]
+	path = ThirdParty/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "Source/External/assimp"]
+	path = ThirdParty/assimp
+	url = https://github.com/assimp/assimp.git
