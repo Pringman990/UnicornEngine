@@ -5,9 +5,12 @@
 
 struct Relationship
 {
-    REFL_ID("f2a2f98a-d618-4fb1-9d50-70f6c3c10f33")
-
     Entity parent = 0;
+};
+
+struct NameComponent
+{
+    String name;
 };
 
 struct EventStorage
@@ -19,14 +22,15 @@ struct EventStorage
 
 struct PrefabComponent
 {
-    Refl::TypeID type;
-    void* data;
+    refl::TypeID type;
+    void* data{};
 };
 
 struct PrefabEntity
 {
     List<PrefabComponent> components;
     int32 parent = -1;
+    String name = "";
 };
 
 struct Prefab
@@ -37,19 +41,21 @@ struct Prefab
 class PrefabBuilder
 {
 public:
-    uint32 CreateRoot()
+    NODISC uint32 CreateRoot(const String& name = "")
     {
         PrefabEntity entity;
         entity.parent = -1;
+        entity.name = name;
         mPrefab.entities.push_back(std::move(entity));
         return 0;
     }
 
-    uint32 CreateEntity(uint32 parent)
+    NODISC uint32 CreateEntity(uint32 parent, const String& name = "")
     {
         uint32 nextIndex = mPrefab.entities.size();
         PrefabEntity entity;
         entity.parent = parent;
+        entity.name = name;
         mPrefab.entities.push_back(std::move(entity));
         return nextIndex;
     }
@@ -57,7 +63,7 @@ public:
     template <typename T>
     void Add(uint32 entity, T component)
     {
-        auto& reflReg = Refl::GetRegistry();
+        auto& reflReg = refl::GetRegistry();
         const auto& type = reflReg.GetType<T>();
 
         PrefabComponent comp;
@@ -70,7 +76,7 @@ public:
         mPrefab.entities[entity].components.push_back(std::move(comp));
     }
 
-    Prefab Build()
+    NODISC Prefab Build()
     {
         return mPrefab;
     }
@@ -126,13 +132,14 @@ public:
     World(World&&) = default;
     World& operator=(World&&) noexcept = default;
 
-    Entity CreateEntity();
+    NODISC Entity CreateEntity();
+    NODISC Entity CreateEntity(const String& name);
     void DestroyEntity(Entity entity);
 
     template <typename T>
     T* AddComponent(Entity entity)
     {
-        auto& reflReg = Refl::GetRegistry();
+        auto& reflReg = refl::GetRegistry();
 
         const auto& type = reflReg.GetType<T>();
         void* component = AddComponent(entity, type.id);
@@ -140,9 +147,9 @@ public:
         return static_cast<T*>(component);
     }
 
-    void* AddComponent(Entity entity, Refl::TypeID typeId)
+    void* AddComponent(Entity entity, refl::TypeID typeId)
     {
-        auto& reflReg = Refl::GetRegistry();
+        auto& reflReg = refl::GetRegistry();
 
         const auto& type = reflReg.GetType(typeId);
         auto it = mStorages.find(typeId);
@@ -194,7 +201,7 @@ public:
     template <typename T>
     void RemoveComponent(Entity entity)
     {
-        auto& reflReg = Refl::GetRegistry();
+        auto& reflReg = refl::GetRegistry();
 
         const auto& type = reflReg.GetType<T>();
         auto it = mStorages.find(reflReg.GetType<T>().id);
@@ -216,9 +223,9 @@ public:
     }
 
     template <typename T>
-    T* GetComponent(Entity entity)
+    NODISC T* GetComponent(Entity entity)
     {
-        auto& reflReg = Refl::GetRegistry();
+        auto& reflReg = refl::GetRegistry();
 
         const auto& type = reflReg.GetType<T>();
         auto it = mStorages.find(reflReg.GetType<T>().id);
@@ -232,6 +239,16 @@ public:
             return nullptr;
 
         return static_cast<T*>(storage->allocator->Get(indexIt->second));
+    }
+
+    bool HasComponent(const Entity entity, const refl::TypeID typeId)
+    {
+        const auto& type = refl::GetRegistry().GetType(typeId);
+        const auto it = mStorages.find(type.id);
+        if (it == mStorages.end())
+            return false;
+
+        return it->second->entityToIndex.contains(entity);
     }
 
     template <typename... Components>
@@ -291,7 +308,7 @@ public:
     }
 
     template <typename T>
-    Span<const std::remove_cvref_t<T>> GetEvents()
+    NODISC Span<const std::remove_cvref_t<T>> GetEvents()
     {
         using Event = std::remove_cvref_t<T>;
         const uint32 id = GetEventId<Event>();
@@ -317,15 +334,15 @@ public:
 
     Entity Instantiate(const Prefab& prefab)
     {
-        auto& reflReg = Refl::GetRegistry();
+        auto& reflReg = refl::GetRegistry();
 
         List<Entity> entityMap(prefab.entities.size());
         Entity root = 0;
         for (uint32 i = 0; i < prefab.entities.size(); i++)
         {
-            const auto& [components, parent] = prefab.entities[i];
+            const auto& [components, parent, name] = prefab.entities[i];
 
-            const Entity entity = CreateEntity();
+            const Entity entity = CreateEntity(name);
             entityMap[i] = entity;
             if (i == 0)
             {
@@ -342,7 +359,7 @@ public:
 
         for (uint32 i = 0; i < prefab.entities.size(); i++)
         {
-            auto [components, parent] = prefab.entities[i];
+            const auto& [components, parent, _] = prefab.entities[i];
             if (parent != -1)
             {
                 SetParent(entityMap[i], entityMap[parent]);
@@ -356,6 +373,21 @@ public:
     {
         auto* relationship = GetComponent<Relationship>(entity);
         relationship->parent = parent;
+    }
+
+    NODISC UnorderedMap<refl::TypeID, void*> GetAllComponents(const Entity entity)
+    {
+        UnorderedMap<refl::TypeID, void*> components;
+        for (auto& [uuid, store] : mStorages)
+        {
+            auto it = store->entityToIndex.find(entity);
+            if (it == store->entityToIndex.end())
+                continue;
+
+            components[uuid] = store->allocator->Get(it->second);
+        }
+
+        return components;
     }
 
 private:
@@ -375,7 +407,7 @@ private:
 
 private:
     EntityManager mEntityManager;
-    UnorderedMap<UniqueID128, OwnedPtr<ComponentStorage>> mStorages;
+    UnorderedMap<refl::TypeID, OwnedPtr<ComponentStorage>> mStorages;
 
     UnorderedMap<uint32, OwnedPtr<EventStorage>> mEventStorages[2];
     uint32 mCurrentWriteEventStorage = 0;

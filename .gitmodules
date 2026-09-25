@@ -10,3 +10,10 @@
 [submodule "Source/External/assimp"]
 	path = ThirdParty/assimp
 	url = https://github.com/assimp/assimp.git
+[submodule "ThirdParty/imgui"]
+	path = ThirdParty/imgui
+	url = https://github.com/ocornut/imgui.git
+	branch = docking
+[submodule "ThirdParty/yaml-cpp"]
+	path = ThirdParty/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp.git

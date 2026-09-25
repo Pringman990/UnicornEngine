@@ -17,10 +17,8 @@
 
 #include "Core/Defines.h"
 
-#include "Core/UnicornAssert.h"
+#include "Core/Logging/UnicornAssert.h"
 
 #include "Core/Helpers.h"
 
-#include "Core/Logs.h"
-
-#include "Core/MathHelpers.h"
+#include "Core/Logging/Logs.h"

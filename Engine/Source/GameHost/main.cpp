@@ -2,17 +2,28 @@
 
 #include <SDL3/SDL_main.h>
 
-#include "Application.h"
-#include "ConsoleLogSink.h"
-#include "FrameData.h"
-#include "Core/Logs.h"
+#include "Engine/Application.h"
+#include "Engine/ConsoleLogSink.h"
+#include "Engine/FrameData.h"
+#include "Core/Logging/Logs.h"
 #include "Renderer/Renderer.h"
 #include "Sandbox.h"
 #include "Core/ServiceRegistry.h"
 #include "ECS/SystemManager.h"
 #include "ECS/WorldManager.h"
 
-#include "FileSystem.h"
+#include "Engine/FileSystem.h"
+
+#ifdef _DEBUG
+#include <Editor.h>
+#include <Backend/Sdl3OpenGl.h>
+#include <EditorWindowManager.h>
+#include <Windows/HierarchyEditorWindow.h>
+#include <Windows/InspectorEditorWindow.h>
+#include "EngineTypeDrawFuncs.h"
+#endif
+
+#include "Engine/EngineComponents.h"
 #include "Core/ReflectionRegistry.h"
 
 int main(int argc, char* argv[])
@@ -22,8 +33,11 @@ int main(int argc, char* argv[])
 
     GServiceRegistry = new ServiceRegistry();
 
-    Refl::ReflectionRegistry reflRegistry;
+    refl::ReflectionRegistry reflRegistry;
     GServiceRegistry->RegisterService(&reflRegistry);
+
+    refl::ReflectionRegistry::RegisterStandardTypes();
+    RegisterEngineComponents();
 
     Logger logger;
     GServiceRegistry->RegisterService(&logger);
@@ -31,6 +45,9 @@ int main(int argc, char* argv[])
 
     FileSystem filesystem;
     GServiceRegistry->RegisterService(&filesystem);
+
+    filesystem.AddMount("engine://", "Engine/");
+    filesystem.AddMount("game://", "Sandbox/");
 
     Application app;
     GServiceRegistry->RegisterService(&app);
@@ -43,6 +60,13 @@ int main(int argc, char* argv[])
 
     WorldManager worldManager;
     GServiceRegistry->RegisterService(&worldManager);
+
+#ifdef _DEBUG
+    Editor editor;
+    GServiceRegistry->RegisterService(&editor);
+
+    RegisterEngineTypeDrawFuncs(editor);
+#endif
 
     {
         const auto worldId = worldManager.CreateWorld();
@@ -67,26 +91,26 @@ int main(int argc, char* argv[])
 
     renderer.Init(app);
 
+#ifdef _DEBUG
+    SDL3OpenGL editorBackend;
+    editorBackend.Init();
+
+    EditorWindowManager editorWindowManager;
+
+    editorWindowManager.RegisterWindow<HierarchyEditorWindow>(editor, "Hierarchy");
+    editorWindowManager.RegisterWindow<InspectorEditorWindow>(editor,"Inspector");
+
+    editorWindowManager.Init();
+
+#endif
+
     Sandbox sandbox;
     sandbox.Init();
 
     uint64_t previousTime = SDL_GetTicks();
-    bool running = true;
-    while (running)
+    while (!app.ShouldClose())
     {
-        SDL_Event event;
-        while (SDL_PollEvent(&event))
-        {
-            switch (event.type)
-            {
-            case SDL_EVENT_QUIT:
-                {
-                    running = false;
-                    break;
-                }
-            default: ;
-            }
-        }
+        app.Tick();
 
         const uint64_t currentTime = SDL_GetTicks();
         const float deltaTime = static_cast<float>(currentTime - previousTime) / 1000.f;
@@ -97,7 +121,14 @@ int main(int argc, char* argv[])
 
         worldManager.GetActiveWorld().SwapEventBuffers();
 
-        sandbox.Tick(systemManager, frameData, worldManager.GetActiveWorld());
+        sandbox.Tick(worldManager.GetActiveWorld(), frameData);
+
+#ifdef _DEBUG
+        editorBackend.BeginFrame();
+        editorWindowManager.Tick();
+        editorBackend.RenderFrame();
+        editorBackend.EndFrame();
+#endif
 
         renderer.Swap(app);
     }

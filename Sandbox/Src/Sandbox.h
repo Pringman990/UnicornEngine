@@ -1,5 +1,6 @@
 #pragma once
-#include "FrameData.h"
+#include "Player.h"
+#include "../../Engine/Source/Runtime/Engine/FrameData.h"
 #include "ECS/SystemManager.h"
 #include "ECS/World.h"
 
@@ -10,8 +11,8 @@ public:
     ~Sandbox() = default;
 
     void Init();
-
-    void Tick(SystemManager& systemManager, const FrameData& frameData, World& world);
+    void Tick(World& world, const FrameData& frameData);
 
 private:
+    Player mPlayer;
 };

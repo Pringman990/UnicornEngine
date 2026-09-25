@@ -8,6 +8,7 @@ target_sources(GameHost PRIVATE
 
 target_link_libraries(GameHost PRIVATE
         Sandbox
+        $<$<CONFIG:Debug>:Editor>
 )
 
 if (WIN32)

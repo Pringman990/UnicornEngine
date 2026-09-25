@@ -1,13 +1,13 @@
 #pragma once
 #include <glad/glad.h>
 
-#include "../Application.h"
+#include "../Engine/Application.h"
 #include "Core/ResourceStorage.h"
 
 #define MAX_TEXTURE_SLOTS 16
 #define MAX_MATERIAL_PARAMETERS 16
 
-using UniformValue = Variant<
+using MaterialUniformValue = Variant<
     float,
     glm::vec2,
     glm::vec3,
@@ -83,7 +83,7 @@ using ShaderProgramHandle = GenerationHandle<ShaderProgram>;
 struct MaterialParameter
 {
     const char* name;
-    UniformValue value;
+    MaterialUniformValue value;
 };
 
 struct MaterialCreateInfo
@@ -192,10 +192,12 @@ public:
 
     NODISC TextureHandle GetMissingTexture() const { return mMissingTexture;};
 
+    NODISC const SDL_GLContext& GetContext() const { return mContext; }
+
 private:
     void CreateDebugLineData();
 
-    void SetUniform(GLuint location, const UniformValue& value);
+    void SetUniform(GLuint location, const MaterialUniformValue& value);
 
 private:
     SDL_GLContext mContext;

@@ -16,4 +16,4 @@
 
 #include "../../Source/Runtime/Core/Defines.h"
 
-#include "../../Source/Runtime/Core/UnicornAssert.h"
+#include "../../Engine/Source/Runtime/Core/Logging/UnicornAssert.h"

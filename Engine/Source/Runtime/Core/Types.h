@@ -20,6 +20,7 @@
 #include <span>
 #include <string_view>
 #include <thread>
+#include <typeindex>
 #include <vector>
 
 using uint8	 = uint8_t;
@@ -32,9 +33,12 @@ using int16 = int16_t;
 using int32 = int32_t;
 using int64 = int64_t;
 
-using wchar = wchar_t;
-
 using byte = uint8;
+
+using f32 = float;
+using f64 = double;
+
+using usize = size_t;
 
 using String = std::string;
 using StringView = std::string_view;
@@ -122,3 +126,5 @@ template<typename T>
 using Atomic = std::atomic<T>;
 
 using Mutex = std::mutex;
+
+using TypeIndex = std::type_index;

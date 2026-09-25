@@ -6,6 +6,8 @@ project(UnicornEngine)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
 # ThirdParty dependencies
 find_package(OpenGL REQUIRED)
 
@@ -30,9 +32,27 @@ target_include_directories(stb INTERFACE
 
 add_subdirectory(ThirdParty/glm)
 
+add_library(imgui STATIC
+        ${CMAKE_SOURCE_DIR}/ThirdParty/imgui/backends/imgui_impl_sdl3.cpp
+        ${CMAKE_SOURCE_DIR}/ThirdParty/imgui/backends/imgui_impl_opengl3.cpp
+        ${CMAKE_SOURCE_DIR}/ThirdParty/imgui/imgui.cpp
+        ${CMAKE_SOURCE_DIR}/ThirdParty/imgui/imgui_draw.cpp
+        ${CMAKE_SOURCE_DIR}/ThirdParty/imgui/imgui_tables.cpp
+        ${CMAKE_SOURCE_DIR}/ThirdParty/imgui/imgui_widgets.cpp
+        ${CMAKE_SOURCE_DIR}/ThirdParty/imgui/misc/cpp/imgui_stdlib.cpp
+)
+
+target_include_directories(imgui PUBLIC
+        ${CMAKE_SOURCE_DIR}/ThirdParty/imgui
+        ${CMAKE_SOURCE_DIR}/ThirdParty/SDL3/include
+)
+
 set(FMT_MODULE OFF CACHE BOOL "" FORCE)
 add_subdirectory(ThirdParty/fmt EXCLUDE_FROM_ALL)
 
+add_subdirectory(ThirdParty/yaml-cpp)
+
 add_subdirectory(Engine/Source/Runtime)
 add_subdirectory(Sandbox)
+add_subdirectory(Engine/Source/Editor)
 add_subdirectory(Engine/Source/GameHost)

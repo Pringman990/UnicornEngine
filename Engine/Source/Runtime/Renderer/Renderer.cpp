@@ -8,9 +8,9 @@
 #include <stb_image.h>
 #include <SDL3/SDL.h>
 
-#include "FileSystem.h"
+#include "../Engine/FileSystem.h"
 #include "MeshPrimitiveFactory.h"
-#include "Core/Logs.h"
+#include "../Core/Logging/Logs.h"
 
 Renderer::Renderer()
 {
@@ -513,7 +513,7 @@ void Renderer::CreateDebugLineData()
     glBindVertexArray(0);
 }
 
-void Renderer::SetUniform(GLuint location, const UniformValue& value)
+void Renderer::SetUniform(GLuint location, const MaterialUniformValue& value)
 {
     std::visit([&](auto&& type)
     {

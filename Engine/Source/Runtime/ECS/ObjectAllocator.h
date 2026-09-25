@@ -4,7 +4,7 @@
 class ObjectAllocator
 {
 public:
-    ObjectAllocator(const Refl::Type& type, size_t count);
+    ObjectAllocator(const refl::Type& type, size_t count);
     ~ObjectAllocator();
 
     NODISC void* Get(uint32 index) const;
@@ -17,7 +17,7 @@ public:
     NODISC void* GetData() const { return mData; };
 
 private:
-    Refl::Type mType;
+    refl::Type mType;
     void* mData;
 
     size_t mCount;

@@ -22,6 +22,7 @@ target_link_libraries(Runtime PUBLIC
         SDL3::SDL3-static
         fmt::fmt-header-only
         glm::glm-header-only
+        yaml-cpp::yaml-cpp
 )
 
 target_precompile_headers(Runtime PRIVATE pch.h)

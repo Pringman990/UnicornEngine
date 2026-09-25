@@ -4,9 +4,7 @@
 template<typename T, typename M>
 constexpr std::ptrdiff_t OffsetOf(M T::* member)
 {
-    return reinterpret_cast<std::ptrdiff_t>(
-        &(reinterpret_cast<T*>(0)->*member)
-    );
+    return reinterpret_cast<std::ptrdiff_t>(&(reinterpret_cast<T*>(0)->*member));
 }
 
 constexpr void FromUint64(const uint64 v, uint32& lower, uint32& upper)

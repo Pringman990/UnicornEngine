@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "ObjectAllocator.h"
 
-ObjectAllocator::ObjectAllocator(const Refl::Type& type, const size_t count)
+ObjectAllocator::ObjectAllocator(const refl::Type& type, const size_t count)
     :
     mType(type),
     mCount(count)

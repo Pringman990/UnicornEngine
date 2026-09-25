@@ -1,7 +1,7 @@
 //
 // Created on 2026-07-12.
 //
-#include "../pch.h"
+#include "pch.h"
 #include "WorldManager.h"
 
 WorldManager::WorldManager()
