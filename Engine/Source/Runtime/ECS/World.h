@@ -289,7 +289,7 @@ public:
             void* oldData = storage->data;
             void* newData = ::operator new(storage->size * 2,
                                            static_cast<std::align_val_t>(std::alignment_of_v<Event>));
-            memcpy_s(newData, storage->size * 2, storage->data, storage->count * typeSize);
+            memcpy(newData, storage->data, storage->count * typeSize);
 
             ::operator delete(oldData, static_cast<std::align_val_t>(std::alignment_of_v<Event>));
 

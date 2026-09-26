@@ -50,9 +50,9 @@ void Renderer::Init(const Application& application)
 
     {
         auto vertexShader = Services::Get<FileSystem>().ReadAll(
-            "C:\\Users\\Frohlund\\Documents\\Github\\UnicornEngine\\Engine\\Assets\\Shaders\\Line.vert");
+            "engine://Assets/Shaders/Line.vert");
         auto fragmentShader = Services::Get<FileSystem>().ReadAll(
-            "C:\\Users\\Frohlund\\Documents\\Github\\UnicornEngine\\Engine\\Assets\\Shaders\\Line.frag");
+            "engine://Assets/Shaders/Line.frag");
         ASSERT(vertexShader, "Debug line vertex shader couldnt be loaded");
         ASSERT(fragmentShader, "Debug line fragment shader couldnt be loaded");
 
@@ -76,7 +76,7 @@ void Renderer::Init(const Application& application)
             255, 0, 255, 255
         };
         missingTextureCreateInfo.data.resize(16 * sizeof(uint8));
-        memcpy_s(missingTextureCreateInfo.data.data(), 16 * sizeof(uint8), defaultTexturePixels, 16 * sizeof(uint8));
+        memcpy(missingTextureCreateInfo.data.data(), defaultTexturePixels, 16 * sizeof(uint8));
 
         mMissingTexture = CreateTexture(missingTextureCreateInfo);
     }
@@ -127,11 +127,11 @@ void Renderer::Init(const Application& application)
         programCreateInfo.vertexShader = Services::Get<Renderer>().CompileShader(
             GL_VERTEX_SHADER,
             Services::Get<FileSystem>().ReadAll(
-                "C:\\Users\\Frohlund\\Documents\\Github\\UnicornEngine\\Engine\\Assets\\Shaders\\Sprite.vert").value());
+                "engine://Assets/Shaders/Sprite.vert").value());
         programCreateInfo.fragmentShader = Services::Get<Renderer>().CompileShader(
             GL_FRAGMENT_SHADER,
             Services::Get<FileSystem>().ReadAll(
-                "C:\\Users\\Frohlund\\Documents\\Github\\UnicornEngine\\Engine\\Assets\\Shaders\\Sprite.frag").value());
+                "engine://Assets/Shaders/Sprite.frag").value());
         auto spriteShaderProgram = Services::Get<Renderer>().CreateProgram(programCreateInfo);
 
         MaterialCreateInfo materialCreateInfo;

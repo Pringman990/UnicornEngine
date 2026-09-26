@@ -24,7 +24,7 @@ namespace Assert
     template <typename... Args>
     void HandleAssert(StringView expression, std::source_location location, fmt::format_string<Args...> format, Args&&... args)
     {
-        Services::Get<Logger>().Log(LogLevel::Fatal, location, format, args...);
+        Services::Get<Logger>().Log(LogLevel::Fatal, location, format.get(), std::forward<Args>(args)...);
 
         DebugBreak();
     }
@@ -57,7 +57,7 @@ namespace Assert
     template <typename... Args>
     NORETURN void HandleFatal(std::source_location location, fmt::format_string<Args...> format, Args&&... args)
     {
-        Services::Get<Logger>().Log(LogLevel::Fatal, location, format, args...);
+        Services::Get<Logger>().Log(LogLevel::Fatal, location, format.get(), std::forward<Args>(args)...);
 
         DebugBreak();
 

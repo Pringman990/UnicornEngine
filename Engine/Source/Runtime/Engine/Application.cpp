@@ -29,8 +29,10 @@ bool Application::Init(SDL_InitFlags flags, const ApplicationWindowCreateInfo& w
 {
     if(!SDL_Init(flags))
     {
-        return false;
+        FATAL("SDL_Init failed: {}", SDL_GetError());
     }
+
+    LOG_INFO("Video driver: {}", SDL_GetCurrentVideoDriver());
 
     if((flags & SDL_INIT_VIDEO) != 0)
     {

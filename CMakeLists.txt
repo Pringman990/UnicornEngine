@@ -11,8 +11,14 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 # ThirdParty dependencies
 find_package(OpenGL REQUIRED)
 
-set(SDL_SHARED OFF)
-set(SDL_STATIC ON)
+set(SDL_SHARED OFF CACHE BOOL "" FORCE)
+set(SDL_STATIC ON CACHE BOOL "" FORCE)
+
+# Linux window backends
+if(UNIX AND NOT APPLE)
+    set(SDL_WAYLAND ON CACHE BOOL "" FORCE)
+    set(SDL_X11 ON CACHE BOOL "" FORCE)
+endif()
 
 add_subdirectory(ThirdParty/SDL3)
 

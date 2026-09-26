@@ -120,7 +120,7 @@ void RenderSystem(World& world, const FrameData& frameData)
     auto& app = Services::Get<Application>();
 
     RenderView renderView{};
-    renderView.viewport = {0, 0, app.GetInfo().viewportWidth, app.GetInfo().viewportHeight};
+    renderView.viewport = {.x = 0, .y = 0, .width = app.GetInfo().viewportWidth, .height = app.GetInfo().viewportHeight};
     renderView.projectionView = projView;
     renderer.Render(scene, renderView);
 }

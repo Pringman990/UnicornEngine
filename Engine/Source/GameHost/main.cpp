@@ -14,7 +14,7 @@
 
 #include "Engine/FileSystem.h"
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 #include <Editor.h>
 #include <Backend/Sdl3OpenGl.h>
 #include <EditorWindowManager.h>
@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
     WorldManager worldManager;
     GServiceRegistry->RegisterService(&worldManager);
 
-#ifdef _DEBUG
+#ifndef NDEBUG
     Editor editor;
     GServiceRegistry->RegisterService(&editor);
 
@@ -88,10 +88,10 @@ int main(int argc, char* argv[])
         std::cerr << "App Init failed!" << std::endl;
         return 1;
     }
-
+    
     renderer.Init(app);
 
-#ifdef _DEBUG
+#ifndef NDEBUG
     SDL3OpenGL editorBackend;
     editorBackend.Init();
 
@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
 
         sandbox.Tick(worldManager.GetActiveWorld(), frameData);
 
-#ifdef _DEBUG
+#ifndef NDEBUG
         editorBackend.BeginFrame();
         editorWindowManager.Tick();
         editorBackend.RenderFrame();

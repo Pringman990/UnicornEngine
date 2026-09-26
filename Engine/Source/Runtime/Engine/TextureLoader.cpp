@@ -24,7 +24,7 @@ TextureLoadData TextureLoader::LoadTexture(const ByteBuffer& file)
 
     uint32 textureSize = width * height * result.channels;
     result.data.resize(textureSize);
-    memcpy_s(result.data.data(), result.data.size(), data, textureSize);
+    memcpy(result.data.data(), data, textureSize);
 
     stbi_image_free(data);
 

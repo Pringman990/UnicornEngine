@@ -11,7 +11,7 @@ class Logger
 public:
 
     template <typename... Args>
-    void Log(LogLevel level, std::source_location location, fmt::format_string<Args...> format, Args&&... args)
+    void Log(LogLevel level, std::source_location location, fmt::string_view format, Args&&... args)
     {
         LogMessage message;
 
@@ -19,7 +19,7 @@ public:
         message.location = location;
         message.time = std::chrono::system_clock::now();
 
-        message.text = fmt::format(format, std::forward<Args>(args)...);
+        message.text = fmt::vformat(format, fmt::make_format_args(args...));
 
         for (const auto& sink : mSinks)
         {
