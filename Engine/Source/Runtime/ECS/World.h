@@ -189,6 +189,11 @@ public:
             mStorages[typeId] = std::move(newStorage);
         }
 
+#ifndef NDEBUG
+        auto findIt = storage->entityToIndex.find(entity);
+        ASSERT(findIt == storage->entityToIndex.end(), "Entity already has {}", type.name);
+#endif
+        
         storage->entityToIndex[entity] = index;
 
         void* memory = storage->allocator->Get(index);

@@ -1,7 +1,7 @@
-#include "../pch.h"
+#include "pch.h"
 #include "EngineComponents.h"
 
-#include "../ECS/World.h"
+#include "ECS/World.h"
 
 void RegisterEngineComponents()
 {

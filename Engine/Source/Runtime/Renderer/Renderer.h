@@ -22,6 +22,13 @@ struct ShaderProgramCreateInfo
     List<const char*> uniformLocations;
 };
 
+struct ShaderSourceCreateInfo
+{
+    ByteBuffer vertexSource;
+    ByteBuffer fragmentSource;
+    List<String> uniformLocations;
+};
+
 struct Vertex
 {
     glm::vec3 position = glm::vec3(0.0);
@@ -168,12 +175,14 @@ public:
     NODISC GLuint CompileShader(GLuint shaderType, const ByteBuffer& data);
 
     NODISC ShaderProgramHandle CreateProgram(const ShaderProgramCreateInfo& createInfo);
+    NODISC Expected<ShaderProgramHandle, String> CreateProgram(const ShaderSourceCreateInfo& createInfo);
     void DestroyProgram(ShaderProgramHandle handle);
 
     NODISC MeshHandle CreateMesh(const MeshCreateInfo& createInfo);
     void DestroyMesh(MeshHandle& handle);
 
     NODISC MaterialHandle CreateMaterial(const MaterialCreateInfo& createInfo);
+    void DestroyMaterial(MaterialHandle handle);
 
     void DrawDebugLine(RenderScene& scene, glm::vec3 from, glm::vec3 to, glm::vec4 color);
     void DrawDebug2DBox(RenderScene& scene, glm::vec2 center, glm::vec2 halfExtents, float y, glm::vec4 color);

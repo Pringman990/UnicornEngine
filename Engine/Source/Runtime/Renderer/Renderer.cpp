@@ -254,6 +254,41 @@ ShaderProgramHandle Renderer::CreateProgram(const ShaderProgramCreateInfo& creat
     return handle;
 }
 
+Expected<ShaderProgramHandle, String> Renderer::CreateProgram(const ShaderSourceCreateInfo& createInfo)
+{
+    List<const char*> uniforms;
+    for (const auto& uniform : createInfo.uniformLocations)
+        uniforms.push_back(uniform.c_str());
+
+    const GLuint vertexShader = CompileShader(GL_VERTEX_SHADER, createInfo.vertexSource);
+    const GLuint fragmentShader = CompileShader(GL_FRAGMENT_SHADER, createInfo.fragmentSource);
+    GLint vertexOK = 0;
+    GLint fragmentOK = 0;
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vertexOK);
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fragmentOK);
+    if (!vertexOK || !fragmentOK)
+    {
+        glDeleteShader(vertexShader);
+        glDeleteShader(fragmentShader);
+        return Unexpected(String("Shader compilation failed"));
+    }
+
+    ShaderProgramCreateInfo programInfo{};
+    programInfo.vertexShader = vertexShader;
+    programInfo.fragmentShader = fragmentShader;
+    programInfo.uniformLocations = std::move(uniforms);
+    auto handle = CreateProgram(programInfo);
+    GLint linked = 0;
+    glGetProgramiv(GetShaderProgram(handle)->program, GL_LINK_STATUS, &linked);
+    if (!linked)
+    {
+        DestroyProgram(handle);
+        return Unexpected(String("Shader linking failed"));
+    }
+
+    return handle;
+}
+
 void Renderer::DestroyProgram(ShaderProgramHandle handle)
 {
     auto* program = mShaderProgramStorage.Get(handle);
@@ -359,6 +394,14 @@ MaterialHandle Renderer::CreateMaterial(const MaterialCreateInfo& createInfo)
     material.parameterCount = createInfo.parameterCount;
 
     return mMaterialStorage.Allocate(std::move(material));
+}
+
+void Renderer::DestroyMaterial(MaterialHandle handle)
+{
+    if (!mMaterialStorage.Get(handle))
+        return;
+
+    mMaterialStorage.NullResources(handle);
 }
 
 void Renderer::DrawDebugLine(RenderScene& scene, glm::vec3 from, glm::vec3 to, glm::vec4 color)

@@ -65,13 +65,13 @@ namespace Assert
     }
 }
 
-#ifdef _DEBUG
+#ifndef NDEBUG
 
 #define ASSERT(expr, fmt, ...) \
     ((expr) ? void(0) : Assert::HandleAssert(#expr, std::source_location::current(), fmt __VA_OPT__(,) __VA_ARGS__))
 #else
 
-#define ASSERT(expr, info) ((void)0)
+#define ASSERT(expr, info, ...) ((void)0)
 
 #endif
 

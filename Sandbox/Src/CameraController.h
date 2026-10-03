@@ -1,15 +1,15 @@
 #pragma once
 #include "ECS/World.h"
-#include "Engine/FrameData.h"
+#include "Game/GameContext.h"
 
 class CameraController
 {
 public:
     void Init(World& world, Entity cameraRig, Entity camera);
 
-    void Tick(World& world, const FrameData& frameData) const;
+    void Tick(GameContext& context) const;
 
-    Entity GetCameraEntity() const {return mCamera;};
+    NODISC Entity GetCameraEntity() const {return mCamera;};
 private:
     Entity mCameraRig{};
     Entity mCamera{};

@@ -2,6 +2,7 @@
 #include "../Engine/FrameData.h"
 #include "Core/Types.h"
 #include "World.h"
+#include "Game/GameContext.h"
 
 enum SystemStage : uint32
 {
@@ -16,7 +17,7 @@ struct System
 {
     const char* name;
 
-    void(*Tick)(World&, FrameData const&);
+    void(*Tick)(GameContext& gameContext);
 
     SystemStage stage;
 };
@@ -30,9 +31,9 @@ public:
     SystemManager();
     ~SystemManager();
 
-    void RegisterSystem(System&& system);
+    void RegisterSystem(System system);
 
-    void TickSystems(World& world, const FrameData& frameData);
+    void TickSystems(GameContext& gameContext);
 
 private:
 

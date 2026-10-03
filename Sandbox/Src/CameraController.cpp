@@ -2,7 +2,7 @@
 #include "CameraController.h"
 
 #include "Core/Logging/Logs.h"
-#include "Engine/EngineComponents.h"
+#include "Game/EngineComponents.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "Engine/SimpleInput.h"
@@ -14,10 +14,10 @@ void CameraController::Init(World& world, const Entity cameraRig, const Entity c
     mCamera = camera;
 }
 
-void CameraController::Tick(World& world, const FrameData& frameData) const
+void CameraController::Tick(GameContext& context) const
 {
-    auto rigTransform = world.GetComponent<Transform>(mCameraRig);
-    auto cameraTransform = world.GetComponent<Transform>(mCamera);
+    auto rigTransform = context.world.GetComponent<Transform>(mCameraRig);
+    auto cameraTransform = context.world.GetComponent<Transform>(mCamera);
 
     glm::vec2 input(0.0f);
 
@@ -52,8 +52,8 @@ void CameraController::Tick(World& world, const FrameData& frameData) const
     if (glm::length2(input) > 0.0f)
         input = glm::normalize(input);
 
-    rigTransform->position.x += input.x * mMoveSpeed * frameData.deltaTime;
-    rigTransform->position.z -= input.y * mMoveSpeed * frameData.deltaTime;
+    rigTransform->position.x += input.x * mMoveSpeed * context.deltaTime;
+    rigTransform->position.z -= input.y * mMoveSpeed * context.deltaTime;
 
     rigTransform->position.x =
         glm::clamp(

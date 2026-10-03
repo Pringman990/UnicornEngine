@@ -23,8 +23,9 @@
 #include "EngineTypeDrawFuncs.h"
 #endif
 
-#include "Engine/EngineComponents.h"
+#include "../Runtime/Game/EngineComponents.h"
 #include "Core/ReflectionRegistry.h"
+#include "Game/ControllerManager.h"
 
 int main(int argc, char* argv[])
 {
@@ -60,6 +61,8 @@ int main(int argc, char* argv[])
 
     WorldManager worldManager;
     GServiceRegistry->RegisterService(&worldManager);
+
+    ControllerManager controllerManager;
 
 #ifndef NDEBUG
     Editor editor;
@@ -104,6 +107,12 @@ int main(int argc, char* argv[])
 
 #endif
 
+    GameContext gameContext{.world = worldManager.GetActiveWorld()};
+
+    controllerManager.RegisterController(MakeOwned<PlayerController>());
+
+    controllerManager.InitControllers(gameContext);
+
     Sandbox sandbox;
     sandbox.Init();
 
@@ -113,15 +122,13 @@ int main(int argc, char* argv[])
         app.Tick();
 
         const uint64_t currentTime = SDL_GetTicks();
-        const float deltaTime = static_cast<float>(currentTime - previousTime) / 1000.f;
+        gameContext.deltaTime = static_cast<float>(currentTime - previousTime) / 1000.f;
         previousTime = currentTime;
-
-        FrameData frameData{};
-        frameData.deltaTime = deltaTime;
 
         worldManager.GetActiveWorld().SwapEventBuffers();
 
-        sandbox.Tick(worldManager.GetActiveWorld(), frameData);
+        controllerManager.TickControllers(gameContext);
+        systemManager.TickSystems(gameContext);
 
 #ifndef NDEBUG
         editorBackend.BeginFrame();

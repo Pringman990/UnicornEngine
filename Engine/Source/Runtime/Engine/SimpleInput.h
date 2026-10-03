@@ -8,4 +8,10 @@ namespace simpleInput
 
     inline f32 MouseWheelDelta{};
     inline bool LeftMouseButtonPressed = false;
+    inline bool LeftMouseButtonReleased = false;
+    inline bool LeftMouseButtonDown = false;
+
+    inline bool RightMouseButtonPressed = false;
+    inline bool RightMouseButtonReleased = false;
+    inline bool RightMouseButtonDown = false;
 }
