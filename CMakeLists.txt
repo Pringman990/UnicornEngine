@@ -58,6 +58,8 @@ add_subdirectory(ThirdParty/fmt EXCLUDE_FROM_ALL)
 
 add_subdirectory(ThirdParty/yaml-cpp)
 
+add_subdirectory(ThirdParty/assimp)
+
 add_subdirectory(Engine/Source/Runtime)
 add_subdirectory(Sandbox)
 add_subdirectory(Engine/Source/Editor)

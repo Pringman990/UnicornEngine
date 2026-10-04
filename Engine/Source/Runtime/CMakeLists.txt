@@ -23,6 +23,7 @@ target_link_libraries(Runtime PUBLIC
         fmt::fmt-header-only
         glm::glm-header-only
         yaml-cpp::yaml-cpp
+        assimp::assimp
 )
 
 target_precompile_headers(Runtime PRIVATE pch.h)

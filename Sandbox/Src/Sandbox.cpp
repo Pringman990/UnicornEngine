@@ -8,10 +8,6 @@
 #include "Engine/FileSystem.h"
 #include "Renderer/MeshPrimitiveFactory.h"
 #include "Core/Logging/Logs.h"
-#include "Engine/Assets/AssetFile.h"
-#include "Engine/Assets/AssetManager.h"
-#include "Engine/Assets/TextureAsset.h"
-#include "Engine/Assets/TextureAssetSerializer.h"
 #include "Yaml/YamlArchive.h"
 
 void RenderSystem(GameContext& gameContext);
@@ -123,86 +119,6 @@ void Sandbox::Init()
             transform->position.x = xDist(gen);
             transform->position.z = yDist(gen);
         }
-    }
-
-    // Asset lifecycle example. The image stays on disk when removing its asset.
-    {
-        auto runAssetExample = [&]() -> Expected<void, String>
-        {
-            AssetArchiveFactory archives = [](const ByteBuffer& bytes) -> OwnedPtr<Archive>
-            {
-                if (bytes.empty())
-                    return MakeOwned<YamlArchive>();
-
-                return MakeOwned<YamlArchive>(bytes);
-            };
-
-            AssetManager assets;
-            auto serializer = assets.RegisterSerializer(String(TextureAsset::TYPE), MakeOwned<TextureAssetSerializer>(archives));
-            if (!serializer)
-                return serializer;
-
-            // Create from an existing image and save Floor.asset alongside it.
-            AssetInfo info{
-                AssetID("6d5998b2-33b0-4a69-9288-13e4c8890ed2"),
-                String(TextureAsset::TYPE),
-                "game://Assets/Floor.asset"
-            };
-            TextureAsset draft;
-            draft.SetSource("Floor.png");
-            auto created = assets.Create(info, draft);
-            if (!created)
-                return Unexpected(created.error());
-
-            auto saved = assets.Save(*created);
-            if (!saved)
-                return saved;
-
-            // Remove from memory, then discover/register/load the saved descriptor.
-            auto removed = assets.Remove(*created);
-            if (!removed)
-                return removed;
-            assets.ReleaseRetired(); // No render snapshots use this example's handles.
-
-            auto bytes = fileSystem.ReadAll(info.path);
-            if (!bytes)
-                return Unexpected(bytes.error().message);
-            YamlArchive archive(*bytes);
-            auto discovered = ReadAssetInfo(archive, info.path);
-            if (!discovered)
-                return Unexpected(discovered.error());
-            auto registered = assets.Register(*discovered);
-            if (!registered)
-                return registered;
-
-            auto loaded = assets.Load(AssetRef<TextureAsset>{discovered->id});
-            if (!loaded)
-                return Unexpected(loaded.error());
-
-            // Edit a draft. Replacement creates a new immutable runtime texture.
-            TextureAsset edited;
-            edited.SetSource(assets.Get(*loaded)->GetSource());
-            edited.SetSource("game://Assets/Floor.png");
-            AssetHandle<> handle{loaded->index, loaded->generation};
-            auto replaced = assets.Replace(handle, edited);
-            if (!replaced)
-                return replaced;
-            saved = assets.Save(handle);
-            if (!saved)
-                return saved;
-
-            removed = assets.Remove(handle);
-            if (!removed)
-                return removed;
-            assets.ReleaseRetired();
-            assets.Shutdown();
-            LOG_INFO("Asset example completed: {}", info.path);
-            return {};
-        };
-
-        auto result = runAssetExample();
-        if (!result)
-            LOG_WARNING("Asset example failed: {}", result.error());
     }
 
     {
