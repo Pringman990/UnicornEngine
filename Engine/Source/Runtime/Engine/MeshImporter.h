@@ -1,6 +1,7 @@
 #pragma once
-#include "assimp/scene.h"
-#include "Renderer/Renderer.h"
+#include "Skeleton.h"
+#include "SkinnedMesh.h"
+#include "AnimationClip.h"
 
 struct MeshImportData
 {
@@ -16,29 +17,29 @@ struct MeshImportData
         List<SubMesh> subMeshes;
         List<Vertex> vertices;
         List<uint32> indices;
+
+        // Empty for static meshes; otherwise one entry per geometry vertex.
+        // Vertex influences index skinJoints; joints index Skeleton::nodes.
+        List<SkinVertex> skinVertices;
+        List<SkinJoint> skinJoints;
+        glm::mat4 nodeTransform{1.0f}; // Mesh-local to imported model space.
     };
 
     List<Mesh> meshes;
+    // Created for skinned geometry or animation when no existing skeleton was supplied.
+    Optional<Skeleton> skeleton;
+    List<AnimationClip> animations;
 };
 
 class MeshImporter
 {
 public:
-    static Expected<MeshImportData, String> Import(const ByteBuffer& data, const String& hint);
-
-private:
-    static void ImportMeshes(
-        MeshImportData& importData,
-        const aiScene* scene,
-        const aiNode* node
-        );
-
-    static MeshImportData::Mesh::SubMesh ImportAiMesh(
-        MeshImportData& ImportData,
-        const aiScene* AiScene,
-        aiMesh* AiMesh, uint32& IndexOffset,
-        uint32& VertexOffset, List<uint32>& Indices,
-        List<Vertex>& Vertices,
-        MeshImportData::Mesh& mesh
-    );
+    // hint is the source format extension, for example "fbx".
+    // Imports geometry, its skeleton, and every clip present in the file.
+    // Animation-only files can use a supplied skeleton. Channels must match its hierarchy;
+    // skinned geometry must also match its default transforms. No retargeting is performed.
+    static Expected<MeshImportData, String> Import(
+        const ByteBuffer& data,
+        const String& hint,
+        const Skeleton* existingSkeleton = nullptr);
 };

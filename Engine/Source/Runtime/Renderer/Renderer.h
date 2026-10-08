@@ -6,6 +6,7 @@
 
 #define MAX_TEXTURE_SLOTS 16
 #define MAX_MATERIAL_PARAMETERS 16
+constexpr uint32 MaxSkinJoints = 128;
 
 using MaterialUniformValue = Variant<
     float,
@@ -38,6 +39,13 @@ struct Vertex
     glm::vec2 uv = glm::vec2(0);
 };
 
+// Optional vertex stream. Static meshes allocate no skin data.
+struct SkinVertex
+{
+    glm::uvec4 jointIndices{0};
+    glm::vec4 weights{0.0f};
+};
+
 struct DebugLineVertex
 {
     glm::vec3 position = glm::vec3(0.0);
@@ -48,6 +56,7 @@ struct MeshCreateInfo
 {
     List<Vertex> vertices;
     List<uint32_t> indices;
+    List<SkinVertex> skinVertices; // Optional; empty for static meshes.
 };
 
 struct TextureCreateInfo
@@ -136,6 +145,8 @@ struct RenderData
     glm::mat4x4 transform{};
 
     glm::vec4 uvRect{0.0f, 0.0f, 1.0f, 1.0f};
+
+    Span<const glm::mat4> jointMatrices{}; // Borrowed until Render returns.
 };
 
 struct RenderScene
@@ -217,6 +228,8 @@ private:
     ShaderProgramHandle mDebugLineShaderProgram;
     GLuint mDebugLineVAO;
     GLuint mDebugLineVBO;
+
+    GLuint mSkinUniformBuffer = 0;
 
     TextureHandle mDefaultAlbedoTexture;
     TextureHandle mMissingTexture;

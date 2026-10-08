@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Renderer/Renderer.h"
+#include "Engine/AnimationClip.h"
+#include "Engine/Skeleton.h"
+#include "Engine/SkinnedMesh.h"
 
 struct Transform
 {
@@ -43,6 +46,22 @@ struct Model
 struct MeshRenderer
 {
     Model model{};
+};
+
+struct Animator
+{
+    const Skeleton* skeleton = nullptr;
+    const AnimationClip* clip = nullptr;
+    float currentTime = 0.0f;
+    bool loop = true; // Non-looping clips hold their final pose.
+    List<glm::mat4> pose;
+};
+
+struct AnimatedMeshRenderer
+{
+    const SkinnedMesh* mesh = nullptr;
+    MaterialHandle material;
+    List<glm::mat4> jointMatrices;
 };
 
 struct SpriteRenderer

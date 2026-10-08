@@ -13,11 +13,16 @@
 #include "ECS/WorldManager.h"
 
 #include "Engine/FileSystem.h"
+#include "Engine/LayerStack.h"
+#include "UI/UI.h"
+#include "UI/UILayer.h"
+#include "Game/GameplayLayer.h"
 
 #ifndef NDEBUG
 #include <Editor.h>
 #include <Backend/Sdl3OpenGl.h>
 #include <EditorWindowManager.h>
+#include <EditorLayer.h>
 #include <Windows/HierarchyEditorWindow.h>
 #include <Windows/InspectorEditorWindow.h>
 #include "EngineTypeDrawFuncs.h"
@@ -25,7 +30,6 @@
 
 #include "../Runtime/Game/EngineComponents.h"
 #include "Core/ReflectionRegistry.h"
-#include "Game/ControllerManager.h"
 
 int main(int argc, char* argv[])
 {
@@ -56,13 +60,14 @@ int main(int argc, char* argv[])
     Renderer renderer;
     GServiceRegistry->RegisterService(&renderer);
 
+    UI ui;
+    GServiceRegistry->RegisterService(&ui);
+
     SystemManager systemManager;
     GServiceRegistry->RegisterService(&systemManager);
 
     WorldManager worldManager;
     GServiceRegistry->RegisterService(&worldManager);
-
-    ControllerManager controllerManager;
 
 #ifndef NDEBUG
     Editor editor;
@@ -93,6 +98,7 @@ int main(int argc, char* argv[])
     }
     
     renderer.Init(app);
+    ui.Init();
 
 #ifndef NDEBUG
     SDL3OpenGL editorBackend;
@@ -107,14 +113,23 @@ int main(int argc, char* argv[])
 
 #endif
 
-    GameContext gameContext{.world = worldManager.GetActiveWorld()};
-
-    controllerManager.RegisterController(MakeOwned<PlayerController>());
-
-    controllerManager.InitControllers(gameContext);
+    GameplayLayer gameplay(worldManager.GetActiveWorld(), systemManager);
+    gameplay.RegisterController(MakeOwned<PlayerController>());
+    gameplay.Init();
 
     Sandbox sandbox;
     sandbox.Init();
+
+    UILayer uiLayer;
+#ifndef NDEBUG
+    EditorLayer editorLayer(editorBackend, editorWindowManager);
+#endif
+    LayerStack layers;
+    layers.Add(gameplay);
+    layers.Add(uiLayer);
+#ifndef NDEBUG
+    layers.Add(editorLayer);
+#endif
 
     uint64_t previousTime = SDL_GetTicks();
     while (!app.ShouldClose())
@@ -122,25 +137,24 @@ int main(int argc, char* argv[])
         app.Tick();
 
         const uint64_t currentTime = SDL_GetTicks();
-        gameContext.deltaTime = static_cast<float>(currentTime - previousTime) / 1000.f;
+        const f32 deltaTime = static_cast<f32>(currentTime - previousTime) / 1000.f;
         previousTime = currentTime;
 
-        worldManager.GetActiveWorld().SwapEventBuffers();
-
-        controllerManager.TickControllers(gameContext);
-        systemManager.TickSystems(gameContext);
-
-#ifndef NDEBUG
-        editorBackend.BeginFrame();
-        editorWindowManager.Tick();
-        editorBackend.RenderFrame();
-        editorBackend.EndFrame();
-#endif
+        layers.BeginFrame();
+        for (const auto& event : app.GetInput().GetEvents())
+            layers.OnInput(event);
+        layers.Tick(deltaTime);
+        layers.Render();
 
         renderer.Swap(app);
     }
 
+    layers.ResetInput();
+    gameplay.Destroy();
     worldManager.ClearWorlds();
+
+    ui.Destroy();
+    GServiceRegistry->InvalidateService<UI>();
 
     GServiceRegistry->InvalidateService<WorldManager>();
     GServiceRegistry->InvalidateService<Renderer>();

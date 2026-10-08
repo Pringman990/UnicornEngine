@@ -22,6 +22,7 @@ Renderer::~Renderer()
 
 void Renderer::Destroy()
 {
+    glDeleteBuffers(1, &mSkinUniformBuffer);
     SDL_GL_DestroyContext(mContext);
 }
 
@@ -45,6 +46,11 @@ void Renderer::Init(const Application& application)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glEnable(GL_DEPTH_TEST);
+
+    glGenBuffers(1, &mSkinUniformBuffer);
+    glBindBuffer(GL_UNIFORM_BUFFER, mSkinUniformBuffer);
+    glBufferData(GL_UNIFORM_BUFFER, MaxSkinJoints * sizeof(glm::mat4), nullptr, GL_STREAM_DRAW);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, mSkinUniformBuffer);
 
     mSpritePlane = CreateMesh(MeshPrimitiveFactory::CreateQuad());
 
@@ -302,6 +308,8 @@ void Renderer::DestroyProgram(ShaderProgramHandle handle)
 
 MeshHandle Renderer::CreateMesh(const MeshCreateInfo& createInfo)
 {
+    const Span<const SkinVertex> skin = createInfo.skinVertices;
+    ASSERT(skin.empty() || skin.size() == createInfo.vertices.size(), "Skin must match geometry vertices");
     Mesh mesh{};
 
     glGenVertexArrays(1, &mesh.vao);
@@ -311,8 +319,24 @@ MeshHandle Renderer::CreateMesh(const MeshCreateInfo& createInfo)
     glBindVertexArray(mesh.vao);
 
     glBindBuffer(GL_ARRAY_BUFFER, mesh.vbo);
-    glBufferData(GL_ARRAY_BUFFER, createInfo.vertices.size() * sizeof(Vertex), createInfo.vertices.data(),
-                 GL_STATIC_DRAW);
+    const auto vertexBytes = createInfo.vertices.size() * sizeof(Vertex);
+    if (skin.empty())
+    {
+        glBufferData(GL_ARRAY_BUFFER, vertexBytes, createInfo.vertices.data(), GL_STATIC_DRAW);
+    }
+    else
+    {
+        // Two streams in one immutable buffer; Mesh's existing ownership/deletion stays sufficient.
+        glBufferData(GL_ARRAY_BUFFER, vertexBytes + skin.size_bytes(), nullptr, GL_STATIC_DRAW);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, vertexBytes, createInfo.vertices.data());
+        glBufferSubData(GL_ARRAY_BUFFER, vertexBytes, skin.size_bytes(), skin.data());
+        glVertexAttribIPointer(5, 4, GL_UNSIGNED_INT, sizeof(SkinVertex),
+            reinterpret_cast<const void*>(vertexBytes + offsetof(SkinVertex, jointIndices)));
+        glEnableVertexAttribArray(5);
+        glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(SkinVertex),
+            reinterpret_cast<const void*>(vertexBytes + offsetof(SkinVertex, weights)));
+        glEnableVertexAttribArray(6);
+    }
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, createInfo.indices.size() * sizeof(uint32_t), createInfo.indices.data(),
@@ -449,6 +473,12 @@ void Renderer::Render(const RenderScene& scene, const RenderView& view)
                            &view.projectionView[0][0]);
         glUniform4fv(glGetUniformLocation(shaderProgram->program, "uUvRect"), 1, glm::value_ptr(data.uvRect));
 
+        if (!data.jointMatrices.empty())
+        {
+            ASSERT(data.jointMatrices.size() <= MaxSkinJoints, "Too many skin joints");
+            glBindBuffer(GL_UNIFORM_BUFFER, mSkinUniformBuffer);
+            glBufferSubData(GL_UNIFORM_BUFFER, 0, data.jointMatrices.size_bytes(), data.jointMatrices.data());
+        }
 
         for (auto i = 0; i < material->textureCount; ++i)
         {

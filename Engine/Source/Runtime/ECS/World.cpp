@@ -21,6 +21,19 @@ Entity World::CreateEntity(const String& name)
 
 void World::DestroyEntity(const Entity entity)
 {
-    // TODO: needs to remove components also.
+    // Release every component before recycling the entity handle.
+    auto& registry = refl::GetRegistry();
+    for (auto& [typeId, storage] : mStorages)
+    {
+        const auto it = storage->entityToIndex.find(entity);
+        if (it == storage->entityToIndex.end())
+            continue;
+
+        const uint32 index = it->second;
+        registry.GetType(typeId).ops.destroy(storage->allocator->Get(index));
+        storage->allocator->SetAlive(index, false);
+        storage->freeIndexes.push_back(index);
+        storage->entityToIndex.erase(it);
+    }
     mEntityManager.Destroy(entity);
 }

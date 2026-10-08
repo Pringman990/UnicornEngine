@@ -2,6 +2,7 @@
 #include "../Core/Notifiers.h"
 #include "../Core/ServiceRegistry.h"
 #include "SDL3/SDL.h"
+#include "Input/InputSystem.h"
 
 struct ApplicationWindowCreateInfo
 {
@@ -48,6 +49,7 @@ public:
     SDL_Window* GetWindow() const { return mWindow; };
 
     const ApplicationInfo& GetInfo() const { return mInfo; };
+    const InputSystem& GetInput() const { return mInput; }
 
     NODISC bool ShouldClose() const {return mShouldClose;};
 
@@ -63,5 +65,7 @@ private:
     bool mShouldClose = false;
 
     ApplicationInfo mInfo;
+    InputSystem mInput;
+    bool mFocused = true;
 
 };

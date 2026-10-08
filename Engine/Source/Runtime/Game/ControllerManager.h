@@ -12,6 +12,7 @@ public:
 
     void InitControllers(GameContext& context) const;
     void TickControllers(GameContext& context) const;
+    void DestroyControllers(GameContext& context);
 
 private:
     List<OwnedPtr<IController>> mControllers;

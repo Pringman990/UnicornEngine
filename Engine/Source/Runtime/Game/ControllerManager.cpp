@@ -30,3 +30,10 @@ void ControllerManager::TickControllers(GameContext& context) const
         controller->Tick(context);
     }
 }
+
+void ControllerManager::DestroyControllers(GameContext& context)
+{
+    for (auto& controller : mControllers)
+        controller->Destroy(context);
+    mControllers.clear();
+}

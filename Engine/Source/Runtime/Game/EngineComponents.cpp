@@ -24,6 +24,14 @@ void RegisterEngineComponents()
             .Category("Component")
             .Finish();
 
+    refl::ClassRegistrator<Animator>("Animator", refl::TypeID("f8d4389c-ea52-4462-9ef3-a9ea12b348d6"))
+            .Category("Component")
+            .Finish();
+
+    refl::ClassRegistrator<AnimatedMeshRenderer>("Animated Mesh Renderer", refl::TypeID("c3033d65-211c-47a6-8dfd-a4fc1917ea29"))
+            .Category("Component")
+            .Finish();
+
     refl::ClassRegistrator<SpriteRenderer>("Sprite Renderer", refl::TypeID("150c04a7-f199-4976-a491-955d11d50405"))
             .Category("Component")
             .Property("mat", &SpriteRenderer::material)
