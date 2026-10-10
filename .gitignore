@@ -1,3 +1,4 @@
+[Bb]uild/
 [Bb]inaries/Shaders/
 [Bb]inaries/Logs/
 [Bb]inaries/Win64/
@@ -11,3 +12,4 @@
 debug.log
 /GPUCache
 .mailmap
+.idea
